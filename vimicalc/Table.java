@@ -1,4 +1,4 @@
-package vicalc;
+package vimicalc;
 
 public class Table {
 

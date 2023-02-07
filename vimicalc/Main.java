@@ -1,4 +1,4 @@
-package vicalc;
+package vimicalc;
 
 import java.io.FileWriter;
 import java.io.IOException;
