@@ -11,7 +11,9 @@ public class Main {
     public static void save() throws IOException {
         String locationAndName = "";
         String fileName = locationAndName + ".vicalc";
-        FileWriter f = new FileWriter(fileName);
+        try {
+            FileWriter f = new FileWriter(fileName);
+        } catch (Exception ignored) {}
     }
 
 }
