@@ -1,3 +1,3 @@
 # VimiCalc
 
-Like VisiCalc (not really), but with Vim keybindings.
+Un tableur simple qui fonctionne comme Vim.
