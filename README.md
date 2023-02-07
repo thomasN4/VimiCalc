@@ -1,1 +1,1 @@
-# ViCalc
+# VimiCalc
