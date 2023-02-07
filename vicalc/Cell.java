@@ -1,6 +1,7 @@
 package vicalc;
 
 public class Cell {
+
     int x_pos;
     int y_pos;
     String content;
@@ -11,5 +12,4 @@ public class Cell {
         this.content = content;
     }
 
-    Cell() {}
 }
