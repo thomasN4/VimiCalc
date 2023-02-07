@@ -2,8 +2,8 @@ package vimicalc;
 
 abstract class Cell {
 
-    int x_pos;
-    int y_pos;
+    protected int x_pos;
+    protected int y_pos;
 
 
 }

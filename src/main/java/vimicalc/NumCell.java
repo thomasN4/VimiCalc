@@ -2,7 +2,7 @@ package vimicalc;
 
 public class NumCell extends Cell {
 
-    int content;
+    private int content;
 
     NumCell (int x_pos, int y_pos, int content) {
         this.x_pos = x_pos;

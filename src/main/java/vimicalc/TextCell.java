@@ -2,7 +2,7 @@ package vimicalc;
 
 public class TextCell extends Cell {
 
-    String content;
+    private String content;
 
     TextCell (int x_pos, int y_pos, String content) {
         this.x_pos = x_pos;
