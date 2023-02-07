@@ -6,17 +6,17 @@ public class Table {
     final int MAX_CELLS_COL = 2^12;
     final int MAX_CELLS = MAX_CELLS_COL * MAX_CELLS_ROW;
 
-
-    Cell[] nonEmptyCells;
+    ArrayList<Cell> nonEmptyCells = new ArrayList<Cell>;
 
     Table() {
         var nonEmptyCells = new Cell[MAX_CELLS];
     }
 
-    Table(Cell[] fileContent) {
-        var nonEmptyCells = new Cell[MAX_CELLS];
-        for (int i = 0; fileContent[i] != null; i++) {
-            nonEmptyCells[i] = fileContent[i];
+    Table(ArrayList<Cell> fileContent) {
+        var nonEmptyCells = new ArrayList<Cell>;
+        for (i:
+             fileContent) {
+            nonEmptyCells.add(i)
         }
     }
 }
