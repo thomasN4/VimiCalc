@@ -1,7 +1,7 @@
 package vicalc;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class Main {
 
@@ -9,9 +9,10 @@ public class Main {
         Table newTable = new Table();
     }
 
-    public static void save() throws FileNotFoundException {
-        String fileName = ".vicalc";
-        FileReader f = new FileReader(fileName);
+    public static void save() throws IOException {
+        String locationAndName = "";
+        String fileName = locationAndName + ".vicalc";
+        FileWriter f = new FileWriter(fileName);
     }
 
 }
