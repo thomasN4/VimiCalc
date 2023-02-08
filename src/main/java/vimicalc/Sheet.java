@@ -9,4 +9,8 @@ public class Sheet {
     Sheet(ArrayList<Cell> fileContent) {
         nonEmptyCells.addAll(fileContent);
     }
+
+    public ArrayList<Cell> getNonEmptyCells() {
+        return nonEmptyCells;
+    }
 }
