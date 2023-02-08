@@ -9,6 +9,9 @@ import java.io.IOException;
 
 public class Main extends Application {
 
+    static final double DEFAULT_CELL_HEIGHT = 23;
+    static final double DEFAULT_CELL_WIDTH = DEFAULT_CELL_HEIGHT*4;
+
     @Override
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
