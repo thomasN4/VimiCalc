@@ -22,8 +22,8 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
-        gc.setFill(Color.BLUE);
-        gc.fillRect(50, 50, 100, 100);
+        gc.setFill(Color.RED);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
 //        Rectangle r = new Rectangle();
 //        r.setX(10);

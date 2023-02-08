@@ -3,7 +3,6 @@ package vimicalc;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,12 +22,12 @@ public class Main extends Application {
         launch(args);
     }
 
-    public static void save() throws IOException {
-        String locationAndName = "";
-        String fileName = locationAndName + ".vmclc";
-        try {
-            FileWriter f = new FileWriter(fileName);
-        } catch (Exception ignored) {}
-    }
+//    public static void save() throws IOException {
+//        String locationAndName = "";
+//        String fileName = locationAndName + ".vmclc";
+//        try {
+//            FileWriter f = new FileWriter(fileName);
+//        } catch (Exception ignored) {}
+//    }
 
 }
