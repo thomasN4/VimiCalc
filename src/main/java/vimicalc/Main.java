@@ -3,6 +3,7 @@ package vimicalc;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import java.io.FileWriter;
 import java.io.IOException;
