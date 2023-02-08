@@ -14,6 +14,10 @@ abstract class Cell {
 
     Cell () {
         shape = new Rectangle(Main.DEFAULT_CELL_WIDTH, Main.DEFAULT_CELL_HEIGHT);
+        shape.setFill(Main.DEFAULT_CELL_COLOR);
+        stackPane = new StackPane();
+        stackPane.getChildren().addAll(shape, content);
+        content.toFront();
     }
 
 }
