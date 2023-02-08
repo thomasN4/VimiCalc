@@ -40,6 +40,12 @@ public class Controller implements Initializable {
         int nCol_w = (int) Main.DEFAULT_CELL_WIDTH;
         iBar.fillRect(0, lRow_h, nCol_w, canvas.getHeight()-lRow_h-iBar_h-sBar_h);
 
+        setLsNs();
+
+    }
+
+    private void setLsNs() {
+        ;
     }
 
 }
