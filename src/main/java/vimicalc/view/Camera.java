@@ -1,6 +1,6 @@
 package vimicalc.view;
 
-public class Camera1 {
+public class Camera {
     private int table_xPos;
     private int table_yPos;
     private Picture picture;
