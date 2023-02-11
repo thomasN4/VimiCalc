@@ -6,16 +6,16 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuBar;
 import javafx.scene.paint.*;
+import vimicalc.model.Camera;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
-    @FXML
-    private MenuBar menuBar;
+    @FXML private MenuBar menuBar;
+    @FXML private Canvas canvas;
 
-    @FXML
-    private Canvas canvas;
+    private Camera camera;
 
     private void iBar_init() {
         GraphicsContext iBar = canvas.getGraphicsContext2D();
@@ -52,6 +52,7 @@ public class Controller implements Initializable {
 
     private void camera_init() {
         ;
+        camera = new Camera((int) Main.DEFAULT_CELL_WIDTH, (int) Main.DEFAULT_CELL_HEIGHT, canvas.getWidth()-Main.DEFAULT_CELL_WIDTH, canvas.getHeight()-3*Main.DEFAULT_CELL_HEIGHT-4);
     }
 
     private void selCell_init() {
