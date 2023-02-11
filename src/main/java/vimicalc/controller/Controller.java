@@ -14,7 +14,7 @@ public class Controller implements Initializable {
     @FXML private MenuBar menuBar;
     @FXML private Canvas canvas;
 
-    private Camera camera;
+    private vimicalc.view.Camera camera;
 
     private void iBar_init() {
         GraphicsContext iBar = canvas.getGraphicsContext2D();
@@ -50,7 +50,7 @@ public class Controller implements Initializable {
     }
 
     private void camera_init() {
-        camera = new Camera((int) Main.DEFAULT_CELL_WIDTH, (int) Main.DEFAULT_CELL_HEIGHT, canvas.getWidth()-Main.DEFAULT_CELL_WIDTH, canvas.getHeight()-3*Main.DEFAULT_CELL_HEIGHT-4, 0, 0);
+        camera = new vimicalc.view.Camera((int) Main.DEFAULT_CELL_WIDTH, (int) Main.DEFAULT_CELL_HEIGHT, canvas.getWidth()-Main.DEFAULT_CELL_WIDTH, canvas.getHeight()-3*Main.DEFAULT_CELL_HEIGHT-4, 0, 0);
     }
 
     private void selCell_init() {
