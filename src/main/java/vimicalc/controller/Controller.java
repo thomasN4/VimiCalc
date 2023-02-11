@@ -51,8 +51,7 @@ public class Controller implements Initializable {
     }
 
     private void camera_init() {
-        ;
-        camera = new Camera((int) Main.DEFAULT_CELL_WIDTH, (int) Main.DEFAULT_CELL_HEIGHT, canvas.getWidth()-Main.DEFAULT_CELL_WIDTH, canvas.getHeight()-3*Main.DEFAULT_CELL_HEIGHT-4);
+        camera = new Camera((int) Main.DEFAULT_CELL_WIDTH, (int) Main.DEFAULT_CELL_HEIGHT, canvas.getWidth()-Main.DEFAULT_CELL_WIDTH, canvas.getHeight()-3*Main.DEFAULT_CELL_HEIGHT-4, 0, 0);
     }
 
     private void selCell_init() {
