@@ -1,4 +1,4 @@
-package vimicalc.model;
+package vimicalc.view;
 
 import javafx.scene.paint.Color;
 
