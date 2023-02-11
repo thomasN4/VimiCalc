@@ -1,4 +1,4 @@
-package vimicalc;
+package vimicalc.model;
 
 public class Matrix {
 

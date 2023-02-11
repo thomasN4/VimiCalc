@@ -1,4 +1,4 @@
-package vimicalc.model;
+package vimicalc.view;
 
 public class Camera {
     protected int x_pos;

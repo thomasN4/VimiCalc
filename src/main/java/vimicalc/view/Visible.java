@@ -1,4 +1,4 @@
-package vimicalc;
+package vimicalc.view;
 
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
