@@ -1,4 +1,4 @@
-package vimicalc.controller;
+package vimicalc;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
