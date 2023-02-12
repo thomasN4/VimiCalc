@@ -14,10 +14,10 @@ public class FirstCol extends Visible{
     public void draw(GraphicsContext gc) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_HEIGHT;
-        for (int i = 0; i < gc.getCanvas().getHeight()/jump; i++) {
+        for (int i = 1; i < gc.getCanvas().getHeight()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+i, 10, (i+1)*jump);
+            gc.fillText(""+i, 30, (i+1)*jump, Controller.DEFAULT_CELL_WIDTH);
         }
     }
 }

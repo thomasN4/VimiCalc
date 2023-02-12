@@ -22,13 +22,13 @@ public class Controller implements Initializable {
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
         Camera camera = new Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth() - DEFAULT_CELL_WIDTH, canvas.getHeight() - 3 * DEFAULT_CELL_HEIGHT - 4, DEFAULT_CELL_COLOR, 0, 0);
-        FirstCol firstCol = new FirstCol(0, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
-        FirstRow firstRow = new FirstRow(0, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
+        FirstCol firstCol = new FirstCol(0, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, canvas.getHeight()-2*DEFAULT_CELL_HEIGHT-4, Color.LIGHTGRAY);
+        FirstRow firstRow = new FirstRow(DEFAULT_CELL_WIDTH, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
         InfoBar infoBar = new InfoBar(0, (int) canvas.getHeight() - DEFAULT_CELL_HEIGHT, canvas.getWidth(), DEFAULT_CELL_HEIGHT, DEFAULT_CELL_COLOR);
         StatusBar statusBar = new StatusBar(0, (int) (canvas.getHeight() - 2 * DEFAULT_CELL_HEIGHT - 4), canvas.getWidth(), DEFAULT_CELL_HEIGHT + 4, Color.DARKGRAY);
         SelectedCell selectedCell = new SelectedCell(2 * DEFAULT_CELL_WIDTH, 2 * DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
 
-        camera.getPicture().draw(gc);
+//        camera.getPicture().draw(gc);
         firstCol.draw(gc);
         firstRow.draw(gc);
         infoBar.draw(gc);
