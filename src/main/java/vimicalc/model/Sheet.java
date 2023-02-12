@@ -6,6 +6,7 @@ public class Sheet {
 
     private ArrayList<Cell> nonEmptyCells;
 
+    Sheet() {}
     Sheet(ArrayList<Cell> fileContent) {
         nonEmptyCells.addAll(fileContent);
     }
