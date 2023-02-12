@@ -28,9 +28,9 @@ public class Controller implements Initializable {
         StatusBar statusBar = new StatusBar(0, (int) (canvas.getHeight() - 2 * DEFAULT_CELL_HEIGHT - 4), canvas.getWidth(), DEFAULT_CELL_HEIGHT + 4, Color.DARKGRAY);
         SelectedCell selectedCell = new SelectedCell(2 * DEFAULT_CELL_WIDTH, 2 * DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
 
-//        camera.getPicture().draw(gc);
-        firstCol.draw(gc);
-        firstRow.draw(gc);
+        camera.getPicture().draw(gc);
+        firstCol.draw(gc, camera.getTable_x(), camera.getTable_y());
+        firstRow.draw(gc, camera.getTable_x(), camera.getTable_y());
         infoBar.draw(gc);
         statusBar.draw(gc);
         selectedCell.draw(gc);

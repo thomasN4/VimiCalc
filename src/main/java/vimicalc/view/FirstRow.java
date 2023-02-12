@@ -10,14 +10,25 @@ public class FirstRow extends Visible {
         super(x, y, w, h, c);
     }
 
-    @Override
-    public void draw(GraphicsContext gc) {
+    // basically le même algorithme qu'on a appris en maths discrètes pour la conversion de bases
+    public String toAlpha(int num) {
+        int divRes = num / 26;
+        int rem = num % 26;
+        if (divRes != 0)
+            return (char)(divRes+64) + toAlpha(rem);
+        else if (num <= 26)
+            return ""+(char)(num+64);
+        else
+            return "";
+    }
+
+    public void draw(GraphicsContext gc, int table_x, int table_y) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_WIDTH;
-        for (int i = 0; i < gc.getCanvas().getWidth()/jump; i++) {
+        for (int i = 1; i < gc.getCanvas().getWidth()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+i, (i+1)*jump, 0);
+            gc.fillText(""+toAlpha(i), i*jump+table_x+48, table_y+16, Controller.DEFAULT_CELL_WIDTH);
         }
     }
 }

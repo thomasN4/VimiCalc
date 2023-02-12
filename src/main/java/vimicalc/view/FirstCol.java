@@ -10,14 +10,13 @@ public class FirstCol extends Visible{
         super(x, y, w, h, c);
     }
 
-    @Override
-    public void draw(GraphicsContext gc) {
+    public void draw(GraphicsContext gc, int table_x, int table_y) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_HEIGHT;
         for (int i = 1; i < gc.getCanvas().getHeight()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+i, 30, (i+1)*jump, Controller.DEFAULT_CELL_WIDTH);
+            gc.fillText(""+i, 45+table_x, (i+1)*jump+table_y, Controller.DEFAULT_CELL_WIDTH);
         }
     }
 }
