@@ -20,12 +20,12 @@ public class Controller implements Initializable {
 
     @FXML private Canvas canvas;
 
-    private Camera camera;
-    private CoordCell coordCell;
-    private FirstCol firstCol;
-    private FirstRow firstRow;
+    public static Camera camera;
+    public static CoordCell coordCell;
+    public static FirstCol firstCol;
+    public static FirstRow firstRow;
     public static GraphicsContext gc;
-    private InfoBar infoBar;
+    public static InfoBar infoBar;
     public static SelectedCell selectedCell;
     public static StatusBar statusBar;
 
@@ -33,9 +33,11 @@ public class Controller implements Initializable {
         System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
-                case H -> selectedCell.updateX(gc, -DEFAULT_CELL_WIDTH);
+                case H -> {if (selectedCell.getX() != DEFAULT_CELL_WIDTH)
+                               selectedCell.updateX(gc, -DEFAULT_CELL_WIDTH);}
                 case J -> selectedCell.updateY(gc, DEFAULT_CELL_HEIGHT);
-                case K -> selectedCell.updateY(gc, -DEFAULT_CELL_HEIGHT);
+                case K -> {if (selectedCell.getY() != DEFAULT_CELL_HEIGHT)
+                               selectedCell.updateY(gc, -DEFAULT_CELL_HEIGHT);}
                 case L -> selectedCell.updateX(gc, DEFAULT_CELL_WIDTH);
                 case I -> {
                     statusBar.setMode(MODE[2]);
@@ -47,12 +49,10 @@ public class Controller implements Initializable {
                 }
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
-            if (event.getCode() == KeyCode.ALPHANUMERIC)
-                selectedCell.draw(gc, event.getCharacter());
-            else if (event.getCode() == KeyCode.ESCAPE) {
+            if (event.getCode() == KeyCode.ESCAPE) {
                 statusBar.setMode(MODE[3]);
                 statusBar.draw(gc);
-            }
+            } else selectedCell.draw(gc, event.getText());
         }
     }
 

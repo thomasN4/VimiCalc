@@ -19,9 +19,11 @@ public class SelectedCell extends Visible {
 
     public void draw(GraphicsContext gc, String insertedChar) {
         super.draw(gc);
+        insertedTxt += insertedChar;
         gc.setFill(Color.BLACK);
-        gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(insertedTxt+=insertedChar, x+45, y+16);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.fillText(insertedTxt, x+45, y+16);
+        System.out.println("Inserted text: "+insertedTxt);
     }
 
     public void updateX(GraphicsContext gc, int x_mov) {
