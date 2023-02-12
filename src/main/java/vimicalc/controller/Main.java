@@ -27,12 +27,4 @@ public class Main extends Application {
         launch(args);
     }
 
-//    public static void save() throws IOException {
-//        String locationAndName = "";
-//        String fileName = locationAndName + ".vmclc";
-//        try {
-//            FileWriter f = new FileWriter(fileName);
-//        } catch (Exception ignored) {}
-//    }
-
 }
