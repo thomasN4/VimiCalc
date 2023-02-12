@@ -6,7 +6,8 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuBar;
 import javafx.scene.paint.*;
-import vimicalc.view.InfoBar;
+import javafx.scene.shape.Rectangle;
+import vimicalc.view.*;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,50 +16,31 @@ public class Controller implements Initializable {
     private final int DEFAULT_CELL_HEIGHT = 23;
     private final int DEFAULT_CELL_WIDTH = DEFAULT_CELL_HEIGHT*4;
     private final Color DEFAULT_CELL_COLOR = Color.WHITE;
+
     @FXML private MenuBar menuBar;
     @FXML private Canvas canvas;
 
-    private vimicalc.view.InfoBar infoBar;
-    private vimicalc.view.StatusBar statusBar;
-    private vimicalc.view.FirstRow firstRow;
-    private vimicalc.view.FirstCol firstCol;
-    private vimicalc.view.Camera camera;
-
-    private void sBar_init() {
-        GraphicsContext sBar = canvas.getGraphicsContext2D();
-        sBar.setFill(Color.DARKGRAY);
-        int sBar_h = DEFAULT_CELL_HEIGHT+4,
-            sBar_y = (int) (canvas.getHeight()-sBar_h-DEFAULT_CELL_HEIGHT);
-        sBar.fillRect(0, sBar_y, canvas.getWidth(), sBar_h);
-    }
-
-    private void lRow_init() {
-        GraphicsContext lRow = canvas.getGraphicsContext2D();
-        lRow.setFill(Color.LIGHTGRAY);
-        lRow.fillRect(0, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT);
-    }
-
-    private void nCol_init() {
-        GraphicsContext nCol = canvas.getGraphicsContext2D();
-        nCol.setFill(Color.LIGHTGRAY);
-        nCol.fillRect(0, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4);
-    }
-
-    private void selCell_init() {
-        GraphicsContext selCell = canvas.getGraphicsContext2D();
-        selCell.setFill(Color.LIGHTGRAY);
-        selCell.fillRect(2*DEFAULT_CELL_WIDTH, 2*DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
-    }
+    private GraphicsContext gc;
+    private Camera camera;
+    private FirstCol firstCol;
+    private FirstRow firstRow;
+    private InfoBar infoBar;
+    private SelectedCell selectedCell;
+    private StatusBar statusBar;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc = canvas.getGraphicsContext2D();
+
+        camera = new Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, DEFAULT_CELL_COLOR, 0, 0);
+        firstCol = new FirstCol(0, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
+        firstRow = new FirstRow(0, 0, canvas.getWidth(), DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
         infoBar = new InfoBar(0, (int) canvas.getHeight()-DEFAULT_CELL_HEIGHT, canvas.getWidth(), DEFAULT_CELL_HEIGHT, DEFAULT_CELL_COLOR);
-        camera = new vimicalc.view.Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, DEFAULT_CELL_COLOR, 0, 0);
-        sBar_init();
-        lRow_init();
-        nCol_init();
-        selCell_init();
+        statusBar = new StatusBar(0, (int) (canvas.getHeight()-2*DEFAULT_CELL_HEIGHT-4), canvas.getWidth(), DEFAULT_CELL_HEIGHT+4, Color.DARKGRAY);
+        selectedCell = new SelectedCell(2*DEFAULT_CELL_WIDTH, 2*DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, Color.LIGHTGRAY);
     }
 
+    public GraphicsContext getGc() {
+        return gc;
+    }
 }

@@ -82,9 +82,9 @@
       </menus>
     </MenuBar>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-      <children>
-            <Canvas fx:id="canvas" height="453.0" width="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      </children>
+         <children>
+            <Canvas fx:id="canvas" height="453.0" width="640.0" />
+         </children>
     </AnchorPane>
   </children>
 </VBox>
