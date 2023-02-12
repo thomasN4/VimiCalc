@@ -20,6 +20,8 @@ public class Controller implements Initializable {
 
     private vimicalc.view.InfoBar infoBar;
     private vimicalc.view.StatusBar statusBar;
+    private vimicalc.view.FirstRow firstRow;
+    private vimicalc.view.FirstCol firstCol;
     private vimicalc.view.Camera camera;
 
     private void sBar_init() {
@@ -42,16 +44,6 @@ public class Controller implements Initializable {
         nCol.fillRect(0, DEFAULT_CELL_HEIGHT, DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4);
     }
 
-    private void picture_init() {
-        GraphicsContext table = canvas.getGraphicsContext2D();
-        table.setFill(DEFAULT_CELL_COLOR);
-        table.fillRect(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4);
-    }
-
-    private void camera_init() {
-        camera = new vimicalc.view.Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, DEFAULT_CELL_COLOR, 0, 0);
-    }
-
     private void selCell_init() {
         GraphicsContext selCell = canvas.getGraphicsContext2D();
         selCell.setFill(Color.LIGHTGRAY);
@@ -62,11 +54,10 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         infoBar = new InfoBar(0, (int) canvas.getHeight()-DEFAULT_CELL_HEIGHT, canvas.getWidth(), DEFAULT_CELL_HEIGHT, DEFAULT_CELL_COLOR);
+        camera = new vimicalc.view.Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, DEFAULT_CELL_COLOR, 0, 0);
         sBar_init();
         lRow_init();
         nCol_init();
-        picture_init();
-        camera_init();
         selCell_init();
     }
 
