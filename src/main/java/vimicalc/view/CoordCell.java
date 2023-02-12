@@ -4,6 +4,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
+import static vimicalc.Main.toAlpha;
+
 public class CoordCell extends Visible {
 
     private String coords;
@@ -17,8 +19,8 @@ public class CoordCell extends Visible {
         return coords;
     }
 
-    public void setCoords(String coords) {
-        this.coords = coords;
+    public void setCoords(int xCoord, int yCoord) {
+        coords = toAlpha(xCoord) + yCoord;
     }
 
     @Override

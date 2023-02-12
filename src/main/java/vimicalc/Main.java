@@ -24,4 +24,12 @@ public class Main extends Application {
         launch(args);
     }
 
+    // basically le même algorithme qu'on a appris en maths discrètes pour la conversion de bases
+    public static String toAlpha(int num) {
+        int divRes = num / 26;
+        int rem = num % 26;
+        if (divRes != 0) return (char)(divRes+64) + toAlpha(rem);
+        else if (num <= 26) return ""+(char)(num+64);
+        else return "";
+    }
 }

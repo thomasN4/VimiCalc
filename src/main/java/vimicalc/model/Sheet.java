@@ -7,7 +7,9 @@ public class Sheet {
     public ArrayList<Cell> nonEmptyCells;
     public ArrayList<TextCell> textCells;
 
-    public Sheet() {}
+    public Sheet() {
+        textCells = new ArrayList<TextCell>();
+    }
     public Sheet(ArrayList<Cell> fileContent) {
         nonEmptyCells.addAll(fileContent);
     }
