@@ -15,6 +15,7 @@ abstract class Visible {
         this.y = y;
         this.w = w;
         this.h = h;
+        this.c = c;
     }
 
     public void draw(GraphicsContext gc) {
