@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import vimicalc.controller.Controller;
 
 import java.io.IOException;
 
@@ -13,7 +14,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 480);
-        scene.setOnKeyPressed(keyEvent -> System.out.println(keyEvent.getCode()));
+        scene.setOnKeyPressed(Controller::onKeyPressed);
         primaryStage.setTitle("VimiCalc");
         primaryStage.setScene(scene);
         primaryStage.show();
