@@ -13,6 +13,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 480);
+        scene.setOnKeyPressed(keyEvent -> System.out.println(keyEvent.getCode()));
         primaryStage.setTitle("VimiCalc");
         primaryStage.setScene(scene);
         primaryStage.show();

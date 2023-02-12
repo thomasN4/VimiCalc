@@ -1,5 +1,6 @@
 package vimicalc.controller;
 
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
@@ -30,7 +31,7 @@ public class Controller implements Initializable {
     private StatusBar statusBar;
 
     @FXML
-    void onKeyTyped(KeyEvent event) {
+    void onKeyPressed(KeyEvent event) {
         System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
@@ -59,6 +60,7 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         gc = canvas.getGraphicsContext2D();
 
         camera = new Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth() - DEFAULT_CELL_WIDTH, canvas.getHeight() - 3 * DEFAULT_CELL_HEIGHT - 4, DEFAULT_CELL_COLOR, 0, 0);
