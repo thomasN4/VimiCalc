@@ -1,9 +1,7 @@
 package vimicalc.view;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
 abstract class Visible {
     protected int x;
@@ -20,6 +18,7 @@ abstract class Visible {
     }
 
     public void draw(GraphicsContext gc) {
+        gc.setFill(c);
         gc.fillRect(x, y, w, h);
     }
 }
