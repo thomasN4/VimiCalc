@@ -5,12 +5,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
 public class StatusBar extends Visible {
+    private String filename;
     private String mode;
-    private String fileName;
+
     public StatusBar(int x, int y, double w, double h, Color c) {
         super(x, y, w, h, c);
-        mode = "[NORMAL]";
-        fileName = "[new_file.vclc]";
+        mode = vimicalc.controller.Controller.MODE[3];
+        filename = "[new_file]";
     }
 
     @Override
@@ -18,11 +19,15 @@ public class StatusBar extends Visible {
         super.draw(gc);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(" "+ mode +"  "+fileName, 2, y+20);
+        gc.fillText(" "+ mode +"  "+ filename, 2, y+20);
     }
 
     public String getMode() {
         return mode;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public void setMode(String mode) {

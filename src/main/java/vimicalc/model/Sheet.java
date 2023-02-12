@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 public class Sheet {
 
-    private ArrayList<Cell> nonEmptyCells;
+    public ArrayList<Cell> nonEmptyCells;
+    public ArrayList<TextCell> textCells;
 
-    Sheet() {}
-    Sheet(ArrayList<Cell> fileContent) {
+    public Sheet() {}
+    public Sheet(ArrayList<Cell> fileContent) {
         nonEmptyCells.addAll(fileContent);
     }
 
