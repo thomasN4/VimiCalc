@@ -30,36 +30,24 @@ public class Controller implements Initializable {
     private StatusBar statusBar;
 
     @FXML
-    void onKeyPressed(KeyEvent event) {
+    void onKeyTyped(KeyEvent event) {
         System.out.println("Key pressed: "+event.getCode());
-        if (statusBar.getMode().equals(MODE[3])) {
+        if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
-                case H:
-                    System.out.println("Initial fill: " + gc.getFill());
-                    selectedCell.erase(gc);
-                    System.out.println("Eraser fill: " + gc.getFill());
-                    System.out.println("Initial position: " + selectedCell.getX());
-                    selectedCell.setX(selectedCell.getX() - DEFAULT_CELL_WIDTH);
-                    System.out.println("Final position: " + selectedCell.getX());
-                    selectedCell.draw(gc);
-                    System.out.println("Final fill: " + gc.getFill());
-                    break;
-                case J:
-                    selectedCell.updateY(gc, DEFAULT_CELL_HEIGHT);
-                    break;
-                case K:
-                    selectedCell.updateY(gc, -DEFAULT_CELL_HEIGHT);
-                    break;
-                case L:
-                    selectedCell.updateX(gc, DEFAULT_CELL_WIDTH);
-                    break;
-                case I:
+                case H -> selectedCell.updateX(gc, -DEFAULT_CELL_WIDTH);
+                case J -> selectedCell.updateY(gc, DEFAULT_CELL_HEIGHT);
+                case K -> selectedCell.updateY(gc, -DEFAULT_CELL_HEIGHT);
+                case L -> selectedCell.updateX(gc, DEFAULT_CELL_WIDTH);
+                case I -> {
                     statusBar.setMode(MODE[2]);
                     statusBar.draw(gc);
-                    break;
+                }
+                case ESCAPE -> {
+                    statusBar.setMode(MODE[3]);
+                    statusBar.draw(gc);
+                }
             }
-        }
-        else if (statusBar.getMode().equals(MODE[2])) {
+        } else if (statusBar.getMode().equals(MODE[2])) {
             if (event.getCode() == KeyCode.ALPHANUMERIC)
                 selectedCell.draw(gc, event.getCharacter());
             else if (event.getCode() == KeyCode.ESCAPE) {

@@ -14,12 +14,9 @@ public class FirstRow extends Visible {
     public String toAlpha(int num) {
         int divRes = num / 26;
         int rem = num % 26;
-        if (divRes != 0)
-            return (char)(divRes+64) + toAlpha(rem);
-        else if (num <= 26)
-            return ""+(char)(num+64);
-        else
-            return "";
+        if (divRes != 0) return (char)(divRes+64) + toAlpha(rem);
+        else if (num <= 26) return ""+(char)(num+64);
+        else return "";
     }
 
     public void draw(GraphicsContext gc, int table_x, int table_y) {
