@@ -11,9 +11,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
-    final int DEFAULT_CELL_HEIGHT = 23;
-    final int DEFAULT_CELL_WIDTH = DEFAULT_CELL_HEIGHT*4;
-    final Color DEFAULT_CELL_COLOR = Color.WHITE;
+    public static final int DEFAULT_CELL_HEIGHT = 23;
+    public static final int DEFAULT_CELL_WIDTH = DEFAULT_CELL_HEIGHT*4;
+    static final Color DEFAULT_CELL_COLOR = Color.WHITE;
 
     @FXML private Canvas canvas;
 

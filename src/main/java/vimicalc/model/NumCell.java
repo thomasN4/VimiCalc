@@ -8,4 +8,12 @@ public class NumCell extends Cell {
         super(x_coord, y_coord);
         this.value = value;
     }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
+    }
 }

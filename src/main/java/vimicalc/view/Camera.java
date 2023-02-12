@@ -13,7 +13,23 @@ public class Camera {
         this.table_y = table_y;
     }
 
+    public int getTable_x() {
+        return table_x;
+    }
+
+    public int getTable_y() {
+        return table_y;
+    }
+
     public Picture getPicture() {
         return picture;
+    }
+
+    public void setTable_x(int table_x) {
+        this.table_x = table_x;
+    }
+
+    public void setTable_y(int table_y) {
+        this.table_y = table_y;
     }
 }
