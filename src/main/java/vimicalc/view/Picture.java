@@ -1,7 +1,9 @@
 package vimicalc.view;
 
+import javafx.scene.paint.Color;
+
 public class Picture extends Visible {
-    public Picture(int x_pos, int y_pos, double w, double h) {
-        super(x_pos, y_pos, w, h);
+    public Picture(int x, int y, double w, double h, Color c) {
+        super(x, y, w, h, c);
     }
 }

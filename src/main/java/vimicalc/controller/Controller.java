@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.MenuBar;
 import javafx.scene.paint.*;
+import vimicalc.view.InfoBar;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,14 +18,9 @@ public class Controller implements Initializable {
     @FXML private MenuBar menuBar;
     @FXML private Canvas canvas;
 
+    private vimicalc.view.InfoBar infoBar;
+    private vimicalc.view.StatusBar statusBar;
     private vimicalc.view.Camera camera;
-
-    private void iBar_init() {
-        GraphicsContext iBar = canvas.getGraphicsContext2D();
-        iBar.setFill(Color.WHITE);
-        int iBar_h = DEFAULT_CELL_HEIGHT;
-        iBar.fillRect(0, canvas.getHeight()-iBar_h, canvas.getWidth(), iBar_h);
-    }
 
     private void sBar_init() {
         GraphicsContext sBar = canvas.getGraphicsContext2D();
@@ -53,7 +49,7 @@ public class Controller implements Initializable {
     }
 
     private void camera_init() {
-        camera = new vimicalc.view.Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, 0, 0);
+        camera = new vimicalc.view.Camera(DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT, canvas.getWidth()-DEFAULT_CELL_WIDTH, canvas.getHeight()-3*DEFAULT_CELL_HEIGHT-4, DEFAULT_CELL_COLOR, 0, 0);
     }
 
     private void selCell_init() {
@@ -64,7 +60,8 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        iBar_init();
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        infoBar = new InfoBar(0, (int) canvas.getHeight()-DEFAULT_CELL_HEIGHT, canvas.getWidth(), DEFAULT_CELL_HEIGHT, DEFAULT_CELL_COLOR);
         sBar_init();
         lRow_init();
         nCol_init();

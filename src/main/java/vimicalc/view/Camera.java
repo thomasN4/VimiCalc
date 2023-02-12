@@ -1,14 +1,16 @@
 package vimicalc.view;
 
+import javafx.scene.paint.Color;
+
 public class Camera {
-    private int table_xPos;
-    private int table_yPos;
+    private int table_x;
+    private int table_y;
     private Picture picture;
 
-    public Camera(int x, int y, double w, double h, int table_xPos, int table_yPos) {
-        picture = new Picture(x, y, w, h);
-        this.table_xPos = table_xPos;
-        this.table_yPos = table_yPos;
+    public Camera(int x, int y, double w, double h, Color c, int table_x, int table_y) {
+        picture = new Picture(x, y, w, h, c);
+        this.table_x = table_x;
+        this.table_y = table_y;
     }
 
     public Picture getPicture() {
