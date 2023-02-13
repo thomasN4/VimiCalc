@@ -44,11 +44,14 @@ public class Controller implements Initializable {
                         if (camera.getTable_x() == 0) {
                             selectedCell.erase(gc);
                             selectedCell.setX(DEFAULT_CELL_W);
-                        } else {
+                        } else if (selectedCell.getX() != DEFAULT_CELL_W) {
                             while (selectedCell.getX() != DEFAULT_CELL_W) {
                                 camera.updateTable_x(-1);
                                 selectedCell.updateX(gc, -1);
                             }
+                            firstRow.draw(gc, camera.getTable_x());
+                        } else {
+                            camera.updateTable_x(-DEFAULT_CELL_W);
                             firstRow.draw(gc, camera.getTable_x());
                         }
                     } else selectedCell.updateX(gc, -DEFAULT_CELL_W);
@@ -74,11 +77,14 @@ public class Controller implements Initializable {
                         if (camera.getTable_y() == 0) {
                             selectedCell.erase(gc);
                             selectedCell.setY(DEFAULT_CELL_H);
-                        } else {
+                        } else if (selectedCell.getY() != DEFAULT_CELL_H) {
                             while (selectedCell.getY() != DEFAULT_CELL_H) {
                                 camera.updateTable_y(-1);
                                 selectedCell.updateY(gc, -1);
                             }
+                            firstCol.draw(gc, camera.getTable_y());
+                        } else {
+                            camera.updateTable_y(-DEFAULT_CELL_H);
                             firstCol.draw(gc, camera.getTable_y());
                         }
                     } else selectedCell.updateY(gc, -DEFAULT_CELL_H);
@@ -112,10 +118,10 @@ public class Controller implements Initializable {
                         selectedCell.getyCoord(),
                         selectedCell.getInsertedTxt()));
                 System.out.println(sheet.textCells);
-                selectedCell.updateY(gc, DEFAULT_CELL_H);
             } else selectedCell.draw(gc, event.getText());
         }
 
+        System.out.println("xCoord: "+selectedCell.getxCoord()+"; yCoord: "+selectedCell.getyCoord());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());

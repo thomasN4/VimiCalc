@@ -15,10 +15,10 @@ public class FirstRow extends Visible {
     public void draw(GraphicsContext gc, int table_x) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_W;
-        for (int i = 0; i < gc.getCanvas().getWidth()/jump; i++) {
+        for (int i = 0; i <= gc.getCanvas().getWidth()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+toAlpha(i+table_x/jump), (i+1)*jump+48-table_x%jump, 16, Controller.DEFAULT_CELL_W);
+            gc.fillText(""+toAlpha(i+table_x/jump), (i+2)*jump-45-table_x%jump, 16, Controller.DEFAULT_CELL_W);
         }
     }
 }
