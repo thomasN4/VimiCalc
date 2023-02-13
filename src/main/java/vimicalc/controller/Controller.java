@@ -74,33 +74,19 @@ public class Controller implements Initializable {
             }
             firstCol.draw(gc, camera.getTable_y());
         }
-//        if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H) {
-//            if (selectedCell.getY() == camera.picture.getH()) {
-//                camera.updateTable_y(DEFAULT_CELL_H);
-//            } else {
-//                while (selectedCell.getY() != camera.picture.getH()) {
-//                    selectedCell.updateY(gc, 1);
-//                    camera.updateTable_y(1);
-//                }
-//            }
-//            firstCol.draw(gc, camera.getTable_y());
-//        } else selectedCell.updateY(gc, DEFAULT_CELL_H);
-//        selectedCell.updateYCoord(1);
     }
 
     public static void moveRight() {
-        if (selectedCell.getX() >= camera.picture.getW() - DEFAULT_CELL_W) {
-            if (selectedCell.getX() == camera.picture.getW()) {
-                camera.updateTable_x(DEFAULT_CELL_W);
-            } else {
-                while (selectedCell.getX() != camera.picture.getW()) {
-                    selectedCell.updateX(gc, 1);
-                    camera.updateTable_x(1);
-                }
-            }
-            firstRow.draw(gc, camera.getTable_x());
-        } else selectedCell.updateX(gc, DEFAULT_CELL_W);
         selectedCell.updateXCoord(1);
+        selectedCell.updateX(DEFAULT_CELL_W);
+        if (selectedCell.getX() > camera.picture.getW()) {
+            camera.updateTable_x(DEFAULT_CELL_W);
+            while (selectedCell.getX() != camera.picture.getW()) {
+                selectedCell.updateX(-1);
+                camera.updateTable_x(-1);
+            }
+            firstCol.draw(gc, camera.getTable_x());
+        }
     }
 
     public static void onKeyPressed(KeyEvent event) {
