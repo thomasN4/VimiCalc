@@ -35,14 +35,6 @@ public class Controller implements Initializable {
 
     public static Sheet sheet;
 
-    public static void readCell() {
-        for (int i = 0; i < sheet.textCells.size(); i++) {
-            if (sheet.textCells.get(i).xCoord() == selectedCell.getxCoord()
-                    && sheet.textCells.get(i).yCoord() == selectedCell.getyCoord())
-                selectedCell.setInsertedTxt(sheet.textCells.get(i).text());
-        }
-    }
-
     public static void onKeyPressed(KeyEvent event) {
         System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
@@ -120,7 +112,7 @@ public class Controller implements Initializable {
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());
-        readCell();
+        selectedCell.readCell(sheet.textCells);
         selectedCell.draw(gc);
         statusBar.draw(gc);
         infoBar.draw(gc);

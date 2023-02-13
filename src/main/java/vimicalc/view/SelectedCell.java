@@ -4,6 +4,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.controller.Controller;
+import vimicalc.model.TextCell;
+
+import java.util.ArrayList;
 
 public class SelectedCell extends Visible {
 
@@ -79,5 +82,12 @@ public class SelectedCell extends Visible {
         super.draw(gc);
         setCoords();
         insertedTxt = "";
+    }
+
+    public void readCell(ArrayList<TextCell> textCells) {
+        for (TextCell tC : textCells) {
+            if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
+                insertedTxt = tC.text();
+        }
     }
 }
