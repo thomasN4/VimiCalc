@@ -22,13 +22,18 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+        System.out.println();
     }
 
-    // basically le même algorithme qu'on a appris en maths discrètes pour la conversion de bases
+//public class Main  {
+//    public static void main(String[] args) {
+//        System.out.println(toAlpha(26));
+//    }
+
     public static String toAlpha(int num) {
-        int divRes = num / 26;
-        int rem = num % 26;
-        if (num > 26) return (char)(rem+65) + toAlpha(divRes);
-        else return ""+(char)(num+65);
+        if (num > 25) {
+            return (char)(num%26+65) + toAlpha(num/26);
+        }
+        else return ""+(char)(num/26+65);
     }
 }
