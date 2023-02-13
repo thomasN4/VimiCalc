@@ -39,37 +39,60 @@ public class Controller implements Initializable {
         System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
-                case H -> {
-                    if (selectedCell.getX() != DEFAULT_CELL_W)
-                        selectedCell.updateX(gc, -DEFAULT_CELL_W);
-                    else if (camera.getTable_x() > 0) {
-                        ;
+                case H, LEFT -> {
+                    if (selectedCell.getX() <= 2 * DEFAULT_CELL_W) {
+                        camera.setTable_x(0);
+                        firstRow.draw(gc, 0);
+                        selectedCell.erase(gc);
+                        selectedCell.setX(DEFAULT_CELL_W);
+                        selectedCell.draw(gc);
+                    } else if (selectedCell.getX() != DEFAULT_CELL_W) {
+                        selectedCell.updateX(gc, -DEFAULT_CELL_W + camera.getTable_x() % DEFAULT_CELL_W);
+                        if (selectedCell.getX() < 2*DEFAULT_CELL_W) {
+                            camera.updateTable_x(-DEFAULT_CELL_W + camera.getTable_x() % DEFAULT_CELL_W);
+                            firstRow.draw(gc, camera.getTable_x());
+                        }
+                    } else if (camera.getTable_x() != 0) {
+                        camera.updateTable_x(-DEFAULT_CELL_H);
+                        firstRow.draw(gc, camera.getTable_x());
                     }
                 }
-                case J, ENTER -> {
-                    if (selectedCell.getY() > camera.picture.getH()+firstRow.getH()) {
-                        camera.updateTable_x(statusBar.getY() - selectedCell.getY() - DEFAULT_CELL_H);
+                case J, DOWN, ENTER -> {
+                    if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H + 2
+                        && selectedCell.getY() != camera.picture.getH() + 1) {
+                        int y_mov = DEFAULT_CELL_H + camera.picture.getH() - selectedCell.getY();
+                        selectedCell.updateY(gc, y_mov);
+                        camera.updateTable_y(y_mov);
                         firstCol.draw(gc, camera.getTable_y());
                     } else selectedCell.updateY(gc, DEFAULT_CELL_H);
                 }
-                case K -> {
-                    if (selectedCell.getY() != DEFAULT_CELL_H)
-                        selectedCell.updateY(gc, -DEFAULT_CELL_H);
+                case K, UP -> {
+                    if (selectedCell.getY() <= 2 * DEFAULT_CELL_H) {
+                        camera.setTable_y(0);
+                        firstCol.draw(gc, 0);
+                        selectedCell.erase(gc);
+                        selectedCell.setY(DEFAULT_CELL_H);
+                        selectedCell.draw(gc);
+                    } else if (selectedCell.getY() != DEFAULT_CELL_H) {
+                        selectedCell.updateY(gc, -DEFAULT_CELL_H + camera.getTable_y() % DEFAULT_CELL_H);
+                        if (selectedCell.getY() < 2*DEFAULT_CELL_H) {
+                            camera.updateTable_y(-DEFAULT_CELL_H + camera.getTable_y() % DEFAULT_CELL_H);
+                            firstCol.draw(gc, camera.getTable_y());
+                        }
+                    } else if (camera.getTable_y() != 0)
+                        camera.updateTable_y(-DEFAULT_CELL_H);
                 }
-                case L -> {
-                    if (selectedCell.getX() > CANVAS_W-DEFAULT_CELL_W) {
-                        camera.updateTable_x(CANVAS_W - selectedCell.getX() - DEFAULT_CELL_W);
+                case L, RIGHT -> {
+                    if (selectedCell.getX() >= camera.picture.getW() - DEFAULT_CELL_W + 2
+                        && selectedCell.getX() != camera.picture.getW() + 1) {
+                        int x_mov = DEFAULT_CELL_W + camera.picture.getW() - selectedCell.getX();
+                        selectedCell.updateX(gc, x_mov);
+                        camera.updateTable_x(x_mov);
                         firstRow.draw(gc, camera.getTable_x());
                     } else selectedCell.updateX(gc, DEFAULT_CELL_W);
                 }
-                case I -> {
-                    statusBar.setMode(MODE[2]);
-                    statusBar.draw(gc);
-                }
-                case ESCAPE -> {
-                    statusBar.setMode(MODE[3]);
-                    statusBar.draw(gc);
-                }
+                case A, I -> statusBar.setMode(MODE[2]);
+                case ESCAPE -> statusBar.setMode(MODE[3]);
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
             for (int i = 0; i < sheet.textCells.size(); i++) {
@@ -110,7 +133,7 @@ public class Controller implements Initializable {
         firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
         infoBar = new InfoBar(0, CANVAS_H-DEFAULT_CELL_H, CANVAS_W, DEFAULT_CELL_H, DEFAULT_CELL_C);
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.DARKGRAY);
-        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
+        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.CYAN);
 
         camera.picture.draw(gc);
         coordsCell.draw(gc);

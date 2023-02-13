@@ -38,6 +38,18 @@ public class SelectedCell extends Visible {
     }
 
     @Override
+    public void setX(int x) {
+        super.setX(x);
+        setCoords();
+    }
+
+    @Override
+    public void setY(int y) {
+        super.setY(y);
+        setCoords();
+    }
+
+    @Override
     public void draw(GraphicsContext gc) {
         super.draw(gc);
     }
