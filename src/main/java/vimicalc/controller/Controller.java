@@ -42,6 +42,9 @@ public class Controller implements Initializable {
                 case H -> {
                     if (selectedCell.getX() != DEFAULT_CELL_W)
                         selectedCell.updateX(gc, -DEFAULT_CELL_W);
+                    else if (camera.getTable_x() > 0) {
+                        ;
+                    }
                 }
                 case J, ENTER -> {
                     if (selectedCell.getY() > camera.picture.getH()+firstRow.getH()) {

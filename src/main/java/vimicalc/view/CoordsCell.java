@@ -20,7 +20,7 @@ public class CoordsCell extends Visible {
     }
 
     public void setCoords(int xCoord, int yCoord) {
-        coords = toAlpha(xCoord) + yCoord;
+        coords = toAlpha(xCoord-1) + yCoord;
     }
 
     @Override

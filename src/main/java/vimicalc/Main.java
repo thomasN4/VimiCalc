@@ -28,7 +28,7 @@ public class Main extends Application {
     public static String toAlpha(int num) {
         int divRes = num / 26;
         int rem = num % 26;
-        if (num > 26) return (char)(rem+64) + toAlpha(divRes);
-        else return ""+(char)(num+64);
+        if (num > 26) return (char)(rem+65) + toAlpha(divRes);
+        else return ""+(char)(num+65);
     }
 }
