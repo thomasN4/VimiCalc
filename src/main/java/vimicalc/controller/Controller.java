@@ -35,33 +35,44 @@ public class Controller implements Initializable {
 
     public static Sheet sheet;
 
+    public static void readCell() {
+        for (int i = 0; i < sheet.textCells.size(); i++) {
+            if (sheet.textCells.get(i).xCoord() == selectedCell.getxCoord()
+                    && sheet.textCells.get(i).yCoord() == selectedCell.getyCoord())
+                selectedCell.setInsertedTxt(sheet.textCells.get(i).text());
+        }
+    }
+
     public static void onKeyPressed(KeyEvent event) {
         System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
                 case H, LEFT -> {
                     if (selectedCell.getX() <= 2 * DEFAULT_CELL_W) {
-                        camera.setTable_x(0);
-                        firstRow.draw(gc, 0);
-                        selectedCell.erase(gc);
-                        selectedCell.setX(DEFAULT_CELL_W);
-                    } else if (selectedCell.getX() != DEFAULT_CELL_W) {
-                        selectedCell.updateX(gc, -DEFAULT_CELL_W + camera.getTable_x() % DEFAULT_CELL_W);
-                        if (selectedCell.getX() < 2*DEFAULT_CELL_W) {
-                            camera.updateTable_x(-DEFAULT_CELL_W + camera.getTable_x() % DEFAULT_CELL_W);
+                        if (camera.getTable_x() == 0) {
+                            camera.setTable_x(0);
+                            firstRow.draw(gc, 0);
+                            selectedCell.erase(gc);
+                            selectedCell.setX(DEFAULT_CELL_W);
+                        } else {
+                            while (selectedCell.getX() != DEFAULT_CELL_W) {
+                                camera.updateTable_x(-1);
+                                selectedCell.updateX(gc, -1);
+                            }
                             firstRow.draw(gc, camera.getTable_x());
                         }
-                    } else if (camera.getTable_x() != 0) {
-                        camera.updateTable_x(-DEFAULT_CELL_H);
-                        firstRow.draw(gc, camera.getTable_x());
-                    }
+                    } else selectedCell.updateX(gc, -DEFAULT_CELL_W);
                 }
                 case J, DOWN, ENTER -> {
-                    if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H + 2
-                        && selectedCell.getY() != camera.picture.getH() + 1) {
-                        int y_mov = DEFAULT_CELL_H + camera.picture.getH() - selectedCell.getY();
-                        selectedCell.updateY(gc, y_mov);
-                        camera.updateTable_y(y_mov);
+                    if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H) {
+                        if (selectedCell.getY() == camera.picture.getH()) {
+                            camera.updateTable_y(DEFAULT_CELL_H);
+                        } else {
+                            while (selectedCell.getY() != camera.picture.getH()) {
+                                selectedCell.updateY(gc, 1);
+                                camera.updateTable_y(1);
+                            }
+                        }
                         firstCol.draw(gc, camera.getTable_y());
                     } else selectedCell.updateY(gc, DEFAULT_CELL_H);
                 }
@@ -93,13 +104,9 @@ public class Controller implements Initializable {
                 case ESCAPE -> statusBar.setMode(MODE[3]);
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
-            for (int i = 0; i < sheet.textCells.size(); i++) {
-                if ((((sheet.textCells.get(i)).xCoord())) == selectedCell.getxCoord()
-                    && (((sheet.textCells.get(i)).yCoord())) == selectedCell.getyCoord())
-                    selectedCell.setInsertedTxt(sheet.textCells.get(i).text());
-            }
             if (event.getCode() == KeyCode.ESCAPE) {
                 statusBar.setMode(MODE[3]);
+                selectedCell.setInsertedTxt("");
             } else if (event.getCode() == KeyCode.ENTER) {
                 statusBar.setMode(MODE[3]);
                 sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
@@ -113,6 +120,7 @@ public class Controller implements Initializable {
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());
+        readCell();
         selectedCell.draw(gc);
         statusBar.draw(gc);
         infoBar.draw(gc);
@@ -131,7 +139,7 @@ public class Controller implements Initializable {
         firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
         infoBar = new InfoBar(0, CANVAS_H-DEFAULT_CELL_H, CANVAS_W, DEFAULT_CELL_H, DEFAULT_CELL_C);
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.DARKGRAY);
-        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.CYAN);
+        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGREEN);
 
         camera.picture.draw(gc);
         coordsCell.draw(gc);
