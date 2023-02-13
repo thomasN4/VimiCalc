@@ -25,15 +25,9 @@ public class Main extends Application {
         System.out.println();
     }
 
-//public class Main  {
-//    public static void main(String[] args) {
-//        System.out.println(toAlpha(26));
-//    }
-
     public static String toAlpha(int num) {
-        if (num > 25) {
-            return (char)(num%26+65) + toAlpha(num/26);
-        }
-        else return ""+(char)(num/26+65);
+        int rem = num % 26;
+        if (num > 25) return toAlpha((num-rem-1)/26) + (char)(rem+65);
+        else return ""+(char)(num+65);
     }
 }
