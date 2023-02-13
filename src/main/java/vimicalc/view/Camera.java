@@ -29,11 +29,11 @@ public class Camera {
 //        ;
 //    }
 
-    public void updateTable_x(int x_mov) {
+    public void updateAbsX(int x_mov) {
         absX += x_mov;
     }
 
-    public void updateTable_y(int y_mov) {
+    public void updateAbsY(int y_mov) {
         absY += y_mov;
     }
 

@@ -13,20 +13,20 @@ public class Picture extends Visible {
         super(x, y, w, h, c);
     }
 
-    public void take(GraphicsContext gc, ArrayList<TextCell> textCells, int table_x, int table_y) {
+    public void take(GraphicsContext gc, ArrayList<TextCell> textCells, int absX, int absY) {
         int DCW = Controller.DEFAULT_CELL_W;
         int DCH = Controller.DEFAULT_CELL_H;
         super.erase(gc);
         for (TextCell tC : textCells) {
-            if (tC.xCoord() >= table_x/DCW &&
-                tC.xCoord() <= (table_x+w+DCW)/DCW &&
-                tC.yCoord() >= table_y/DCH &&
-                tC.yCoord() <= (table_y+h+DCH)/DCH) {
+            if (tC.xCoord() >= absX /DCW &&
+                tC.xCoord() <= (absX +w+DCW)/DCW &&
+                tC.yCoord() >= absY /DCH &&
+                tC.yCoord() <= (absY +h+DCH)/DCH) {
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.setFill(Color.BLACK);
                 gc.fillText(tC.text(),
-                        tC.xCoord() * DCW - table_x + 45,
-                        tC.yCoord() * DCH - table_y + 16,
+                        tC.xCoord() * DCW - absX + 45,
+                        tC.yCoord() * DCH - absY + 16,
                         DCW);
             }
         }
