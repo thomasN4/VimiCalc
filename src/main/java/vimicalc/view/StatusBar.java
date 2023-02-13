@@ -8,7 +8,7 @@ public class StatusBar extends Visible {
     private String filename;
     private String mode;
 
-    public StatusBar(int x, int y, double w, double h, Color c) {
+    public StatusBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         mode = vimicalc.controller.Controller.MODE[3];
         filename = "[new_file]";

@@ -8,18 +8,17 @@ import vimicalc.controller.Controller;
 import static vimicalc.Main.toAlpha;
 
 public class FirstRow extends Visible {
-    public FirstRow(int x, int y, double w, double h, Color c) {
+    public FirstRow(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
     }
 
-
-    public void draw(GraphicsContext gc, int table_x, int table_y) {
+    public void draw(GraphicsContext gc, int table_x) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_W;
-        for (int i = 1-table_x/jump; i < gc.getCanvas().getWidth()/jump; i++) {
+        for (int i = 1; i < gc.getCanvas().getWidth()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+toAlpha(i), i*jump+48, 16, Controller.DEFAULT_CELL_W);
+            gc.fillText(""+toAlpha(i+table_x/jump), i*jump+48-table_x%jump, 16, Controller.DEFAULT_CELL_W);
         }
     }
 }

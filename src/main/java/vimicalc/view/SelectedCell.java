@@ -11,7 +11,7 @@ public class SelectedCell extends Visible {
     private int yCoord;
     private String insertedTxt = "";
 
-    public SelectedCell(int x, int y, double w, double h, Color c) {
+    public SelectedCell(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         setCoords();
     }

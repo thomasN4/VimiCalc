@@ -6,11 +6,11 @@ import javafx.scene.text.TextAlignment;
 
 import static vimicalc.Main.toAlpha;
 
-public class CoordCell extends Visible {
+public class CoordsCell extends Visible {
 
     private String coords;
 
-    public CoordCell(int x, int y, double w, double h, Color c, String coords) {
+    public CoordsCell(int x, int y, int w, int h, Color c, String coords) {
         super(x, y, w, h, c);
         this.coords = coords;
     }

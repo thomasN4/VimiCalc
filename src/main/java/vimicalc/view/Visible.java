@@ -6,11 +6,11 @@ import javafx.scene.paint.Color;
 abstract class Visible {
     protected int x;
     protected int y;
-    protected double w;
-    protected double h;
+    protected int w;
+    protected int h;
     protected Color c;
 
-    public Visible(int x, int y, double w, double h, Color c) {
+    public Visible(int x, int y, int w, int h, Color c) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -44,19 +44,19 @@ abstract class Visible {
         this.y = y;
     }
 
-    public double getW() {
+    public int getW() {
         return w;
     }
 
-    public void setW(double w) {
+    public void setW(int w) {
         this.w = w;
     }
 
-    public double getH() {
+    public int getH() {
         return h;
     }
 
-    public void setH(double h) {
+    public void setH(int h) {
         this.h = h;
     }
 
