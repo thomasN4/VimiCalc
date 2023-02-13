@@ -16,7 +16,8 @@ public class SelectedCell extends Visible {
 
     public SelectedCell(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        setCoords();
+        xCoord = x/Controller.DEFAULT_CELL_W;
+        yCoord = y/Controller.DEFAULT_CELL_H;
     }
 
     public int getxCoord() {
@@ -31,25 +32,8 @@ public class SelectedCell extends Visible {
         return insertedTxt;
     }
 
-    public void setCoords() {
-        xCoord = x/Controller.DEFAULT_CELL_W;
-        yCoord = y/Controller.DEFAULT_CELL_H;
-    }
-
     public void setInsertedTxt(String insertedTxt) {
         this.insertedTxt = insertedTxt;
-    }
-
-    @Override
-    public void setX(int x) {
-        super.setX(x);
-        setCoords();
-    }
-
-    @Override
-    public void setY(int y) {
-        super.setY(y);
-        setCoords();
     }
 
     @Override
@@ -72,7 +56,6 @@ public class SelectedCell extends Visible {
         super.erase(gc);
         super.setX(x+x_mov);
         super.draw(gc);
-        setCoords();
         insertedTxt = "";
     }
 
@@ -80,8 +63,15 @@ public class SelectedCell extends Visible {
         super.erase(gc);
         super.setY(y+y_mov);
         super.draw(gc);
-        setCoords();
         insertedTxt = "";
+    }
+
+    public void updateXCoord(int xCoord_mov) {
+        xCoord += xCoord_mov;
+    }
+
+    public void updateYCoord(int yCoord_mov) {
+        yCoord += yCoord_mov;
     }
 
     public void readCell(ArrayList<TextCell> textCells) {
