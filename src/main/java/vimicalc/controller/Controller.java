@@ -45,7 +45,7 @@ public class Controller implements Initializable {
                 selectedCell.updateX(1);
                 camera.updateTable_x(1);
             }
-            firstRow.draw(gc, camera.getTable_x());
+            firstRow.draw(gc, camera.getAbsX());
         }
     }
 
@@ -59,7 +59,7 @@ public class Controller implements Initializable {
                 selectedCell.updateY(1);
                 camera.updateTable_y(1);
             }
-            firstCol.draw(gc, camera.getTable_y());
+            firstCol.draw(gc, camera.getAbsY());
         }
     }
 
@@ -72,7 +72,7 @@ public class Controller implements Initializable {
                 selectedCell.updateY(-1);
                 camera.updateTable_y(-1);
             }
-            firstCol.draw(gc, camera.getTable_y());
+            firstCol.draw(gc, camera.getAbsY());
         }
     }
 
@@ -85,7 +85,7 @@ public class Controller implements Initializable {
                 selectedCell.updateX(-1);
                 camera.updateTable_x(-1);
             }
-            firstCol.draw(gc, camera.getTable_x());
+            firstCol.draw(gc, camera.getAbsX());
         }
     }
 
@@ -116,10 +116,10 @@ public class Controller implements Initializable {
 
         System.out.println("     sC.x: "+selectedCell.getX()     +"   , yCoord: "+selectedCell.getY());
         System.out.println("sC.xCoord: "+selectedCell.getxCoord()+", sC.yCoord: "+selectedCell.getyCoord());
-        System.out.println("table_x: "+camera.getTable_x()+", table_y: "+camera.getTable_y());
+        System.out.println("table_x: "+camera.getAbsX()+", table_y: "+camera.getAbsY());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
-        camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());
+        camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
         selectedCell.readCell(sheet.textCells);
         selectedCell.draw(gc);
         statusBar.draw(gc);
@@ -143,8 +143,8 @@ public class Controller implements Initializable {
 
         camera.picture.draw(gc);
         coordsCell.draw(gc);
-        firstCol.draw(gc, camera.getTable_y());
-        firstRow.draw(gc, camera.getTable_x());
+        firstCol.draw(gc, camera.getAbsY());
+        firstRow.draw(gc, camera.getAbsX());
         infoBar.draw(gc);
         statusBar.draw(gc);
         selectedCell.draw(gc);

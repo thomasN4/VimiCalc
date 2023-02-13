@@ -1,32 +1,28 @@
 package vimicalc.view;
 
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import vimicalc.model.TextCell;
-
-import java.util.ArrayList;
 
 public class Camera {
-    private int table_x;
-    private int table_y;
+    private int absX;
+    private int absY;
     public Picture picture;
 
-    public Camera(int x, int y, int w, int h, Color c, int table_x, int table_y) {
+    public Camera(int x, int y, int w, int h, Color c, int absX, int absY) {
         picture = new Picture(x, y, w, h, c);
-        this.table_x = table_x;
-        this.table_y = table_y;
+        this.absX = absX;
+        this.absY = absY;
     }
 
-    public int getTable_x() {
-        return table_x;
+    public int getAbsX() {
+        return absX;
     }
 
-    public int getTable_y() {
-        return table_y;
+    public int getAbsY() {
+        return absY;
     }
 
-//    public void xScrollTo(GraphicsContext gc, ArrayList<TextCell> textCells, int table_x, int table_y, int end) {
-//        picture.take(gc, textCells, table_x, table_y);
+//    public void xScrollTo(GraphicsContext gc, ArrayList<TextCell> textCells, int absX, int absY, int end) {
+//        picture.take(gc, textCells, absX, absY);
 //    }
 //
 //    public void yScrollTo(int end) {
@@ -34,18 +30,18 @@ public class Camera {
 //    }
 
     public void updateTable_x(int x_mov) {
-        table_x += x_mov;
+        absX += x_mov;
     }
 
     public void updateTable_y(int y_mov) {
-        table_y += y_mov;
+        absY += y_mov;
     }
 
-    public void setTable_x(int table_x) {
-        this.table_x = table_x;
+    public void setAbsX(int absX) {
+        this.absX = absX;
     }
 
-    public void setTable_y(int table_y) {
-        this.table_y = table_y;
+    public void setAbsY(int absY) {
+        this.absY = absY;
     }
 }
