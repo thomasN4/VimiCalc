@@ -35,76 +35,82 @@ public class Controller implements Initializable {
 
     public static Sheet sheet;
 
+    public static void moveLeft() {
+        if (selectedCell.getxCoord() != 1)
+            selectedCell.updateXCoord(-1);
+        selectedCell.updateX(-DEFAULT_CELL_W);
+        if (selectedCell.getX() < DEFAULT_CELL_W) {
+            camera.updateTable_x(-DEFAULT_CELL_W);
+            while (selectedCell.getX() != DEFAULT_CELL_W) {
+                selectedCell.updateX(1);
+                camera.updateTable_x(1);
+            }
+            firstRow.draw(gc, camera.getTable_x());
+        }
+    }
+
+    public static void moveUp() {
+        if (selectedCell.getyCoord() != 1)
+            selectedCell.updateYCoord(-1);
+        selectedCell.updateY(-DEFAULT_CELL_H);
+        if (selectedCell.getY() < DEFAULT_CELL_H) {
+            camera.updateTable_y(-DEFAULT_CELL_H);
+            while (selectedCell.getY() != DEFAULT_CELL_H) {
+                selectedCell.updateY(1);
+                camera.updateTable_y(1);
+            }
+            firstCol.draw(gc, camera.getTable_y());
+        }
+    }
+
+    public static void moveDown() {
+        selectedCell.updateYCoord(1);
+        selectedCell.updateY(DEFAULT_CELL_H);
+        if (selectedCell.getY() > camera.picture.getH()) {
+            camera.updateTable_y(DEFAULT_CELL_H);
+            while (selectedCell.getY() != camera.picture.getH()) {
+                selectedCell.updateY(-1);
+                camera.updateTable_y(-1);
+            }
+            firstCol.draw(gc, camera.getTable_y());
+        }
+//        if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H) {
+//            if (selectedCell.getY() == camera.picture.getH()) {
+//                camera.updateTable_y(DEFAULT_CELL_H);
+//            } else {
+//                while (selectedCell.getY() != camera.picture.getH()) {
+//                    selectedCell.updateY(gc, 1);
+//                    camera.updateTable_y(1);
+//                }
+//            }
+//            firstCol.draw(gc, camera.getTable_y());
+//        } else selectedCell.updateY(gc, DEFAULT_CELL_H);
+//        selectedCell.updateYCoord(1);
+    }
+
+    public static void moveRight() {
+        if (selectedCell.getX() >= camera.picture.getW() - DEFAULT_CELL_W) {
+            if (selectedCell.getX() == camera.picture.getW()) {
+                camera.updateTable_x(DEFAULT_CELL_W);
+            } else {
+                while (selectedCell.getX() != camera.picture.getW()) {
+                    selectedCell.updateX(gc, 1);
+                    camera.updateTable_x(1);
+                }
+            }
+            firstRow.draw(gc, camera.getTable_x());
+        } else selectedCell.updateX(gc, DEFAULT_CELL_W);
+        selectedCell.updateXCoord(1);
+    }
+
     public static void onKeyPressed(KeyEvent event) {
-//        System.out.println("Key pressed: "+event.getCode());
+        System.out.println("Key pressed: "+event.getCode());
         if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
-                case H, LEFT -> {
-                    if (selectedCell.getX() <= 2 * DEFAULT_CELL_W) {
-                        if (camera.getTable_x() == 0) {
-                            selectedCell.erase(gc);
-                            selectedCell.setX(DEFAULT_CELL_W);
-                        } else if (selectedCell.getX() != DEFAULT_CELL_W) {
-                            while (selectedCell.getX() != DEFAULT_CELL_W) {
-                                camera.updateTable_x(-1);
-                                selectedCell.updateX(gc, -1);
-                            }
-                            firstRow.draw(gc, camera.getTable_x());
-                        } else {
-                            camera.updateTable_x(-DEFAULT_CELL_W);
-                            firstRow.draw(gc, camera.getTable_x());
-                        }
-                    } else selectedCell.updateX(gc, -DEFAULT_CELL_W);
-                    if (selectedCell.getxCoord() != 1)
-                        selectedCell.updateXCoord(-1);
-                }
-                case J, DOWN, ENTER -> {
-                    if (selectedCell.getY() >= camera.picture.getH() - DEFAULT_CELL_H) {
-                        if (selectedCell.getY() == camera.picture.getH()) {
-                            camera.updateTable_y(DEFAULT_CELL_H);
-                        } else {
-                            while (selectedCell.getY() != camera.picture.getH()) {
-                                selectedCell.updateY(gc, 1);
-                                camera.updateTable_y(1);
-                            }
-                        }
-                        firstCol.draw(gc, camera.getTable_y());
-                    } else selectedCell.updateY(gc, DEFAULT_CELL_H);
-                    selectedCell.updateYCoord(1);
-                }
-                case K, UP -> {
-                    if (selectedCell.getY() <= 2 * DEFAULT_CELL_H) {
-                        if (camera.getTable_y() == 0) {
-                            selectedCell.erase(gc);
-                            selectedCell.setY(DEFAULT_CELL_H);
-                        } else if (selectedCell.getY() != DEFAULT_CELL_H) {
-                            while (selectedCell.getY() != DEFAULT_CELL_H) {
-                                camera.updateTable_y(-1);
-                                selectedCell.updateY(gc, -1);
-                            }
-                            firstCol.draw(gc, camera.getTable_y());
-                        } else {
-                            camera.updateTable_y(-DEFAULT_CELL_H);
-                            firstCol.draw(gc, camera.getTable_y());
-                        }
-                    } else selectedCell.updateY(gc, -DEFAULT_CELL_H);
-                    if (selectedCell.getyCoord() != 1)
-                        selectedCell.updateYCoord(-1);
-                }
-                case L, RIGHT -> {
-                    if (selectedCell.getX() >= camera.picture.getW() - DEFAULT_CELL_W) {
-                        if (selectedCell.getX() == camera.picture.getW()) {
-                            camera.updateTable_x(DEFAULT_CELL_W);
-                        } else {
-                            while (selectedCell.getX() != camera.picture.getW()) {
-                                selectedCell.updateX(gc, 1);
-                                camera.updateTable_x(1);
-                            }
-                        }
-                        firstRow.draw(gc, camera.getTable_x());
-                    } else selectedCell.updateX(gc, DEFAULT_CELL_W);
-                    selectedCell.updateXCoord(1);
-                }
+                case H, LEFT -> moveLeft();
+                case J, ENTER, DOWN -> moveDown();
+                case K, UP -> moveUp();
+                case L, RIGHT -> moveRight();
                 case A, I -> statusBar.setMode(MODE[2]);
                 case ESCAPE -> statusBar.setMode(MODE[3]);
             }
@@ -117,11 +123,14 @@ public class Controller implements Initializable {
                 sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
                         selectedCell.getyCoord(),
                         selectedCell.getInsertedTxt()));
-                System.out.println(sheet.textCells);
+                moveDown();
+                System.out.println("New text cell: "+sheet.textCells);
             } else selectedCell.draw(gc, event.getText());
         }
 
-        System.out.println("xCoord: "+selectedCell.getxCoord()+"; yCoord: "+selectedCell.getyCoord());
+        System.out.println("     sC.x: "+selectedCell.getX()     +"   , yCoord: "+selectedCell.getY());
+        System.out.println("sC.xCoord: "+selectedCell.getxCoord()+", sC.yCoord: "+selectedCell.getyCoord());
+        System.out.println("table_x: "+camera.getTable_x()+", table_y: "+camera.getTable_y());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());

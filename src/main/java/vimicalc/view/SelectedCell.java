@@ -52,6 +52,16 @@ public class SelectedCell extends Visible {
         gc.fillText(insertedTxt, x+45, y+16);
     }
 
+    public void updateX(int x_mov) {
+        super.setX(x+x_mov);
+        insertedTxt = "";
+    }
+
+    public void updateY(int y_mov) {
+        super.setY(y+y_mov);
+        insertedTxt = "";
+    }
+
     public void updateX(GraphicsContext gc, int x_mov) {
         super.erase(gc);
         super.setX(x+x_mov);
