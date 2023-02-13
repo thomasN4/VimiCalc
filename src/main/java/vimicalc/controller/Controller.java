@@ -45,7 +45,6 @@ public class Controller implements Initializable {
                         firstRow.draw(gc, 0);
                         selectedCell.erase(gc);
                         selectedCell.setX(DEFAULT_CELL_W);
-                        selectedCell.draw(gc);
                     } else if (selectedCell.getX() != DEFAULT_CELL_W) {
                         selectedCell.updateX(gc, -DEFAULT_CELL_W + camera.getTable_x() % DEFAULT_CELL_W);
                         if (selectedCell.getX() < 2*DEFAULT_CELL_W) {
@@ -72,7 +71,6 @@ public class Controller implements Initializable {
                         firstCol.draw(gc, 0);
                         selectedCell.erase(gc);
                         selectedCell.setY(DEFAULT_CELL_H);
-                        selectedCell.draw(gc);
                     } else if (selectedCell.getY() != DEFAULT_CELL_H) {
                         selectedCell.updateY(gc, -DEFAULT_CELL_H + camera.getTable_y() % DEFAULT_CELL_H);
                         if (selectedCell.getY() < 2*DEFAULT_CELL_H) {
@@ -102,7 +100,6 @@ public class Controller implements Initializable {
             }
             if (event.getCode() == KeyCode.ESCAPE) {
                 statusBar.setMode(MODE[3]);
-                selectedCell.draw(gc);
             } else if (event.getCode() == KeyCode.ENTER) {
                 statusBar.setMode(MODE[3]);
                 sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
@@ -116,6 +113,7 @@ public class Controller implements Initializable {
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getTable_x(), camera.getTable_y());
+        selectedCell.draw(gc);
         statusBar.draw(gc);
         infoBar.draw(gc);
     }

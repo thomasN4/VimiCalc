@@ -52,6 +52,9 @@ public class SelectedCell extends Visible {
     @Override
     public void draw(GraphicsContext gc) {
         super.draw(gc);
+        gc.setFill(Color.BLACK);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.fillText(insertedTxt, x+45, y+16);
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
@@ -60,7 +63,6 @@ public class SelectedCell extends Visible {
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(insertedTxt, x+45, y+16);
-        System.out.println("Inserted text: "+insertedTxt);
     }
 
     public void updateX(GraphicsContext gc, int x_mov) {

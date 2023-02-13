@@ -25,6 +25,14 @@ public class Camera {
         return table_y;
     }
 
+//    public void xScrollTo(GraphicsContext gc, ArrayList<TextCell> textCells, int table_x, int table_y, int end) {
+//        picture.take(gc, textCells, table_x, table_y);
+//    }
+//
+//    public void yScrollTo(int end) {
+//        ;
+//    }
+
     public void updateTable_x(int x_mov) {
         table_x += x_mov;
     }
