@@ -78,6 +78,9 @@ public class Controller implements Initializable {
     }
 
     public static void moveDown() {
+        System.out.println("Initial selectedCell.getY = "+selectedCell.getY());
+        System.out.println("camera.picture.getH() = "+camera.picture.getH());
+        System.out.println("CANVAS_H = "+CANVAS_H);
         selectedCell.updateYCoord(1);
         if (selectedCell.getY() != camera.picture.getH()) {
             selectedCell.updateY(DEFAULT_CELL_H);
@@ -93,15 +96,18 @@ public class Controller implements Initializable {
             camera.updateAbsY(DEFAULT_CELL_H);
             firstCol.draw(gc, camera.getAbsY());
         }
+        System.out.println("Final selectedCell.getY = "+selectedCell.getY());
     }
 
     public static void moveRight() {
+        System.out.println("camera.picture.getW() = "+camera.picture.getW());
+        System.out.println("CANVAS_W = "+CANVAS_W);
         selectedCell.updateXCoord(1);
-        if (selectedCell.getX() != camera.picture.getH()) {
+        if (selectedCell.getX() != camera.picture.getW()) {
             selectedCell.updateX(DEFAULT_CELL_W);
-            if (selectedCell.getX() > camera.picture.getH()) {
+            if (selectedCell.getX() > camera.picture.getW()) {
                 camera.updateAbsX(DEFAULT_CELL_W);
-                while (selectedCell.getX() != camera.picture.getH()) {
+                while (selectedCell.getX() != camera.picture.getW()) {
                     selectedCell.updateX(-1);
                     camera.updateAbsX(-1);
                 }
@@ -165,6 +171,7 @@ public class Controller implements Initializable {
         selectedCell.draw(gc);
         statusBar.draw(gc);
         infoBar.draw(gc);
+        System.out.println("========================================");
     }
 
     @Override
