@@ -100,13 +100,9 @@ public class Controller implements Initializable {
         if (selectedCell.getX() != camera.picture.getW()) {
             selectedCell.updateX(DEFAULT_CELL_W);
             if (selectedCell.getX() > camera.picture.getW()) {
-                infoBar.setC(Color.RED);
-            }
-            if (selectedCell.getX() > camera.picture.getW()) {
-                camera.updateAbsX(DEFAULT_CELL_W);
                 while (selectedCell.getX() != camera.picture.getW()) {
                     selectedCell.updateX(-1);
-                    camera.updateAbsX(-1);
+                    camera.updateAbsX(1);
                 }
                 firstRow.draw(gc, camera.getAbsX());
             }
