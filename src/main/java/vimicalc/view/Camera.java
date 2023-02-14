@@ -21,27 +21,11 @@ public class Camera {
         return absY;
     }
 
-//    public void xScrollTo(GraphicsContext gc, ArrayList<TextCell> textCells, int absX, int absY, int end) {
-//        picture.take(gc, textCells, absX, absY);
-//    }
-//
-//    public void yScrollTo(int end) {
-//        ;
-//    }
-
     public void updateAbsX(int x_mov) {
         absX += x_mov;
     }
 
     public void updateAbsY(int y_mov) {
         absY += y_mov;
-    }
-
-    public void setAbsX(int absX) {
-        this.absX = absX;
-    }
-
-    public void setAbsY(int absY) {
-        this.absY = absY;
     }
 }

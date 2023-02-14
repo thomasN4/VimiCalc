@@ -15,10 +15,6 @@ public class CoordsCell extends Visible {
         this.coords = coords;
     }
 
-    public String getCoords() {
-        return coords;
-    }
-
     public void setCoords(int xCoord, int yCoord) {
         coords = toAlpha(xCoord-1) + yCoord;
     }

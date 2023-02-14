@@ -18,10 +18,10 @@ public class Picture extends Visible {
         int DCH = Controller.DEFAULT_CELL_H;
         super.erase(gc);
         for (TextCell tC : textCells) {
-            if (tC.xCoord() >= absX /DCW &&
-                tC.xCoord() <= (absX +w+DCW)/DCW &&
-                tC.yCoord() >= absY /DCH &&
-                tC.yCoord() <= (absY +h+DCH)/DCH) {
+            if (tC.xCoord() >= absX/DCW &&
+                tC.xCoord() <= (absX+w+DCW)/DCW &&
+                tC.yCoord() >= absY/DCH &&
+                tC.yCoord() <= (absY+h+DCH)/DCH) {
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.setFill(Color.BLACK);
                 gc.fillText(tC.text(),

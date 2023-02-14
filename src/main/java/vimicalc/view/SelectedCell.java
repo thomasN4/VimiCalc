@@ -62,20 +62,6 @@ public class SelectedCell extends Visible {
         insertedTxt = "";
     }
 
-    public void updateX(GraphicsContext gc, int x_mov) {
-        super.erase(gc);
-        super.setX(x+x_mov);
-        super.draw(gc);
-        insertedTxt = "";
-    }
-
-    public void updateY(GraphicsContext gc, int y_mov) {
-        super.erase(gc);
-        super.setY(y+y_mov);
-        super.draw(gc);
-        insertedTxt = "";
-    }
-
     public void updateXCoord(int xCoord_mov) {
         xCoord += xCoord_mov;
     }
