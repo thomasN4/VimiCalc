@@ -18,7 +18,7 @@ public class Controller implements Initializable {
     public static int CANVAS_H;
     public static final int DEFAULT_CELL_H = 23;
     public static final int DEFAULT_CELL_W = DEFAULT_CELL_H *4;
-    public static final Color DEFAULT_CELL_C = Color.WHITE;
+    public static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
     public static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
 
     @FXML private Canvas canvas;
@@ -78,9 +78,6 @@ public class Controller implements Initializable {
     }
 
     public static void moveDown() {
-        System.out.println("Initial selectedCell.getY = "+selectedCell.getY());
-        System.out.println("camera.picture.getH() = "+camera.picture.getH());
-        System.out.println("CANVAS_H = "+CANVAS_H);
         selectedCell.updateYCoord(1);
         if (selectedCell.getY() != camera.picture.getH()) {
             selectedCell.updateY(DEFAULT_CELL_H);
@@ -96,15 +93,15 @@ public class Controller implements Initializable {
             camera.updateAbsY(DEFAULT_CELL_H);
             firstCol.draw(gc, camera.getAbsY());
         }
-        System.out.println("Final selectedCell.getY = "+selectedCell.getY());
     }
 
     public static void moveRight() {
-        System.out.println("camera.picture.getW() = "+camera.picture.getW());
-        System.out.println("CANVAS_W = "+CANVAS_W);
         selectedCell.updateXCoord(1);
         if (selectedCell.getX() != camera.picture.getW()) {
             selectedCell.updateX(DEFAULT_CELL_W);
+            if (selectedCell.getX() > camera.picture.getW()) {
+                infoBar.setC(Color.RED);
+            }
             if (selectedCell.getX() > camera.picture.getW()) {
                 camera.updateAbsX(DEFAULT_CELL_W);
                 while (selectedCell.getX() != camera.picture.getW()) {
@@ -161,17 +158,24 @@ public class Controller implements Initializable {
             }
         }
 
+        // Temporaire:
+        firstRow.draw(gc, camera.getAbsX());
+        firstCol.draw(gc, camera.getAbsY());
+
         System.out.println("     sC.x: "+selectedCell.getX()     +"   , yCoord: "+selectedCell.getY());
         System.out.println("sC.xCoord: "+selectedCell.getxCoord()+", sC.yCoord: "+selectedCell.getyCoord());
-        System.out.println("table_x: "+camera.getAbsX()+", table_y: "+camera.getAbsY());
+        System.out.println("camera.absX: "+camera.getAbsX()+", camera.absY: "+camera.getAbsY());
+        System.out.println("========================================");
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
         selectedCell.readCell(sheet.textCells);
         selectedCell.draw(gc);
         statusBar.draw(gc);
+        if (selectedCell.getX() < camera.picture.getW())
+            infoBar.setC(DEFAULT_CELL_C);
+        infoBar.setKeyStroke(event.getCode().toString());
         infoBar.draw(gc);
-        System.out.println("========================================");
     }
 
     @Override
@@ -183,12 +187,12 @@ public class Controller implements Initializable {
         CANVAS_H = (int) canvas.getHeight();
 
         camera = new Camera(DEFAULT_CELL_W, DEFAULT_CELL_H, CANVAS_W-DEFAULT_CELL_W, CANVAS_H-3*DEFAULT_CELL_H-4, DEFAULT_CELL_C);
-        coordsCell = new CoordsCell(0, 0, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY);
-        firstCol = new FirstCol(0, DEFAULT_CELL_H, DEFAULT_CELL_W, CANVAS_H-2*DEFAULT_CELL_H-4, Color.LIGHTGRAY);
-        firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W-DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
+        coordsCell = new CoordsCell(0, 0, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.GRAY);
+        firstCol = new FirstCol(0, DEFAULT_CELL_H, DEFAULT_CELL_W, CANVAS_H-2*DEFAULT_CELL_H-4, Color.SILVER);
+        firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W-DEFAULT_CELL_W, DEFAULT_CELL_H, Color.SILVER);
         infoBar = new InfoBar(0, CANVAS_H-DEFAULT_CELL_H, CANVAS_W, DEFAULT_CELL_H, DEFAULT_CELL_C);
-        statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.DARKGRAY);
-        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGREEN);
+        statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.GRAY);
+        selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY);
 
         camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());

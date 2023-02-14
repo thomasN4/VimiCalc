@@ -16,7 +16,9 @@ public class Picture extends Visible {
     public void take(GraphicsContext gc, ArrayList<TextCell> textCells, int absX, int absY) {
         int DCW = Controller.DEFAULT_CELL_W;
         int DCH = Controller.DEFAULT_CELL_H;
-        super.erase(gc);
+        super.draw(gc);
+
+        // À revoir:
         for (TextCell tC : textCells) {
             if (tC.xCoord() >= absX/DCW &&
                 tC.xCoord() <= (absX+w+DCW)/DCW &&
