@@ -12,13 +12,13 @@ public class FirstRow extends Visible {
         super(x, y, w, h, c);
     }
 
-    public void draw(GraphicsContext gc, int table_x) {
+    public void draw(GraphicsContext gc, int absX) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_W;
         for (int i = 1; i <= gc.getCanvas().getWidth()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+toAlpha(i+table_x/jump-1), (i+1)*jump-45-table_x%jump, 16, Controller.DEFAULT_CELL_W);
+            gc.fillText(""+toAlpha(i+ absX /jump-1), (i+1)*jump-45- absX %jump, 16, Controller.DEFAULT_CELL_W);
         }
     }
 }
