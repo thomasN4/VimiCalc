@@ -16,7 +16,7 @@ public class FirstCol extends Visible{
         for (int i = 1; i < gc.getCanvas().getHeight()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+(i+absY/jump), 45, (i+1)*jump-5-absY%jump, Controller.DEFAULT_CELL_W);
+            gc.fillText(""+(i+absY/jump), 45, (i+1)*jump-absY%jump-5, jump);
         }
     }
 }

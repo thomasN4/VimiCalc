@@ -97,16 +97,17 @@ public class Controller implements Initializable {
 
     public static void moveRight() {
         selectedCell.updateXCoord(1);
-        if (selectedCell.getX() != camera.picture.getW())
+        if (selectedCell.getX() != camera.picture.getW()) {
             selectedCell.updateX(DEFAULT_CELL_W);
-        if (selectedCell.getX() > camera.picture.getW()) {
-            camera.updateAbsX(DEFAULT_CELL_W);
-            while (selectedCell.getX() != camera.picture.getW()) {
-                selectedCell.updateX(-1);
-                camera.updateAbsX(-1);
+            if (selectedCell.getX() > camera.picture.getW()) {
+                camera.updateAbsX(DEFAULT_CELL_W);
+                while (selectedCell.getX() != camera.picture.getW()) {
+                    selectedCell.updateX(-1);
+                    camera.updateAbsX(-1);
+                }
+                firstRow.draw(gc, camera.getAbsX());
             }
-            firstRow.draw(gc, camera.getAbsX());
-        } else if (selectedCell.getX() == camera.picture.getW()) {
+        } else {
             camera.updateAbsX(DEFAULT_CELL_W);
             firstRow.draw(gc, camera.getAbsX());
         }
