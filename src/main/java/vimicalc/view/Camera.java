@@ -7,10 +7,10 @@ public class Camera {
     private int absY;
     public Picture picture;
 
-    public Camera(int x, int y, int w, int h, Color c, int absX, int absY) {
+    public Camera(int x, int y, int w, int h, Color c) {
         picture = new Picture(x, y, w, h, c);
-        this.absX = absX;
-        this.absY = absY;
+        absX = 0;
+        absY = 0;
     }
 
     public int getAbsX() {

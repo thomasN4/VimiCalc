@@ -31,14 +31,14 @@ public class Controller implements Initializable {
     public static GraphicsContext gc;
     public static InfoBar infoBar;
     public static SelectedCell selectedCell;
-    public static StatusBar statusBar;
-
     public static Sheet sheet;
+    public static StatusBar statusBar;
 
     public static void moveLeft() {
         if (selectedCell.getxCoord() != 1)
             selectedCell.updateXCoord(-1);
-        selectedCell.updateX(-DEFAULT_CELL_W);
+        if (selectedCell.getX() != DEFAULT_CELL_W)
+            selectedCell.updateX(-DEFAULT_CELL_W);
         if (selectedCell.getX() < DEFAULT_CELL_W) {
             camera.updateAbsX(-DEFAULT_CELL_W);
             while (selectedCell.getX() != DEFAULT_CELL_W) {
@@ -46,13 +46,20 @@ public class Controller implements Initializable {
                 camera.updateAbsX(1);
             }
             firstRow.draw(gc, camera.getAbsX());
+        } else if (selectedCell.getX() == DEFAULT_CELL_W) {
+            camera.updateAbsX(-DEFAULT_CELL_W);
+            if (camera.getAbsX() < 0)
+                while (camera.getAbsX() != 0)
+                    camera.updateAbsX(1);
+            firstRow.draw(gc, camera.getAbsX());
         }
     }
 
     public static void moveUp() {
         if (selectedCell.getyCoord() != 1)
             selectedCell.updateYCoord(-1);
-        selectedCell.updateY(-DEFAULT_CELL_H);
+        if (selectedCell.getY() != DEFAULT_CELL_H)
+            selectedCell.updateY(-DEFAULT_CELL_H);
         if (selectedCell.getY() < DEFAULT_CELL_H) {
             camera.updateAbsY(-DEFAULT_CELL_H);
             while (selectedCell.getY() != DEFAULT_CELL_H) {
@@ -60,12 +67,19 @@ public class Controller implements Initializable {
                 camera.updateAbsY(1);
             }
             firstCol.draw(gc, camera.getAbsY());
+        } else if (selectedCell.getY() == DEFAULT_CELL_H) {
+            camera.updateAbsY(-DEFAULT_CELL_H);
+            if (camera.getAbsY() < 0)
+                while (camera.getAbsY() != 0)
+                    camera.updateAbsY(1);
+            firstCol.draw(gc, camera.getAbsY());
         }
     }
 
     public static void moveDown() {
         selectedCell.updateYCoord(1);
-        selectedCell.updateY(DEFAULT_CELL_H);
+        if (selectedCell.getY() != camera.picture.getH())
+            selectedCell.updateY(DEFAULT_CELL_H);
         if (selectedCell.getY() > camera.picture.getH()) {
             camera.updateAbsY(DEFAULT_CELL_H);
             while (selectedCell.getY() != camera.picture.getH()) {
@@ -73,19 +87,26 @@ public class Controller implements Initializable {
                 camera.updateAbsY(-1);
             }
             firstCol.draw(gc, camera.getAbsY());
+        } else if (selectedCell.getY() == camera.picture.getH()) {
+            camera.updateAbsY(DEFAULT_CELL_H);
+            firstCol.draw(gc, camera.getAbsY());
         }
     }
 
     public static void moveRight() {
         selectedCell.updateXCoord(1);
-        selectedCell.updateX(DEFAULT_CELL_W);
+        if (selectedCell.getX() != camera.picture.getW())
+            selectedCell.updateX(DEFAULT_CELL_W);
         if (selectedCell.getX() > camera.picture.getW()) {
             camera.updateAbsX(DEFAULT_CELL_W);
             while (selectedCell.getX() != camera.picture.getW()) {
                 selectedCell.updateX(-1);
                 camera.updateAbsX(-1);
             }
-            firstCol.draw(gc, camera.getAbsX());
+            firstRow.draw(gc, camera.getAbsX());
+        } else if (selectedCell.getX() == camera.picture.getW()) {
+            camera.updateAbsX(DEFAULT_CELL_W);
+            firstRow.draw(gc, camera.getAbsX());
         }
     }
 
@@ -110,7 +131,10 @@ public class Controller implements Initializable {
                         selectedCell.getyCoord(),
                         selectedCell.getInsertedTxt()));
                 moveDown();
-                System.out.println("New text cell: "+sheet.textCells);
+                System.out.println("New text cell: " + sheet.textCells);
+            } else if (event.getCode() == KeyCode.BACK_SPACE) {
+                selectedCell.delete();
+                System.out.println("Deleting a character.");
             } else selectedCell.draw(gc, event.getText());
         }
 
@@ -133,7 +157,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
 
-        camera = new Camera(DEFAULT_CELL_W, DEFAULT_CELL_H, CANVAS_W-DEFAULT_CELL_W, CANVAS_H-3*DEFAULT_CELL_H-4, DEFAULT_CELL_C, 0, 0);
+        camera = new Camera(DEFAULT_CELL_W, DEFAULT_CELL_H, CANVAS_W-DEFAULT_CELL_W, CANVAS_H-3*DEFAULT_CELL_H-4, DEFAULT_CELL_C);
         coordsCell = new CoordsCell(0, 0, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY, "B2");
         firstCol = new FirstCol(0, DEFAULT_CELL_H, DEFAULT_CELL_W, CANVAS_H-2*DEFAULT_CELL_H-4, Color.LIGHTGRAY);
         firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W, DEFAULT_CELL_H, Color.LIGHTGRAY);

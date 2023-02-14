@@ -90,4 +90,8 @@ public class SelectedCell extends Visible {
                 insertedTxt = tC.text();
         }
     }
+
+    public void delete() {
+        insertedTxt = insertedTxt.substring(0, insertedTxt.length()-1);
+    }
 }
