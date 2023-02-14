@@ -134,12 +134,17 @@ public class Controller implements Initializable {
                     statusBar.setMode(MODE[3]);
                     selectedCell.setInsertedTxt("");
                 }
-                case ENTER -> {
+                case ENTER, LEFT, DOWN, UP, RIGHT -> {
                     statusBar.setMode(MODE[3]);
                     sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
                             selectedCell.getyCoord(),
                             selectedCell.getInsertedTxt()));
-                    moveDown();
+                    switch (event.getCode()) {
+                        case LEFT -> moveLeft();
+                        case DOWN, ENTER -> moveDown();
+                        case UP -> moveUp();
+                        case RIGHT -> moveRight();
+                    }
                     System.out.println("New text cell: " + sheet.textCells);
                 }
                 case BACK_SPACE -> {
