@@ -6,8 +6,9 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.*;
+import vimicalc.model.Interpreter;
 import vimicalc.model.Sheet;
-import vimicalc.model.TextCell;
+import vimicalc.model.Cell;
 import vimicalc.view.*;
 
 import java.net.URL;
@@ -29,6 +30,7 @@ public class Controller implements Initializable {
     public static FirstRow firstRow;
     public static GraphicsContext gc;
     public static InfoBar infoBar;
+    public static Interpreter interpreter;
     public static SelectedCell selectedCell;
     public static Sheet sheet;
     public static StatusBar statusBar;
@@ -111,7 +113,9 @@ public class Controller implements Initializable {
 
     public static void onKeyPressed(KeyEvent event) {
         System.out.println("Key pressed: "+event.getCode());
-        if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
+        if (statusBar.getMode().equals(MODE[1])) {
+            formulaInput(event);
+        } else if (statusBar.getMode().equals(MODE[3]) || statusBar.getMode().equals(MODE[4])) {
             switch (event.getCode()) {
                 case H, LEFT -> moveLeft();
                 case J, ENTER, DOWN -> moveDown();
@@ -123,6 +127,10 @@ public class Controller implements Initializable {
                 }
                 case A, I -> statusBar.setMode(MODE[2]);
                 case ESCAPE -> statusBar.setMode(MODE[3]);
+                case EQUALS -> {
+                    statusBar.setMode(MODE[1]);
+                    infoBar.setEnteringFormula(true);
+                }
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
             switch (event.getCode()) {
@@ -132,16 +140,16 @@ public class Controller implements Initializable {
                 }
                 case ENTER, LEFT, DOWN, UP, RIGHT -> {
                     statusBar.setMode(MODE[3]);
-                    sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
+                    sheet.cells.add(new Cell(selectedCell.getxCoord(),
                             selectedCell.getyCoord(),
-                            selectedCell.getInsertedTxt()));
+                            selectedCell.getInsertedTxt(), 0, null));
                     switch (event.getCode()) {
                         case LEFT -> moveLeft();
                         case DOWN, ENTER -> moveDown();
                         case UP -> moveUp();
                         case RIGHT -> moveRight();
                     }
-                    System.out.println("New text cell: " + sheet.textCells);
+                    System.out.println("New txt cell: " + sheet.cells);
                 }
                 case BACK_SPACE -> {
                     selectedCell.delete();
@@ -152,8 +160,8 @@ public class Controller implements Initializable {
         }
 
         // Temporaire:
-        firstRow.draw(gc, camera.getAbsX());
         firstCol.draw(gc, camera.getAbsY());
+        firstRow.draw(gc, camera.getAbsX());
 
         System.out.println("     sC.x: "+selectedCell.getX()     +"   , yCoord: "+selectedCell.getY());
         System.out.println("sC.xCoord: "+selectedCell.getxCoord()+", sC.yCoord: "+selectedCell.getyCoord());
@@ -161,8 +169,8 @@ public class Controller implements Initializable {
         System.out.println("========================================");
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
-        camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
-        selectedCell.readCell(sheet.textCells);
+        camera.picture.take(gc, sheet.cells, camera.getAbsX(), camera.getAbsY());
+        selectedCell.readCell(sheet.cells);
         selectedCell.draw(gc);
         statusBar.draw(gc);
         if (selectedCell.getX() < camera.picture.getW())
@@ -171,9 +179,24 @@ public class Controller implements Initializable {
         infoBar.draw(gc);
     }
 
+    private static void formulaInput(KeyEvent event) {
+        switch (event.getCode()) {
+            case ESCAPE -> {
+                infoBar.setFormula("");
+                infoBar.setEnteringFormula(false);
+                statusBar.setMode(MODE[3]);
+            }
+            default -> {
+                infoBar.updateFormula(event.getText());
+                selectedCell.draw(gc, event.getText());
+            }
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
+        interpreter = new Interpreter();
         sheet = new Sheet();
 
         CANVAS_W = (int) canvas.getWidth();
@@ -187,7 +210,7 @@ public class Controller implements Initializable {
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.GRAY);
         selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY);
 
-        camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
+        camera.picture.take(gc, sheet.cells, camera.getAbsX(), camera.getAbsY());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         firstCol.draw(gc, camera.getAbsY());

@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.controller.Controller;
-import vimicalc.model.TextCell;
+import vimicalc.model.Cell;
 
 import java.util.ArrayList;
 
@@ -13,24 +13,23 @@ public class Picture extends Visible {
         super(x, y, w, h, c);
     }
 
-    public void take(GraphicsContext gc, ArrayList<TextCell> textCells, int absX, int absY) {
+    public void take(GraphicsContext gc, ArrayList<Cell> cells, int absX, int absY) {
         int DCW = Controller.DEFAULT_CELL_W;
         int DCH = Controller.DEFAULT_CELL_H;
         super.draw(gc);
 
         // À revoir:
-        for (TextCell tC : textCells) {
-            if (tC.xCoord() >= absX/DCW &&
-                tC.xCoord() <= (absX+w+DCW)/DCW &&
-                tC.yCoord() >= absY/DCH &&
-                tC.yCoord() <= (absY+h+DCH)/DCH) {
+        for (Cell c : cells)
+            if (c.xCoord() >= absX / DCW + 1 &&
+                    c.xCoord() <= (absX + w + DCW) / DCW &&
+                    c.yCoord() >= absY / DCH + 1 &&
+                    c.yCoord() <= (absY + h + DCH) / DCH) {
                 gc.setTextAlign(TextAlignment.CENTER);
                 gc.setFill(Color.BLACK);
-                gc.fillText(tC.text(),
-                        tC.xCoord() * DCW - absX + 45,
-                        tC.yCoord() * DCH - absY + 16,
+                gc.fillText(c.txt(),
+                        c.xCoord() * DCW - absX + 45,
+                        c.yCoord() * DCH - absY + 16,
                         DCW);
             }
-        }
     }
 }
