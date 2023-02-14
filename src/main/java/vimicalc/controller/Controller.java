@@ -97,11 +97,11 @@ public class Controller implements Initializable {
 
     public static void moveRight() {
         selectedCell.updateXCoord(1);
-        if (selectedCell.getX() != camera.picture.getW()) {
+        if (selectedCell.getX() != camera.picture.getH()) {
             selectedCell.updateX(DEFAULT_CELL_W);
-            if (selectedCell.getX() > camera.picture.getW()) {
+            if (selectedCell.getX() > camera.picture.getH()) {
                 camera.updateAbsX(DEFAULT_CELL_W);
-                while (selectedCell.getX() != camera.picture.getW()) {
+                while (selectedCell.getX() != camera.picture.getH()) {
                     selectedCell.updateX(-1);
                     camera.updateAbsX(-1);
                 }
@@ -176,14 +176,15 @@ public class Controller implements Initializable {
         CANVAS_H = (int) canvas.getHeight();
 
         camera = new Camera(DEFAULT_CELL_W, DEFAULT_CELL_H, CANVAS_W-DEFAULT_CELL_W, CANVAS_H-3*DEFAULT_CELL_H-4, DEFAULT_CELL_C);
-        coordsCell = new CoordsCell(0, 0, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY, "B2");
+        coordsCell = new CoordsCell(0, 0, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY);
         firstCol = new FirstCol(0, DEFAULT_CELL_H, DEFAULT_CELL_W, CANVAS_H-2*DEFAULT_CELL_H-4, Color.LIGHTGRAY);
-        firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
+        firstRow = new FirstRow(DEFAULT_CELL_W, 0, CANVAS_W-DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGRAY);
         infoBar = new InfoBar(0, CANVAS_H-DEFAULT_CELL_H, CANVAS_W, DEFAULT_CELL_H, DEFAULT_CELL_C);
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.DARKGRAY);
         selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGREEN);
 
         camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
+        coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         firstCol.draw(gc, camera.getAbsY());
         firstRow.draw(gc, camera.getAbsX());

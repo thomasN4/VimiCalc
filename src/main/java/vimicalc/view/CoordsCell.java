@@ -10,9 +10,8 @@ public class CoordsCell extends Visible {
 
     private String coords;
 
-    public CoordsCell(int x, int y, int w, int h, Color c, String coords) {
+    public CoordsCell(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        this.coords = coords;
     }
 
     public void setCoords(int xCoord, int yCoord) {

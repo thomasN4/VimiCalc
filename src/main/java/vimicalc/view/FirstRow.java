@@ -15,7 +15,7 @@ public class FirstRow extends Visible {
     public void draw(GraphicsContext gc, int absX) {
         super.draw(gc);
         int jump = Controller.DEFAULT_CELL_W;
-        for (int i = 1; i <= gc.getCanvas().getWidth()/jump+1; i++) {
+        for (int i = 1; i < gc.getCanvas().getWidth()/jump; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
             gc.fillText(""+toAlpha(i+absX/jump-1), (i+1)*jump-absX%jump-45, 16, jump);
