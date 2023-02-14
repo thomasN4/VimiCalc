@@ -37,16 +37,17 @@ public class Controller implements Initializable {
     public static void moveLeft() {
         if (selectedCell.getxCoord() != 1)
             selectedCell.updateXCoord(-1);
-        if (selectedCell.getX() != DEFAULT_CELL_W)
+        if (selectedCell.getX() != DEFAULT_CELL_W) {
             selectedCell.updateX(-DEFAULT_CELL_W);
-        if (selectedCell.getX() < DEFAULT_CELL_W) {
-            camera.updateAbsX(-DEFAULT_CELL_W);
-            while (selectedCell.getX() != DEFAULT_CELL_W) {
-                selectedCell.updateX(1);
-                camera.updateAbsX(1);
+            if (selectedCell.getX() < DEFAULT_CELL_W) {
+                camera.updateAbsX(-DEFAULT_CELL_W);
+                while (selectedCell.getX() != DEFAULT_CELL_W) {
+                    selectedCell.updateX(1);
+                    camera.updateAbsX(1);
+                }
+                firstRow.draw(gc, camera.getAbsX());
             }
-            firstRow.draw(gc, camera.getAbsX());
-        } else if (selectedCell.getX() == DEFAULT_CELL_W) {
+        } else {
             camera.updateAbsX(-DEFAULT_CELL_W);
             if (camera.getAbsX() < 0)
                 while (camera.getAbsX() != 0)
@@ -58,16 +59,17 @@ public class Controller implements Initializable {
     public static void moveUp() {
         if (selectedCell.getyCoord() != 1)
             selectedCell.updateYCoord(-1);
-        if (selectedCell.getY() != DEFAULT_CELL_H)
+        if (selectedCell.getY() != DEFAULT_CELL_H) {
             selectedCell.updateY(-DEFAULT_CELL_H);
-        if (selectedCell.getY() < DEFAULT_CELL_H) {
-            camera.updateAbsY(-DEFAULT_CELL_H);
-            while (selectedCell.getY() != DEFAULT_CELL_H) {
-                selectedCell.updateY(1);
-                camera.updateAbsY(1);
+            if (selectedCell.getY() < DEFAULT_CELL_H) {
+                camera.updateAbsY(-DEFAULT_CELL_H);
+                while (selectedCell.getY() != DEFAULT_CELL_H) {
+                    selectedCell.updateY(1);
+                    camera.updateAbsY(1);
+                }
+                firstCol.draw(gc, camera.getAbsY());
             }
-            firstCol.draw(gc, camera.getAbsY());
-        } else if (selectedCell.getY() == DEFAULT_CELL_H) {
+        } else {
             camera.updateAbsY(-DEFAULT_CELL_H);
             if (camera.getAbsY() < 0)
                 while (camera.getAbsY() != 0)
@@ -78,16 +80,17 @@ public class Controller implements Initializable {
 
     public static void moveDown() {
         selectedCell.updateYCoord(1);
-        if (selectedCell.getY() != camera.picture.getH())
+        if (selectedCell.getY() != camera.picture.getH()) {
             selectedCell.updateY(DEFAULT_CELL_H);
-        if (selectedCell.getY() > camera.picture.getH()) {
-            camera.updateAbsY(DEFAULT_CELL_H);
-            while (selectedCell.getY() != camera.picture.getH()) {
-                selectedCell.updateY(-1);
-                camera.updateAbsY(-1);
+            if (selectedCell.getY() > camera.picture.getH()) {
+                camera.updateAbsY(DEFAULT_CELL_H);
+                while (selectedCell.getY() != camera.picture.getH()) {
+                    selectedCell.updateY(-1);
+                    camera.updateAbsY(-1);
+                }
+                firstCol.draw(gc, camera.getAbsY());
             }
-            firstCol.draw(gc, camera.getAbsY());
-        } else if (selectedCell.getY() == camera.picture.getH()) {
+        } else {
             camera.updateAbsY(DEFAULT_CELL_H);
             firstCol.draw(gc, camera.getAbsY());
         }
