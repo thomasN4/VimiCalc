@@ -17,4 +17,10 @@ public class Sheet {
     public ArrayList<Cell> getNonEmptyCells() {
         return nonEmptyCells;
     }
+
+    public void deleteCell(int xCoord, int yCoord) {
+        for (TextCell tC : textCells)
+            if (xCoord == tC.xCoord() && yCoord == tC.yCoord())
+                textCells.remove(tC);
+    }
 }

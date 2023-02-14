@@ -121,24 +121,33 @@ public class Controller implements Initializable {
                 case J, ENTER, DOWN -> moveDown();
                 case K, UP -> moveUp();
                 case L, RIGHT -> moveRight();
+                case D -> {
+                    sheet.deleteCell(selectedCell.getxCoord(), selectedCell.getyCoord());
+                    selectedCell.setInsertedTxt("");
+                }
                 case A, I -> statusBar.setMode(MODE[2]);
                 case ESCAPE -> statusBar.setMode(MODE[3]);
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                statusBar.setMode(MODE[3]);
-                selectedCell.setInsertedTxt("");
-            } else if (event.getCode() == KeyCode.ENTER) {
-                statusBar.setMode(MODE[3]);
-                sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
-                        selectedCell.getyCoord(),
-                        selectedCell.getInsertedTxt()));
-                moveDown();
-                System.out.println("New text cell: " + sheet.textCells);
-            } else if (event.getCode() == KeyCode.BACK_SPACE) {
-                selectedCell.delete();
-                System.out.println("Deleting a character.");
-            } else selectedCell.draw(gc, event.getText());
+            switch (event.getCode()) {
+                case ESCAPE -> {
+                    statusBar.setMode(MODE[3]);
+                    selectedCell.setInsertedTxt("");
+                }
+                case ENTER -> {
+                    statusBar.setMode(MODE[3]);
+                    sheet.textCells.add(new TextCell(selectedCell.getxCoord(),
+                            selectedCell.getyCoord(),
+                            selectedCell.getInsertedTxt()));
+                    moveDown();
+                    System.out.println("New text cell: " + sheet.textCells);
+                }
+                case BACK_SPACE -> {
+                    selectedCell.delete();
+                    System.out.println("Deleting a character.");
+                }
+                default -> selectedCell.draw(gc, event.getText());
+            }
         }
 
         System.out.println("     sC.x: "+selectedCell.getX()     +"   , yCoord: "+selectedCell.getY());
@@ -156,6 +165,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
+        sheet = new Sheet();
 
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
@@ -168,14 +178,12 @@ public class Controller implements Initializable {
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.DARKGRAY);
         selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.LIGHTGREEN);
 
-        camera.picture.draw(gc);
+        camera.picture.take(gc, sheet.textCells, camera.getAbsX(), camera.getAbsY());
         coordsCell.draw(gc);
         firstCol.draw(gc, camera.getAbsY());
         firstRow.draw(gc, camera.getAbsX());
         infoBar.draw(gc);
         statusBar.draw(gc);
         selectedCell.draw(gc);
-
-        sheet = new Sheet();
     }
 }
