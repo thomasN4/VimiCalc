@@ -8,7 +8,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.*;
 import vimicalc.model.Interpreter;
 import vimicalc.model.Sheet;
-import vimicalc.model.Cell;
 import vimicalc.view.*;
 
 import java.net.URL;
