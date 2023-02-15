@@ -139,7 +139,9 @@ public class Controller implements Initializable {
                 }
                 case ENTER, LEFT, DOWN, UP, RIGHT -> {
                     statusBar.setMode(MODE[3]);
-                    sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), selectedCell.getInsertedTxt());
+                    if (sheet.findCell(coordsCell.getCoords()) == null)
+                        sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), selectedCell.getInsertedTxt());
+                    else sheet.findCell(coordsCell.getCoords()).setTxt(selectedCell.getInsertedTxt());
                     switch (event.getCode()) {
                         case LEFT -> moveLeft();
                         case DOWN, ENTER -> moveDown();
@@ -170,8 +172,6 @@ public class Controller implements Initializable {
         selectedCell.readCell(sheet.getCells());
         selectedCell.draw(gc);
         statusBar.draw(gc);
-        if (selectedCell.getX() < camera.picture.getW())
-            infoBar.setC(DEFAULT_CELL_C);
         infoBar.setKeyStroke(event.getCode().toString());
         infoBar.draw(gc);
     }
@@ -186,15 +186,14 @@ public class Controller implements Initializable {
             case ENTER -> {
                 interpreter.setRawFormula(infoBar.getFormula());
                 interpreter.interpret();
-                sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), interpreter.getNumericResult(), interpreter.getLexedFormula());
+                if (sheet.findCell(coordsCell.getCoords()) == null)
+                    sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), interpreter.getNumericResult(), interpreter.getLexedFormula());
+                else sheet.findCell(coordsCell.getCoords()).setFormula(interpreter.getLexedFormula());
                 infoBar.setFormula("");
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
             }
-            case BACK_SPACE -> {
-                infoBar.setFormula(infoBar.getFormula().substring(0, infoBar.getFormula().length()-1));
-                System.out.println("Deleting a character.");
-            }
+            case BACK_SPACE -> infoBar.setFormula(infoBar.getFormula().substring(0, infoBar.getFormula().length()-1));
             default -> infoBar.updateFormula(event.getText());
         }
     }

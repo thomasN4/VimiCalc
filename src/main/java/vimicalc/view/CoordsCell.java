@@ -18,6 +18,10 @@ public class CoordsCell extends Visible {
         coords = toAlpha(xCoord-1) + yCoord;
     }
 
+    public String getCoords() {
+        return coords;
+    }
+
     @Override
     public void draw(GraphicsContext gc) {
         super.draw(gc);
