@@ -14,9 +14,11 @@ public class Interpreter {
     private String rawFormula;
     private ArrayList<String> lexedFormula;
     private double numericResult;
+    private Tensor_utils tensor_utils;
 
     public Interpreter() {
         lexedFormula = new ArrayList<String>();
+        tensor_utils = new Tensor_utils();
     }
 
     public void setRawFormula(String rawFormula) {
@@ -24,11 +26,14 @@ public class Interpreter {
     }
 
     private void lexer() {
+        lexedFormula = new ArrayList<>();
         String arg_i = "";
         for (int i = 0; i < rawFormula.length(); i++) {
-            arg_i += rawFormula.charAt(i);
-            if (rawFormula.charAt(i) == ' ')
+            if (rawFormula.charAt(i) == ' ') {
                 lexedFormula.add(arg_i);
+                arg_i = "";
+            } else
+                arg_i += rawFormula.charAt(i);
         }
         lexedFormula.add(arg_i);
     }
@@ -41,23 +46,27 @@ public class Interpreter {
     }
 
     public void interpret() {
+        System.out.println("Lexin\' ["+rawFormula+']');
         lexer();
+        System.out.println("Processin\' ["+lexedFormula+']');
         switch (lexedFormula.get(0)) {
             case "sum" -> {
+                System.out.println("Summin\'");
                 Vector<Double> nums = new Vector<Double>();
-                Tensor_utils t = new Tensor_utils();
                 boolean isCoordsArea = false;
                 for (String s : lexedFormula.subList(1, lexedFormula.size())) {
                     for (int i = 0; i < s.length(); i++) {
                         if (s.charAt(i) == ':') {
-                            t.AddMatrixToVector(nums, t.createMatrixFromCoords(s));
+                            nums.addAll(tensor_utils.createVectorFromArea(s));
                             isCoordsArea = true;
                             break;
                         }
                     }
                     if (!isCoordsArea)
                         nums.add((sheet.findCell(s)).val());
+                    isCoordsArea = false;
                 }
+                System.out.println(nums);
                 sum(nums);
             }
         }

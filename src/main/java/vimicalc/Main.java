@@ -35,7 +35,7 @@ public class Main extends Application {
 
     public static int fromAlpha(String alpha) {
         int num = 0;
-        for (int i = 0; i <= alpha.length(); i++) {
+        for (int i = 0; i < alpha.length(); i++) {
             num += (alpha.charAt(i)-64)*pow(26, alpha.length()-i-1);
         }
         return num;

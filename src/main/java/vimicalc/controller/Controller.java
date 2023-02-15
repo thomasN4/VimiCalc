@@ -189,12 +189,14 @@ public class Controller implements Initializable {
                 interpreter.interpret();
                 sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), interpreter.getNumericResult(), interpreter.getLexedFormula());
                 infoBar.setFormula("");
+                infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
             }
-            default -> {
-                infoBar.updateFormula(event.getText());
-                selectedCell.draw(gc, event.getText());
+            case BACK_SPACE -> {
+                infoBar.setFormula(infoBar.getFormula().substring(0, infoBar.getFormula().length()-1));
+                System.out.println("Deleting a character.");
             }
+            default -> infoBar.updateFormula(event.getText());
         }
     }
 

@@ -1,19 +1,35 @@
 package vimicalc.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Vector;
+
+import static vimicalc.controller.Controller.sheet;
 
 public class Tensor_utils {
     public Tensor_utils() {}
 
-    public void AddMatrixToVector(Vector<Double> vector, ArrayList<Vector<Double>> matrix) {
-        for (Vector<Double> v : matrix)
-            vector.addAll(v);
-    }
+    // Ne retourne que les valeurs des cellules déjà initialisées
+    public Vector<Double> createVectorFromArea(String s) {
+        Vector<Double> vector = new Vector<Double>();
+        StringBuilder firstCoords = new StringBuilder();
+        String lastCoords = "";
 
-    public ArrayList<Vector<Double>> createMatrixFromCoords(String s) {
-        ArrayList<Vector<Double>> mat = new ArrayList<Vector<Double>>();
-        ;
-        return mat;
+        int i = 0;
+        for ( ; s.charAt(i) != ':'; i++)
+            firstCoords.append(s.charAt(i));
+        lastCoords = s.substring(i+1);
+
+        int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
+        int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
+        int lastCoordX = sheet.findCell(lastCoords).xCoord();
+        int lastCoordY = sheet.findCell(lastCoords).yCoord();
+
+        for (Cell c : sheet.cells)
+            if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
+                c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY)
+                vector.add(c.val());
+
+        return vector;
     }
 }

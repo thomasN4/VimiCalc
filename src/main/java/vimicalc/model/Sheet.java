@@ -26,8 +26,9 @@ public class Sheet {
     public Cell findCell(String coords) {
         StringBuilder coordX = new StringBuilder();
         StringBuilder coordY = new StringBuilder();
+        System.out.println("findCell's coords: "+coords);
         for (int i = 0; i < coords.length(); i++) {
-            if (coords.charAt(i) < 64)
+            if (coords.charAt(i) > 64)
                 coordX.append(coords.charAt(i));
             else coordY.append(coords.charAt(i));
         }
