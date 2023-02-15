@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.*;
+import vimicalc.model.Cell;
 import vimicalc.model.Interpreter;
 import vimicalc.model.Sheet;
 import vimicalc.view.*;
@@ -133,6 +134,9 @@ public class Controller implements Initializable {
                 case EQUALS -> {
                     statusBar.setMode(MODE[1]);
                     infoBar.setEnteringFormula(true);
+                    Cell c = sheet.findCell(coordsCell.getCoords());
+//                    if (c.formula() != null)
+//                        infoBar.setFormula(c.formula().toString());
                 }
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
