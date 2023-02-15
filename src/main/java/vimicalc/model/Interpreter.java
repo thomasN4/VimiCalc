@@ -46,12 +46,9 @@ public class Interpreter {
     }
 
     public void interpret() {
-        System.out.println("Lexin\' ["+rawFormula+']');
         lexer();
-        System.out.println("Processin\' ["+lexedFormula+']');
         switch (lexedFormula.get(0)) {
             case "sum" -> {
-                System.out.println("Summin\'");
                 Vector<Double> nums = new Vector<Double>();
                 boolean isCoordsArea = false;
                 for (String s : lexedFormula.subList(1, lexedFormula.size())) {
