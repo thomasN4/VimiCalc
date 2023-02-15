@@ -6,13 +6,14 @@ import static vimicalc.Main.fromAlpha;
 
 public class Sheet {
 
-    public ArrayList<Cell> cells;
+    private ArrayList<Cell> cells;
 
     public Sheet() {
-        cells = new ArrayList<>();
+        setCells(new ArrayList<>());
     }
+
     public Sheet(ArrayList<Cell> fileContent) {
-        cells.addAll(fileContent);
+        getCells().addAll(fileContent);
     }
 
     public ArrayList<Cell> getCells() {
@@ -20,7 +21,7 @@ public class Sheet {
     }
 
     public void deleteCell(int xCoord, int yCoord) {
-        cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
+        getCells().removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
     }
 
     public Cell findCell(String coords) {
@@ -33,7 +34,7 @@ public class Sheet {
             else coordY.append(coords.charAt(i));
         }
         Cell found = new Cell(fromAlpha(coordX.toString()), Integer.parseInt(coordY.toString()), "", 0, null);
-        for (Cell c : cells)
+        for (Cell c : getCells())
             if (c.xCoord() == fromAlpha(coordX.toString()) && c.yCoord() == Integer.parseInt(coordY.toString()))
                 found = c;
         return found;
@@ -43,11 +44,22 @@ public class Sheet {
         double val = 0;
         try { val = Double.parseDouble(insertedTxt);
         } catch (Exception ignored) {}
-        cells.add(new Cell(xCoord, yCoord, insertedTxt, val, null));
+        getCells().add(new Cell(xCoord, yCoord, insertedTxt, val, null));
     }
 
     public void createCell(int xCoord, int yCoord, double val, ArrayList<String> formula) {
-        Double v = val;
-        cells.add(new Cell(xCoord, yCoord, v.toString(), val, formula));
+        getCells().add(new Cell(xCoord, yCoord, String.valueOf(val), val, formula));
+    }
+
+    public void updateCellVals(ArrayList<Cell> modified) {
+        Cell newCell = null;
+        for (Cell m : modified) {
+            getCells().removeIf(c -> m == c);
+        }
+        getCells().addAll(modified);
+    }
+
+    public void setCells(ArrayList<Cell> cells) {
+        this.cells = cells;
     }
 }

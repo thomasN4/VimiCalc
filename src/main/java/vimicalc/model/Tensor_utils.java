@@ -1,7 +1,5 @@
 package vimicalc.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Vector;
 
 import static vimicalc.controller.Controller.sheet;
@@ -25,7 +23,7 @@ public class Tensor_utils {
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
 
-        for (Cell c : sheet.cells)
+        for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                 c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY)
                 vector.add(c.val());

@@ -6,18 +6,13 @@ import java.util.Vector;
 import static vimicalc.controller.Controller.sheet;
 
 public class Interpreter {
-
-    private final String[] args_0 = {
-            "sum",
-    };
-
     private String rawFormula;
     private ArrayList<String> lexedFormula;
     private double numericResult;
-    private Tensor_utils tensor_utils;
+    private final Tensor_utils tensor_utils;
 
     public Interpreter() {
-        lexedFormula = new ArrayList<String>();
+        lexedFormula = new ArrayList<>();
         tensor_utils = new Tensor_utils();
     }
 
@@ -27,15 +22,15 @@ public class Interpreter {
 
     private void lexer() {
         lexedFormula = new ArrayList<>();
-        String arg_i = "";
+        StringBuilder arg_i = new StringBuilder();
         for (int i = 0; i < rawFormula.length(); i++) {
             if (rawFormula.charAt(i) == ' ') {
-                lexedFormula.add(arg_i);
-                arg_i = "";
+                lexedFormula.add(arg_i.toString());
+                arg_i = new StringBuilder();
             } else
-                arg_i += rawFormula.charAt(i);
+                arg_i.append(rawFormula.charAt(i));
         }
-        lexedFormula.add(arg_i);
+        lexedFormula.add(arg_i.toString());
     }
 
     private void sum(Vector<Double> nums) {
@@ -49,7 +44,7 @@ public class Interpreter {
         lexer();
         switch (lexedFormula.get(0)) {
             case "sum" -> {
-                Vector<Double> nums = new Vector<Double>();
+                Vector<Double> nums = new Vector<>();
                 boolean isCoordsArea = false;
                 for (String s : lexedFormula.subList(1, lexedFormula.size())) {
                     for (int i = 0; i < s.length(); i++) {
@@ -75,5 +70,9 @@ public class Interpreter {
 
     public ArrayList<String> getLexedFormula() {
         return lexedFormula;
+    }
+
+    public void setLexedFormula(ArrayList<String> lexedFormula) {
+        this.lexedFormula = lexedFormula;
     }
 }

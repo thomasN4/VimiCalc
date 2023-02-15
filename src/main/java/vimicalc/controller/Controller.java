@@ -146,7 +146,7 @@ public class Controller implements Initializable {
                         case UP -> moveUp();
                         case RIGHT -> moveRight();
                     }
-                    System.out.println("New txt cell: " + sheet.cells);
+                    System.out.println("New txt cell: " + sheet.getCells());
                 }
                 case BACK_SPACE -> {
                     selectedCell.delete();
@@ -166,8 +166,8 @@ public class Controller implements Initializable {
         System.out.println("========================================");
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
-        camera.picture.take(gc, sheet.cells, camera.getAbsX(), camera.getAbsY());
-        selectedCell.readCell(sheet.cells);
+        camera.picture.take(gc, sheet.getCells(), camera.getAbsX(), camera.getAbsY());
+        selectedCell.readCell(sheet.getCells());
         selectedCell.draw(gc);
         statusBar.draw(gc);
         if (selectedCell.getX() < camera.picture.getW())
@@ -216,7 +216,7 @@ public class Controller implements Initializable {
         statusBar = new StatusBar(0, CANVAS_H-2*DEFAULT_CELL_H-4, CANVAS_W, DEFAULT_CELL_H+4, Color.GRAY);
         selectedCell = new SelectedCell(2*DEFAULT_CELL_W, 2*DEFAULT_CELL_H, DEFAULT_CELL_W, DEFAULT_CELL_H, Color.DARKGRAY);
 
-        camera.picture.take(gc, sheet.cells, camera.getAbsX(), camera.getAbsY());
+        camera.picture.take(gc, sheet.getCells(), camera.getAbsX(), camera.getAbsY());
         coordsCell.setCoords(selectedCell.getxCoord(), selectedCell.getyCoord());
         coordsCell.draw(gc);
         firstCol.draw(gc, camera.getAbsY());
