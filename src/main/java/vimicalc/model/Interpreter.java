@@ -19,6 +19,10 @@ public class Interpreter {
         lexedFormula = new ArrayList<String>();
     }
 
+    public void setRawFormula(String rawFormula) {
+        this.rawFormula = rawFormula;
+    }
+
     private void lexer() {
         String arg_i = "";
         for (int i = 0; i < rawFormula.length(); i++) {
@@ -36,7 +40,7 @@ public class Interpreter {
         numericResult = s;
     }
 
-    public void interpreting() {
+    public void interpret() {
         lexer();
         switch (lexedFormula.get(0)) {
             case "sum" -> {
@@ -59,8 +63,11 @@ public class Interpreter {
         }
     }
 
-    public double numericResult(double numericResult) {
+    public double getNumericResult() {
         return numericResult;
     }
 
+    public ArrayList<String> getLexedFormula() {
+        return lexedFormula;
+    }
 }

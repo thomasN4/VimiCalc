@@ -17,6 +17,10 @@ public class InfoBar extends Visible {
         formula = "";
     }
 
+    public String getFormula() {
+        return formula;
+    }
+
     public void setEnteringFormula(boolean enteringFormula) {
         this.enteringFormula = enteringFormula;
     }

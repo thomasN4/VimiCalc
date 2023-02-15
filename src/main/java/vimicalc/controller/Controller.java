@@ -140,9 +140,7 @@ public class Controller implements Initializable {
                 }
                 case ENTER, LEFT, DOWN, UP, RIGHT -> {
                     statusBar.setMode(MODE[3]);
-                    sheet.cells.add(new Cell(selectedCell.getxCoord(),
-                            selectedCell.getyCoord(),
-                            selectedCell.getInsertedTxt(), 0, null));
+                    sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), selectedCell.getInsertedTxt());
                     switch (event.getCode()) {
                         case LEFT -> moveLeft();
                         case DOWN, ENTER -> moveDown();
@@ -184,6 +182,13 @@ public class Controller implements Initializable {
             case ESCAPE -> {
                 infoBar.setFormula("");
                 infoBar.setEnteringFormula(false);
+                statusBar.setMode(MODE[3]);
+            }
+            case ENTER -> {
+                interpreter.setRawFormula(infoBar.getFormula());
+                interpreter.interpret();
+                sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), interpreter.getNumericResult(), interpreter.getLexedFormula());
+                infoBar.setFormula("");
                 statusBar.setMode(MODE[3]);
             }
             default -> {
