@@ -45,6 +45,7 @@ public class SelectedCell extends Visible {
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
+        System.out.println("Drawing new text.");
         super.draw(gc);
         insertedTxt += insertedChar;
         gc.setFill(Color.BLACK);

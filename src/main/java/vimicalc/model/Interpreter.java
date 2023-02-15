@@ -1,9 +1,9 @@
 package vimicalc.model;
 
+import vimicalc.controller.Controller;
+
 import java.util.ArrayList;
 import java.util.Vector;
-
-import static vimicalc.controller.Controller.sheet;
 
 public class Interpreter {
     private String rawFormula;
@@ -55,7 +55,7 @@ public class Interpreter {
                         }
                     }
                     if (!isCoordsArea)
-                        nums.add((sheet.findCell(s)).val());
+                        nums.add((Controller.sheet.findCellVal(s)));
                     isCoordsArea = false;
                 }
                 System.out.println(nums);

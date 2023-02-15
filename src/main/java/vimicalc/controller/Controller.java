@@ -124,7 +124,11 @@ public class Controller implements Initializable {
                     sheet.deleteCell(selectedCell.getxCoord(), selectedCell.getyCoord());
                     selectedCell.setInsertedTxt("");
                 }
-                case A, I -> statusBar.setMode(MODE[2]);
+                case A, I -> {
+                    if (sheet.findCell(coordsCell.getCoords()) != null)
+                        sheet.deleteCell(selectedCell.getxCoord(), selectedCell.getyCoord());
+                    statusBar.setMode(MODE[2]);
+                }
                 case ESCAPE -> statusBar.setMode(MODE[3]);
                 case EQUALS -> {
                     statusBar.setMode(MODE[1]);
@@ -140,7 +144,9 @@ public class Controller implements Initializable {
                 case ENTER, LEFT, DOWN, UP, RIGHT -> {
                     statusBar.setMode(MODE[3]);
                     if (sheet.findCell(coordsCell.getCoords()) == null)
-                        sheet.createCell(selectedCell.getxCoord(), selectedCell.getyCoord(), selectedCell.getInsertedTxt());
+                        sheet.createCell(selectedCell.getxCoord(),
+                                selectedCell.getyCoord(),
+                                selectedCell.getInsertedTxt());
                     else sheet.findCell(coordsCell.getCoords()).setTxt(selectedCell.getInsertedTxt());
                     switch (event.getCode()) {
                         case LEFT -> moveLeft();

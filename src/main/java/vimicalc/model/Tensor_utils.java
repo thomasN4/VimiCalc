@@ -9,9 +9,9 @@ public class Tensor_utils {
 
     // Ne retourne que les valeurs des cellules déjà initialisées
     public Vector<Double> createVectorFromArea(String s) {
-        Vector<Double> vector = new Vector<Double>();
+        Vector<Double> vector = new Vector<>();
         StringBuilder firstCoords = new StringBuilder();
-        String lastCoords = "";
+        String lastCoords;
 
         int i = 0;
         for ( ; s.charAt(i) != ':'; i++)
