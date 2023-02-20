@@ -5,19 +5,33 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.controller.Controller;
 import vimicalc.model.Cell;
+import vimicalc.model.EmptyCell;
 
 import java.util.ArrayList;
 
-public class SelectedCell extends Visible {
+public class CellSelector extends Visible {
 
     private int xCoord;
     private int yCoord;
-    private String insertedTxt = "";
+    private Cell selectedCell;
+    private EmptyCell emptyCell;
 
-    public SelectedCell(int x, int y, int w, int h, Color c) {
+    public CellSelector(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         xCoord = x/Controller.DEFAULT_CELL_W;
         yCoord = y/Controller.DEFAULT_CELL_H;
+        setEmptyCell(new EmptyCell(xCoord, yCoord));
+        setSelectedCell(getEmptyCell());
+        System.out.println("Initial empty cell: "+emptyCell.toString());
+    }
+
+    public Cell getSelectedCell() {
+        return selectedCell;
+    }
+
+    public EmptyCell getEmptyCell() {
+//        System.out.println("Empty cell: "+emptyCell.toString());
+        return emptyCell;
     }
 
     public int getxCoord() {
@@ -29,11 +43,15 @@ public class SelectedCell extends Visible {
     }
 
     public String getInsertedTxt() {
-        return insertedTxt;
+        return getSelectedCell().txt();
     }
 
     public void setInsertedTxt(String insertedTxt) {
-        this.insertedTxt = insertedTxt;
+        getSelectedCell().setTxt(insertedTxt);
+    }
+
+    public void setSelectedCell(Cell selectedCell) {
+        this.selectedCell = selectedCell;
     }
 
     @Override
@@ -41,26 +59,24 @@ public class SelectedCell extends Visible {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(insertedTxt, x+45, y+16);
+        gc.fillText(getSelectedCell().txt(), x+45, y+16);
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
         System.out.println("Drawing new text.");
         super.draw(gc);
-        insertedTxt += insertedChar;
+        getSelectedCell().setTxt(getSelectedCell().txt() + insertedChar);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(insertedTxt, x+45, y+16);
+        gc.fillText(getSelectedCell().txt(), x+45, y+16);
     }
 
     public void updateX(int x_mov) {
         super.setX(x+x_mov);
-        insertedTxt = "";
     }
 
     public void updateY(int y_mov) {
         super.setY(y+y_mov);
-        insertedTxt = "";
     }
 
     public void updateXCoord(int xCoord_mov) {
@@ -72,13 +88,20 @@ public class SelectedCell extends Visible {
     }
 
     public void readCell(ArrayList<Cell> cells) {
+        setEmptyCell(new EmptyCell(xCoord, yCoord));
+        setSelectedCell(getEmptyCell());
         for (Cell tC : cells) {
             if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
-                insertedTxt = tC.txt();
+                setSelectedCell(tC);
         }
+        System.out.println("Selected cell's formula: "+ getSelectedCell().formula().getTxt());
     }
 
-    public void delete() {
-        insertedTxt = insertedTxt.substring(0, insertedTxt.length()-1);
+    public void delCharInTxt() {
+        getSelectedCell().setTxt(getSelectedCell().txt().substring(0, getSelectedCell().txt().length()-1));
+    }
+
+    public void setEmptyCell(EmptyCell emptyCell) {
+        this.emptyCell = emptyCell;
     }
 }

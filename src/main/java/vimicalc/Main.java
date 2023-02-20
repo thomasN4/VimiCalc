@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import vimicalc.controller.Controller;
+import vimicalc.model.Sheet;
 
 import java.io.IOException;
 
@@ -39,5 +40,15 @@ public class Main extends Application {
             num += (alpha.charAt(i)-64)*pow(26, alpha.length()-i-1);
         }
         return num;
+    }
+
+   public static boolean isNumber(String s) {
+        boolean b = true;
+        try {
+            Double.parseDouble(s);
+        } catch (Exception ignored) {
+            b = false;
+        }
+        return b;
     }
 }

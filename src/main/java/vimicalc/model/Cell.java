@@ -1,21 +1,21 @@
 package vimicalc.model;
 
-import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.Objects;
 
 public class Cell {
-    private int xCoord;
-    private int yCoord;
-    private String txt;
-    private double val;
-    private ArrayList<String> formula;
+    protected int xCoord;
+    protected int yCoord;
+    protected String txt;
+    protected Formula formula;
+    protected DecimalFormat format;
 
-    public Cell(int xCoord, int yCoord, String txt, double val, ArrayList<String> formula) {
+    public Cell(int xCoord, int yCoord, String txt, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
-        this.val = val;
         this.formula = formula;
+        format = new DecimalFormat("0.00");
     }
 
     public int xCoord() {
@@ -30,11 +30,7 @@ public class Cell {
         return txt;
     }
 
-    public double val() {
-        return val;
-    }
-
-    public ArrayList<String> formula() {
+    public Formula formula() {
         return formula;
     }
 
@@ -46,13 +42,12 @@ public class Cell {
         return this.xCoord == that.xCoord &&
                 this.yCoord == that.yCoord &&
                 Objects.equals(this.txt, that.txt) &&
-                Double.doubleToLongBits(this.val) == Double.doubleToLongBits(that.val) &&
                 Objects.equals(this.formula, that.formula);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(xCoord, yCoord, txt, val, formula);
+        return Objects.hash(xCoord, yCoord, txt, formula);
     }
 
     @Override
@@ -61,27 +56,18 @@ public class Cell {
                 "xCoord=" + xCoord + ", " +
                 "yCoord=" + yCoord + ", " +
                 "txt=" + txt + ", " +
-                "val=" + val + ", " +
-                "formula=" + formula + ']';
-    }
-
-    public void setxCoord(int xCoord) {
-        this.xCoord = xCoord;
-    }
-
-    public void setyCoord(int yCoord) {
-        this.yCoord = yCoord;
+                "formula=" + formula.getTxt() + ']';
     }
 
     public void setTxt(String txt) {
         this.txt = txt;
     }
 
-    public void setVal(double val) {
-        this.val = val;
-    }
-
-    public void setFormula(ArrayList<String> formula) {
+    public void setFormula(Formula formula) {
         this.formula = formula;
     }
-};
+
+    public void updateFormula(String c) {
+        formula.setTxt(formula.getTxt() + c);
+    }
+}
