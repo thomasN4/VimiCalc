@@ -34,7 +34,7 @@ public class Picture extends Visible {
                     c.yCoord() <= (absY + h + DCH) / DCH) {
                 if (!c.formula().getTxt().equals("0")) {
                     System.out.println("Reinterpreting...");
-                    c.setTxt(c.formula().interpret(sheet));
+                    c.setTxt(c.format().format(Double.parseDouble(c.formula().interpret(sheet))));
                     modified.add(c);
                 }
                 visibleCells.add(c);

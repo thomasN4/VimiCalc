@@ -8,14 +8,14 @@ public class Cell {
     private final int yCoord;
     private String txt;
     private Formula formula;
-    private final DecimalFormat defaultFormat;
+    private final DecimalFormat format;
 
     public Cell(int xCoord, int yCoord, String txt, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
         this.formula = formula;
-        defaultFormat = new DecimalFormat("0.0");
+        format = new DecimalFormat("0.0");
     }
 
     public Cell(int xCoord, int yCoord) {
@@ -23,7 +23,7 @@ public class Cell {
         this.yCoord = yCoord;
         txt = "";
         formula = new Formula("0");
-        defaultFormat = null;
+        format = new DecimalFormat("0.0");
     }
 
     public int xCoord() {
@@ -35,14 +35,15 @@ public class Cell {
     }
 
     public String txt() {
-        if (!formula.getTxt().equals("0")) {
-            assert defaultFormat != null;
-            return defaultFormat.format(txt);
-        } else return txt;
+        return txt;
     }
 
     public Formula formula() {
         return formula;
+    }
+
+    public DecimalFormat format() {
+        return format;
     }
 
     @Override
