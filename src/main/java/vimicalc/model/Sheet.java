@@ -72,9 +72,7 @@ public class Sheet {
 
     // how do I not need this
     public void modifyCellFormula(int xCoord, int yCoord, String txt, Formula formula) {
-        for (Cell c : cells)
-            if (xCoord == c.xCoord() && yCoord == c.yCoord())
-                cells.remove(c);
+        cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
         cells.add(new Cell(xCoord, yCoord, txt, formula));
     }
 
