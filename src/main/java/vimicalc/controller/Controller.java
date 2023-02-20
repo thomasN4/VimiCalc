@@ -130,7 +130,10 @@ public class Controller implements Initializable {
                 case EQUALS -> {
                     statusBar.setMode(MODE[1]);
                     infoBar.setEnteringFormula(true);
-                    cellSelector.getSelectedCell().setFormula(new Formula(""));
+                    String fText = sheet.findCell(coordsCell.getCoords()).formula().getTxt();
+                    if (fText.equals("0"))
+                        cellSelector.getSelectedCell().setFormula(new Formula(""));
+                    else cellSelector.getEmptyCell().setFormula(new Formula(fText));
                 }
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
