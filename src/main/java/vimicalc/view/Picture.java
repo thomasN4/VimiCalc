@@ -46,6 +46,6 @@ public class Picture extends Visible {
                         DCW);
             }
         }
-        sheet.updateCellVals(modified);
+        sheet.updateCellValues(modified);
     }
 }

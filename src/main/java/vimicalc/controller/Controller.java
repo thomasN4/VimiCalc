@@ -145,7 +145,6 @@ public class Controller implements Initializable {
         System.out.println("sC.xCoord: "+ cellSelector.getxCoord()+", sC.yCoord: "+ cellSelector.getyCoord());
         System.out.println(" cam.absX: "+camera.getAbsX()         +", cam.absY: "+camera.getAbsY());
         System.out.println("    Cells: "+sheet.getCells());
-        System.out.println("selectedC: "+ cellSelector.getSelectedCell().toString());
         System.out.println("========================================");
         if (statusBar.getMode().equals(MODE[3])) {
             camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
@@ -166,12 +165,6 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
-//                System.out.println("\"The cell was empty\" == "+sheet.findCell(coordsCell.getCoords()).equals(cellSelector.getEmptyCell()));
-//                System.out.println("\"The empty cell and the selected cell are identical for some fucking reason\" == "+
-//                        (cellSelector.getSelectedCell().equals(cellSelector.getEmptyCell())));
-//                System.out.println("Empty cell: "+ cellSelector.getEmptyCell());
-//                System.out.println("Empty cell's text: "+ cellSelector.getEmptyCell().txt());
-//                System.out.println("Selected cell: "+ cellSelector.getSelectedCell());
                 sheet.updateCell(coordsCell.getCoords(), cellSelector.getSelectedCell());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
@@ -198,13 +191,10 @@ public class Controller implements Initializable {
                 System.out.println("Result: "+result);
                 if (isNumber(result)) {
                     cellSelector.getSelectedCell().setTxt(result);
-//                    sheet.updateCell(coordsCell.getCoords(), cellSelector.getSelectedCell());
-                    // wtf:
                     sheet.modifyCellFormula(cellSelector.getxCoord()
                             , cellSelector.getyCoord()
                             , result
                             , cellSelector.getSelectedCell().formula());
-//                    sheet.modifyCellFormula(cellSelector.getSelectedCell());
                     System.out.println("Saved cell: "+ cellSelector.getSelectedCell() +
                             "\nFormula: "+ cellSelector.getSelectedCell().formula().getTxt());
                 }

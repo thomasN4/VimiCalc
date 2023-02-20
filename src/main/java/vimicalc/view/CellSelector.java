@@ -3,9 +3,9 @@ package vimicalc.view;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
 import vimicalc.model.Cell;
-import vimicalc.model.EmptyCell;
 
 import java.util.ArrayList;
 
@@ -14,13 +14,13 @@ public class CellSelector extends Visible {
     private int xCoord;
     private int yCoord;
     private Cell selectedCell;
-    private EmptyCell emptyCell;
+    private Cell emptyCell;
 
     public CellSelector(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         xCoord = x/Controller.DEFAULT_CELL_W;
         yCoord = y/Controller.DEFAULT_CELL_H;
-        setEmptyCell(new EmptyCell(xCoord, yCoord));
+        setEmptyCell(new Cell(xCoord, yCoord));
         setSelectedCell(getEmptyCell());
         System.out.println("Initial empty cell: "+emptyCell.toString());
     }
@@ -29,7 +29,7 @@ public class CellSelector extends Visible {
         return selectedCell;
     }
 
-    public EmptyCell getEmptyCell() {
+    public Cell getEmptyCell() {
 //        System.out.println("Empty cell: "+emptyCell.toString());
         return emptyCell;
     }
@@ -55,7 +55,7 @@ public class CellSelector extends Visible {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
@@ -87,8 +87,8 @@ public class CellSelector extends Visible {
         yCoord += yCoord_mov;
     }
 
-    public void readCell(ArrayList<Cell> cells) {
-        setEmptyCell(new EmptyCell(xCoord, yCoord));
+    public void readCell(@NotNull ArrayList<Cell> cells) {
+        setEmptyCell(new Cell(xCoord, yCoord));
         setSelectedCell(getEmptyCell());
         for (Cell tC : cells) {
             if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
@@ -101,7 +101,7 @@ public class CellSelector extends Visible {
         getSelectedCell().setTxt(getSelectedCell().txt().substring(0, getSelectedCell().txt().length()-1));
     }
 
-    public void setEmptyCell(EmptyCell emptyCell) {
+    public void setEmptyCell(Cell emptyCell) {
         this.emptyCell = emptyCell;
     }
 }

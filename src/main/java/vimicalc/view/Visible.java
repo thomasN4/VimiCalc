@@ -2,6 +2,7 @@ package vimicalc.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.NotNull;
 
 abstract class Visible {
     protected int x;
@@ -18,12 +19,12 @@ abstract class Visible {
         this.c = c;
     }
 
-    public void erase(GraphicsContext gc) {
+    public void erase(@NotNull GraphicsContext gc) {
         gc.setFill(Color.WHITE);
         gc.fillRect(x, y, w, h);
     }
 
-    public void draw(GraphicsContext gc) {
+    public void draw(@NotNull GraphicsContext gc) {
         gc.setFill(c);
         gc.fillRect(x, y, w, h);
     }

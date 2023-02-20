@@ -43,7 +43,7 @@ public class Sheet {
             yCoord = 0;
         }
 
-        Cell found = new EmptyCell(xCoord, yCoord);
+        Cell found = new Cell(xCoord, yCoord);
 
         for (Cell c : getCells())
             if (c.xCoord() == xCoord && c.yCoord() == yCoord)
@@ -58,8 +58,7 @@ public class Sheet {
         cells.add(c);
     }
 
-    public void updateCellVals(ArrayList<Cell> modified) {
-        // might not work if I didn't do this, but haven't tested yet
+    public void updateCellValues(ArrayList<Cell> modified) {
         modified.forEach(m -> {
             cells.removeIf(c -> m.xCoord() == c.xCoord() && m.yCoord() == c.yCoord());
             cells.add(new Cell(m.xCoord(), m.yCoord(), m.txt(), m.formula()));
@@ -70,16 +69,9 @@ public class Sheet {
         this.cells = cells;
     }
 
-    // how do I not need this
+    // I know, eww
     public void modifyCellFormula(int xCoord, int yCoord, String txt, Formula formula) {
         cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
         cells.add(new Cell(xCoord, yCoord, txt, formula));
     }
-
-//    public void modifyCellFormula(Cell m) {
-//        for (Cell c : cells)
-//            if (m.xCoord() == c.xCoord() && m.yCoord() == c.yCoord())
-//                cells.remove(c);
-//        cells.add(m);
-//    }
 }

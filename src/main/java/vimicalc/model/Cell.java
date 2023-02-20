@@ -8,14 +8,24 @@ public class Cell {
     protected int yCoord;
     protected String txt;
     protected Formula formula;
-    protected DecimalFormat format;
+    private DecimalFormat format;
+    private final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0.00");
+    private final DecimalFormat INT_FORMAT = new DecimalFormat("0");
 
     public Cell(int xCoord, int yCoord, String txt, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
         this.formula = formula;
-        format = new DecimalFormat("0.00");
+        format = DEFAULT_FORMAT;
+    }
+
+    public Cell(int xCoord, int yCoord) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+        txt = "";
+        formula = new Formula("0");
+        format = null;
     }
 
     public int xCoord() {

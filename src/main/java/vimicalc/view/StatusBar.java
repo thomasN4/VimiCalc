@@ -3,6 +3,7 @@ package vimicalc.view;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.jetbrains.annotations.NotNull;
 
 public class StatusBar extends Visible {
     private String filename;
@@ -15,7 +16,7 @@ public class StatusBar extends Visible {
     }
 
     @Override
-    public void draw(GraphicsContext gc) {
+    public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.LEFT);
