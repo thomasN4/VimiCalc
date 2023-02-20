@@ -121,14 +121,6 @@ public class Formula {
         };
     }
 
-//    public String unlexer(@NotNull ArrayList<String> lexedFormula) {
-//        StringBuilder rawishFormula = new StringBuilder();
-//        for (String l : lexedFormula) {
-//            rawishFormula.append(l).append(' ');
-//        }
-//        return rawishFormula.substring(0, rawishFormula.length()-1);
-//    }
-
     public String interpret(Sheet sheet) {
         return interpret(txt, sheet);
     }
