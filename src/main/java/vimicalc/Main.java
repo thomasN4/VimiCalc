@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import vimicalc.controller.Controller;
-import vimicalc.model.Sheet;
 
 import java.io.IOException;
 

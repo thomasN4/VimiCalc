@@ -1,7 +1,6 @@
 package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Controller;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -97,7 +96,7 @@ public class Formula {
         for (String s : args.subList(1, args.size())) {
             if (s.charAt(0) == '(') {
                 nums.add(interpret(s.substring(1, s.length() - 1), sheet));
-                continue;
+//                continue;
             }
             for (int i = 0; i < s.length(); i++) {
                 if (s.charAt(i) == ':') {

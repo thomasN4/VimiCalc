@@ -16,10 +16,6 @@ public class InfoBar extends Visible {
         keyStroke = "";
     }
 
-    public boolean isEnteringFormula() {
-        return enteringFormula;
-    }
-
     public void setEnteringFormula(boolean enteringFormula) {
         this.enteringFormula = enteringFormula;
     }

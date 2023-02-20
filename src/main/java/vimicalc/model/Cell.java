@@ -4,20 +4,18 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 public class Cell {
-    protected int xCoord;
-    protected int yCoord;
-    protected String txt;
-    protected Formula formula;
-    private DecimalFormat format;
-    private final DecimalFormat DEFAULT_FORMAT = new DecimalFormat("0.00");
-    private final DecimalFormat INT_FORMAT = new DecimalFormat("0");
+    private final int xCoord;
+    private final int yCoord;
+    private String txt;
+    private Formula formula;
+    private final DecimalFormat defaultFormat;
 
     public Cell(int xCoord, int yCoord, String txt, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
         this.formula = formula;
-        format = DEFAULT_FORMAT;
+        defaultFormat = new DecimalFormat("0.0");
     }
 
     public Cell(int xCoord, int yCoord) {
@@ -25,7 +23,7 @@ public class Cell {
         this.yCoord = yCoord;
         txt = "";
         formula = new Formula("0");
-        format = null;
+        defaultFormat = null;
     }
 
     public int xCoord() {
@@ -37,7 +35,10 @@ public class Cell {
     }
 
     public String txt() {
-        return txt;
+        if (!formula.getTxt().equals("0")) {
+            assert defaultFormat != null;
+            return defaultFormat.format(txt);
+        } else return txt;
     }
 
     public Formula formula() {

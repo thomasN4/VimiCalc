@@ -22,7 +22,6 @@ public class CellSelector extends Visible {
         yCoord = y/Controller.DEFAULT_CELL_H;
         setEmptyCell(new Cell(xCoord, yCoord));
         setSelectedCell(getEmptyCell());
-        System.out.println("Initial empty cell: "+emptyCell.toString());
     }
 
     public Cell getSelectedCell() {
@@ -30,7 +29,6 @@ public class CellSelector extends Visible {
     }
 
     public Cell getEmptyCell() {
-//        System.out.println("Empty cell: "+emptyCell.toString());
         return emptyCell;
     }
 
@@ -40,10 +38,6 @@ public class CellSelector extends Visible {
 
     public int getyCoord() {
         return yCoord;
-    }
-
-    public String getInsertedTxt() {
-        return getSelectedCell().txt();
     }
 
     public void setInsertedTxt(String insertedTxt) {
@@ -63,7 +57,6 @@ public class CellSelector extends Visible {
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
-        System.out.println("Drawing new text.");
         super.draw(gc);
         getSelectedCell().setTxt(getSelectedCell().txt() + insertedChar);
         gc.setFill(Color.BLACK);
@@ -94,7 +87,6 @@ public class CellSelector extends Visible {
             if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
                 setSelectedCell(tC);
         }
-        System.out.println("Selected cell's formula: "+ getSelectedCell().formula().getTxt());
     }
 
     public void delCharInTxt() {

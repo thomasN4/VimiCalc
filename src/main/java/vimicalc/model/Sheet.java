@@ -12,10 +12,6 @@ public class Sheet {
         setCells(new ArrayList<>());
     }
 
-//    public Sheet(ArrayList<Cell> fileContent) {
-//        cells.addAll(fileContent);
-//    }
-
     public ArrayList<Cell> getCells() {
         return cells;
     }

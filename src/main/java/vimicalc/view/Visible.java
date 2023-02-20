@@ -19,11 +19,6 @@ abstract class Visible {
         this.c = c;
     }
 
-    public void erase(@NotNull GraphicsContext gc) {
-        gc.setFill(Color.WHITE);
-        gc.fillRect(x, y, w, h);
-    }
-
     public void draw(@NotNull GraphicsContext gc) {
         gc.setFill(c);
         gc.fillRect(x, y, w, h);
@@ -49,16 +44,8 @@ abstract class Visible {
         return w;
     }
 
-    public void setW(int w) {
-        this.w = w;
-    }
-
     public int getH() {
         return h;
-    }
-
-    public void setH(int h) {
-        this.h = h;
     }
 
     public Color getC() {
