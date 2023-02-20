@@ -192,14 +192,12 @@ public class Controller implements Initializable {
             case ENTER -> {
                 String result = cellSelector.getSelectedCell().formula().interpret(sheet);
                 System.out.println("Result: "+result);
-                if (isNumber(result)) {
+                if (isNumber(result) && !cellSelector.getSelectedCell().formula().getTxt().equals("0")) {
                     cellSelector.getSelectedCell().setTxt(result);
                     sheet.modifyCellFormula(cellSelector.getxCoord()
                             , cellSelector.getyCoord()
                             , result
                             , cellSelector.getSelectedCell().formula());
-                    System.out.println("Saved cell: "+ cellSelector.getSelectedCell() +
-                            "\nFormula: "+ cellSelector.getSelectedCell().formula().getTxt());
                 }
                 cellSelector.getSelectedCell().setFormula(new Formula("0"));
                 infoBar.setEnteringFormula(false);
