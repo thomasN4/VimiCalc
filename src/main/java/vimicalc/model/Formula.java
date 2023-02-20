@@ -56,7 +56,7 @@ public class Formula {
                 lexedFormula.add(arg_i.toString());
                 arg_i = new StringBuilder();
                 isBetweenParentheses = false;
-                i++;
+                if (i + 1 < rawFormula.length()) i++;
             } else if (isBetweenParentheses) {
                 arg_i.append(rawFormula.charAt(i));
             } else if (rawFormula.charAt(i) == ' ') {
@@ -65,7 +65,8 @@ public class Formula {
             } else
                 arg_i.append(rawFormula.charAt(i));
         }
-        lexedFormula.add(arg_i.toString());
+
+        if (!arg_i.isEmpty()) lexedFormula.add(arg_i.toString());
         return lexedFormula;
     }
 
