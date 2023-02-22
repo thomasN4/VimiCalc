@@ -18,12 +18,8 @@ public class Cell {
     public Cell(int xCoord, int yCoord, String result, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        txt = result;
-        try {
-            setValue(Double.parseDouble(result));
-        } catch (Exception ignored) {
-            setValue(0);
-        }
+        value = 0;
+        setTxt(result);
         setFormula(formula);
         format = new DecimalFormat("0.0");
     }
@@ -31,8 +27,7 @@ public class Cell {
     public Cell(int xCoord, int yCoord, String txt) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        this.txt = txt;
-        value = 0;
+        setTxt(txt);
         format = new DecimalFormat("0.0");
     }
 
@@ -94,6 +89,11 @@ public class Cell {
     }
 
     public void setTxt(String txt) {
+        try {
+            setValue(Double.parseDouble(txt));
+        } catch (Exception ignored) {
+            setValue(0);
+        }
         this.txt = txt;
     }
 

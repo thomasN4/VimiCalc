@@ -31,7 +31,7 @@ public class Formula {
 
         for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
-                    c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
+                c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
                 if (c.formula() != null)
                     vector.add(c.formula().interpret(sheet));
                 else vector.add(String.valueOf(c.value()));
@@ -132,7 +132,10 @@ public class Formula {
         } else if (isNumber(arg0)) {
             return arg0;
         } else {
-            return interpret(sheet.findCell(arg0).formula().getTxt(), sheet);
+            Cell c = sheet.findCell(arg0);
+            if (c.formula() != null)
+                return interpret(c.formula().getTxt(), sheet);
+            else return String.valueOf(c.value());
         }
     }
 
