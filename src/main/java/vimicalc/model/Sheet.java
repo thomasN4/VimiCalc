@@ -49,11 +49,6 @@ public class Sheet {
         return found;
     }
 
-    public void updateCell(String coords, Cell c) {
-        deleteCell(coords);
-        cells.add(c);
-    }
-
     public void updateCellValues(ArrayList<Cell> modified) {
         modified.forEach(m -> {
             cells.removeIf(c -> m.xCoord() == c.xCoord() && m.yCoord() == c.yCoord());
@@ -65,9 +60,13 @@ public class Sheet {
         this.cells = cells;
     }
 
-    // I know, eww
-    public void modifyCellFormula(int xCoord, int yCoord, String txt, Formula formula) {
+    public void createCell(int xCoord, int yCoord, String value, Formula formula) {
         cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
-        cells.add(new Cell(xCoord, yCoord, txt, formula));
+        cells.add(new Cell(xCoord, yCoord, value, formula));
+    }
+
+    public void createCell(int xCoord, int yCoord, String txt) {
+        cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
+        cells.add(new Cell(xCoord, yCoord, txt));
     }
 }

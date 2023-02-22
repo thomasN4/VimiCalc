@@ -1,28 +1,45 @@
 package vimicalc.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.text.DecimalFormat;
 import java.util.Objects;
+
+import static vimicalc.Main.isNumber;
 
 public class Cell {
     private final int xCoord;
     private final int yCoord;
     private String txt;
     private Formula formula;
-    private final DecimalFormat format;
+    private double value;
+    private final DecimalFormat format; // final, pour l'instant, car le compiler va complain otherwise
 
-    public Cell(int xCoord, int yCoord, String txt, Formula formula) {
+    public Cell(int xCoord, int yCoord, String result, Formula formula) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+        txt = result;
+        try {
+            setValue(Double.parseDouble(result));
+        } catch (Exception ignored) {
+            setValue(0);
+        }
+        setFormula(formula);
+        format = new DecimalFormat("0.0");
+    }
+
+    public Cell(int xCoord, int yCoord, String txt) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
-        this.formula = formula;
+        value = 0;
         format = new DecimalFormat("0.0");
     }
 
     public Cell(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        txt = "";
-        formula = new Formula("0");
+        value = 0;
         format = new DecimalFormat("0.0");
     }
 
@@ -40,6 +57,10 @@ public class Cell {
 
     public Formula formula() {
         return formula;
+    }
+
+    public double value() {
+        return value;
     }
 
     public DecimalFormat format() {
@@ -68,15 +89,21 @@ public class Cell {
                 "xCoord=" + xCoord + ", " +
                 "yCoord=" + yCoord + ", " +
                 "txt=" + txt + ", " +
-                "formula=" + formula.getTxt() + ']';
+                "formula=" + formula + ", " +
+                "value=" + value + ']';
     }
 
     public void setTxt(String txt) {
         this.txt = txt;
     }
 
-    public void setFormula(Formula formula) {
+    private void setValue(double value) {
+        this.value = value;
+    }
+
+    public void setFormula(@NotNull Formula formula) {
         this.formula = formula;
+        if (isNumber(formula.getTxt())) this.formula = null;
     }
 
     public void updateFormula(String c) {

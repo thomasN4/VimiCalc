@@ -32,9 +32,10 @@ public class Picture extends Visible {
                     c.xCoord() <= (absX + w + DCW) / DCW &&
                     c.yCoord() >= absY / DCH + 1 &&
                     c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (!c.formula().getTxt().equals("0")) {
+                if (c.formula() != null) {
                     System.out.println("Reinterpreting...");
-                    c.setTxt(c.format().format(Double.parseDouble(c.formula().interpret(sheet))));
+                    String result = c.formula().interpret(sheet);
+                    c = new Cell(c.xCoord(), c.yCoord(), result, c.formula());
                     modified.add(c);
                 }
                 visibleCells.add(c);

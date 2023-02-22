@@ -20,7 +20,7 @@ public class CellSelector extends Visible {
         super(x, y, w, h, c);
         xCoord = x/Controller.DEFAULT_CELL_W;
         yCoord = y/Controller.DEFAULT_CELL_H;
-        setEmptyCell(new Cell(xCoord, yCoord));
+        setEmptyCell(new Cell(xCoord, yCoord, ""));
         setSelectedCell(getEmptyCell());
     }
 
@@ -81,7 +81,7 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        setEmptyCell(new Cell(xCoord, yCoord));
+        setEmptyCell(new Cell(xCoord, yCoord, ""));
         setSelectedCell(getEmptyCell());
         for (Cell tC : cells) {
             if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)

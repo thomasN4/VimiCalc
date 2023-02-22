@@ -32,7 +32,9 @@ public class Formula {
         for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                     c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
-                vector.add(c.formula().interpret(sheet));
+                if (c.formula() != null)
+                    vector.add(c.formula().interpret(sheet));
+                else vector.add(String.valueOf(c.value()));
             }
 
         return vector;
@@ -106,12 +108,8 @@ public class Formula {
                     break;
                 }
             }
-            if (!isCoordsArea) {
-                String fromCoordinate = sheet.findCell(s).formula().getTxt();
-                if (!fromCoordinate.equals("0"))
-                    nums.add(fromCoordinate);
-                else nums.add(interpret(s, sheet));
-            }
+            if (!isCoordsArea)
+                nums.add(interpret(s, sheet));
             isCoordsArea = false;
         }
         return switch (arg0) {
@@ -128,12 +126,10 @@ public class Formula {
 
     public String interpret(String raw, Sheet sheet) {
         ArrayList<String> args = lexer(raw);
-        System.out.println("Interpreting \""+args+'\"');
         String arg0 = args.get(0);
         if (arg0.equals("+") || arg0.equals("*") || arg0.equals("/")) {
             return arithmetic(arg0, args, sheet);
         } else if (isNumber(arg0)) {
-            System.out.println("isNumber(arg0) = "+isNumber(arg0));
             return arg0;
         } else {
             return interpret(sheet.findCell(arg0).formula().getTxt(), sheet);

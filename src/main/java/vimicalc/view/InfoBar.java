@@ -28,11 +28,13 @@ public class InfoBar extends Visible {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(keyStroke, x + Controller.CANVAS_W - 4, y+16);
+        gc.fillText(keyStroke, x + Controller.CANVAS_W - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
         if (enteringFormula) {
             gc.fillText("% " + selectedCell.formula().getTxt(), 2, y + 16);
-        } else
+        } else if (selectedCell.formula() != null) {
             gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
+        } else
+            gc.fillText("(" + selectedCell.format().format(selectedCell.value()) + ")", 2, y + 16);
     }
 }

@@ -13,8 +13,6 @@ import vimicalc.view.*;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static vimicalc.Main.isNumber;
-
 public class Controller implements Initializable {
     public static int CANVAS_W;
     public static int CANVAS_H;
@@ -130,10 +128,12 @@ public class Controller implements Initializable {
                 case EQUALS -> {
                     statusBar.setMode(MODE[1]);
                     infoBar.setEnteringFormula(true);
-                    String fText = sheet.findCell(coordsCell.getCoords()).formula().getTxt();
-                    if (fText.equals("0"))
+                    Formula f = sheet.findCell(coordsCell.getCoords()).formula();
+                    if (f == null) {
+                        System.out.println("No formula there, as should be expected.");
                         cellSelector.getSelectedCell().setFormula(new Formula(""));
-                    else cellSelector.getEmptyCell().setFormula(new Formula(fText));
+                    }
+                    else cellSelector.getEmptyCell().setFormula(f);
                 }
             }
         } else if (statusBar.getMode().equals(MODE[2])) {
@@ -168,7 +168,9 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
-                sheet.updateCell(coordsCell.getCoords(), cellSelector.getSelectedCell());
+                sheet.createCell(cellSelector.getxCoord(),
+                        cellSelector.getyCoord(),
+                        cellSelector.getSelectedCell().txt());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -191,15 +193,10 @@ public class Controller implements Initializable {
             }
             case ENTER -> {
                 String result = cellSelector.getSelectedCell().formula().interpret(sheet);
-                System.out.println("Result: "+result);
-                if (isNumber(result) && !cellSelector.getSelectedCell().formula().getTxt().equals("0")) {
-                    cellSelector.getSelectedCell().setTxt(result);
-                    sheet.modifyCellFormula(cellSelector.getxCoord()
-                            , cellSelector.getyCoord()
-                            , result
-                            , cellSelector.getSelectedCell().formula());
-                }
-                cellSelector.getSelectedCell().setFormula(new Formula("0"));
+                sheet.createCell(cellSelector.getxCoord()
+                        , cellSelector.getyCoord()
+                        , result
+                        , cellSelector.getSelectedCell().formula());
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
             }
