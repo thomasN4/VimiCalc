@@ -234,8 +234,8 @@ public class Controller implements Initializable {
             cellSelector.setH(DEFAULT_CELL_H);
             cellSelectors = new ArrayList<>();
         } else {
-            int prevX = cellSelector.getX();
-            int prevY = cellSelector.getY();
+            int prevX = cellSelector.getxCoord();
+            int prevY = cellSelector.getyCoord();
 
             int maxX;
             int minX;
@@ -247,10 +247,10 @@ public class Controller implements Initializable {
                 maxY = Integer.MIN_VALUE;
                 minY = Integer.MAX_VALUE;
                 for (CellSelector c : cellSelectors) {
-                    if (c.getX() > maxX) maxX = c.getX();
-                    else if (c.getX() < minX) minX = c.getX();
-                    if (c.getY() > maxY) maxY = c.getY();
-                    else if (c.getY() < minY) minY = c.getY();
+                    if (c.getxCoord() > maxX) maxX = c.getxCoord();
+                    else if (c.getxCoord() < minX) minX = c.getxCoord();
+                    if (c.getyCoord() > maxY) maxY = c.getyCoord();
+                    else if (c.getyCoord() < minY) minY = c.getyCoord();
                 }
             } else {
                 maxX = prevX;
@@ -269,40 +269,40 @@ public class Controller implements Initializable {
                 case K, UP -> moveUp();
                 case L, RIGHT, TAB, SPACE -> moveRight();
             }
-            int currX = cellSelector.getX();
-            int currY = cellSelector.getY();
+            int currX = cellSelector.getxCoord();
+            int currY = cellSelector.getyCoord();
 
             ArrayList<CellSelector> addedCells = new ArrayList<>();
             if (currX >= minX && currY >= minY) {
                 if (currX > maxX) {
-                    for (int i = minY; i <= maxY; i += DEFAULT_CELL_H) {
+                    for (int i = minY; i <= maxY; i++) {
                         CellSelector c = new CellSelector(
                             currX, i, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
                         );
                         c.readCell(camera.picture.data());
                         addedCells.add(c);
                     }
-                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getY() == c.getY()));
+                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getyCoord() == c.getyCoord()));
                     cellSelectors.addAll(addedCells);
                 } else if (currX < prevX) {
-                    cellSelectors.removeIf(c -> c.getX() > currX);
+                    cellSelectors.removeIf(c -> c.getyCoord() > currX);
                 } else if (currY > maxY) {
-                    for (int i = minX; i <= maxX; i += DEFAULT_CELL_W) {
+                    for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
                             i, currY, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
                         );
                         c.readCell(camera.picture.data());
                         addedCells.add(c);
                     }
-                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getX() == c.getX()));
+                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getxCoord() == c.getxCoord()));
                     cellSelectors.addAll(addedCells);
                 } else if (currY < prevY) {
-                    cellSelectors.removeIf(c -> c.getY() > currY);
+                    cellSelectors.removeIf(c -> c.getyCoord() > currY);
                 }
             } else {
                 cellSelectors = new ArrayList<>();
                 if (currX != prevX) {
-                    for (int i = minY; i <= maxY; i += DEFAULT_CELL_H) {
+                    for (int i = minY; i <= maxY; i++) {
                         CellSelector c = new CellSelector(
                             currX, i, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
                         );
@@ -310,11 +310,10 @@ public class Controller implements Initializable {
                         cellSelectors.add(c);
                     }
                 } else {
-                    for (int i = minX; i <= maxX; i += DEFAULT_CELL_W) {
+                    for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
                             i, currY, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
                         );
-                        c.readCell(camera.picture.data());
                         cellSelectors.add(c);
                     }
                 }
@@ -322,7 +321,7 @@ public class Controller implements Initializable {
 
             System.out.println("Selected cells = {");
             cellSelectors.forEach(c -> {
-                c.draw(gc);
+                c.draw(gc, DEFAULT_CELL_W, DEFAULT_CELL_H);
                 System.out.println(c);
             });
             System.out.println('}');
