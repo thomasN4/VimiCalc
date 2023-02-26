@@ -1,5 +1,8 @@
 package vimicalc.model;
 
+import vimicalc.controller.Controller;
+
+import java.io.*;
 import java.util.ArrayList;
 
 import static vimicalc.Main.fromAlpha;
@@ -8,8 +11,11 @@ public class Sheet {
 
     private ArrayList<Cell> cells;
 
+    private File file;
+
     public Sheet() {
-        setCells(new ArrayList<>());
+        cells = new ArrayList<>();
+        file = new File("~/new_file.csv");
     }
 
     public ArrayList<Cell> getCells() {
@@ -49,19 +55,68 @@ public class Sheet {
         return found;
     }
 
-    public void updateCellValues(ArrayList<Cell> modified) {
-        modified.forEach(m -> {
-            cells.removeIf(c -> m.xCoord() == c.xCoord() && m.yCoord() == c.yCoord());
-            cells.add(new Cell(m.xCoord(), m.yCoord(), m.txt(), m.formula()));
-        });
-    }
-
-    public void setCells(ArrayList<Cell> cells) {
-        this.cells = cells;
+    public void updateCells(ArrayList<Cell> modified) {
+        modified.forEach(m -> cells.removeIf(
+            c -> c.xCoord() == m.xCoord() && c.yCoord() == m.yCoord()
+        ));
+        cells.addAll(modified);
     }
 
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
+    }
+
+    public void writeFile() throws IOException {
+        writeFile(file.getPath());
+    }
+
+    public void writeFile(String path) throws IOException {
+        file = new File(path);
+        FileWriter fW = new FileWriter(file);
+        fW.write("xCoord, yCoord, txt, value, formula\n");
+        cells.forEach(c -> {
+            try {
+                fW.write(
+                   c.xCoord() + ',' +
+                    c.yCoord() + ',' +
+                    c.value() + ',' +
+                    c.formula().getTxt() + "\n"
+                );
+                fW.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        fW.close();
+    }
+
+    public void readFile(String path) throws IOException {
+        Controller.reset();
+        cells = new ArrayList<>();
+        FileReader fR = new FileReader(path);
+        char c;
+        String[] cellItems = new String[4];
+        byte pos = 0;
+        for ( ; ; ) {
+            try {
+                c = (char) fR.read();
+            } catch (EOFException e) {
+                break;
+            }
+            if (c != ',') cellItems[pos] += c;
+            else pos++;
+            if (c == '\n') {
+                pos = 0;
+                cells.add(new Cell(
+                    Integer.parseInt(cellItems[0]),
+                    Integer.parseInt(cellItems[1]),
+                    cellItems[2],
+                    new Formula(cellItems[3])
+                ));
+                cellItems = new String[4];
+            }
+        }
+        fR.close();
     }
 }

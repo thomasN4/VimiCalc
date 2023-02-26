@@ -30,17 +30,19 @@ public class Picture extends Visible {
             gc.setTextAlign(TextAlignment.CENTER);
             gc.setFill(Color.BLACK);
             visibleCells.forEach(c ->
-                gc.fillText(c.txt(),
-                            c.xCoord() * DCW - absX + 45,
-                            c.yCoord() * DCH - absY + 16,
-                            DCW));
+                gc.fillText(
+                    c.txt(),
+                    c.xCoord() * DCW - absX + 45,
+                    c.yCoord() * DCH - absY + 16,
+                    DCW)
+            );
         }
         isntReady = false;
     }
 
     public void take(GraphicsContext gc, @NotNull Sheet sheet, int absX, int absY) {
-        ArrayList<Cell> modified = new ArrayList<>();
         visibleCells = new ArrayList<>();
+        ArrayList<Cell> modified = new ArrayList<>();
         super.draw(gc);
 
         for (Cell c : sheet.getCells()) {
@@ -48,31 +50,31 @@ public class Picture extends Visible {
                     c.xCoord() <= (absX + w + DCW) / DCW &&
                     c.yCoord() >= absY / DCH + 1 &&
                     c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (c.formula() != null) {
-                    System.out.println("Reinterpreting...");
-                    String result = c.formula().interpret(sheet);
-                    c = new Cell(c.xCoord(), c.yCoord(), result, c.formula());
-                    modified.add(c);
-                }
-                visibleCells.add(c);
-                gc.setTextAlign(TextAlignment.CENTER);
-                gc.setFill(Color.BLACK);
-                gc.fillText(c.txt(),
-                        c.xCoord() * DCW - absX + 45,
-                        c.yCoord() * DCH - absY + 16,
-                        DCW);
+                if (c.formula() != null) modified.add(new Cell(
+                        c.xCoord(),
+                        c.yCoord(),
+                        c.formula().interpret(sheet),
+                        c.formula()
+                ));
+                else visibleCells.add(c);
             }
         }
-        sheet.updateCellValues(modified);
+        sheet.updateCells(modified);
+
+        visibleCells.addAll(modified);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setFill(Color.BLACK);
+        visibleCells.forEach(c ->
+            gc.fillText(
+                c.txt(),
+                c.xCoord() * DCW - absX + 45,
+                c.yCoord() * DCH - absY + 16,
+                DCW)
+        );
         isntReady = true;
     }
 
     public void setIsntReady(boolean isntReady) {
         this.isntReady = isntReady;
-    }
-
-    public void edit(Cell cell) {
-        visibleCells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
-        visibleCells.add(cell);
     }
 }

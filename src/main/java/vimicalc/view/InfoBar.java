@@ -19,10 +19,6 @@ public class InfoBar extends Visible {
         commandTxt = "";
     }
 
-    public String getCommandTxt() {
-        return commandTxt;
-    }
-
     public void setEnteringFormula(boolean enteringFormula) {
         this.enteringFormula = enteringFormula;
     }
@@ -52,6 +48,6 @@ public class InfoBar extends Visible {
         } else if (selectedCell.formula() != null) {
             gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
         } else
-            gc.fillText("(" + selectedCell.format().format(selectedCell.value()) + ")", 2, y + 16);
+            gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
     }
 }

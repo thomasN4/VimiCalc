@@ -2,24 +2,39 @@ package vimicalc.model;
 
 import javafx.application.Platform;
 
-public class Command {
+import java.util.ArrayList;
 
-    private String txt;
-
-    public Command (String txt) {
-        this.txt = txt;
+public class Command extends Interpretable {
+    public Command(String txt) {
+        super(txt);
     }
 
-    public void setTxt(String txt) {
-        this.txt = txt;
-    }
-
-    public void interpret() {
-        if (txt.length() == 1) {
-            switch (txt.charAt(0)) {
-                case 'w' -> System.out.println("Command 'w' is not yet implemented.");
-                case 'q' -> Platform.exit();
-            }
+    public void readFile(Sheet sheet, ArrayList<String> command) {
+        try {
+            sheet.readFile(command.get(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
+    }
+
+    public void writeFile(Sheet sheet, ArrayList<String> command) {
+        try {
+            if (command.size() == 1) sheet.writeFile();
+            else sheet.writeFile(command.get(1));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public String interpret(String raw, Sheet sheet) {
+        ArrayList<String> lexed = lexer(raw);
+        switch (lexed.get(0)) {
+            case "e" -> readFile(sheet, lexed);
+            case "w" -> writeFile(sheet, lexed);
+            case "q" -> Platform.exit();
+            default -> System.out.println("Command \"" + lexed.get(0) + "\" doesn't exist.");
+        }
+        return null;
     }
 }

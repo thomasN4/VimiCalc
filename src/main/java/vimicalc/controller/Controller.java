@@ -145,10 +145,8 @@ public class Controller implements Initializable {
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
                         sheet.deleteCell(coordsCell.getCoords());
-                        camera.picture.data().removeIf(
-                            c -> c.xCoord() == cellSelector.getxCoord() &&
-                                 c.yCoord() == cellSelector.getyCoord()
-                        );
+                        camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
                         cellSelector.setSelectedCell(cellSelector.getEmptyCell());
                     }
                     case A, I -> statusBar.setMode(MODE[2]);
@@ -156,12 +154,10 @@ public class Controller implements Initializable {
                     case EQUALS -> {
                         statusBar.setMode(MODE[1]);
                         infoBar.setEnteringFormula(true);
-                        Formula f = sheet.findCell(coordsCell.getCoords()).formula();
-                        if (f == null) {
-                            System.out.println("No formula there, as should be expected.");
-                            cellSelector.getSelectedCell().setFormula(new Formula(""));
-                        }
-                        else cellSelector.getEmptyCell().setFormula(f);
+                        if (cellSelector.getSelectedCell().formula() == null)
+                            cellSelector.getSelectedCell().setFormula(
+                                    new Formula("")
+                            );
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
@@ -170,7 +166,6 @@ public class Controller implements Initializable {
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
                         infoBar.setEnteringCommand(true);
-                        command = new Command("");
                     }
                 }
             }
@@ -198,27 +193,22 @@ public class Controller implements Initializable {
     private static void commandInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
-                infoBar.setCommandTxt("");
+                command = new Command("");
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
-                command.interpret();
-                infoBar.setCommandTxt("");
+                command.interpret(sheet);
+                command = new Command("");
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
             }
-            case BACK_SPACE -> {
-                infoBar.setCommandTxt(
-                    infoBar.getCommandTxt().substring(0, infoBar.getCommandTxt().length()-1)
+            case BACK_SPACE -> command.setTxt(
+                    command.getTxt().substring(0, command.getTxt().length()-1)
                 );
-                command.setTxt(infoBar.getCommandTxt());
-            }
-            default -> {
-                infoBar.setCommandTxt(infoBar.getCommandTxt() + event.getText());
-                command.setTxt(infoBar.getCommandTxt());
-            }
+            default -> command.setTxt(command.getTxt() + event.getText());
         }
+        infoBar.setCommandTxt(command.getTxt());
     }
 
     private static void visualSelection(@NotNull KeyEvent event) {
@@ -341,7 +331,7 @@ public class Controller implements Initializable {
                     cellSelector.getSelectedCell().txt()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
-                camera.picture.edit(cellSelector.getSelectedCell());
+                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -350,7 +340,10 @@ public class Controller implements Initializable {
                 }
                 statusBar.setMode(MODE[3]);
             }
-            case BACK_SPACE -> cellSelector.delCharInTxt();
+            case BACK_SPACE -> cellSelector.getSelectedCell().setTxt(
+                    cellSelector.getSelectedCell().txt().substring(0,
+                        cellSelector.getSelectedCell().txt().length() - 1)
+                );
             default -> cellSelector.draw(gc, event.getText());
         }
     }
@@ -370,7 +363,8 @@ public class Controller implements Initializable {
                         cellSelector.getSelectedCell().formula()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
-                camera.picture.edit(cellSelector.getSelectedCell());
+                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.ready();
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
@@ -380,7 +374,10 @@ public class Controller implements Initializable {
                     0, cellSelector.getSelectedCell().formula().getTxt().length()-1
                 )
             );
-            default -> cellSelector.getSelectedCell().updateFormula(event.getText());
+            default -> cellSelector.getSelectedCell().formula().setTxt(
+                cellSelector.getSelectedCell().formula().getTxt() +
+                event.getText()
+            );
         }
     }
 
@@ -388,10 +385,15 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
         sheet = new Sheet();
+        command = new Command("");
 
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
 
+        reset();
+    }
+
+    public static void reset() {
         camera = new Camera(
                 DEFAULT_CELL_W,
                 DEFAULT_CELL_H,

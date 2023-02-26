@@ -91,8 +91,4 @@ public class CellSelector extends Visible {
                 selectedCell = tC;
         }
     }
-
-    public void delCharInTxt() {
-        selectedCell.setTxt(selectedCell.txt().substring(0, selectedCell.txt().length()-1));
-    }
 }

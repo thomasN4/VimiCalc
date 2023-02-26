@@ -15,19 +15,15 @@ public class Cell {
     private double value;
     private final DecimalFormat format; // final, pour l'instant, car le compiler va complain otherwise
 
-    public Cell(int xCoord, int yCoord, String result, Formula formula) {
+    public Cell(int xCoord, int yCoord, String result, @NotNull Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         format = new DecimalFormat("0.0");
-        try {
-            value = Double.parseDouble(result);
-            txt = format.format(value);
+        value = Double.parseDouble(result);
+        txt = format.format(value);
+        if (isNumber(formula.getTxt()))
             this.formula = null;
-        } catch (Exception ignored) {
-            value = 0;
-            txt = result;
-            this.formula = formula;
-        }
+        else this.formula = formula;
     }
 
     public Cell(int xCoord, int yCoord, String txt) {
@@ -70,10 +66,6 @@ public class Cell {
         return value;
     }
 
-    public DecimalFormat format() {
-        return format;
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -107,9 +99,5 @@ public class Cell {
     public void setFormula(@NotNull Formula formula) {
         this.formula = formula;
         if (isNumber(formula.getTxt())) this.formula = null;
-    }
-
-    public void updateFormula(String c) {
-        formula.setTxt(formula.getTxt() + c);
     }
 }
