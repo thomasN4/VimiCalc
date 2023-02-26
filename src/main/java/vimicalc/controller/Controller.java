@@ -241,7 +241,6 @@ public class Controller implements Initializable {
             int minX;
             int maxY;
             int minY;
-            System.out.println("cellSelectors.size() = "+cellSelectors.size());
             if (cellSelectors.size() > 1) {
                 maxX = Integer.MIN_VALUE;
                 minX = Integer.MAX_VALUE;

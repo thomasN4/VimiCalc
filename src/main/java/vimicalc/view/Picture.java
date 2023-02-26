@@ -43,7 +43,6 @@ public class Picture extends Visible {
         visibleCells = new ArrayList<>();
         super.draw(gc);
 
-        // À revoir:
         for (Cell c : sheet.getCells()) {
             if (c.xCoord() >= absX / DCW + 1 &&
                     c.xCoord() <= (absX + w + DCW) / DCW &&
