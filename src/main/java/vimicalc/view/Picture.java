@@ -26,7 +26,6 @@ public class Picture extends Visible {
 
     public void resend(GraphicsContext gc, int absX, int absY) {
         if (!isntReady) {
-            System.out.println("Redrawing picture...");
             super.draw(gc);
             gc.setTextAlign(TextAlignment.CENTER);
             gc.setFill(Color.BLACK);
@@ -43,7 +42,6 @@ public class Picture extends Visible {
         ArrayList<Cell> modified = new ArrayList<>();
         visibleCells = new ArrayList<>();
         super.draw(gc);
-        System.out.println("Redrawing picture...");
 
         // À revoir:
         for (Cell c : sheet.getCells()) {
