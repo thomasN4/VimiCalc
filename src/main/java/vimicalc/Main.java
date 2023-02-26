@@ -6,14 +6,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import vimicalc.controller.Controller;
 
-import java.io.IOException;
-
 import static java.lang.Math.pow;
 
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 480);
         scene.setOnKeyPressed(Controller::onKeyPressed);

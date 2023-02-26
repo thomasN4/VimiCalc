@@ -28,4 +28,8 @@ public class Camera {
     public void updateAbsY(int y_mov) {
         absY += y_mov;
     }
+
+    public void ready() {
+        picture.setIsntReady(false);
+    }
 }

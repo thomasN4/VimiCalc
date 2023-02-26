@@ -4,7 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Controller;
 import vimicalc.model.Cell;
 
 import java.util.ArrayList;
@@ -18,10 +17,10 @@ public class CellSelector extends Visible {
 
     public CellSelector(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        xCoord = x/Controller.DEFAULT_CELL_W;
-        yCoord = y/Controller.DEFAULT_CELL_H;
-        setEmptyCell(new Cell(xCoord, yCoord, ""));
-        setSelectedCell(getEmptyCell());
+        xCoord = x/w;
+        yCoord = y/h;
+        emptyCell = new Cell(xCoord, yCoord, "");
+        selectedCell = emptyCell;
     }
 
     public Cell getSelectedCell() {
@@ -40,10 +39,6 @@ public class CellSelector extends Visible {
         return yCoord;
     }
 
-    public void setInsertedTxt(String insertedTxt) {
-        getSelectedCell().setTxt(insertedTxt);
-    }
-
     public void setSelectedCell(Cell selectedCell) {
         this.selectedCell = selectedCell;
     }
@@ -53,15 +48,15 @@ public class CellSelector extends Visible {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(getSelectedCell().txt(), x+45, y+16);
+        gc.fillText(selectedCell.txt(), x+45, y+16);
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
         super.draw(gc);
-        getSelectedCell().setTxt(getSelectedCell().txt() + insertedChar);
+        selectedCell.setTxt(selectedCell.txt() + insertedChar);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(getSelectedCell().txt(), x+45, y+16);
+        gc.fillText(selectedCell.txt(), x+45, y+16);
     }
 
     public void updateX(int x_mov) {
@@ -81,19 +76,15 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        setEmptyCell(new Cell(xCoord, yCoord, ""));
-        setSelectedCell(getEmptyCell());
+        emptyCell = new Cell(xCoord, yCoord, "");
+        selectedCell = emptyCell;
         for (Cell tC : cells) {
             if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
-                setSelectedCell(tC);
+                selectedCell = tC;
         }
     }
 
     public void delCharInTxt() {
-        getSelectedCell().setTxt(getSelectedCell().txt().substring(0, getSelectedCell().txt().length()-1));
-    }
-
-    public void setEmptyCell(Cell emptyCell) {
-        this.emptyCell = emptyCell;
+        selectedCell.setTxt(selectedCell.txt().substring(0, selectedCell.txt().length()-1));
     }
 }

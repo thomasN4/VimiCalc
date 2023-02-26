@@ -60,13 +60,8 @@ public class Sheet {
         this.cells = cells;
     }
 
-    public void createCell(int xCoord, int yCoord, String value, Formula formula) {
-        cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
-        cells.add(new Cell(xCoord, yCoord, value, formula));
-    }
-
-    public void createCell(int xCoord, int yCoord, String txt) {
-        cells.removeIf(c -> xCoord == c.xCoord() && yCoord == c.yCoord());
-        cells.add(new Cell(xCoord, yCoord, txt));
+    public void addCell(Cell cell) {
+        cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
+        cells.add(cell);
     }
 }
