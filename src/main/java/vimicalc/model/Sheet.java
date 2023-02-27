@@ -79,12 +79,15 @@ public class Sheet {
         fW.flush();
         cells.forEach(c -> {
             try {
+                String data;
+                if (c.value() != 0) data = String.valueOf(c.value());
+                else data = c.txt();
                 String frmlTxt = "null";
                 if (c.formula() != null) frmlTxt = c.formula().getTxt();
                 fW.write(
                    c.xCoord() + "," +
                     c.yCoord() + "," +
-                    c.value() + "," +
+                    data + "," +
                     frmlTxt + "\n"
                 );
                 fW.flush();
@@ -115,6 +118,7 @@ public class Sheet {
             b = fR.read();
             if (b == -1) break;
             else c = (char) b;
+
             if (c == ',') pos++;
             else if (c == '\n') {
                 System.out.println("Cell items: " + Arrays.toString(cellItems));
@@ -138,6 +142,7 @@ public class Sheet {
 
         fR.close();
         Controller.reset();
+        file = new File(path);
         Controller.statusBar.setFilename(file.getName());
     }
 }
