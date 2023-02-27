@@ -5,6 +5,7 @@ import vimicalc.controller.Controller;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static vimicalc.Main.fromAlpha;
 
@@ -75,6 +76,7 @@ public class Sheet {
     public void writeFile(String path) throws IOException {
         BufferedWriter fW = new BufferedWriter(new FileWriter(path));
         fW.write("xCoord,yCoord,data,formula\n");
+        fW.flush();
         cells.forEach(c -> {
             try {
                 String frmlTxt = "null";
@@ -99,6 +101,7 @@ public class Sheet {
         cells = new ArrayList<>();
         BufferedReader fR = new BufferedReader(new FileReader(path));
 
+        int b;
         char c = '\0';
         String[] cellItems = new String[4];
         for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
@@ -108,14 +111,13 @@ public class Sheet {
             c = (char) fR.read();
         }
 
-        for ( ; ; ) {
-            try {
-                c = (char) fR.read();
-            } catch (EOFException e) {
-                break;
-            }
+        while (true) {
+            b = fR.read();
+            if (b == -1) break;
+            else c = (char) b;
             if (c == ',') pos++;
             else if (c == '\n') {
+                System.out.println("Cell items: " + Arrays.toString(cellItems));
                 pos = 0;
                 if (!cellItems[3].equals("null"))
                     cells.add(new Cell(
@@ -130,6 +132,7 @@ public class Sheet {
                     cellItems[2]
                 ));
                 cellItems = new String[4];
+                for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
             } else cellItems[pos] += c;
         }
 
