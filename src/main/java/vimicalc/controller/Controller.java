@@ -233,6 +233,10 @@ public class Controller implements Initializable {
         } else if (event.getCode() == KeyCode.ESCAPE) {
             statusBar.setMode(MODE[3]);
             cellSelectors = new ArrayList<>();
+            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            camera.ready();
+            cellSelector.readCell(camera.picture.data());
+            cellSelector.draw(gc);
         } else if (event.getCode() == KeyCode.SEMICOLON) {
             infoBar.setEnteringCommandInVISUAL(true);
             command = new Command("");
@@ -250,8 +254,6 @@ public class Controller implements Initializable {
                 maxYC = Integer.MIN_VALUE;
                 minYC = Integer.MAX_VALUE;
                 for (CellSelector c : cellSelectors) {
-//                    System.out.println("c.getXCoord = "+c.getXCoord());
-//                    System.out.println("c.getYCoord = "+c.getYCoord());
                     if (c.getXCoord() > maxXC) maxXC = c.getXCoord();
                     if (c.getXCoord() < minXC) minXC = c.getXCoord();
                     if (c.getYCoord() > maxYC) maxYC = c.getYCoord();
@@ -304,10 +306,8 @@ public class Controller implements Initializable {
                         System.out.println("c.getYCoord() = " + c.getYCoord());
                         addedCSs.add(c);
                     }
-                    cellSelectors.forEach(c -> addedCSs.removeIf(
-                        a -> a.getXCoord() == c.getXCoord() && a.getYCoord() == c.getYCoord()
-                    ));
                     cellSelectors.addAll(addedCSs);
+                    cellSelectors.forEach(System.out::println);
                     newMaxXC = currXC;
                 } else if (currXC < prevXC) {
                     cellSelectors.removeIf(c -> c.getXCoord() > currXC);
@@ -327,9 +327,6 @@ public class Controller implements Initializable {
                                 camera.picture.data()
                         ));
                     }
-                    cellSelectors.forEach(c -> addedCSs.removeIf(
-                            a -> a.getXCoord() == c.getXCoord() && a.getYCoord() == c.getYCoord()
-                    ));
                     cellSelectors.addAll(addedCSs);
                     newMaxYC = currYC;
                 } else if (currYC < prevYC) {
