@@ -190,7 +190,7 @@ public class Controller implements Initializable {
         else if (statusBar.getMode().equals(MODE[4])) {
             System.out.println("Selected cells = {");
             cellSelectors.forEach(c -> {
-                c.draw(gc, DEFAULT_CELL_W, DEFAULT_CELL_H, camera.picture.getW(), camera.picture.getH());
+                c.draw(gc);
                 System.out.println("\txCoord, yCoord: " + c.getXCoord() + ", " + c.getYCoord());
             });
             System.out.println('}');
@@ -237,34 +237,36 @@ public class Controller implements Initializable {
             infoBar.setEnteringCommandInVISUAL(true);
             command = new Command("");
         } else {
-            int prevX = cellSelector.getXCoord();
-            int prevY = cellSelector.getYCoord();
+            int prevXC = cellSelector.getXCoord();
+            int prevYC = cellSelector.getYCoord();
 
-            int maxX;
-            int minX;
-            int maxY;
-            int minY;
+            int maxXC;
+            int minXC;
+            int maxYC;
+            int minYC;
             if (cellSelectors.size() > 1) {
-                maxX = Integer.MIN_VALUE;
-                minX = Integer.MAX_VALUE;
-                maxY = Integer.MIN_VALUE;
-                minY = Integer.MAX_VALUE;
+                maxXC = Integer.MIN_VALUE;
+                minXC = Integer.MAX_VALUE;
+                maxYC = Integer.MIN_VALUE;
+                minYC = Integer.MAX_VALUE;
                 for (CellSelector c : cellSelectors) {
-                    if (c.getXCoord() > maxX) maxX = c.getXCoord();
-                    if (c.getXCoord() < minX) minX = c.getXCoord();
-                    if (c.getYCoord() > maxY) maxY = c.getYCoord();
-                    if (c.getYCoord() < minY) minY = c.getYCoord();
+//                    System.out.println("c.getXCoord = "+c.getXCoord());
+//                    System.out.println("c.getYCoord = "+c.getYCoord());
+                    if (c.getXCoord() > maxXC) maxXC = c.getXCoord();
+                    if (c.getXCoord() < minXC) minXC = c.getXCoord();
+                    if (c.getYCoord() > maxYC) maxYC = c.getYCoord();
+                    if (c.getYCoord() < minYC) minYC = c.getYCoord();
                 }
             } else {
-                maxX = prevX;
-                minX = maxX;
-                maxY = prevY;
-                minY = maxY;
+                maxXC = prevXC;
+                minXC = maxXC;
+                maxYC = prevYC;
+                minYC = maxYC;
             }
-            System.out.println("maxX: "+maxX);
-            System.out.println("minX: "+minX);
-            System.out.println("maxY: "+maxY);
-            System.out.println("minY: "+minY);
+            System.out.println("maxXC: "+ maxXC);
+            System.out.println("minXC: "+ minXC);
+            System.out.println("maxYC: "+ maxYC);
+            System.out.println("minYC: "+ minYC);
 
             switch (event.getCode()) {
                 case H, LEFT, BACK_SPACE -> moveLeft();
@@ -272,67 +274,107 @@ public class Controller implements Initializable {
                 case K, UP -> moveUp();
                 case L, RIGHT, TAB, SPACE -> moveRight();
             }
-            int currX = cellSelector.getXCoord();
-            int currY = cellSelector.getYCoord();
+            int currXC = cellSelector.getXCoord();
+            int currYC = cellSelector.getYCoord();
+            System.out.println("currXC: "+ currXC);
+            System.out.println("currYC: "+ currYC);
 
-            int newMaxX = maxX;
-            int newMinX = minX;
-            int newMaxY = maxY;
-            int newMinY = minY;
+            int newMaxXC = maxXC;
+            int newMinXC = minXC;
+            int newMaxYC = maxYC;
+            int newMinYC = minYC;
 
-            ArrayList<CellSelector> addedCells = new ArrayList<>();
-            if (currX >= minX && currY >= minY) {
-                if (currX > maxX) {
-                    for (int i = minY; i <= maxY; i++) {
+            if (currXC >= minXC && currYC >= minYC) {
+                ArrayList<CellSelector> addedCSs = new ArrayList<>();
+                if (currXC > maxXC) {
+                    for (int i = minYC; i <= maxYC; i++) {
                         CellSelector c = new CellSelector(
-                            currX, i, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
+                                currXC,
+                                i,
+                                cellSelector.getW(),
+                                cellSelector.getH(),
+                                cellSelector.getC(),
+                                DEFAULT_CELL_W,
+                                DEFAULT_CELL_H,
+                                camera.picture.getW(),
+                                camera.picture.getH(),
+                                camera.picture.data()
                         );
-                        c.readCell(camera.picture.data());
-                        addedCells.add(c);
+                        System.out.println("c.getXCoord() = " + c.getXCoord());
+                        System.out.println("c.getYCoord() = " + c.getYCoord());
+                        addedCSs.add(c);
                     }
-                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getYCoord() == c.getYCoord()));
-                    cellSelectors.addAll(addedCells);
-                    newMaxX = currX;
-                } else if (currX < prevX) {
-                    cellSelectors.removeIf(c -> c.getYCoord() > currX);
-                    newMaxX = currX;
-                } else if (currY > maxY) {
-                    for (int i = minX; i <= maxX; i++) {
-                        CellSelector c = new CellSelector(
-                            i, currY, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
-                        );
-                        c.readCell(camera.picture.data());
-                        addedCells.add(c);
+                    cellSelectors.forEach(c -> addedCSs.removeIf(
+                        a -> a.getXCoord() == c.getXCoord() && a.getYCoord() == c.getYCoord()
+                    ));
+                    cellSelectors.addAll(addedCSs);
+                    newMaxXC = currXC;
+                } else if (currXC < prevXC) {
+                    cellSelectors.removeIf(c -> c.getXCoord() > currXC);
+                    newMaxXC = currXC;
+                } else if (currYC > maxYC) {
+                    for (int i = minXC; i <= maxXC; i++) {
+                        addedCSs.add(new CellSelector(
+                                i,
+                                currYC,
+                                cellSelector.getW(),
+                                cellSelector.getH(),
+                                cellSelector.getC(),
+                                DEFAULT_CELL_W,
+                                DEFAULT_CELL_H,
+                                camera.picture.getW(),
+                                camera.picture.getH(),
+                                camera.picture.data()
+                        ));
                     }
-                    cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getXCoord() == c.getXCoord()));
-                    cellSelectors.addAll(addedCells);
-                    newMaxY = currY;
-                } else if (currY < prevY) {
-                    cellSelectors.removeIf(c -> c.getYCoord() > currY);
-                    newMaxY = currY;
+                    cellSelectors.forEach(c -> addedCSs.removeIf(
+                            a -> a.getXCoord() == c.getXCoord() && a.getYCoord() == c.getYCoord()
+                    ));
+                    cellSelectors.addAll(addedCSs);
+                    newMaxYC = currYC;
+                } else if (currYC < prevYC) {
+                    cellSelectors.removeIf(c -> c.getYCoord() > currYC);
+                    newMaxYC = currYC;
                 }
             } else {
                 cellSelectors = new ArrayList<>();
-                if (currX != prevX) {
-                    for (int i = minY; i <= maxY; i++) {
-                        CellSelector c = new CellSelector(
-                            currX, i, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
-                        );
-                        c.readCell(camera.picture.data());
-                        cellSelectors.add(c);
+                if (currXC != prevXC) {
+                    for (int i = minYC; i <= maxYC; i++) {
+                        cellSelectors.add(new CellSelector(
+                                currXC,
+                                i,
+                                cellSelector.getW(),
+                                cellSelector.getH(),
+                                cellSelector.getC(),
+                                DEFAULT_CELL_W,
+                                DEFAULT_CELL_H,
+                                camera.picture.getW(),
+                                camera.picture.getH(),
+                                camera.picture.data()
+                        ));
                     }
-                    newMinX = currX;
+                    newMaxXC = prevXC;
+                    newMinXC = currXC;
                 } else {
-                    for (int i = minX; i <= maxX; i++) {
-                        CellSelector c = new CellSelector(
-                            i, currY, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
-                        );
-                        cellSelectors.add(c);
+                    for (int i = minXC; i <= maxXC; i++) {
+                        cellSelectors.add(new CellSelector(
+                                i,
+                                currYC,
+                                cellSelector.getW(),
+                                cellSelector.getH(),
+                                cellSelector.getC(),
+                                DEFAULT_CELL_W,
+                                DEFAULT_CELL_H,
+                                camera.picture.getW(),
+                                camera.picture.getH(),
+                                camera.picture.data()
+                        ));
                     }
-                    newMinY = currY;
+                    newMaxYC = prevYC;
+                    newMinYC = currYC;
                 }
             }
-            coordsCell.setCoords(newMaxX, newMinX, newMaxY, newMinY);
+            coordsCell.setCoords(newMaxXC, newMinXC, newMaxYC, newMinYC);
         }
     }
 
