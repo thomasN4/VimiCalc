@@ -16,8 +16,6 @@ public class Sheet {
 
     public Sheet() {
         cells = new ArrayList<>();
-        file = new File(System.getProperty("user.home") + File.pathSeparator + "new_file.csv");
-        System.out.println(file.getName());
     }
 
     public ArrayList<Cell> getCells() {
