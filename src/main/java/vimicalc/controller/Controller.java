@@ -180,26 +180,42 @@ public class Controller implements Initializable {
 
         firstCol.draw(gc, camera.getAbsY());
         firstRow.draw(gc, camera.getAbsX());
-        if (statusBar.getMode().equals(MODE[3])) {
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-            coordsCell.draw(gc);
-        }
         statusBar.draw(gc);
         infoBar.setKeyStroke(event.getCode().toString());
         infoBar.draw(gc, cellSelector.getSelectedCell());
-        cellSelector.draw(gc);
+        if (statusBar.getMode().equals(MODE[3])) {
+            cellSelector.draw(gc);
+            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        }
+        else if (statusBar.getMode().equals(MODE[4])) {
+            System.out.println("Selected cells = {");
+            cellSelectors.forEach(c -> {
+                c.draw(gc, DEFAULT_CELL_W, DEFAULT_CELL_H, camera.picture.getW(), camera.picture.getH());
+                System.out.println("\txCoord, yCoord: " + c.getXCoord() + ", " + c.getYCoord());
+            });
+            System.out.println('}');
+        }
+        coordsCell.draw(gc);
     }
 
     private static void commandInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
                 command = new Command("");
+                if (infoBar.isEnteringCommandInVISUAL()) {
+                    cellSelectors = new ArrayList<>();
+                    infoBar.setEnteringCommandInVISUAL(false);
+                }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
                 command.interpret(sheet);
                 command = new Command("");
+                if (infoBar.isEnteringCommandInVISUAL()) {
+                    cellSelectors = new ArrayList<>();
+                    infoBar.setEnteringCommandInVISUAL(false);
+                }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
             }
@@ -212,17 +228,14 @@ public class Controller implements Initializable {
     }
 
     private static void visualSelection(@NotNull KeyEvent event) {
-        if (event.getCode() == KeyCode.ESCAPE) {
+        if (infoBar.isEnteringCommandInVISUAL()) {
+            commandInput(event);
+        } else if (event.getCode() == KeyCode.ESCAPE) {
             statusBar.setMode(MODE[3]);
-            cellSelector.setW(DEFAULT_CELL_W);
-            cellSelector.setH(DEFAULT_CELL_H);
             cellSelectors = new ArrayList<>();
         } else if (event.getCode() == KeyCode.SEMICOLON) {
-            System.out.println("Visual commands not yet implemented.");
-            statusBar.setMode(MODE[3]);
-            cellSelector.setW(DEFAULT_CELL_W);
-            cellSelector.setH(DEFAULT_CELL_H);
-            cellSelectors = new ArrayList<>();
+            infoBar.setEnteringCommandInVISUAL(true);
+            command = new Command("");
         } else {
             int prevX = cellSelector.getXCoord();
             int prevY = cellSelector.getYCoord();
@@ -238,9 +251,9 @@ public class Controller implements Initializable {
                 minY = Integer.MAX_VALUE;
                 for (CellSelector c : cellSelectors) {
                     if (c.getXCoord() > maxX) maxX = c.getXCoord();
-                    else if (c.getXCoord() < minX) minX = c.getXCoord();
+                    if (c.getXCoord() < minX) minX = c.getXCoord();
                     if (c.getYCoord() > maxY) maxY = c.getYCoord();
-                    else if (c.getYCoord() < minY) minY = c.getYCoord();
+                    if (c.getYCoord() < minY) minY = c.getYCoord();
                 }
             } else {
                 maxX = prevX;
@@ -272,7 +285,7 @@ public class Controller implements Initializable {
                 if (currX > maxX) {
                     for (int i = minY; i <= maxY; i++) {
                         CellSelector c = new CellSelector(
-                            currX, i, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
+                            currX, i, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
                         );
                         c.readCell(camera.picture.data());
                         addedCells.add(c);
@@ -286,7 +299,7 @@ public class Controller implements Initializable {
                 } else if (currY > maxY) {
                     for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
-                            i, currY, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
+                            i, currY, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
                         );
                         c.readCell(camera.picture.data());
                         addedCells.add(c);
@@ -303,7 +316,7 @@ public class Controller implements Initializable {
                 if (currX != prevX) {
                     for (int i = minY; i <= maxY; i++) {
                         CellSelector c = new CellSelector(
-                            currX, i, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
+                            currX, i, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
                         );
                         c.readCell(camera.picture.data());
                         cellSelectors.add(c);
@@ -312,23 +325,14 @@ public class Controller implements Initializable {
                 } else {
                     for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
-                            i, currY, DEFAULT_CELL_W, DEFAULT_CELL_H, cellSelector.getC()
+                            i, currY, cellSelector.getW(), cellSelector.getH(), cellSelector.getC()
                         );
                         cellSelectors.add(c);
                     }
                     newMinY = currY;
                 }
             }
-
-            System.out.println("Selected cells = {");
-            cellSelectors.forEach(c -> {
-                c.draw(gc, DEFAULT_CELL_W, DEFAULT_CELL_H);
-                System.out.println(c);
-            });
-            System.out.println('}');
-
             coordsCell.setCoords(newMaxX, newMinX, newMaxY, newMinY);
-            coordsCell.draw(gc);
         }
     }
 

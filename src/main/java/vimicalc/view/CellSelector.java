@@ -59,9 +59,11 @@ public class CellSelector extends Visible {
         gc.fillText(selectedCell.txt(), x+45, y+16);
     }
 
-    public void draw(GraphicsContext gc, int DCW, int DCH) {
-        x = (xCoord * w) % DCW;
-        y = (yCoord * h) % DCH;
+    // Ici, le 'C' signifie "Cell"
+    public void draw(@NotNull GraphicsContext gc, int DCW, int DCH, int pictureW, int pictureH) {
+        x = ((xCoord-1) * w) % (pictureW) + DCW;
+        y = ((yCoord-1) * h) % (pictureH) + DCH;
+        super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt(), x+45, y+16);

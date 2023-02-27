@@ -12,11 +12,16 @@ public class InfoBar extends Visible {
     private String commandTxt;
     private boolean enteringFormula;
     private boolean enteringCommand;
+    private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         keyStroke = "";
         commandTxt = "";
+    }
+
+    public boolean isEnteringCommandInVISUAL() {
+        return enteringCommandInVISUAL;
     }
 
     public void setEnteringFormula(boolean enteringFormula) {
@@ -25,6 +30,10 @@ public class InfoBar extends Visible {
 
     public void setEnteringCommand(boolean enteringCommand) {
         this.enteringCommand = enteringCommand;
+    }
+
+    public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
+        this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
 
     public void setKeyStroke(String keyStroke) {
@@ -45,6 +54,8 @@ public class InfoBar extends Visible {
             gc.fillText("% " + selectedCell.formula().getTxt(), 2, y + 16);
         } else if (enteringCommand) {
             gc.fillText(':' + commandTxt, 2, y + 16);
+        } else if (enteringCommandInVISUAL) {
+            gc.fillText(":'<,'>" + commandTxt, 2, y + 16);
         } else if (selectedCell.formula() != null) {
             gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
         } else
