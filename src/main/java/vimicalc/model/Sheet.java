@@ -10,7 +10,6 @@ import static vimicalc.Main.fromAlpha;
 public class Sheet {
 
     private ArrayList<Cell> cells;
-
     private File file;
 
     public Sheet() {
@@ -72,8 +71,7 @@ public class Sheet {
     }
 
     public void writeFile(String path) throws IOException {
-        file = new File(path);
-        FileWriter fW = new FileWriter(file);
+        FileWriter fW = new FileWriter(path);
         fW.write("xCoord, yCoord, txt, value, formula\n");
         cells.forEach(c -> {
             try {
@@ -89,10 +87,12 @@ public class Sheet {
             }
         });
         fW.close();
+        file = new File(path);
     }
 
     public void readFile(String path) throws IOException {
         Controller.reset();
+        Controller.statusBar.setFilename(file.getName());
         cells = new ArrayList<>();
         FileReader fR = new FileReader(path);
         char c;

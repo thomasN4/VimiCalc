@@ -6,7 +6,7 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 public class StatusBar extends Visible {
-    private final String filename; // c'est final juste pour éviter les warnings
+    private String filename;
     private String mode;
 
     public StatusBar(int x, int y, int w, int h, Color c) {
@@ -29,5 +29,9 @@ public class StatusBar extends Visible {
 
     public void setMode(String mode) {
         this.mode = mode;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }
