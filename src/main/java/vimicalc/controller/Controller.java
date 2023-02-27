@@ -262,6 +262,11 @@ public class Controller implements Initializable {
             int currX = cellSelector.getxCoord();
             int currY = cellSelector.getyCoord();
 
+            int newMaxX = maxX;
+            int newMinX = minX;
+            int newMaxY = maxY;
+            int newMinY = minY;
+
             ArrayList<CellSelector> addedCells = new ArrayList<>();
             if (currX >= minX && currY >= minY) {
                 if (currX > maxX) {
@@ -274,8 +279,10 @@ public class Controller implements Initializable {
                     }
                     cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getyCoord() == c.getyCoord()));
                     cellSelectors.addAll(addedCells);
+                    newMaxX = currX;
                 } else if (currX < prevX) {
                     cellSelectors.removeIf(c -> c.getyCoord() > currX);
+                    newMaxX = currX;
                 } else if (currY > maxY) {
                     for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
@@ -286,8 +293,10 @@ public class Controller implements Initializable {
                     }
                     cellSelectors.forEach(c -> addedCells.removeIf(a -> a.getxCoord() == c.getxCoord()));
                     cellSelectors.addAll(addedCells);
+                    newMaxY = currY;
                 } else if (currY < prevY) {
                     cellSelectors.removeIf(c -> c.getyCoord() > currY);
+                    newMaxY = currY;
                 }
             } else {
                 cellSelectors = new ArrayList<>();
@@ -299,6 +308,7 @@ public class Controller implements Initializable {
                         c.readCell(camera.picture.data());
                         cellSelectors.add(c);
                     }
+                    newMinX = currX;
                 } else {
                     for (int i = minX; i <= maxX; i++) {
                         CellSelector c = new CellSelector(
@@ -306,6 +316,7 @@ public class Controller implements Initializable {
                         );
                         cellSelectors.add(c);
                     }
+                    newMinY = currY;
                 }
             }
 
@@ -315,6 +326,9 @@ public class Controller implements Initializable {
                 System.out.println(c);
             });
             System.out.println('}');
+
+            coordsCell.setCoords(newMaxX, newMinX, newMaxY, newMinY);
+            coordsCell.draw(gc);
         }
     }
 

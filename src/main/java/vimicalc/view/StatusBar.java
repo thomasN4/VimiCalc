@@ -20,7 +20,7 @@ public class StatusBar extends Visible {
         super.draw(gc);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(" "+ mode +"  "+ filename, 2, y+19);
+        gc.fillText(" " + mode + "  [" + filename + ']', 2, y+19);
     }
 
     public String getMode() {

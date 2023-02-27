@@ -19,6 +19,11 @@ public class CoordsCell extends Visible {
         coords = toAlpha(xCoord-1) + yCoord;
     }
 
+    public void setCoords(int maxXC, int minXC, int maxYC, int minYC) {
+        coords = toAlpha(minXC-1) + minYC + ":" + toAlpha(maxXC-1) + maxYC;
+        System.out.println("Coords of selected cells: " + coords);
+    }
+
     public String getCoords() {
         return coords;
     }

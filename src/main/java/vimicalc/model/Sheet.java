@@ -1,5 +1,6 @@
 package vimicalc.model;
 
+import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
 
 import java.io.*;
@@ -14,7 +15,8 @@ public class Sheet {
 
     public Sheet() {
         cells = new ArrayList<>();
-        file = new File("~/new_file.csv");
+        file = new File(System.getProperty("user.home") + File.pathSeparator + "new_file.csv");
+        System.out.println(file.getName());
     }
 
     public ArrayList<Cell> getCells() {
@@ -25,7 +27,7 @@ public class Sheet {
         cells.remove(findCell(coords));
     }
 
-    public Cell findCell(String coords) {
+    public Cell findCell(@NotNull String coords) {
         StringBuilder coordX = new StringBuilder(),
                 coordY = new StringBuilder();
 
@@ -54,7 +56,7 @@ public class Sheet {
         return found;
     }
 
-    public void updateCells(ArrayList<Cell> modified) {
+    public void updateCells(@NotNull ArrayList<Cell> modified) {
         modified.forEach(m -> cells.removeIf(
             c -> c.xCoord() == m.xCoord() && c.yCoord() == m.yCoord()
         ));
@@ -71,15 +73,17 @@ public class Sheet {
     }
 
     public void writeFile(String path) throws IOException {
-        FileWriter fW = new FileWriter(path);
-        fW.write("xCoord, yCoord, txt, value, formula\n");
+        BufferedWriter fW = new BufferedWriter(new FileWriter(path));
+        // Chaque ligne: xCoord,yCoord,String.valueOf(value),formula.getTxt() ou "null"
         cells.forEach(c -> {
             try {
+                String frmlTxt = "null";
+                if (c.formula() != null) frmlTxt = c.formula().getTxt();
                 fW.write(
                    c.xCoord() + ',' +
                     c.yCoord() + ',' +
                     c.value() + ',' +
-                    c.formula().getTxt() + "\n"
+                    frmlTxt + "\n"
                 );
                 fW.flush();
             } catch (IOException e) {
@@ -88,13 +92,14 @@ public class Sheet {
         });
         fW.close();
         file = new File(path);
+        Controller.statusBar.setFilename(file.getName());
     }
 
     public void readFile(String path) throws IOException {
         Controller.reset();
         Controller.statusBar.setFilename(file.getName());
         cells = new ArrayList<>();
-        FileReader fR = new FileReader(path);
+        BufferedReader fR = new BufferedReader(new FileReader(path));
         char c;
         String[] cellItems = new String[4];
         byte pos = 0;
@@ -108,11 +113,17 @@ public class Sheet {
             else pos++;
             if (c == '\n') {
                 pos = 0;
-                cells.add(new Cell(
+                if (!cellItems[3].equals("null"))
+                    cells.add(new Cell(
+                        Integer.parseInt(cellItems[0]),
+                        Integer.parseInt(cellItems[1]),
+                        cellItems[2],
+                        new Formula(cellItems[3])
+                ));
+                else cells.add(new Cell(
                     Integer.parseInt(cellItems[0]),
                     Integer.parseInt(cellItems[1]),
-                    cellItems[2],
-                    new Formula(cellItems[3])
+                    cellItems[2]
                 ));
                 cellItems = new String[4];
             }
