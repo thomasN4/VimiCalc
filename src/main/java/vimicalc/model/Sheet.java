@@ -74,7 +74,7 @@ public class Sheet {
 
     public void writeFile(String path) throws IOException {
         BufferedWriter fW = new BufferedWriter(new FileWriter(path));
-        // Chaque ligne: xCoord,yCoord,String.valueOf(value),formula.getTxt() ou "null"
+        fW.write("xCoord,yCoord,data,formula\n");
         cells.forEach(c -> {
             try {
                 String frmlTxt = "null";
@@ -96,15 +96,17 @@ public class Sheet {
     }
 
     public void readFile(String path) throws IOException {
-        Controller.reset();
-        Controller.statusBar.setFilename(file.getName());
         cells = new ArrayList<>();
         BufferedReader fR = new BufferedReader(new FileReader(path));
 
-        char c;
+        char c = '\0';
         String[] cellItems = new String[4];
         for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
         byte pos = 0;
+
+        while (c != '\n') {
+            c = (char) fR.read();
+        }
 
         for ( ; ; ) {
             try {
@@ -112,9 +114,8 @@ public class Sheet {
             } catch (EOFException e) {
                 break;
             }
-            if (c != ',') cellItems[pos] += c;
-            else pos++;
-            if (c == '\n') {
+            if (c == ',') pos++;
+            else if (c == '\n') {
                 pos = 0;
                 if (!cellItems[3].equals("null"))
                     cells.add(new Cell(
@@ -129,9 +130,11 @@ public class Sheet {
                     cellItems[2]
                 ));
                 cellItems = new String[4];
-            }
+            } else cellItems[pos] += c;
         }
 
         fR.close();
+        Controller.reset();
+        Controller.statusBar.setFilename(file.getName());
     }
 }
