@@ -80,9 +80,9 @@ public class Sheet {
                 String frmlTxt = "null";
                 if (c.formula() != null) frmlTxt = c.formula().getTxt();
                 fW.write(
-                   c.xCoord() + ',' +
-                    c.yCoord() + ',' +
-                    c.value() + ',' +
+                   c.xCoord() + "," +
+                    c.yCoord() + "," +
+                    c.value() + "," +
                     frmlTxt + "\n"
                 );
                 fW.flush();
@@ -100,9 +100,12 @@ public class Sheet {
         Controller.statusBar.setFilename(file.getName());
         cells = new ArrayList<>();
         BufferedReader fR = new BufferedReader(new FileReader(path));
+
         char c;
         String[] cellItems = new String[4];
+        for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
         byte pos = 0;
+
         for ( ; ; ) {
             try {
                 c = (char) fR.read();
@@ -128,6 +131,7 @@ public class Sheet {
                 cellItems = new String[4];
             }
         }
+
         fR.close();
     }
 }
