@@ -31,11 +31,11 @@ public class CellSelector extends Visible {
         return emptyCell;
     }
 
-    public int getxCoord() {
+    public int getXCoord() {
         return xCoord;
     }
 
-    public int getyCoord() {
+    public int getYCoord() {
         return yCoord;
     }
 
