@@ -23,17 +23,6 @@ public class CellSelector extends Visible {
         selectedCell = emptyCell;
     }
 
-    // Ici, le 'C' signifie "Cell"
-    public CellSelector(int xCoord, int yCoord, int w, int h, Color c,
-                        int DCW, int DCH, int pictureW, int pictureH, ArrayList<Cell> camPicData) {
-        super(((xCoord-1) * w) % (pictureW) + DCW
-            , ((yCoord-1) * h) % (pictureH) + DCH
-            , w, h, c);
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        readCell(camPicData);
-    }
-
     public Cell getSelectedCell() {
         return selectedCell;
     }

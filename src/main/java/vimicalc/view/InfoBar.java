@@ -3,7 +3,6 @@ package vimicalc.view;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import vimicalc.controller.Controller;
 import vimicalc.model.Cell;
 
 public class InfoBar extends Visible {
@@ -48,7 +47,7 @@ public class InfoBar extends Visible {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(keyStroke, x + Controller.CANVAS_W - 4, y + 16);
+        gc.fillText(keyStroke, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
         if (enteringFormula) {
             gc.fillText("% " + selectedCell.formula().getTxt(), 2, y + 16);

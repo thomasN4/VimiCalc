@@ -7,8 +7,8 @@ public class Camera {
     private int absY;
     public Picture picture;
 
-    public Camera(int x, int y, int w, int h, Color c) {
-        picture = new Picture(x, y, w, h, c);
+    public Camera(int x, int y, int w, int h, Color c, int DCW, int DCH) {
+        picture = new Picture(x, y, w, h, c, DCW, DCH);
         absX = 0;
         absY = 0;
     }

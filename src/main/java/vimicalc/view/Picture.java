@@ -4,20 +4,21 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Controller;
 import vimicalc.model.Cell;
 import vimicalc.model.Sheet;
 
 import java.util.ArrayList;
 
 public class Picture extends Visible {
-    private final int DCW = Controller.DEFAULT_CELL_W;
-    private final int DCH = Controller.DEFAULT_CELL_H;
+    private final int DCW;  // 'C' pour "Cell"
+    private final int DCH;
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
 
-    public Picture(int x, int y, int w, int h, Color c) {
+    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH) {
         super(x, y, w, h, c);
+        this.DCW = DCW;
+        this.DCH = DCH;
     }
 
     public ArrayList<Cell> data() {
@@ -34,7 +35,7 @@ public class Picture extends Visible {
                     c.txt(),
                     c.xCoord() * DCW - absX + 45,
                     c.yCoord() * DCH - absY + 16,
-                    DCW)
+                        DCW)
             );
         }
         isntReady = false;
@@ -47,15 +48,16 @@ public class Picture extends Visible {
 
         for (Cell c : sheet.getCells()) {
             if (c.xCoord() >= absX / DCW + 1 &&
-                    c.xCoord() <= (absX + w + DCW) / DCW &&
-                    c.yCoord() >= absY / DCH + 1 &&
-                    c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (c.formula() != null) modified.add(new Cell(
+                c.xCoord() <= (absX + w + DCW) / DCW &&
+                c.yCoord() >= absY / DCH + 1 &&
+                c.yCoord() <= (absY + h + DCH) / DCH) {
+                if (c.formula() != null)
+                    modified.add(new Cell(
                         c.xCoord(),
                         c.yCoord(),
                         c.formula().interpret(sheet),
                         c.formula()
-                ));
+                    ));
                 else visibleCells.add(c);
             }
         }
@@ -65,11 +67,10 @@ public class Picture extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.BLACK);
         visibleCells.forEach(c ->
-            gc.fillText(
-                c.txt(),
-                c.xCoord() * DCW - absX + 45,
-                c.yCoord() * DCH - absY + 16,
-                DCW)
+            gc.fillText(c.txt()
+              , c.xCoord() * DCW - absX + 45
+              , c.yCoord() * DCH - absY + 16,
+                    DCW)
         );
         isntReady = true;
     }

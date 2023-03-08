@@ -11,7 +11,7 @@ public class StatusBar extends Visible {
 
     public StatusBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        mode = vimicalc.controller.Controller.MODE[3];
+        mode = "[NORMAL]";
         filename = "new_file";
     }
 

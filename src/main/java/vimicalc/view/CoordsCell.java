@@ -32,6 +32,6 @@ public class CoordsCell extends Visible {
         super.draw(gc);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(coords, 45, 16, vimicalc.controller.Controller.DEFAULT_CELL_W);
+        gc.fillText(coords, 45, 16, w);
     }
 }

@@ -3,7 +3,6 @@ package vimicalc.view;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import vimicalc.controller.Controller;
 
 import static vimicalc.Main.toAlpha;
 
@@ -14,7 +13,7 @@ public class FirstRow extends Visible {
 
     public void draw(GraphicsContext gc, int absX) {
         super.draw(gc);
-        int jump = Controller.DEFAULT_CELL_W;
+        int jump = x; // équivalent à DEFAULT_CELL_WIDTH
         for (int i = 1; i <= gc.getCanvas().getWidth()/jump+1; i++) {
             gc.setFill(Color.BLACK);
             gc.setTextAlign(TextAlignment.CENTER);
