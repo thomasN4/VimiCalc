@@ -60,7 +60,12 @@ abstract class Interpretable {
                     c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
                 if (c.formula() != null)
                     vector.add(c.formula().interpret(sheet));
-                else vector.add(String.valueOf(c.value()));
+                else {
+                    if (!c.txt().equals(""))
+                        vector.add(String.valueOf(c.value()));
+                    else
+                        vector.add("IDENTITY");
+                }
             }
 
         return vector;

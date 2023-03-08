@@ -14,22 +14,28 @@ public class Formula extends Interpretable {
 
     private @NotNull String sum(@NotNull Vector<String> nums) {
         double s = 0;
-        for (String n : nums)
+        for (String n : nums) {
+            if (n.equals("IDENTITY")) continue;
             s += Double.parseDouble(n);
+        }
         return String.valueOf(s);
     }
 
     private @NotNull String product(@NotNull Vector<String> factors) {
         double p = 1;
-        for (String f : factors)
+        for (String f : factors) {
+            if (f.equals("IDENTITY")) continue;
             p *= Double.parseDouble(f);
+        }
         return String.valueOf(p);
     }
 
     private @NotNull String quotient(@NotNull Vector<String> nums) {
         double q = Double.parseDouble(nums.get(0));
-        for (int i = 1; i < nums.size(); i++)
+        for (int i = 1; i < nums.size(); i++) {
+            if (nums.get(i).equals("IDENTITY")) continue;
             q /= Double.parseDouble(nums.get(i));
+        }
         return String.valueOf(q);
     }
 
@@ -71,7 +77,12 @@ public class Formula extends Interpretable {
             Cell c = sheet.findCell(arg0);
             if (c.formula() != null)
                 return interpret(c.formula().getTxt(), sheet);
-            else return String.valueOf(c.value());
+            else {
+                if (!c.txt().equals(""))
+                    return String.valueOf(c.value());
+                else
+                    return "IDENTITY";
+            }
         }
     }
 }
