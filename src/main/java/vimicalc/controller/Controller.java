@@ -316,8 +316,10 @@ public class Controller implements Initializable {
             }
             int currAbsX = camera.getAbsX();
             int currAbsY = camera.getAbsY();
-            int xOffset = currAbsX - prevAbsX;
-            int yOffset = currAbsY - prevAbsY;
+            int camMovX = currAbsX - prevAbsX;
+            int camMovY = currAbsY - prevAbsY;
+            int xOffset = currAbsX % DEFAULT_CELL_W;
+            int yOffset = currAbsY % DEFAULT_CELL_H;
 
             int currXC = cellSelector.getXCoord();
             int currYC = cellSelector.getYCoord();
@@ -326,15 +328,15 @@ public class Controller implements Initializable {
 
             if (currXC >= originalXC || currYC >= originalYC) {
                 if (currXC > prevXC) {
-                    addCSs(true, currXC, minYC, maxYC);
+                    addCSs(true, currXC, minYC, maxYC, xOffset, yOffset);
                     maxXC = currXC;
                 }
-                else if (currXC < prevXC) {
+                else if (currXC < prevXC) {// && currXC != originalXC) {
                     purgeCSs(prevXC, -1);
                     maxXC = currXC;
                 }
-                else if (currYC > prevYC) {
-                    addCSs(false, currYC, minXC, maxXC);
+                else if (currYC > prevYC) {// && currYC != originalYC) {
+                    addCSs(false, currYC, minXC, maxXC, xOffset, yOffset);
                     maxYC = currYC;
                 }
                 else if (currYC < prevYC) {
@@ -344,7 +346,7 @@ public class Controller implements Initializable {
             }
             else {
                 if (currXC < prevXC) {
-                    addCSs(true, currXC, minYC, maxYC);
+                    addCSs(true, currXC, minYC, maxYC, xOffset, yOffset);
                     minXC = currXC;
                 }
                 else if (currXC > prevXC) {
@@ -352,7 +354,7 @@ public class Controller implements Initializable {
                     minXC = currXC;
                 }
                 else if (currYC < prevYC) {
-                    addCSs(false, currYC, minXC, maxXC);
+                    addCSs(false, currYC, minXC, maxXC, xOffset, yOffset);
                     minYC = currYC;
                 }
                 else if (currYC > prevYC) {
@@ -361,10 +363,10 @@ public class Controller implements Initializable {
                 }
             }
 
-            if (xOffset != 0)
-                cellSelectors.forEach(c -> c.updateX(xOffset));
-            else if (yOffset != 0)
-                cellSelectors.forEach(c -> c.updateY(yOffset));
+            if (camMovX != 0)
+                cellSelectors.forEach(c -> c.updateX(camMovX));
+            else if (camMovY != 0)
+                cellSelectors.forEach(c -> c.updateY(camMovY));
 
             System.out.println("originalXC = " + originalXC);
             System.out.println("originalYC = " + originalYC);
@@ -381,16 +383,18 @@ public class Controller implements Initializable {
         newCellSelectors.addAll(cellSelectors);
         cellSelectors = newCellSelectors;
     }
-    private static void addCSs(boolean addingCol, int currC, int minC, int maxC) {
+    private static void addCSs(boolean addingCol, int currC, int minC, int maxC, int xOffset, int yOffset) {
         if (addingCol) {
             for (int i = minC; i <= maxC; i++) {
                 CellSelector c = new CellSelector(
-                    currC * DEFAULT_CELL_W,
-                    i * DEFAULT_CELL_H,
+                    currC * DEFAULT_CELL_W - xOffset,
+                    i * DEFAULT_CELL_H - yOffset,
                     cellSelector.getW(),
                     cellSelector.getH(),
                     cellSelector.getC()
                 );
+                c.setxCoord(currC);
+                c.setyCoord(i);
                 c.readCell(camera.picture.data());
                 cellSelectors.add(c);
             }
@@ -398,12 +402,14 @@ public class Controller implements Initializable {
         else {  // addingRow
             for (int i = minC; i <= maxC; i++) {
                 CellSelector c = new CellSelector(
-                    i * DEFAULT_CELL_W,
-                    currC * DEFAULT_CELL_H,
+                    i * DEFAULT_CELL_W - xOffset,
+                    currC * DEFAULT_CELL_H - yOffset,
                     cellSelector.getW(),
                     cellSelector.getH(),
                     cellSelector.getC()
                 );
+                c.setxCoord(i);
+                c.setyCoord(currC);
                 c.readCell(camera.picture.data());
                 cellSelectors.add(c);
             }

@@ -43,6 +43,14 @@ public class CellSelector extends Visible {
         this.selectedCell = selectedCell;
     }
 
+    public void setxCoord(int xCoord) {
+        this.xCoord = xCoord;
+    }
+
+    public void setyCoord(int yCoord) {
+        this.yCoord = yCoord;
+    }
+
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
