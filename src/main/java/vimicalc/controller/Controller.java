@@ -312,7 +312,7 @@ public class Controller implements Initializable {
 
             System.out.println("originalXC = " + originalXC);
             System.out.println("originalYC = " + originalYC);
-            if (currXC >= originalXC || currYC >= originalYC) {
+            if (currXC >= originalXC && currYC >= originalYC) {
                 if (currXC > prevXC) {
                     addSCs(true, currXC, minYC, maxYC);
                     maxXC = currXC;
@@ -320,6 +320,42 @@ public class Controller implements Initializable {
                 else if (currXC < prevXC) {
                     purgeSCs(prevXC, -1);
                     maxXC = currXC;
+                }
+                else if (currYC > prevYC) {
+                    addSCs(false, currYC, minXC, maxXC);
+                    maxYC = currYC;
+                }
+                else if (currYC < prevYC) {
+                    purgeSCs(-1, prevYC);
+                    maxYC = currYC;
+                }
+            }
+            else if (currXC >= originalYC && currYC < originalYC) {
+                if (currXC > prevXC) {
+                    addSCs(true, currXC, minYC, maxYC);
+                    maxXC = currXC;
+                }
+                else if (currXC < prevXC) {
+                    purgeSCs(prevXC, -1);
+                    maxXC = currXC;
+                }
+                else if (currYC < prevYC) {
+                    addSCs(false, currYC, minXC, maxXC);
+                    minYC = currYC;
+                }
+                else if (currYC > prevYC) {
+                    purgeSCs(-1, prevYC);
+                    minYC = currYC;
+                }
+            }
+            else if (currXC < originalXC && currYC >= originalYC) {
+                if (currXC < prevXC) {
+                    addSCs(true, currXC, minYC, maxYC);
+                    minXC = currXC;
+                }
+                else if (currXC > prevXC) {
+                    purgeSCs(prevXC, -1);
+                    minXC = currXC;
                 }
                 else if (currYC > prevYC) {
                     addSCs(false, currYC, minXC, maxXC);
@@ -348,6 +384,11 @@ public class Controller implements Initializable {
                     minYC = currYC;
                 }
             }
+
+            if (currXC == originalXC && currXC > prevXC)
+                purgeSCs(prevXC, -1);
+            else if (currYC == originalYC && currYC > prevYC)
+                purgeSCs(-1, prevYC);
 
             coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
         }
