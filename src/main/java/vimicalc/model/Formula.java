@@ -15,7 +15,7 @@ public class Formula extends Interpretable {
     private @NotNull String sum(@NotNull Vector<String> nums) {
         double s = 0;
         for (String n : nums) {
-            if (n.equals("IDENTITY")) continue;
+            if (n.equals("I")) continue;
             s += Double.parseDouble(n);
         }
         return String.valueOf(s);
@@ -24,7 +24,7 @@ public class Formula extends Interpretable {
     private @NotNull String product(@NotNull Vector<String> factors) {
         double p = 1;
         for (String f : factors) {
-            if (f.equals("IDENTITY")) continue;
+            if (f.equals("I")) continue;
             p *= Double.parseDouble(f);
         }
         return String.valueOf(p);
@@ -33,7 +33,7 @@ public class Formula extends Interpretable {
     private @NotNull String quotient(@NotNull Vector<String> nums) {
         double q = Double.parseDouble(nums.get(0));
         for (int i = 1; i < nums.size(); i++) {
-            if (nums.get(i).equals("IDENTITY")) continue;
+            if (nums.get(i).equals("I")) continue;
             q /= Double.parseDouble(nums.get(i));
         }
         return String.valueOf(q);
@@ -81,7 +81,7 @@ public class Formula extends Interpretable {
                 if (!c.txt().equals(""))
                     return String.valueOf(c.value());
                 else
-                    return "IDENTITY";
+                    return "I";
             }
         }
     }

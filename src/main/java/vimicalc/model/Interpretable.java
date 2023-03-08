@@ -64,7 +64,7 @@ abstract class Interpretable {
                     if (!c.txt().equals(""))
                         vector.add(String.valueOf(c.value()));
                     else
-                        vector.add("IDENTITY");
+                        vector.add("I");
                 }
             }
 

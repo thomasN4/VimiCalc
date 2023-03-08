@@ -60,6 +60,6 @@ public class InfoBar extends Visible {
         } else if (!selectedCell.txt().equals("")) {
             gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
         } else
-            gc.fillText("(IDENTITY)", 2, y + 16);
+            gc.fillText("(I)", 2, y + 16);
     }
 }

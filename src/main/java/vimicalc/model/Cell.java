@@ -50,6 +50,7 @@ public class Cell {
     public Cell(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
+        txt = "";
         value = 0;
         format = new DecimalFormat("0.0");
     }
