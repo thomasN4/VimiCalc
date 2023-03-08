@@ -41,7 +41,7 @@ public class Picture extends Visible {
         isntReady = false;
     }
 
-    public void take(GraphicsContext gc, @NotNull Sheet sheet, int absX, int absY) {
+    public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCells, int absX, int absY) {
         visibleCells = new ArrayList<>();
         ArrayList<Cell> modified = new ArrayList<>();
         super.draw(gc);
@@ -61,17 +61,30 @@ public class Picture extends Visible {
                 else visibleCells.add(c);
             }
         }
-        sheet.updateCells(modified);
 
+        sheet.updateCells(modified);
         visibleCells.addAll(modified);
-        gc.setTextAlign(TextAlignment.CENTER);
+
+        gc.setFill(Color.DARKGRAY);
+        selectedCells.forEach(c -> {
+            System.out.println("Drawing the selected cells...");
+            gc.fillRect(
+                c[0] * DCW - absX,
+                c[1] * DCH - absY,
+                DCW,
+                DCH
+            );
+        });
+
         gc.setFill(Color.BLACK);
-        visibleCells.forEach(c ->
-            gc.fillText(c.txt()
-              , c.xCoord() * DCW - absX + 45
-              , c.yCoord() * DCH - absY + 16,
-                    DCW)
-        );
+        gc.setTextAlign(TextAlignment.CENTER);
+        visibleCells.forEach(c -> gc.fillText(
+            c.txt(),
+            c.xCoord() * DCW - absX + 45,
+            c.yCoord() * DCH - absY + 16,
+            DCW
+        ));
+
         isntReady = true;
     }
 

@@ -16,6 +16,7 @@ import vimicalc.view.*;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -36,7 +37,7 @@ public class Controller implements Initializable {
     private static GraphicsContext gc;
     private static InfoBar infoBar;
     private static CellSelector cellSelector;
-    private static ArrayList<CellSelector> cellSelectors;
+    private static ArrayList<int[]> selectedCoords;
     private static Sheet sheet;
     public static StatusBar statusBar;
 
@@ -51,7 +52,7 @@ public class Controller implements Initializable {
                     camera.updateAbsX(-1);
                 }
                 firstRow.draw(gc, camera.getAbsX());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
             camera.updateAbsX(-cellSelector.getW());
@@ -59,7 +60,7 @@ public class Controller implements Initializable {
                 while (camera.getAbsX() != 0)
                     camera.updateAbsX(1);
             firstRow.draw(gc, camera.getAbsX());
-            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -76,7 +77,7 @@ public class Controller implements Initializable {
                     camera.updateAbsY(-1);
                 }
                 firstCol.draw(gc, camera.getAbsY());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
             camera.updateAbsY(-cellSelector.getH());
@@ -84,7 +85,7 @@ public class Controller implements Initializable {
                 while (camera.getAbsY() != 0)
                     camera.updateAbsY(1);
             firstCol.draw(gc, camera.getAbsY());
-            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -100,12 +101,12 @@ public class Controller implements Initializable {
                     camera.updateAbsY(1);
                 }
                 firstCol.draw(gc, camera.getAbsY());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
             camera.updateAbsY(cellSelector.getH());
             firstCol.draw(gc, camera.getAbsY());
-            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -121,12 +122,12 @@ public class Controller implements Initializable {
                     camera.updateAbsX(1);
                 }
                 firstRow.draw(gc, camera.getAbsX());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
             camera.updateAbsX(cellSelector.getW());
             firstRow.draw(gc, camera.getAbsX());
-            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -145,7 +146,7 @@ public class Controller implements Initializable {
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
                         sheet.deleteCell(coordsCell.getCoords());
-                        camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.setSelectedCell(cellSelector.getEmptyCell());
                     }
@@ -161,16 +162,7 @@ public class Controller implements Initializable {
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
-                        cellSelectors = new ArrayList<>();
-                        CellSelector c = new CellSelector(
-                            cellSelector.getX(),
-                            cellSelector.getY(),
-                            cellSelector.getW(),
-                            cellSelector.getH(),
-                            cellSelector.getC()
-                        );
-                        c.readCell(camera.picture.data());
-                        cellSelectors.add(c);
+                        selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
                     }
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
@@ -192,11 +184,12 @@ public class Controller implements Initializable {
             coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         }
         else if (statusBar.getMode().equals(MODE[4])) {
-            System.out.println("Selected cells = {");
-            cellSelectors.forEach(c -> {
-                c.draw(gc);
-                System.out.println("\txCoord, yCoord: " + c.getXCoord() + ", " + c.getYCoord());
+            System.out.println("Selected coords = {");
+            selectedCoords.forEach(c -> {
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                System.out.println('\t' + Arrays.toString(c));
             });
+            camera.ready();
             System.out.println('}');
         }
         firstCol.draw(gc, camera.getAbsY());
@@ -211,7 +204,7 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case ESCAPE -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
-                    cellSelectors = new ArrayList<>();
+                    selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
                 }
                 infoBar.setEnteringCommand(false);
@@ -221,7 +214,7 @@ public class Controller implements Initializable {
             case ENTER -> {
                 command.interpret(sheet);
                 if (infoBar.isEnteringCommandInVISUAL()) {
-                    cellSelectors = new ArrayList<>();
+                    selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
 
                     StringBuilder destinationCoord = new StringBuilder();
@@ -240,7 +233,7 @@ public class Controller implements Initializable {
                         f.interpret(sheet),
                         f
                     ));
-                    camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                 }
@@ -262,8 +255,8 @@ public class Controller implements Initializable {
         }
         else if (event.getCode() == KeyCode.ESCAPE) {
             statusBar.setMode(MODE[3]);
-            cellSelectors = new ArrayList<>();
-            camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+            selectedCoords = new ArrayList<>();
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             camera.ready();
             cellSelector.readCell(camera.picture.data());
             cellSelector.draw(gc);
@@ -273,8 +266,8 @@ public class Controller implements Initializable {
             command = new Command("");
         }
         else {
-            int originalXC = cellSelectors.get(0).getXCoord();
-            int originalYC = cellSelectors.get(0).getYCoord();
+            int originalXC = selectedCoords.get(0)[0];
+            int originalYC = selectedCoords.get(0)[1];
 
             int prevXC = cellSelector.getXCoord();
             int prevYC = cellSelector.getYCoord();
@@ -283,22 +276,22 @@ public class Controller implements Initializable {
             int minXC;
             int maxYC;
             int minYC;
-            if (cellSelectors.size() > 1) {
+            if (selectedCoords.size() > 1) {
                 maxXC = Integer.MIN_VALUE;
                 minXC = Integer.MAX_VALUE;
                 maxYC = Integer.MIN_VALUE;
                 minYC = Integer.MAX_VALUE;
-                for (CellSelector c : cellSelectors) {
-                    if (c.getXCoord() > maxXC) maxXC = c.getXCoord();
-                    if (c.getXCoord() < minXC) minXC = c.getXCoord();
-                    if (c.getYCoord() > maxYC) maxYC = c.getYCoord();
-                    if (c.getYCoord() < minYC) minYC = c.getYCoord();
+                for (int[] c : selectedCoords) {
+                    if (c[0] > maxXC) maxXC = c[0];
+                    if (c[0] < minXC) minXC = c[0];
+                    if (c[1] > maxYC) maxYC = c[1];
+                    if (c[1] < minYC) minYC = c[1];
                 }
             }
             else {
-                maxXC = prevXC;
+                maxXC = originalXC;
                 minXC = maxXC;
-                maxYC = prevYC;
+                maxYC = originalYC;
                 minYC = maxYC;
             }
             System.out.println("maxXC: "+ maxXC);
@@ -306,114 +299,76 @@ public class Controller implements Initializable {
             System.out.println("maxYC: "+ maxYC);
             System.out.println("minYC: "+ minYC);
 
-            int prevAbsX = camera.getAbsX();
-            int prevAbsY = camera.getAbsY();
             switch (event.getCode()) {
                 case H, LEFT, BACK_SPACE -> moveLeft();
                 case J, DOWN, ENTER -> moveDown();
                 case K, UP -> moveUp();
                 case L, RIGHT, TAB, SPACE -> moveRight();
             }
-            int currAbsX = camera.getAbsX();
-            int currAbsY = camera.getAbsY();
-            int camMovX = currAbsX - prevAbsX;
-            int camMovY = currAbsY - prevAbsY;
-            int xOffset = currAbsX % DEFAULT_CELL_W;
-            int yOffset = currAbsY % DEFAULT_CELL_H;
-
             int currXC = cellSelector.getXCoord();
             int currYC = cellSelector.getYCoord();
             System.out.println("currXC: "+ currXC);
             System.out.println("currYC: "+ currYC);
 
+            System.out.println("originalXC = " + originalXC);
+            System.out.println("originalYC = " + originalYC);
             if (currXC >= originalXC || currYC >= originalYC) {
                 if (currXC > prevXC) {
-                    addCSs(true, currXC, minYC, maxYC, xOffset, yOffset);
+                    addSCs(true, currXC, minYC, maxYC);
                     maxXC = currXC;
                 }
-                else if (currXC < prevXC) {// && currXC != originalXC) {
-                    purgeCSs(prevXC, -1);
+                else if (currXC < prevXC) {
+                    purgeSCs(prevXC, -1);
                     maxXC = currXC;
                 }
-                else if (currYC > prevYC) {// && currYC != originalYC) {
-                    addCSs(false, currYC, minXC, maxXC, xOffset, yOffset);
+                else if (currYC > prevYC) {
+                    addSCs(false, currYC, minXC, maxXC);
                     maxYC = currYC;
                 }
                 else if (currYC < prevYC) {
-                    purgeCSs(-1, prevYC);
+                    purgeSCs(-1, prevYC);
                     maxYC = currYC;
                 }
             }
             else {
                 if (currXC < prevXC) {
-                    addCSs(true, currXC, minYC, maxYC, xOffset, yOffset);
+                    addSCs(true, currXC, minYC, maxYC);
                     minXC = currXC;
                 }
                 else if (currXC > prevXC) {
-                    purgeCSs(prevXC, -1);
+                    purgeSCs(prevXC, -1);
                     minXC = currXC;
                 }
                 else if (currYC < prevYC) {
-                    addCSs(false, currYC, minXC, maxXC, xOffset, yOffset);
+                    addSCs(false, currYC, minXC, maxXC);
                     minYC = currYC;
                 }
                 else if (currYC > prevYC) {
-                    purgeCSs(-1, prevYC);
+                    purgeSCs(-1, prevYC);
                     minYC = currYC;
                 }
             }
-
-            if (camMovX != 0)
-                cellSelectors.forEach(c -> c.updateX(camMovX));
-            else if (camMovY != 0)
-                cellSelectors.forEach(c -> c.updateY(camMovY));
-
-            System.out.println("originalXC = " + originalXC);
-            System.out.println("originalYC = " + originalYC);
 
             coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
         }
     }
-    private static void purgeCSs(int colToRemove, int rowToRemove) {
-        System.out.println("Removing some CellSelectors...");
-        ArrayList<CellSelector> newCellSelectors = new ArrayList<>();
-        newCellSelectors.add(cellSelectors.get(0));
-        cellSelectors.removeIf(c -> c.getXCoord() == colToRemove);
-        cellSelectors.removeIf(c -> c.getYCoord() == rowToRemove);
-        newCellSelectors.addAll(cellSelectors);
-        cellSelectors = newCellSelectors;
+    private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
+        System.out.println("Adding cells to selectedCoords...");
+        if (isAddingCol) for (int i = minC; i <= maxC; i++) {
+            selectedCoords.add(new int[]{currC, i});
+            System.out.println(currC + ", " + i);
+        }
+        else for (int i = minC; i <= maxC; i++) {
+            selectedCoords.add(new int[]{i, currC});
+            System.out.println(currC + ", " + i);
+        }
     }
-    private static void addCSs(boolean addingCol, int currC, int minC, int maxC, int xOffset, int yOffset) {
-        if (addingCol) {
-            for (int i = minC; i <= maxC; i++) {
-                CellSelector c = new CellSelector(
-                    currC * DEFAULT_CELL_W - xOffset,
-                    i * DEFAULT_CELL_H - yOffset,
-                    cellSelector.getW(),
-                    cellSelector.getH(),
-                    cellSelector.getC()
-                );
-                c.setxCoord(currC);
-                c.setyCoord(i);
-                c.readCell(camera.picture.data());
-                cellSelectors.add(c);
-            }
-        }
-        else {  // addingRow
-            for (int i = minC; i <= maxC; i++) {
-                CellSelector c = new CellSelector(
-                    i * DEFAULT_CELL_W - xOffset,
-                    currC * DEFAULT_CELL_H - yOffset,
-                    cellSelector.getW(),
-                    cellSelector.getH(),
-                    cellSelector.getC()
-                );
-                c.setxCoord(i);
-                c.setyCoord(currC);
-                c.readCell(camera.picture.data());
-                cellSelectors.add(c);
-            }
-        }
+    private static void purgeSCs(int col, int row) {
+        System.out.println("Removing cells from selectedCoords...");
+        if (col != 1)
+            selectedCoords.removeIf(c -> c[0] == col);
+        else
+            selectedCoords.removeIf(c -> c[1] == row);
     }
 
     private static void textInput(@NotNull KeyEvent event) {
@@ -429,7 +384,7 @@ public class Controller implements Initializable {
                     cellSelector.getSelectedCell().txt()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -449,19 +404,19 @@ public class Controller implements Initializable {
     private static void formulaInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
-                cellSelector.getSelectedCell().setFormula(new Formula(""));
+                cellSelector.readCell(camera.picture.data());
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
                 cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        cellSelector.getSelectedCell().formula().interpret(sheet),
-                        cellSelector.getSelectedCell().formula()
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().formula().interpret(sheet),
+                    cellSelector.getSelectedCell().formula()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
-                camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
@@ -541,7 +496,10 @@ public class Controller implements Initializable {
             Color.GRAY
         );
 
-        camera.picture.take(gc, sheet, camera.getAbsX(), camera.getAbsY());
+        command = new Command("");
+        selectedCoords = new ArrayList<>();
+
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         coordsCell.draw(gc);
@@ -551,7 +509,5 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
         infoBar.draw(gc, cellSelector.getSelectedCell());
-
-        command = new Command("");
     }
 }

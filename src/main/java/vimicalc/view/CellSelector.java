@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
+import vimicalc.model.Formula;
 
 import java.util.ArrayList;
 
@@ -43,14 +44,6 @@ public class CellSelector extends Visible {
         this.selectedCell = selectedCell;
     }
 
-    public void setxCoord(int xCoord) {
-        this.xCoord = xCoord;
-    }
-
-    public void setyCoord(int yCoord) {
-        this.yCoord = yCoord;
-    }
-
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
@@ -86,9 +79,14 @@ public class CellSelector extends Visible {
     public void readCell(@NotNull ArrayList<Cell> cells) {
         emptyCell = new Cell(xCoord, yCoord, "");
         selectedCell = emptyCell;
-        for (Cell tC : cells) {
-            if (tC.xCoord() == xCoord && tC.yCoord() == yCoord)
-                selectedCell = tC;
-        }
+        for (Cell c : cells)
+            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
+                selectedCell = new Cell(
+                    xCoord,
+                    yCoord,
+                    c.txt(),
+                    c.value(),
+                    new Formula(c.formula().getTxt())
+                );
     }
 }
