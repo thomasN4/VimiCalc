@@ -312,6 +312,7 @@ public class Controller implements Initializable {
 
             System.out.println("originalXC = " + originalXC);
             System.out.println("originalYC = " + originalYC);
+
             if (currXC >= originalXC && currYC >= originalYC) {
                 if (currXC > prevXC) {
                     addSCs(true, currXC, minYC, maxYC);

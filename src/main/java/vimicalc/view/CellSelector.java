@@ -80,13 +80,21 @@ public class CellSelector extends Visible {
         emptyCell = new Cell(xCoord, yCoord, "");
         selectedCell = emptyCell;
         for (Cell c : cells)
-            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
-                selectedCell = new Cell(
-                    xCoord,
-                    yCoord,
-                    c.txt(),
-                    c.value(),
-                    new Formula(c.formula().getTxt())
-                );
+            if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
+                if (c.formula() == null)
+                    selectedCell = new Cell(
+                        xCoord,
+                        yCoord,
+                        c.txt(),
+                        c.value()
+                    );
+                else
+                    selectedCell = new Cell(
+                        xCoord,
+                        yCoord,
+                        c.txt(),
+                        new Formula(c.formula().getTxt())
+                    );
+            }
     }
 }

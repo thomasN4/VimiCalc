@@ -39,12 +39,11 @@ public class Cell {
         }
     }
 
-    public Cell(int xCoord, int yCoord, String txt, double value, Formula formula) {
+    public Cell(int xCoord, int yCoord, String txt, double value) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         this.txt = txt;
         this.value = value;
-        this.formula = formula;
         format = new DecimalFormat("0.0");
     }
 
