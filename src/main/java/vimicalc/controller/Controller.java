@@ -365,7 +365,7 @@ public class Controller implements Initializable {
     }
     private static void purgeSCs(int col, int row) {
         System.out.println("Removing cells from selectedCoords...");
-        if (col != 1)
+        if (col != -1)
             selectedCoords.removeIf(c -> c[0] == col);
         else
             selectedCoords.removeIf(c -> c[1] == row);
