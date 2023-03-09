@@ -170,7 +170,20 @@ public class Controller implements Initializable {
                     }
                 }
             }
-            case 'V' -> visualSelection(event);
+            case 'V' -> {
+                switch (event.getCode()) {
+                    case D -> {
+                        selectedCoords.forEach(coord -> sheet.getCells().removeIf(
+                                cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
+                        ));
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.setSelectedCell(cellSelector.getEmptyCell());
+                    }
+                    case Y, P -> System.out.println("À implémenter.");
+                    default -> visualSelection(event);
+                }
+            }
         }
 
         System.out.println("     sC.x: "+ cellSelector.getX()     +", yCoord: "+ cellSelector.getY());
