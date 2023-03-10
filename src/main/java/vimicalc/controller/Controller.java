@@ -17,6 +17,7 @@ import vimicalc.view.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -26,6 +27,10 @@ public class Controller implements Initializable {
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
     private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
+    public static LinkedList<Integer> recordedxCoor = new LinkedList<>();
+    public static LinkedList<Integer> recordedyCoor = new LinkedList<>();
+    public static LinkedList<String> recordedWord = new LinkedList<>();
+    public static int dCounter = 1;
 
     @FXML private Canvas canvas;
 
@@ -133,6 +138,60 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
 
+    public static void undo() {
+        System.out.println(recordedWord);
+        if (!recordedWord.isEmpty() && !(dCounter >= recordedWord.size())) {
+            goTo();
+            sheet.addCell(cellSelector.getSelectedCell());
+            cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - 1 - dCounter));
+            dCounter = dCounter + 2;
+        }
+    }
+
+    public static void redo() {
+        if (!recordedWord.isEmpty() && !(dCounter <= 1)) {
+            dCounter = dCounter - 2;
+            goTo();
+            sheet.addCell(cellSelector.getSelectedCell());
+            cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - dCounter));
+       }
+    }
+
+    public static void goTo() {
+        while ((recordedxCoor.get(recordedxCoor.size() - dCounter) - cellSelector.getXCoord()) > 0) {
+            moveRight();
+            firstRow.draw(gc, camera.getAbsX());
+            firstCol.draw(gc, camera.getAbsY());
+            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+            coordsCell.draw(gc);
+            statusBar.draw(gc);
+        }
+        while ((recordedxCoor.get(recordedxCoor.size() - dCounter) - cellSelector.getXCoord()) < 0) {
+            moveLeft();
+            firstRow.draw(gc, camera.getAbsX());
+            firstCol.draw(gc, camera.getAbsY());
+            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+            coordsCell.draw(gc);
+            statusBar.draw(gc);
+        }
+        while ((recordedyCoor.get(recordedyCoor.size() - dCounter) - cellSelector.getYCoord()) > 0) {
+            moveDown();
+            firstRow.draw(gc, camera.getAbsX());
+            firstCol.draw(gc, camera.getAbsY());
+            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+            coordsCell.draw(gc);
+            statusBar.draw(gc);
+        }
+        while ((recordedyCoor.get(recordedyCoor.size() - dCounter) - cellSelector.getYCoord()) < 0) {
+            moveUp();
+            firstRow.draw(gc, camera.getAbsX());
+            firstCol.draw(gc, camera.getAbsY());
+            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+            coordsCell.draw(gc);
+            statusBar.draw(gc);
+        }
+    }
+
     public static void onKeyPressed(@NotNull KeyEvent event) {
         switch (statusBar.getMode().charAt(1)) {
             case 'C' -> commandInput(event);
@@ -145,14 +204,38 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
+                        recordedWord.add(cellSelector.getSelectedCell().txt());
+                        recordedxCoor.add(cellSelector.getXCoord());
+                        recordedyCoor.add(cellSelector.getYCoord());
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.setSelectedCell(cellSelector.getEmptyCell());
+                        recordedWord.add(cellSelector.getSelectedCell().txt());
+                        recordedxCoor.add(cellSelector.getXCoord());
+                        recordedyCoor.add(cellSelector.getYCoord());
                     }
-                    case A, I -> statusBar.setMode(MODE[2]);
+                    case U -> {
+                        undo();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                    }
+                    case R -> {
+                        redo();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                    }
+                    case A, I -> {
+                        statusBar.setMode(MODE[2]);
+                        recordedWord.add(cellSelector.getSelectedCell().txt());
+                        recordedxCoor.add(cellSelector.getXCoord());
+                        recordedyCoor.add(cellSelector.getYCoord());
+                    }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
+                        recordedWord.add(cellSelector.getSelectedCell().txt());
+                        recordedxCoor.add(cellSelector.getXCoord());
+                        recordedyCoor.add(cellSelector.getYCoord());
                         statusBar.setMode(MODE[1]);
                         infoBar.setEnteringFormula(true);
                         if (cellSelector.getSelectedCell().formula() == null)
@@ -433,6 +516,9 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
+                recordedWord.add(cellSelector.getSelectedCell().txt());
+                recordedxCoor.add(cellSelector.getXCoord());
+                recordedyCoor.add(cellSelector.getYCoord());
                 cellSelector.setSelectedCell(new Cell(
                     cellSelector.getXCoord(),
                     cellSelector.getYCoord(),
@@ -476,6 +562,9 @@ public class Controller implements Initializable {
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
+                recordedWord.add((cellSelector.getSelectedCell().txt()));
+                recordedxCoor.add(cellSelector.getXCoord());
+                recordedyCoor.add(cellSelector.getYCoord());
             }
             case BACK_SPACE -> cellSelector.getSelectedCell().formula().setTxt(
                 cellSelector.getSelectedCell().formula().getTxt().substring(
