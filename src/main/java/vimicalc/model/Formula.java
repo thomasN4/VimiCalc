@@ -115,15 +115,15 @@ public class Formula extends Interpretable {
                     om_i++;
                 }
                 omats.add(omat);
-                omats.forEach(o -> {
-                    System.out.println("\n" + o[0][0] + "  " + o[0][1]);
-                    System.out.println(o[1][0] + "  " + o[1][1] + "\n");
-                });
             }
+            omats.forEach(o -> {
+                System.out.println("\n" + o[0][0] + "  " + o[0][1]);
+                System.out.println(o[1][0] + "  " + o[1][1] + "\n");
+            });
 
             double sum = 0;
             for (int i = 0; i < imat.length; i++) {
-                sum += Math.pow(-1, i) * determinant(omats.get(i));
+                sum += Math.pow(-1, i) * determinant(omats.get(i)) * imat[i][0];
             }
             return sum;
         }
