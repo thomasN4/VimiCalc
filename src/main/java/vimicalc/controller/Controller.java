@@ -430,10 +430,13 @@ public class Controller implements Initializable {
                 }
                 statusBar.setMode(MODE[3]);
             }
-            case BACK_SPACE -> cellSelector.getSelectedCell().setTxt(
+            case BACK_SPACE -> {
+                cellSelector.getSelectedCell().setTxt(
                     cellSelector.getSelectedCell().txt().substring(0,
                         cellSelector.getSelectedCell().txt().length() - 1)
                 );
+                cellSelector.draw(gc);
+            }
             default -> cellSelector.draw(gc, event.getText());
         }
     }

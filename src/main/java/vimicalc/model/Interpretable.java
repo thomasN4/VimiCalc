@@ -63,21 +63,18 @@ abstract class Interpretable {
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
         double[][] mat = new double[lastCoordX - firstCoordX][lastCoordY - firstCoordY];
 
-        for (int j = 0; j < lastCoordX - firstCoordX; j++) {
+        for (int j = 0; j <= lastCoordX - firstCoordX; j++) {
             final int J = j;
-            for (int k = 0; k < lastCoordY - firstCoordY; k++) {
+            for (int k = 0; k <= lastCoordY - firstCoordY; k++) {
                 final int K = k;
                 sheet.getCells().forEach(c -> {
                     if (c.xCoord() == J && c.yCoord() == K) {
                         if (c.formula() != null)
                             mat[J][K] = Double.parseDouble(c.formula().interpret(sheet));
-                        else {
-                            if (!c.txt().equals(""))
-                                mat[J][K] = Double.parseDouble(String.valueOf(c.value()));
-                            else
-                                mat[J][K] = Double.parseDouble("I");
-                        }
-
+                        else if (!c.txt().equals(""))
+                            mat[J][K] = c.value();
+                        else
+                            mat[J][K] = 0;
                     }
                 });
             }
