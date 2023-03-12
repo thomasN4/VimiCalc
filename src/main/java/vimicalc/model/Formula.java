@@ -109,13 +109,16 @@ public class Formula extends Interpretable {
             for (int ignoredRow = 0; ignoredRow < imat.length; ignoredRow++) {
                 double[][] omat = new double[imat.length - 1][imat.length - 1];
                 int om_i = 0;
-                for (int im_i = 1; im_i < imat.length; im_i++) {
-                    for (int im_j = 1; im_j < imat.length; im_j++) {
-                        if (im_i != ignoredRow) omat[om_i][im_j -1] = imat[im_i][im_j];
-                    }
+                for (int im_i = 0; im_i < imat.length; im_i++) {
+                    if (im_i == ignoredRow) continue;
+                    System.arraycopy(imat[im_i], 1, omat[om_i], 0, imat.length - 1);
                     om_i++;
                 }
                 omats.add(omat);
+                omats.forEach(o -> {
+                    System.out.println("\n" + o[0][0] + "  " + o[0][1]);
+                    System.out.println(o[1][0] + "  " + o[1][1] + "\n");
+                });
             }
 
             double sum = 0;
