@@ -43,10 +43,6 @@ public class Formula extends Interpretable {
         Vector<String> nums = new Vector<>();
         boolean isCoordsArea = false;
         for (String s : args.subList(1, args.size())) {
-            if (s.charAt(0) == '(') {
-                nums.add(interpret(s.substring(1, s.length() - 1), sheet));
-                continue;
-            }
             for (int i = 0; i < s.length(); i++) {
                 if (s.charAt(i) == ':') {
                     nums.addAll(createVectorFromArea(s, sheet));
@@ -69,11 +65,25 @@ public class Formula extends Interpretable {
     public String interpret(String raw, Sheet sheet) {
         ArrayList<String> args = lexer(raw);
         String arg0 = args.get(0);
-        if (arg0.equals("+") || arg0.equals("*") || arg0.equals("/")) {
+        if (arg0.charAt(0) == '(') {
+            return interpret(
+                arg0.substring(1, arg0.length() - 1) +
+                unlexer(args.subList(1, args.size())), sheet
+            );
+        }
+        else if (arg0.equals("+") || arg0.equals("*") || arg0.equals("/")) {
             return arithmetic(arg0, args, sheet);
-        } else if (isNumber(arg0)) {
+        }
+        else if (arg0.equals("det")) {
+            return determinant(args.get(1), sheet);
+        }
+        else if (isNumber(arg0)) {
             return arg0;
-        } else {
+        }
+        else if (arg0.charAt(0) == '-') {
+            return interpret("(* -1 " + arg0.substring(1) + ')', sheet);
+        }
+        else {
             Cell c = sheet.findCell(arg0);
             if (c.formula() != null)
                 return interpret(c.formula().getTxt(), sheet);
@@ -84,5 +94,36 @@ public class Formula extends Interpretable {
                     return "I";
             }
         }
+    }
+
+    private @NotNull String determinant(String coords, Sheet sheet) {
+        return String.valueOf(determinant(
+            createMatrixFromArea(coords, sheet)
+        ));
+    }
+
+    private double determinant(double[][] imat) {
+        if (imat.length > 2) {
+            ArrayList<double[][]> omats = new ArrayList<>();
+            for (int i = 0; i < imat.length; i++) {
+                double[][] omat = new double[imat.length - 1][imat.length - 1];
+                int omatJ = 0;
+                for (int j = 1; j < imat.length; j++) {
+                    int omatK = 0;
+                    for (int k = 0; k < imat.length; k++) {
+                        if (k != i) omat[omatJ][omatK++] = imat[j][k];
+                    }
+                    omatJ++;
+                }
+                omats.add(omat);
+            }
+
+            double sum = 0;
+            for (int i = 0; i < imat.length; i++) {
+                sum += Math.pow(-1, i) * determinant(omats.get(i));
+            }
+            return sum;
+        }
+        else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
 }

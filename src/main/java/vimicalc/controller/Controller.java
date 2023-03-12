@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.*;
 import org.jetbrains.annotations.NotNull;
@@ -170,20 +169,7 @@ public class Controller implements Initializable {
                     }
                 }
             }
-            case 'V' -> {
-                switch (event.getCode()) {
-                    case D -> {
-                        selectedCoords.forEach(coord -> sheet.getCells().removeIf(
-                                cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
-                        ));
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        camera.ready();
-                        cellSelector.setSelectedCell(cellSelector.getEmptyCell());
-                    }
-                    case Y, P -> System.out.println("À implémenter.");
-                    default -> visualSelection(event);
-                }
-            }
+            case 'V' -> visualSelection(event);
         }
 
         System.out.println("     sC.x: "+ cellSelector.getX()     +", yCoord: "+ cellSelector.getY());
@@ -266,145 +252,141 @@ public class Controller implements Initializable {
         if (infoBar.isEnteringCommandInVISUAL()) {
             commandInput(event);
         }
-        else if (event.getCode() == KeyCode.ESCAPE) {
-            statusBar.setMode(MODE[3]);
-            selectedCoords = new ArrayList<>();
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            camera.ready();
-            cellSelector.readCell(camera.picture.data());
-            cellSelector.draw(gc);
-        }
-        else if (event.getCode() == KeyCode.SEMICOLON) {
-            infoBar.setEnteringCommandInVISUAL(true);
-            command = new Command("");
-        }
         else {
-            int originalXC = selectedCoords.get(0)[0];
-            int originalYC = selectedCoords.get(0)[1];
-
-            int prevXC = cellSelector.getXCoord();
-            int prevYC = cellSelector.getYCoord();
-
-            int maxXC;
-            int minXC;
-            int maxYC;
-            int minYC;
-            if (selectedCoords.size() > 1) {
-                maxXC = Integer.MIN_VALUE;
-                minXC = Integer.MAX_VALUE;
-                maxYC = Integer.MIN_VALUE;
-                minYC = Integer.MAX_VALUE;
-                for (int[] c : selectedCoords) {
-                    if (c[0] > maxXC) maxXC = c[0];
-                    if (c[0] < minXC) minXC = c[0];
-                    if (c[1] > maxYC) maxYC = c[1];
-                    if (c[1] < minYC) minYC = c[1];
-                }
-            }
-            else {
-                maxXC = originalXC;
-                minXC = maxXC;
-                maxYC = originalYC;
-                minYC = maxYC;
-            }
-            System.out.println("maxXC: "+ maxXC);
-            System.out.println("minXC: "+ minXC);
-            System.out.println("maxYC: "+ maxYC);
-            System.out.println("minYC: "+ minYC);
-
             switch (event.getCode()) {
-                case H, LEFT, BACK_SPACE -> moveLeft();
-                case J, DOWN, ENTER -> moveDown();
-                case K, UP -> moveUp();
-                case L, RIGHT, TAB, SPACE -> moveRight();
-            }
-            int currXC = cellSelector.getXCoord();
-            int currYC = cellSelector.getYCoord();
-            System.out.println("currXC: "+ currXC);
-            System.out.println("currYC: "+ currYC);
+                case D -> {
+                    selectedCoords.forEach(coord -> sheet.getCells().removeIf(
+                            cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
+                    ));
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.setSelectedCell(cellSelector.getEmptyCell());
+                }
+                case ESCAPE -> {
+                    statusBar.setMode(MODE[3]);
+                    selectedCoords = new ArrayList<>();
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
+                    cellSelector.draw(gc);
+                }
+                case SEMICOLON -> {
+                    infoBar.setEnteringCommandInVISUAL(true);
+                    command = new Command("");
+                }
+                default -> {
+                    int originalXC = selectedCoords.get(0)[0];
+                    int originalYC = selectedCoords.get(0)[1];
 
-            System.out.println("originalXC = " + originalXC);
-            System.out.println("originalYC = " + originalYC);
+                    int prevXC = cellSelector.getXCoord();
+                    int prevYC = cellSelector.getYCoord();
 
-            if (currXC >= originalXC && currYC >= originalYC) {
-                if (currXC > prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    maxXC = currXC;
-                }
-                else if (currXC < prevXC) {
-                    purgeSCs(prevXC, -1);
-                    maxXC = currXC;
-                }
-                else if (currYC > prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    maxYC = currYC;
-                }
-                else if (currYC < prevYC) {
-                    purgeSCs(-1, prevYC);
-                    maxYC = currYC;
-                }
-            }
-            else if (currXC >= originalYC && currYC < originalYC) {
-                if (currXC > prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    maxXC = currXC;
-                }
-                else if (currXC < prevXC) {
-                    purgeSCs(prevXC, -1);
-                    maxXC = currXC;
-                }
-                else if (currYC < prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    minYC = currYC;
-                }
-                else if (currYC > prevYC) {
-                    purgeSCs(-1, prevYC);
-                    minYC = currYC;
-                }
-            }
-            else if (currXC < originalXC && currYC >= originalYC) {
-                if (currXC < prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    minXC = currXC;
-                }
-                else if (currXC > prevXC) {
-                    purgeSCs(prevXC, -1);
-                    minXC = currXC;
-                }
-                else if (currYC > prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    maxYC = currYC;
-                }
-                else if (currYC < prevYC) {
-                    purgeSCs(-1, prevYC);
-                    maxYC = currYC;
-                }
-            }
-            else {
-                if (currXC < prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    minXC = currXC;
-                }
-                else if (currXC > prevXC) {
-                    purgeSCs(prevXC, -1);
-                    minXC = currXC;
-                }
-                else if (currYC < prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    minYC = currYC;
-                }
-                else if (currYC > prevYC) {
-                    purgeSCs(-1, prevYC);
-                    minYC = currYC;
-                }
-            }
+                    int maxXC;
+                    int minXC;
+                    int maxYC;
+                    int minYC;
+                    if (selectedCoords.size() > 1) {
+                        maxXC = Integer.MIN_VALUE;
+                        minXC = Integer.MAX_VALUE;
+                        maxYC = Integer.MIN_VALUE;
+                        minYC = Integer.MAX_VALUE;
+                        for (int[] c : selectedCoords) {
+                            if (c[0] > maxXC) maxXC = c[0];
+                            if (c[0] < minXC) minXC = c[0];
+                            if (c[1] > maxYC) maxYC = c[1];
+                            if (c[1] < minYC) minYC = c[1];
+                        }
+                    } else {
+                        maxXC = originalXC;
+                        minXC = maxXC;
+                        maxYC = originalYC;
+                        minYC = maxYC;
+                    }
+                    System.out.println("maxXC: " + maxXC);
+                    System.out.println("minXC: " + minXC);
+                    System.out.println("maxYC: " + maxYC);
+                    System.out.println("minYC: " + minYC);
 
-            if (currXC == originalXC && currXC > prevXC)
-                purgeSCs(prevXC, -1);
-            else if (currYC == originalYC && currYC > prevYC)
-                purgeSCs(-1, prevYC);
+                    switch (event.getCode()) {
+                        case H, LEFT, BACK_SPACE -> moveLeft();
+                        case J, DOWN, ENTER -> moveDown();
+                        case K, UP -> moveUp();
+                        case L, RIGHT, TAB, SPACE -> moveRight();
+                    }
+                    int currXC = cellSelector.getXCoord();
+                    int currYC = cellSelector.getYCoord();
+                    System.out.println("currXC: " + currXC);
+                    System.out.println("currYC: " + currYC);
 
-            coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
+                    System.out.println("originalXC = " + originalXC);
+                    System.out.println("originalYC = " + originalYC);
+
+                    if (currXC >= originalXC && currYC >= originalYC) {
+                        if (currXC > prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            maxXC = currXC;
+                        } else if (currXC < prevXC) {
+                            purgeSCs(prevXC, -1);
+                            maxXC = currXC;
+                        } else if (currYC > prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            maxYC = currYC;
+                        } else if (currYC < prevYC) {
+                            purgeSCs(-1, prevYC);
+                            maxYC = currYC;
+                        }
+                    } else if (currXC >= originalYC && currYC < originalYC) {
+                        if (currXC > prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            maxXC = currXC;
+                        } else if (currXC < prevXC) {
+                            purgeSCs(prevXC, -1);
+                            maxXC = currXC;
+                        } else if (currYC < prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            minYC = currYC;
+                        } else if (currYC > prevYC) {
+                            purgeSCs(-1, prevYC);
+                            minYC = currYC;
+                        }
+                    } else if (currXC < originalXC && currYC >= originalYC) {
+                        if (currXC < prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            minXC = currXC;
+                        } else if (currXC > prevXC) {
+                            purgeSCs(prevXC, -1);
+                            minXC = currXC;
+                        } else if (currYC > prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            maxYC = currYC;
+                        } else if (currYC < prevYC) {
+                            purgeSCs(-1, prevYC);
+                            maxYC = currYC;
+                        }
+                    } else {
+                        if (currXC < prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            minXC = currXC;
+                        } else if (currXC > prevXC) {
+                            purgeSCs(prevXC, -1);
+                            minXC = currXC;
+                        } else if (currYC < prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            minYC = currYC;
+                        } else if (currYC > prevYC) {
+                            purgeSCs(-1, prevYC);
+                            minYC = currYC;
+                        }
+                    }
+
+                    if (currXC == originalXC && currXC > prevXC)
+                        purgeSCs(prevXC, -1);
+                    else if (currYC == originalYC && currYC > prevYC)
+                        purgeSCs(-1, prevYC);
+
+                    coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
+                }
+            }
         }
     }
     private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
