@@ -105,15 +105,13 @@ public class Formula extends Interpretable {
     private double determinant(double[][] imat) {
         if (imat.length > 2) {
             ArrayList<double[][]> omats = new ArrayList<>();
-            for (int i = 0; i < imat.length; i++) {
+            for (int imatRow = 0; imatRow < imat.length; imatRow++) {
                 double[][] omat = new double[imat.length - 1][imat.length - 1];
-                int omatJ = 0;
-                for (int j = 1; j < imat.length; j++) {
-                    int omatK = 0;
-                    for (int k = 0; k < imat.length; k++) {
-                        if (k != i) omat[omatJ][omatK++] = imat[j][k];
+                int omatI = 0;
+                for (double[] doubles : imat) {
+                    for (int j = 1; j < imat.length; j++) {
+                        if (omatI != imatRow) omat[omatI][j-1] = doubles[j];
                     }
-                    omatJ++;
                 }
                 omats.add(omat);
             }
