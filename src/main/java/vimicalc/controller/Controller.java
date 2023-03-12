@@ -149,7 +149,15 @@ public class Controller implements Initializable {
                         camera.ready();
                         cellSelector.setSelectedCell(cellSelector.getEmptyCell());
                     }
-                    case A, I -> statusBar.setMode(MODE[2]);
+                    case A, I -> {
+                        statusBar.setMode(MODE[2]);
+                        if (cellSelector.getSelectedCell().value() != 0) {
+                            cellSelector.getSelectedCell().setTxt(String.valueOf(
+                                cellSelector.getSelectedCell().value()
+                            ));
+                        }
+                        cellSelector.draw(gc);
+                    }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
                         statusBar.setMode(MODE[1]);

@@ -103,6 +103,7 @@ public class Formula extends Interpretable {
     }
 
     private double determinant(double[][] imat) {
+        System.out.println("imat.length = " + imat.length);
         if (imat.length > 2) {
             ArrayList<double[][]> omats = new ArrayList<>();
             for (int ignoredRow = 0; ignoredRow < imat.length; ignoredRow++) {
