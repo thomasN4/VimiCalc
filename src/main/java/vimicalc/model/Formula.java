@@ -107,11 +107,12 @@ public class Formula extends Interpretable {
             ArrayList<double[][]> omats = new ArrayList<>();
             for (int imatRow = 0; imatRow < imat.length; imatRow++) {
                 double[][] omat = new double[imat.length - 1][imat.length - 1];
-                int omatI = 0;
-                for (double[] doubles : imat) {
-                    for (int j = 1; j < imat.length; j++) {
-                        if (omatI != imatRow) omat[omatI][j-1] = doubles[j];
+                int om_i = 0;
+                for (int im_i = 1; im_i < imat.length; im_i++) {
+                    for (int im_j = 1; im_j < imat.length; im_j++) {
+                        if (om_i != im_i) omat[om_i][im_j -1] = imat[im_i][im_j];
                     }
+                    om_i++;
                 }
                 omats.add(omat);
             }
