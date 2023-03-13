@@ -31,7 +31,6 @@ public class Controller implements Initializable {
     public static LinkedList<Integer> recordedyCoor = new LinkedList<>();
     public static LinkedList<String> recordedWord = new LinkedList<>();
     public static int dCounter = 1;
-
     @FXML private Canvas canvas;
 
     private static Camera camera;
@@ -139,8 +138,14 @@ public class Controller implements Initializable {
     }
 
     public static void undo() {
-        System.out.println(recordedWord);
         if (!recordedWord.isEmpty() && !(dCounter >= recordedWord.size())) {
+            if (recordedWord.get(recordedWord.size() - 1 - dCounter).matches(".*\\D.*")) {
+                cellSelector.setSelectedCell(new Cell(
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        recordedWord.get(recordedWord.size() - 1 - dCounter)
+                ));
+            }
             goTo();
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - 1 - dCounter));
@@ -152,6 +157,13 @@ public class Controller implements Initializable {
         if (!recordedWord.isEmpty() && !(dCounter <= 1)) {
             dCounter = dCounter - 2;
             goTo();
+            if (recordedWord.get(recordedWord.size() - dCounter).matches(".*\\D.*")) {
+                cellSelector.setSelectedCell(new Cell(
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        recordedWord.get(recordedWord.size() - dCounter)
+                ));
+            }
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - dCounter));
        }
@@ -233,6 +245,13 @@ public class Controller implements Initializable {
                     }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
+                        if (cellSelector.getSelectedCell().txt().matches(".*\\D.*")) {
+                            cellSelector.setSelectedCell(new Cell(
+                                    cellSelector.getXCoord(),
+                                    cellSelector.getYCoord(),
+                                    cellSelector.getSelectedCell().txt()
+                            ));
+                        }
                         recordedWord.add(cellSelector.getSelectedCell().txt());
                         recordedxCoor.add(cellSelector.getXCoord());
                         recordedyCoor.add(cellSelector.getYCoord());
@@ -562,7 +581,12 @@ public class Controller implements Initializable {
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
-                recordedWord.add((cellSelector.getSelectedCell().txt()));
+                cellSelector.setSelectedCell(new Cell(
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        cellSelector.getSelectedCell().txt()
+                ));
+                recordedWord.add(cellSelector.getSelectedCell().txt());
                 recordedxCoor.add(cellSelector.getXCoord());
                 recordedyCoor.add(cellSelector.getYCoord());
             }
