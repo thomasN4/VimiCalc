@@ -81,6 +81,13 @@ public class CellSelector extends Visible {
                             c.txt(),
                             new Formula(String.valueOf(c.value()))
                         );
+                    else
+                        selectedCell = new Cell(
+                            xCoord,
+                            yCoord,
+                            c.txt(),
+                            new Formula("")
+                        );
                 }
                 else
                     selectedCell = new Cell(
