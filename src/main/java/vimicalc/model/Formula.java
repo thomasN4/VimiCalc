@@ -63,9 +63,8 @@ public class Formula extends Interpretable {
         if (args.length == 1) {
             if (!args[0].isFunction())
                 return args;
-            else if (args[0].getFunc().charAt(0) == '-') {
+            else if (args[0].getFunc().charAt(0) == '-')
                 return new Lexeme[]{negative(args[0].getFunc(), sheet)};
-            }
             else
                 return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet)};
         }
@@ -74,7 +73,6 @@ public class Formula extends Interpretable {
                 if (args[i].isFunction()) {
                     String func = args[i].getFunc();
                     if (func.charAt(0) == '-' && func.length() > 1) {
-                        System.out.println("Negative detected.");
                         args[i] = negative(func, sheet);
                         continue;
                     }
@@ -134,9 +132,9 @@ public class Formula extends Interpretable {
                                 System.out.println("Not enough args.");
                         }
                         default -> {
-                            newArgs = args;
-                            newArgs[i] = cellToLexeme(func, sheet);
-                            System.out.println("Arg might be a coordinate.");
+                            if (func.contains(":")) continue;
+                            args[i] = cellToLexeme(func, sheet);
+                            continue;
                         }
                     }
                     break;
@@ -186,10 +184,6 @@ public class Formula extends Interpretable {
                 }
                 omats.add(omat);
             }
-            omats.forEach(o -> {
-                System.out.println("\n" + o[0][0] + "  " + o[0][1]);
-                System.out.println(o[1][0] + "  " + o[1][1] + "\n");
-            });
 
             double sum = 0;
             for (int i = 0; i < imat.length; i++) {
