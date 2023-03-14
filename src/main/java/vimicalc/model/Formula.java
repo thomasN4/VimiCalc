@@ -79,6 +79,12 @@ public class Formula extends Interpretable {
                         reduction = 1;
                         reduced = new Lexeme(determinant(args[i-1].getFunc(), sheet));
                     }
+                    case "matMult" -> {
+                        reduction = 3;
+                        reduced = new Lexeme(matMult(
+                            args[i-1].getFunc(), args[i-3].getFunc(), args[i-2].getFunc(), sheet
+                        ));
+                    }
                     case "+" -> {
                         if (i > 1) {
                             reduction = 2;
@@ -124,7 +130,7 @@ public class Formula extends Interpretable {
                             System.out.println("Not enough args.");
                     }
                     default -> {
-                        if (func.contains(":")) continue;
+                        if (func.contains(":") || func.contains("\\")) continue;
                         args[i] = cellToLexeme(func, sheet);
                     }
                 }
@@ -167,7 +173,6 @@ public class Formula extends Interpretable {
             createMatrixFromArea(coords, sheet)
         );
     }
-
     private double determinant(double[][] imat) {
         if (imat.length > 2) {
             Matrix[] omats = new Matrix[imat.length];
@@ -189,6 +194,45 @@ public class Formula extends Interpretable {
             return sum;
         }
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
+    }
+    
+    private double matMult(String destinationCoord, String coords1, String coords2, Sheet sheet) {
+        return matMult(
+            destinationCoord,
+            createMatrixFromArea(coords1, sheet),
+            createMatrixFromArea(coords2, sheet),
+            sheet
+        );
+    }
+    public double matMult(String dC, double[][] mat1, double[][] mat2, Sheet sheet) {
+        double firstCellRes = 0;
+        int dCX = sheet.findCell(dC).xCoord();
+        int dCY = sheet.findCell(dC).yCoord();
+
+        for (int i = 0; i < mat1.length / mat2.length; i++) {
+            for (int j = 0; j < mat2.length / mat1.length; j++) {
+                if (i == 0 && j == 0) {
+                    firstCellRes = sumForOneCell(mat1[i], mat2[j]);
+                    continue;
+                }
+                sheet.addCell(new Cell(
+                    dCX + j,
+                    dCY + i,
+                    String.valueOf(sumForOneCell(mat1[i], mat2[j]))
+                ));
+            }
+        }
+
+        return firstCellRes;
+    }
+    public double sumForOneCell(double[] row, double[] col) {
+        double s = 0;
+        for (double c : col) {
+            for (double r : row) {
+                s += c * r;
+            }
+        }
+        return s;
     }
 }
 
