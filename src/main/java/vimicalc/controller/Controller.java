@@ -236,6 +236,7 @@ public class Controller implements Initializable {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
+                    command = new Command("");
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
