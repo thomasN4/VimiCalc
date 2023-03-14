@@ -38,7 +38,6 @@ public class Formula extends Interpretable {
 
     private double matArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) {
         Lexeme[] vector = createVectorFromArea(arg1.getFunc(), sheet);
-
         return switch (arg0) {
             case "sum" -> sum(vector);
             case "prod" -> product(vector);
@@ -60,8 +59,10 @@ public class Formula extends Interpretable {
 
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
         byte reduction;
+        Lexeme reduced;
         for (int i = 0; args.length > 1; i++) {
             reduction = 0;
+            reduced = null;
             if (args[i].isFunction()) {
                 String func = args[i].getFunc();
                 if (func.charAt(0) == '-' && func.length() > 1) {
@@ -71,15 +72,11 @@ public class Formula extends Interpretable {
                 switch (func) {
                     case "sum", "prod", "quot" -> {
                         reduction = 1;
-                        reduceFormula(
-                            args, i, reduction, new Lexeme(matArithmetic(func, args[i-1], sheet))
-                        );
+                        reduced = new Lexeme(matArithmetic(func, args[i-1], sheet));
                     }
                     case "det" -> {
                         reduction = 1;
-                        reduceFormula(
-                            args, i, 1, new Lexeme(determinant(args[i-1].getFunc(), sheet))
-                        );
+                        reduced = new Lexeme(determinant(args[i-1].getFunc(), sheet));
                     }
                     case "+" -> {
                         if (i > 1) {
@@ -88,9 +85,7 @@ public class Formula extends Interpretable {
                             Lexeme y = args[i-1];
                             if (x.getFunc().equals("I")) x.setVal(0);
                             if (y.getFunc().equals("I")) y.setVal(0);
-                            reduceFormula(
-                                args, i, reduction, new Lexeme(x.getVal() + y.getVal())
-                            );
+                            reduced = new Lexeme(x.getVal() + y.getVal());
                         } else
                             System.out.println("Not enough args.");
                     }
@@ -101,9 +96,7 @@ public class Formula extends Interpretable {
                             Lexeme y = args[i-1];
                             if (x.getFunc().equals("I")) x.setVal(0);
                             if (y.getFunc().equals("I")) y.setVal(0);
-                            reduceFormula(
-                                args, i, reduction, new Lexeme(x.getVal() - y.getVal())
-                            );
+                            reduced = new Lexeme(x.getVal() - y.getVal());
                         } else
                             System.out.println("Not enough args.");
                     }
@@ -114,9 +107,7 @@ public class Formula extends Interpretable {
                             Lexeme y = args[i-1];
                             if (x.getFunc().equals("I")) x.setVal(1);
                             if (y.getFunc().equals("I")) y.setVal(1);
-                            reduceFormula(
-                                args, i, reduction, new Lexeme(x.getVal() * y.getVal())
-                            );
+                            reduced = new Lexeme(x.getVal() * y.getVal());
                         } else
                             System.out.println("Not enough args.");
                     }
@@ -127,9 +118,7 @@ public class Formula extends Interpretable {
                             Lexeme y = args[i-1];
                             if (x.getFunc().equals("I")) x.setVal(1);
                             if (y.getFunc().equals("I")) y.setVal(1);
-                            reduceFormula(
-                                args, i, reduction, new Lexeme(x.getVal() / y.getVal())
-                            );
+                            reduced = new Lexeme(x.getVal() / y.getVal());
                         } else
                             System.out.println("Not enough args.");
                     }
@@ -138,7 +127,19 @@ public class Formula extends Interpretable {
                         args[i] = cellToLexeme(func, sheet);
                     }
                 }
-                i -= reduction;
+                if (reduction != 0) {
+                    Lexeme[] newArgs = new Lexeme[args.length-reduction];
+                    System.arraycopy(args, 0, newArgs, 0, i-reduction);
+                    newArgs[i-reduction] = reduced;
+                    System.arraycopy(args
+                        , i+1
+                        , newArgs
+                        , i-reduction+1
+                        , args.length-i-1);
+                    args = new Lexeme[newArgs.length];
+                    System.arraycopy(newArgs, 0, args, 0, args.length);
+                    i -= reduction;
+                }
             }
         }
         if (!args[0].isFunction())
@@ -147,18 +148,6 @@ public class Formula extends Interpretable {
             return new Lexeme[]{negative(args[0].getFunc(), sheet)};
         else
             return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet)};
-    }
-    private void reduceFormula(Lexeme @NotNull [] original, int currPos, int reduction, Lexeme reduced) {
-        Lexeme[] newArgs = new Lexeme[original.length-reduction];
-        System.arraycopy(original, 0, newArgs, 0, currPos-reduction);
-        newArgs[currPos-reduction] = reduced;
-        System.arraycopy(original
-            , currPos+1
-            , newArgs
-            , currPos-reduction+1
-            , original.length-currPos-1);
-        original = new Lexeme[newArgs.length];
-        System.arraycopy(newArgs, 0, original, 0, original.length);
     }
     private Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
