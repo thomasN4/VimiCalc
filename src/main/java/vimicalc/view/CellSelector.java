@@ -20,8 +20,6 @@ public class CellSelector extends Visible {
         super(x, y, w, h, c);
         xCoord = x/w;
         yCoord = y/h;
-        emptyCell = new Cell(xCoord, yCoord, "");
-        selectedCell = emptyCell;
     }
 
     public Cell getSelectedCell() {
@@ -77,22 +75,24 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        emptyCell = new Cell(xCoord, yCoord, "");
+        emptyCell = new Cell(xCoord, yCoord, "", new Formula(""));
         selectedCell = emptyCell;
         for (Cell c : cells)
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.formula() == null)
-                    selectedCell = new Cell(
-                        xCoord,
-                        yCoord,
-                        c.txt(),
-                        c.value()
-                    );
+                if (c.formula() == null) {
+                    if (c.value() != 0)
+                        selectedCell = new Cell(
+                            xCoord,
+                            yCoord,
+                            c.txt(),
+                            new Formula(String.valueOf(c.value()))
+                        );
+                }
                 else
                     selectedCell = new Cell(
                         xCoord,
                         yCoord,
-                        c.txt(),
+                        c.value(),
                         new Formula(c.formula().getTxt())
                     );
             }

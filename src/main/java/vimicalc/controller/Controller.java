@@ -64,7 +64,6 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
     }
-
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1)
             cellSelector.updateYCoord(-1);
@@ -89,7 +88,6 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
     }
-
     private static void moveDown() {
         cellSelector.updateYCoord(1);
         if (cellSelector.getY() != camera.picture.getH()) {
@@ -110,7 +108,6 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
     }
-
     private static void moveRight() {
         cellSelector.updateXCoord(1);
         if (cellSelector.getX() != camera.picture.getW()) {
@@ -162,10 +159,6 @@ public class Controller implements Initializable {
                     case EQUALS -> {
                         statusBar.setMode(MODE[1]);
                         infoBar.setEnteringFormula(true);
-                        if (cellSelector.getSelectedCell().formula() == null)
-                            cellSelector.getSelectedCell().setFormula(
-                                new Formula("")
-                            );
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
@@ -232,7 +225,7 @@ public class Controller implements Initializable {
                     }
                     destinationCoord.reverse();
 
-                    Formula f = new Formula(command.getTxt().substring(0, i+1) + coordsCell.getCoords());
+                    Formula f = new Formula(coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i));
                     Cell c = sheet.findCell(destinationCoord.toString());
                     sheet.addCell(new Cell(
                         c.xCoord(),
@@ -264,7 +257,7 @@ public class Controller implements Initializable {
             switch (event.getCode()) {
                 case D -> {
                     selectedCoords.forEach(coord -> sheet.getCells().removeIf(
-                            cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
+                        cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
                     ));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -343,7 +336,7 @@ public class Controller implements Initializable {
                             purgeSCs(-1, prevYC);
                             maxYC = currYC;
                         }
-                    } else if (currXC >= originalYC && currYC < originalYC) {
+                    } else if (currXC >= originalXC) {
                         if (currXC > prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             maxXC = currXC;
@@ -357,7 +350,7 @@ public class Controller implements Initializable {
                             purgeSCs(-1, prevYC);
                             minYC = currYC;
                         }
-                    } else if (currXC < originalXC && currYC >= originalYC) {
+                    } else if (currYC >= originalYC) {
                         if (currXC < prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             minXC = currXC;

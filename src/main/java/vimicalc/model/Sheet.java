@@ -125,7 +125,7 @@ public class Sheet {
                     cells.add(new Cell(
                         Integer.parseInt(cellItems[0]),
                         Integer.parseInt(cellItems[1]),
-                        cellItems[2],
+                        Double.parseDouble(cellItems[2]),
                         new Formula(cellItems[3])
                 ));
                 else cells.add(new Cell(
