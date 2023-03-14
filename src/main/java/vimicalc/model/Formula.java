@@ -73,7 +73,7 @@ public class Formula extends Interpretable {
             for (int i = 0; i < args.length; i++) {
                 if (args[i].isFunction()) {
                     String func = args[i].getFunc();
-                    if (func.charAt(0) == '-') {
+                    if (func.charAt(0) == '-' && func.length() > 1) {
                         System.out.println("Negative detected.");
                         args[i] = negative(func, sheet);
                         continue;
@@ -93,6 +93,18 @@ public class Formula extends Interpretable {
                                 if (y.getFunc().equals("I")) y.setVal(0);
                                 newArgs = reducedLs(
                                     args, i, 2, new Lexeme(x.getVal() + y.getVal())
+                                );
+                            } else
+                                System.out.println("Not enough args.");
+                        }
+                        case "-" -> {
+                            if (i > 1) {
+                                Lexeme x = (interpret(new Lexeme[]{args[i - 2]}, sheet))[0];
+                                Lexeme y = (interpret(new Lexeme[]{args[i - 1]}, sheet))[0];
+                                if (x.getFunc().equals("I")) x.setVal(0);
+                                if (y.getFunc().equals("I")) y.setVal(0);
+                                newArgs = reducedLs(
+                                        args, i, 2, new Lexeme(x.getVal() - y.getVal())
                                 );
                             } else
                                 System.out.println("Not enough args.");
