@@ -48,20 +48,19 @@ public class Formula extends Interpretable {
     }
 
     private Lexeme negative(@NotNull String arg, Sheet sheet) {
-        return interpret(
+        return (interpret(
             new Lexeme[]{
                 new Lexeme(-1),
                 new Lexeme(arg.substring(1)),
-                new Lexeme('*')
+                new Lexeme("*")
             },
             sheet
-        )[0];
+        ))[0];
     }
 
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
         byte reduction;
         Lexeme reduced;
-        System.out.println("args.length = " + args.length);
         for (int i = 0; args.length > 1; i++) {
             reduction = 0;
             reduced = null;
