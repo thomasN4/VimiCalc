@@ -83,23 +83,24 @@ abstract class Interpretable {
         int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
-        Lexeme[] vector;
-        if (lastCoordX - firstCoordX != 0)
-            vector = new Lexeme[lastCoordX - firstCoordX + 1];
-        else
-            vector = new Lexeme[lastCoordY - firstCoordY + 1];
+        Lexeme[] vectorLong = new Lexeme[
+            (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
+        ];
 
         i = 0;
         for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                 c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
                 if (c.formula() != null)
-                    vector[i++] = new Lexeme(c.formula().interpret(sheet));
+                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet));
                 else if (c.txt().equals(""))
-                    vector[i++] = new Lexeme("I");
+                    vectorLong[i++] = new Lexeme("I");
                 else
-                    vector[i++] = new Lexeme(String.valueOf(c.value()));
+                    vectorLong[i++] = new Lexeme(c.value());
             }
+
+        Lexeme[] vector = new Lexeme[i];
+        System.arraycopy(vectorLong, 0, vector, 0, i);
 
         return vector;
     }
