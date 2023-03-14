@@ -89,6 +89,7 @@ public class CellSelector extends Visible {
                         c.value(),
                         new Formula(c.formula().getTxt())
                     );
+                break;
             }
     }
 }

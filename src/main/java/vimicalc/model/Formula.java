@@ -177,11 +177,11 @@ public class Formula extends Interpretable {
         if (imat.length > 2) {
             Matrix[] omats = new Matrix[imat.length];
             for (int ignoredRow = 0; ignoredRow < imat.length; ignoredRow++) {
-                double[][] omat = new double[imat.length - 1][imat.length - 1];
+                double[][] omat = new double[imat.length-1][imat.length-1];
                 int om_i = 0;
                 for (int im_i = 0; im_i < imat.length; im_i++) {
                     if (im_i == ignoredRow) continue;
-                    System.arraycopy(imat[im_i], 1, omat[om_i], 0, imat.length - 1);
+                    System.arraycopy(imat[im_i], 1, omat[om_i], 0, imat.length-1);
                     om_i++;
                 }
                 omats[ignoredRow] = new Matrix(omat);
@@ -196,23 +196,26 @@ public class Formula extends Interpretable {
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
     
-    private double matMult(String destinationCoord, String coords1, String coords2, Sheet sheet) {
+    private double matMult(String coords1, String coords2, String destinationCoord, Sheet sheet) {
         return matMult(
-            destinationCoord,
             createMatrixFromArea(coords1, sheet),
             createMatrixFromArea(coords2, sheet),
+            destinationCoord,
             sheet
         );
     }
-    public double matMult(String dC, double[][] mat1, double[][] mat2, Sheet sheet) {
+    public double matMult(double[][] mat1, double[][] mat2, String dC, Sheet sheet) {
         double firstCellRes = 0;
         int dCX = sheet.findCell(dC).xCoord();
         int dCY = sheet.findCell(dC).yCoord();
 
-        for (int i = 0; i < mat1.length / mat2.length; i++) {
-            for (int j = 0; j < mat2.length / mat1.length; j++) {
+        for (int i = 0; i < mat1.length; i++) {
+            for (int j = 0; j < mat2[0].length; j++) {
+                double[] col = new double[]{mat2[0].length};
+                for (int k = 0; k < mat2.length; k++)
+                    col[k] = mat2[k][j];
                 if (i == 0 && j == 0) {
-                    firstCellRes = sumForOneCell(mat1[i], mat2[j]);
+                    firstCellRes = sumForOneCell(mat1[i], col);
                     continue;
                 }
                 sheet.addCell(new Cell(
