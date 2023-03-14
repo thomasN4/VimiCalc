@@ -211,6 +211,7 @@ public class Controller implements Initializable {
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command = new Command("");
+                infoBar.setCommandTxt("");
             }
             case ENTER -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
@@ -236,11 +237,12 @@ public class Controller implements Initializable {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
-                    command = new Command("");
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command.interpret(sheet);
+                command = new Command("");
+                infoBar.setCommandTxt("");
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length()-1)
