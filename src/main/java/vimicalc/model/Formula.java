@@ -134,7 +134,7 @@ public class Formula extends Interpretable {
             , currPos+1
             , newArgs
             , currPos-reduction+1
-            , original.length-currPos-reduction);
+            , original.length-currPos-1);
         return newArgs;
     }
     private Lexeme cellToLexeme(String coords, Sheet sheet) {

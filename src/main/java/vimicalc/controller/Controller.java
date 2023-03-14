@@ -144,7 +144,7 @@ public class Controller implements Initializable {
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
-                        cellSelector.setSelectedCell(cellSelector.getEmptyCell());
+                        cellSelector.readCell(camera.picture.data());
                     }
                     case A, I -> {
                         statusBar.setMode(MODE[2]);
@@ -166,6 +166,7 @@ public class Controller implements Initializable {
                     }
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
+                        command = new Command("");
                         infoBar.setEnteringCommand(true);
                     }
                 }
@@ -261,7 +262,7 @@ public class Controller implements Initializable {
                     ));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
-                    cellSelector.setSelectedCell(cellSelector.getEmptyCell());
+                    cellSelector.readCell(camera.picture.data());
                 }
                 case ESCAPE -> {
                     statusBar.setMode(MODE[3]);
