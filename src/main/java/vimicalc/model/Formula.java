@@ -47,12 +47,25 @@ public class Formula extends Interpretable {
         };
     }
 
+    private Lexeme negative(String arg, Sheet sheet) {
+        return interpret(
+            new Lexeme[]{
+                new Lexeme(-1),
+                new Lexeme(arg.substring(1)),
+                new Lexeme('*')
+            },
+            sheet
+        )[0];
+    }
+
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
         Lexeme[] newArgs = new Lexeme[args.length-1];
-
         if (args.length == 1) {
             if (!args[0].isFunction())
                 return args;
+            else if (args[0].getFunc().charAt(0) == '-') {
+                return new Lexeme[]{negative(args[0].getFunc(), sheet)};
+            }
             else
                 return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet)};
         }
@@ -61,16 +74,9 @@ public class Formula extends Interpretable {
                 if (args[i].isFunction()) {
                     String func = args[i].getFunc();
                     if (func.charAt(0) == '-') {
-                        newArgs = reducedLs(args, i, 0,
-                            interpret(
-                                new Lexeme[]{
-                                    new Lexeme(-1),
-                                    new Lexeme(func.substring(1)),
-                                    new Lexeme('*')
-                                },
-                                sheet
-                            )[0]
-                        );
+                        System.out.println("Negative detected.");
+                        args[i] = negative(func, sheet);
+                        continue;
                     }
                     switch (func) {
                         case "sum", "prod", "quot" -> newArgs = reducedLs(
@@ -115,7 +121,11 @@ public class Formula extends Interpretable {
                             } else
                                 System.out.println("Not enough args.");
                         }
-                        default -> newArgs = reducedLs(args, i, 0, cellToLexeme(func, sheet));
+                        default -> {
+                            newArgs = args;
+                            newArgs[i] = cellToLexeme(func, sheet);
+                            System.out.println("Arg might be a coordinate.");
+                        }
                     }
                     break;
                 }
