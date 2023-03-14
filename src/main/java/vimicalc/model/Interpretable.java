@@ -2,8 +2,6 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-
 import static vimicalc.Main.isNumber;
 
 abstract class Interpretable {
@@ -14,26 +12,25 @@ abstract class Interpretable {
     }
 
     protected Lexeme[] lexer(@NotNull String txt) {
-        ArrayList<Lexeme> argsArrayList = new ArrayList<>();
+        Lexeme[] argsLong = new Lexeme[txt.length()];
         txt += ' ';
         String arg = "";
 
+        int argsLength = 0;
         for (int i = 0; i < txt.length(); i++) {
             if (txt.charAt(i) == '(' || txt.charAt(i) == ')') continue;
             if (txt.charAt(i) == ' ') {
                 if (isNumber(arg))
-                    argsArrayList.add(new Lexeme(Double.parseDouble(arg)));
-                else argsArrayList.add(new Lexeme(arg));
+                    argsLong[argsLength++] = new Lexeme(Double.parseDouble(arg));
+                else argsLong[argsLength++] = new Lexeme(arg);
                 arg = "";
                 continue;
             }
             arg += txt.charAt(i);
         }
 
-        Lexeme[] args = new Lexeme[argsArrayList.size()];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = argsArrayList.get(i);
-        }
+        Lexeme[] args = new Lexeme[argsLength];
+        System.arraycopy(argsLong, 0, args, 0, argsLength);
 
         return args;
     }
@@ -73,7 +70,7 @@ abstract class Interpretable {
         return mat;
     }
 
-    protected Lexeme[] createVectorFromArea(String coords, Sheet sheet) {
+    protected Lexeme[] createVectorFromArea(@NotNull String coords, Sheet sheet) {
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
