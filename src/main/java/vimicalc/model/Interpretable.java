@@ -19,7 +19,7 @@ abstract class Interpretable {
         String arg = "";
 
         for (int i = 0; i < txt.length(); i++) {
-            if (txt.charAt(i) == '(') continue;
+            if (txt.charAt(i) == '(' || txt.charAt(i) == ')') continue;
             if (txt.charAt(i) == ' ') {
                 if (isNumber(arg))
                     argsArrayList.add(new Lexeme(Double.parseDouble(arg)));
