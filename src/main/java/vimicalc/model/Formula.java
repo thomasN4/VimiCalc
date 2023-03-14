@@ -36,10 +36,10 @@ public class Formula extends Interpretable {
         return q;
     }
 
-    private double matArithmetic(Lexeme arg0, Lexeme arg1, Sheet sheet) {
+    private double matArithmetic(String arg0, Lexeme arg1, Sheet sheet) {
         Lexeme[] vector = createVectorFromArea(arg1.getFunc(), sheet);
 
-        return switch (arg0.getFunc()) {
+        return switch (arg0) {
             case "sum" -> sum(vector);
             case "prod" -> product(vector);
             case "quot" -> quotient(vector);
@@ -72,13 +72,10 @@ public class Formula extends Interpretable {
                             )[0]
                         );
                     }
-                    else if (func.contains(":")) {
-                        newArgs = reducedLs(args, i, 1,
-                            new Lexeme(matArithmetic(args[i], args[i-1], sheet))
-                        );
-                        break;
-                    }
                     switch (func) {
+                        case "sum", "prod", "quot" -> newArgs = reducedLs(
+                            args, i, 1, new Lexeme(matArithmetic(func, args[i-1], sheet))
+                        );
                         case "det" -> newArgs = reducedLs(
                             args, i, 1, new Lexeme(determinant(args[i - 1].getFunc(), sheet))
                         );
@@ -141,7 +138,8 @@ public class Formula extends Interpretable {
         Cell c = sheet.findCell(coords);
         if (c.formula() != null) {
             return new Lexeme(c.formula().interpret(sheet));
-        } else if (c.txt().equals(""))
+        }
+        else if (c.txt().equals(""))
             return new Lexeme("I");
         else
             return new Lexeme(c.value());

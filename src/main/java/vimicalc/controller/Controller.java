@@ -213,7 +213,6 @@ public class Controller implements Initializable {
                 command = new Command("");
             }
             case ENTER -> {
-                command.interpret(sheet);
                 if (infoBar.isEnteringCommandInVISUAL()) {
                     selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
@@ -240,14 +239,15 @@ public class Controller implements Initializable {
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
-                command = new Command("");
+                command.interpret(sheet);
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length()-1)
                 );
             default -> command.setTxt(command.getTxt() + event.getText());
         }
-        infoBar.setCommandTxt(command.getTxt());
+        if(!statusBar.getMode().equals(MODE[3]))
+            infoBar.setCommandTxt(command.getTxt());
     }
 
     private static void visualSelection(@NotNull KeyEvent event) {
