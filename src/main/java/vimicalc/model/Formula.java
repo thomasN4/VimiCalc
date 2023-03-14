@@ -83,12 +83,12 @@ public class Formula extends Interpretable {
                             args, i, 1, new Lexeme(matArithmetic(func, args[i-1], sheet))
                         );
                         case "det" -> newArgs = reducedLs(
-                            args, i, 1, new Lexeme(determinant(args[i - 1].getFunc(), sheet))
+                            args, i, 1, new Lexeme(determinant(args[i-1].getFunc(), sheet))
                         );
                         case "+" -> {
                             if (i > 1) {
-                                Lexeme x = (interpret(new Lexeme[]{args[i - 2]}, sheet))[0];
-                                Lexeme y = (interpret(new Lexeme[]{args[i - 1]}, sheet))[0];
+                                Lexeme x = (interpret(new Lexeme[]{args[i-2]}, sheet))[0];
+                                Lexeme y = (interpret(new Lexeme[]{args[i-1]}, sheet))[0];
                                 if (x.getFunc().equals("I")) x.setVal(0);
                                 if (y.getFunc().equals("I")) y.setVal(0);
                                 newArgs = reducedLs(
@@ -99,8 +99,8 @@ public class Formula extends Interpretable {
                         }
                         case "-" -> {
                             if (i > 1) {
-                                Lexeme x = (interpret(new Lexeme[]{args[i - 2]}, sheet))[0];
-                                Lexeme y = (interpret(new Lexeme[]{args[i - 1]}, sheet))[0];
+                                Lexeme x = (interpret(new Lexeme[]{args[i-2]}, sheet))[0];
+                                Lexeme y = (interpret(new Lexeme[]{args[i-1]}, sheet))[0];
                                 if (x.getFunc().equals("I")) x.setVal(0);
                                 if (y.getFunc().equals("I")) y.setVal(0);
                                 newArgs = reducedLs(
@@ -111,8 +111,8 @@ public class Formula extends Interpretable {
                         }
                         case "*" -> {
                             if (i > 1) {
-                                Lexeme x = (interpret(new Lexeme[]{args[i - 2]}, sheet))[0];
-                                Lexeme y = (interpret(new Lexeme[]{args[i - 1]}, sheet))[0];
+                                Lexeme x = (interpret(new Lexeme[]{args[i-2]}, sheet))[0];
+                                Lexeme y = (interpret(new Lexeme[]{args[i-1]}, sheet))[0];
                                 if (x.getFunc().equals("I")) x.setVal(1);
                                 if (y.getFunc().equals("I")) y.setVal(1);
                                 newArgs = reducedLs(
@@ -123,8 +123,8 @@ public class Formula extends Interpretable {
                         }
                         case "/" -> {
                             if (i > 1) {
-                                Lexeme x = (interpret(new Lexeme[]{args[i - 2]}, sheet))[0];
-                                Lexeme y = (interpret(new Lexeme[]{args[i - 1]}, sheet))[0];
+                                Lexeme x = (interpret(new Lexeme[]{args[i-2]}, sheet))[0];
+                                Lexeme y = (interpret(new Lexeme[]{args[i-1]}, sheet))[0];
                                 if (x.getFunc().equals("I")) x.setVal(1);
                                 if (y.getFunc().equals("I")) y.setVal(1);
                                 newArgs = reducedLs(
