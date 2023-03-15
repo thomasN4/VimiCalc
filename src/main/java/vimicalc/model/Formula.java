@@ -225,7 +225,7 @@ public class Formula extends Interpretable {
         for (int i = 0; i < mat1.getHeight(); i++) {
             for (int j = 0; j < mat2.getWidth(); j++) {
                 if (i == 0 && j == 0) {
-                    firstCellVal = forOnePos(mat1.getRow(i), mat2.getCol(j));
+                    firstCellVal = forOnePos(mat1.getRow(0), mat2.getCol(0));
                     continue;
                 }
                 sheet.addCell(new Cell(
