@@ -14,22 +14,15 @@ public class CellSelector extends Visible {
     private int xCoord;
     private int yCoord;
     private Cell selectedCell;
-    private Cell emptyCell;
 
     public CellSelector(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         xCoord = x/w;
         yCoord = y/h;
-        emptyCell = new Cell(xCoord, yCoord, "");
-        selectedCell = emptyCell;
     }
 
     public Cell getSelectedCell() {
         return selectedCell;
-    }
-
-    public Cell getEmptyCell() {
-        return emptyCell;
     }
 
     public int getXCoord() {
@@ -77,24 +70,33 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        emptyCell = new Cell(xCoord, yCoord, "");
-        selectedCell = emptyCell;
+        selectedCell = new Cell(xCoord, yCoord, "", new Formula("", xCoord, yCoord));
         for (Cell c : cells)
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.formula() == null)
-                    selectedCell = new Cell(
-                        xCoord,
-                        yCoord,
-                        c.txt(),
-                        c.value()
-                    );
+                if (c.formula() == null) {
+                    if (c.value() != 0)
+                        selectedCell = new Cell(
+                            xCoord,
+                            yCoord,
+                            c.txt(),
+                            new Formula(String.valueOf(c.value()), xCoord, yCoord)
+                        );
+                    else
+                        selectedCell = new Cell(
+                            xCoord,
+                            yCoord,
+                            c.txt(),
+                            new Formula("", xCoord, yCoord)
+                        );
+                }
                 else
                     selectedCell = new Cell(
                         xCoord,
                         yCoord,
-                        c.txt(),
-                        new Formula(c.formula().getTxt())
+                        c.value(),
+                        new Formula(c.formula().getTxt(), xCoord, yCoord)
                     );
+                break;
             }
     }
 }

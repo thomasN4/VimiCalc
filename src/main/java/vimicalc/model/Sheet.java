@@ -55,13 +55,6 @@ public class Sheet {
         return found;
     }
 
-    public void updateCells(@NotNull ArrayList<Cell> modified) {
-        modified.forEach(m -> cells.removeIf(
-            c -> c.xCoord() == m.xCoord() && c.yCoord() == m.yCoord()
-        ));
-        cells.addAll(modified);
-    }
-
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
@@ -121,16 +114,18 @@ public class Sheet {
             else if (c == '\n') {
                 System.out.println("Cell items: " + Arrays.toString(cellItems));
                 pos = 0;
+                int xCoord = Integer.parseInt(cellItems[0]);
+                int yCoord = Integer.parseInt(cellItems[1]);
                 if (!cellItems[3].equals("null"))
                     cells.add(new Cell(
-                        Integer.parseInt(cellItems[0]),
-                        Integer.parseInt(cellItems[1]),
-                        cellItems[2],
-                        new Formula(cellItems[3])
+                        xCoord,
+                        yCoord,
+                        Double.parseDouble(cellItems[2]),
+                        new Formula(cellItems[3], xCoord, yCoord)
                 ));
                 else cells.add(new Cell(
-                    Integer.parseInt(cellItems[0]),
-                    Integer.parseInt(cellItems[1]),
+                    xCoord,
+                    yCoord,
                     cellItems[2]
                 ));
                 cellItems = new String[4];

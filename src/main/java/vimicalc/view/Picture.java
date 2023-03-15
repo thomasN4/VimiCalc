@@ -43,7 +43,6 @@ public class Picture extends Visible {
 
     public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCells, int absX, int absY) {
         visibleCells = new ArrayList<>();
-        ArrayList<Cell> modified = new ArrayList<>();
         super.draw(gc);
 
         for (Cell c : sheet.getCells()) {
@@ -52,7 +51,7 @@ public class Picture extends Visible {
                 c.yCoord() >= absY / DCH + 1 &&
                 c.yCoord() <= (absY + h + DCH) / DCH) {
                 if (c.formula() != null)
-                    modified.add(new Cell(
+                    visibleCells.add(new Cell(
                         c.xCoord(),
                         c.yCoord(),
                         c.formula().interpret(sheet),
@@ -61,9 +60,6 @@ public class Picture extends Visible {
                 else visibleCells.add(c);
             }
         }
-
-        sheet.updateCells(modified);
-        visibleCells.addAll(modified);
 
         gc.setFill(Color.DARKGRAY);
         selectedCells.forEach(c -> {

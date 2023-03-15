@@ -1,88 +1,296 @@
 package vimicalc.model;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Vector;
-
-import static vimicalc.Main.isNumber;
-
 public class Formula extends Interpretable {
-    public Formula(String txt) {
+    private final int sCX;  // position x de la cellule associée
+    private final int sCY;
+    public Formula(String txt, int sCX, int sCY) {
         super(txt);
+        this.sCX = sCX;
+        this.sCY = sCY;
     }
 
-    private @NotNull String sum(@NotNull Vector<String> nums) {
+    private double sum(Lexeme[] nums) {
         double s = 0;
-        for (String n : nums) {
-            if (n.equals("I")) continue;
-            s += Double.parseDouble(n);
+        for (Lexeme n : nums) {
+            if (n.isFunction()) continue;
+            s += n.getVal();
         }
-        return String.valueOf(s);
+        return s;
     }
 
-    private @NotNull String product(@NotNull Vector<String> factors) {
+    private double product(Lexeme[] nums) {
         double p = 1;
-        for (String f : factors) {
-            if (f.equals("I")) continue;
-            p *= Double.parseDouble(f);
+        for (Lexeme n : nums) {
+            if (n.isFunction()) continue;
+            p *= n.getVal();
         }
-        return String.valueOf(p);
+        return p;
     }
 
-    private @NotNull String quotient(@NotNull Vector<String> nums) {
-        double q = Double.parseDouble(nums.get(0));
-        for (int i = 1; i < nums.size(); i++) {
-            if (nums.get(i).equals("I")) continue;
-            q /= Double.parseDouble(nums.get(i));
+    private double quotient(Lexeme[] nums) {
+        double q;
+        if (nums[0].isFunction()) q = 1;
+        else q = nums[0].getVal();
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i].isFunction()) continue;
+            q /= nums[i].getVal();
         }
-        return String.valueOf(q);
+        return q;
     }
 
-    private String arithmetic(String arg0, @NotNull ArrayList<String> args, Sheet sheet) {
-        Vector<String> nums = new Vector<>();
-        boolean isCoordsArea = false;
-        for (String s : args.subList(1, args.size())) {
-            if (s.charAt(0) == '(') {
-                nums.add(interpret(s.substring(1, s.length() - 1), sheet));
-                continue;
-            }
-            for (int i = 0; i < s.length(); i++) {
-                if (s.charAt(i) == ':') {
-                    nums.addAll(createVectorFromArea(s, sheet));
-                    isCoordsArea = true;
-                    break;
-                }
-            }
-            if (!isCoordsArea)
-                nums.add(interpret(s, sheet));
-            isCoordsArea = false;
-        }
+    private double tableArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) {
+        Lexeme[] vector = createVectorFromArea(arg1.getFunc(), sheet);
         return switch (arg0) {
-            case "+" -> sum(nums);
-            case "*" -> product(nums);
-            case "/" -> quotient(nums);
-            default -> "0";
+            case "sum" -> sum(vector);
+            case "prod" -> product(vector);
+            case "quot" -> quotient(vector);
+            default -> 0;
         };
     }
 
-    public String interpret(String raw, Sheet sheet) {
-        ArrayList<String> args = lexer(raw);
-        String arg0 = args.get(0);
-        if (arg0.equals("+") || arg0.equals("*") || arg0.equals("/")) {
-            return arithmetic(arg0, args, sheet);
-        } else if (isNumber(arg0)) {
-            return arg0;
-        } else {
-            Cell c = sheet.findCell(arg0);
-            if (c.formula() != null)
-                return interpret(c.formula().getTxt(), sheet);
-            else {
-                if (!c.txt().equals(""))
-                    return String.valueOf(c.value());
-                else
-                    return "I";
+    private Lexeme negative(@NotNull String arg, Sheet sheet) {
+        return (interpret(
+            new Lexeme[]{
+                new Lexeme(-1),
+                new Lexeme(arg.substring(1)),
+                new Lexeme("*")
+            },
+            sheet
+        ))[0];
+    }
+
+    @Override
+    public double interpret(Sheet sheet) {
+        double result = super.interpret(sheet);
+        sheet.addCell(new Cell(
+            sCX,
+            sCY,
+            result,
+            new Formula(txt, sCX, sCY);
+        ));
+        return result;
+    }
+
+    public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
+        byte reduction;
+        Lexeme reduced;
+        for (int i = 0; args.length > 1; i++) {
+            reduction = 0;
+            reduced = null;
+            if (args[i].isFunction()) {
+                String func = args[i].getFunc();
+                System.out.println("func = \"" + func + '\"');
+                if (func.charAt(0) == '-' && func.length() > 1) {
+                    args[i] = negative(func, sheet);
+                    continue;
+                }
+                switch (func) {
+                    case "sum", "prod", "quot" -> {
+                        reduction = 1;
+                        reduced = new Lexeme(tableArithmetic(func, args[i-1], sheet));
+                    }
+                    case "det" -> {
+                        reduction = 1;
+                        try {
+                            reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            reduced = new Lexeme(0);
+                        }
+                    }
+                    case "matMult" -> {
+                        reduction = 2;
+                        try {
+                            reduced = new Lexeme(matMult(
+                                args[i - 3].getFunc(), args[i - 2].getFunc(), sheet
+                            ));
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            reduced = new Lexeme(0);
+                        }
+                    }
+                    case "+" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(0);
+                            if (y.isFunction()) y.setVal(0);
+                            reduced = new Lexeme(x.getVal() + y.getVal());
+                        } else
+                            System.out.println("Not enough args.");
+                    }
+                    case "-" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(0);
+                            if (y.isFunction()) y.setVal(0);
+                            reduced = new Lexeme(x.getVal() - y.getVal());
+                        } else
+                            System.out.println("Not enough args.");
+                    }
+                    case "*" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(1);
+                            if (y.isFunction()) y.setVal(1);
+                            reduced = new Lexeme(x.getVal() * y.getVal());
+                        } else
+                            System.out.println("Not enough args.");
+                    }
+                    case "/" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(1);
+                            if (y.isFunction()) y.setVal(1);
+                            reduced = new Lexeme(x.getVal() / y.getVal());
+                        } else
+                            System.out.println("Not enough args.");
+                    }
+                    default -> {
+                        if (func.contains(":") || func.contains("\\")) continue;
+                        args[i] = cellToLexeme(func, sheet);
+                    }
+                }
+                if (reduction != 0) {
+                    Lexeme[] newArgs = new Lexeme[args.length-reduction];
+                    System.arraycopy(args, 0, newArgs, 0, i-reduction);
+                    newArgs[i-reduction] = reduced;
+                    System.arraycopy(args
+                        , i+1
+                        , newArgs
+                        , i-reduction+1
+                        , args.length-i-1);
+                    args = new Lexeme[newArgs.length];
+                    System.arraycopy(newArgs, 0, args, 0, args.length);
+                    i -= reduction;
+                }
             }
         }
+        if (!args[0].isFunction())
+            return args;
+        else if (args[0].getFunc().charAt(0) == '-')
+            return new Lexeme[]{negative(args[0].getFunc(), sheet)};
+        else
+            return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet)};
+    }
+    @Contract("_, _ -> new")
+    private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
+        Cell c = sheet.findCell(coords);
+        if (c.formula() != null) {
+            return new Lexeme(c.formula().interpret(sheet));
+        }
+        else if (c.txt().equals(""))
+            return new Lexeme("I");
+        else
+            return new Lexeme(c.value());
+    }
+
+    private double determinant(String coords, Sheet sheet) throws Exception {
+        return determinant(
+            createMatrixFromArea(coords, sheet)
+        );
+    }
+    private double determinant(double[][] imat) throws Exception {
+        if (imat.length != imat[0].length)
+            throw new Exception("The matrix isn't square.");
+
+        if (imat.length > 2) {
+            Matrix[] omats = new Matrix[imat.length];
+            for (int ignoredRow = 0; ignoredRow < imat.length; ignoredRow++) {
+                double[][] omat = new double[imat.length-1][imat.length-1];
+                int om_i = 0;
+                for (int im_i = 0; im_i < imat.length; im_i++) {
+                    if (im_i == ignoredRow) continue;
+                    System.arraycopy(imat[im_i], 1, omat[om_i], 0, imat.length-1);
+                    om_i++;
+                }
+                omats[ignoredRow] = new Matrix(omat);
+            }
+
+            double sum = 0;
+            for (int i = 0; i < imat.length; i++) {
+                sum += Math.pow(-1, i) * determinant(omats[i].getItems()) * imat[i][0];
+            }
+            return sum;
+        }
+        else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
+    }
+    
+    public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
+        Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
+        Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
+        double firstCellVal = 0;
+
+        if (mat1.getWidth() != mat2.getHeight())
+            throw new Exception("Mismatch in the number of rows and columns.");
+
+        for (int i = 0; i < mat1.getHeight(); i++) {
+            for (int j = 0; j < mat2.getWidth(); j++) {
+                if (i == 0 && j == 0) {
+                    firstCellVal = forOnePos(mat1.getRow(0), mat2.getCol(0));
+                    continue;
+                }
+                sheet.addCell(new Cell(
+                    sCX + j,
+                    sCY + i,
+                    forOnePos(mat1.getRow(i), mat2.getCol(j))
+                ));
+            }
+        }
+
+        return firstCellVal;
+    }
+    public double forOnePos(double[] row, double[] col) {
+        double v = 0;
+        for (int i = 0; i < row.length; i++) {
+            v += row[i] * col[i];
+        }
+        return v;
+    }
+}
+
+class Matrix {
+    private final double[][] items;
+    private final int width;
+    private final int height;
+
+    @Contract(pure = true)
+    Matrix(double[][] items) {
+        this.items = items;
+        width = items[0].length;
+        height = items.length;
+    }
+
+    public double[][] getItems() {
+        return items;
+    }
+
+    public double[] getRow(int i) {
+        return items[i];
+    }
+
+    public double[] getCol(int j) {
+        double[] col = new double[items.length];
+        for (int i = 0; i < items.length; i++)
+            col[i] = items[i][j];
+        return col;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }
