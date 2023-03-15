@@ -37,7 +37,7 @@ public class Formula extends Interpretable {
         return q;
     }
 
-    private double matArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) {
+    private double tableArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) {
         Lexeme[] vector = createVectorFromArea(arg1.getFunc(), sheet);
         return switch (arg0) {
             case "sum" -> sum(vector);
@@ -74,7 +74,7 @@ public class Formula extends Interpretable {
                 switch (func) {
                     case "sum", "prod", "quot" -> {
                         reduction = 1;
-                        reduced = new Lexeme(matArithmetic(func, args[i-1], sheet));
+                        reduced = new Lexeme(tableArithmetic(func, args[i-1], sheet));
                     }
                     case "det" -> {
                         reduction = 1;
@@ -216,6 +216,8 @@ public class Formula extends Interpretable {
         int dCX = sheet.findCell(dC.substring(1)).xCoord();
         int dCY = sheet.findCell(dC.substring(1)).yCoord();
         double firstCellVal = 0;
+        System.out.println("dCX = " + dCX);
+        System.out.println("dCY = " + dCY);
 
         if (mat1.getWidth() != mat2.getHeight())
             throw new Exception("Mismatch in the number of rows and columns.");
