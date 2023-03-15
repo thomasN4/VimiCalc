@@ -70,7 +70,7 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        selectedCell = new Cell(xCoord, yCoord, "", new Formula(""));
+        selectedCell = new Cell(xCoord, yCoord, "", new Formula("", xCoord, yCoord));
         for (Cell c : cells)
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 if (c.formula() == null) {
@@ -79,14 +79,14 @@ public class CellSelector extends Visible {
                             xCoord,
                             yCoord,
                             c.txt(),
-                            new Formula(String.valueOf(c.value()))
+                            new Formula(String.valueOf(c.value()), xCoord, yCoord)
                         );
                     else
                         selectedCell = new Cell(
                             xCoord,
                             yCoord,
                             c.txt(),
-                            new Formula("")
+                            new Formula("", xCoord, yCoord)
                         );
                 }
                 else
@@ -94,7 +94,7 @@ public class CellSelector extends Visible {
                         xCoord,
                         yCoord,
                         c.value(),
-                        new Formula(c.formula().getTxt())
+                        new Formula(c.formula().getTxt(), xCoord, yCoord)
                     );
                 break;
             }

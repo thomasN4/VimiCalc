@@ -114,16 +114,18 @@ public class Sheet {
             else if (c == '\n') {
                 System.out.println("Cell items: " + Arrays.toString(cellItems));
                 pos = 0;
+                int xCoord = Integer.parseInt(cellItems[0]);
+                int yCoord = Integer.parseInt(cellItems[1]);
                 if (!cellItems[3].equals("null"))
                     cells.add(new Cell(
-                        Integer.parseInt(cellItems[0]),
-                        Integer.parseInt(cellItems[1]),
+                        xCoord,
+                        yCoord,
                         Double.parseDouble(cellItems[2]),
-                        new Formula(cellItems[3])
+                        new Formula(cellItems[3], xCoord, yCoord)
                 ));
                 else cells.add(new Cell(
-                    Integer.parseInt(cellItems[0]),
-                    Integer.parseInt(cellItems[1]),
+                    xCoord,
+                    yCoord,
                     cellItems[2]
                 ));
                 cellItems = new String[4];

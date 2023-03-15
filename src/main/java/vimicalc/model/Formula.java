@@ -4,8 +4,12 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class Formula extends Interpretable {
-    public Formula(String txt) {
+    private final int sCX;  // position x de la cellule associée
+    private final int sCY;
+    public Formula(String txt, int sCX, int sCY) {
         super(txt);
+        this.sCX = sCX;
+        this.sCY = sCY;
     }
 
     private double sum(Lexeme[] nums) {
@@ -58,6 +62,18 @@ public class Formula extends Interpretable {
         ))[0];
     }
 
+    @Override
+    public double interpret(Sheet sheet) {
+        double result = super.interpret(sheet);
+        sheet.addCell(new Cell(
+            sCX,
+            sCY,
+            result,
+            this
+        ));
+        return result;
+    }
+
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
         byte reduction;
         Lexeme reduced;
@@ -86,10 +102,10 @@ public class Formula extends Interpretable {
                         }
                     }
                     case "matMult" -> {
-                        reduction = 3;
+                        reduction = 2;
                         try {
                             reduced = new Lexeme(matMult(
-                                args[i - 1].getFunc(), args[i - 3].getFunc(), args[i - 2].getFunc(), sheet
+                                args[i - 3].getFunc(), args[i - 2].getFunc(), sheet
                             ));
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
@@ -210,14 +226,10 @@ public class Formula extends Interpretable {
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
     
-    public double matMult(String coords1, String coords2, String dC, Sheet sheet) throws Exception {
+    public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
-        int dCX = sheet.findCell(dC.substring(1)).xCoord();
-        int dCY = sheet.findCell(dC.substring(1)).yCoord();
         double firstCellVal = 0;
-        System.out.println("dCX = " + dCX);
-        System.out.println("dCY = " + dCY);
 
         if (mat1.getWidth() != mat2.getHeight())
             throw new Exception("Mismatch in the number of rows and columns.");
@@ -229,8 +241,8 @@ public class Formula extends Interpretable {
                     continue;
                 }
                 sheet.addCell(new Cell(
-                    dCX + j,
-                    dCY + i,
+                    sCX + j,
+                    sCY + i,
                     forOnePos(mat1.getRow(i), mat2.getCol(j))
                 ));
             }

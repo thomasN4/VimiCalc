@@ -44,7 +44,7 @@ public class Cell {
         this.yCoord = yCoord;
         this.value = value;
         format = new DecimalFormat("0.0");
-        txt = format.format(String.valueOf(value));
+        txt = format.format(value);
     }
 
     public Cell(int xCoord, int yCoord, String txt, Formula formula) {

@@ -244,7 +244,11 @@ public class Controller implements Initializable {
                     }
                     destinationCoord.reverse();
 
-                    Formula f = new Formula(coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i));
+                    Formula f = new Formula(
+                        coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord()
+                    );
                     Cell c = sheet.findCell(destinationCoord.toString());
                     sheet.addCell(new Cell(
                         c.xCoord(),
@@ -487,13 +491,7 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
-                cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().formula().interpret(sheet),
-                    cellSelector.getSelectedCell().formula()
-                ));
-                sheet.addCell(cellSelector.getSelectedCell());
+                cellSelector.getSelectedCell().formula().interpret(sheet);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 infoBar.setEnteringFormula(false);
