@@ -231,7 +231,7 @@ public class Formula extends Interpretable {
                 sheet.addCell(new Cell(
                     dCX + j,
                     dCY + i,
-                    String.valueOf(sumForOneCell(mat1[i], mat2[j]))
+                    sumForOneCell(mat1[i], mat2[j])
                 ));
             }
         }
@@ -240,10 +240,8 @@ public class Formula extends Interpretable {
     }
     public double sumForOneCell(double[] row, double[] col) {
         double s = 0;
-        for (double c : col) {
-            for (double r : row) {
-                s += c * r;
-            }
+        for (int i = 0; i < row.length; i++) {
+            s += row[i] * col[i];
         }
         return s;
     }

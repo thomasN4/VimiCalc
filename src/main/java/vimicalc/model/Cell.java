@@ -39,6 +39,14 @@ public class Cell {
         }
     }
 
+    public Cell(int xCoord, int yCoord, double value) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+        this.value = value;
+        format = new DecimalFormat("0.0");
+        txt = format.format(String.valueOf(value));
+    }
+
     public Cell(int xCoord, int yCoord, String txt, Formula formula) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
