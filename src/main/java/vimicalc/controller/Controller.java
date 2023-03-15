@@ -244,25 +244,20 @@ public class Controller implements Initializable {
                     }
                     destinationCoord.reverse();
 
+                    Cell c = sheet.findCell(destinationCoord.toString());
                     Formula f = new Formula(
                         coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord()
-                    );
-                    Cell c = sheet.findCell(destinationCoord.toString());
-                    sheet.addCell(new Cell(
                         c.xCoord(),
-                        c.yCoord(),
-                        f.interpret(sheet),
-                        f
-                    ));
+                        c.yCoord()
+                    );
+                    f.interpret(sheet, true);
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
-                command.interpret(sheet);
+                command.interpret(sheet );
                 command = new Command("");
                 infoBar.setCommandTxt("");
             }
@@ -491,7 +486,7 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
-                cellSelector.getSelectedCell().formula().interpret(sheet);
+                cellSelector.getSelectedCell().formula().interpret(sheet, true);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 infoBar.setEnteringFormula(false);

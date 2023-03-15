@@ -35,86 +35,12 @@ abstract class Interpretable {
         return args;
     }
 
-    protected double[][] createMatrixFromArea(@NotNull String s, Sheet sheet) {
-        StringBuilder firstCoords = new StringBuilder();
-        String lastCoords;
-
-        int i = 0;
-        for ( ; s.charAt(i) != ':'; i++)
-            firstCoords.append(s.charAt(i));
-        lastCoords = s.substring(i+1);
-
-        int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
-        int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
-        int lastCoordX = sheet.findCell(lastCoords).xCoord();
-        int lastCoordY = sheet.findCell(lastCoords).yCoord();
-        double[][] mat = new double[lastCoordY - firstCoordY + 1][lastCoordX - firstCoordX + 1];
-
-        for (i = 0; i <= lastCoordY - firstCoordY; i++) {
-            final int I = i;
-            for (int j = 0; j <= lastCoordX - firstCoordX; j++) {
-                final int J = j;
-                sheet.getCells().forEach(c -> {
-                    if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
-                        if (c.formula() != null)
-                            mat[I][J] = c.formula().interpret(sheet);
-                        else if (!c.txt().equals(""))
-                            mat[I][J] = c.value();
-                        else
-                            mat[I][J] = 0;
-                    }
-                });
-            }
-        }
-
-        return mat;
-    }
-
-    protected Lexeme[] createVectorFromArea(@NotNull String coords, Sheet sheet) {
-        StringBuilder firstCoords = new StringBuilder();
-        String lastCoords;
-
-        int i = 0;
-        for (; coords.charAt(i) != ':'; i++)
-            firstCoords.append(coords.charAt(i));
-        lastCoords = coords.substring(i+1);
-
-        int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
-        int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
-        int lastCoordX = sheet.findCell(lastCoords).xCoord();
-        int lastCoordY = sheet.findCell(lastCoords).yCoord();
-        Lexeme[] vectorLong = new Lexeme[
-            (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
-        ];
-
-        i = 0;
-        for (Cell c : sheet.getCells())
-            if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
-                c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
-                if (c.formula() != null)
-                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet));
-                else if (c.txt().equals(""))
-                    vectorLong[i++] = new Lexeme("I");
-                else
-                    vectorLong[i++] = new Lexeme(c.value());
-            }
-
-        Lexeme[] vector = new Lexeme[i];
-        System.arraycopy(vectorLong, 0, vector, 0, i);
-
-        return vector;
-    }
-
     public String getTxt() {
         return txt;
     }
 
     public void setTxt(String txt) {
         this.txt = txt;
-    }
-
-    public double interpret(Sheet sheet) {
-        return interpret(lexer(txt), sheet)[0].getVal();
     }
 
     public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet);

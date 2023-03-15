@@ -4,13 +4,84 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class Formula extends Interpretable {
-    private final int sCX;  // position x de la cellule associée
+    private final int sCX;  // Coordonnée x de la cellule associée
     private final int sCY;
     public Formula(String txt, int sCX, int sCY) {
         super(txt);
         this.sCX = sCX;
         this.sCY = sCY;
     }
+
+    protected double[][] createMatrixFromArea(@NotNull String s, Sheet sheet) {
+        StringBuilder firstCoords = new StringBuilder();
+        String lastCoords;
+
+        int i = 0;
+        for ( ; s.charAt(i) != ':'; i++)
+            firstCoords.append(s.charAt(i));
+        lastCoords = s.substring(i+1);
+
+        int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
+        int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
+        int lastCoordX = sheet.findCell(lastCoords).xCoord();
+        int lastCoordY = sheet.findCell(lastCoords).yCoord();
+        double[][] mat = new double[lastCoordY - firstCoordY + 1][lastCoordX - firstCoordX + 1];
+
+        for (i = 0; i <= lastCoordY - firstCoordY; i++) {
+            final int I = i;
+            for (int j = 0; j <= lastCoordX - firstCoordX; j++) {
+                final int J = j;
+                sheet.getCells().forEach(c -> {
+                    if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
+                        if (c.formula() != null)
+                            mat[I][J] = c.formula().interpret(sheet, false);
+                        else if (!c.txt().equals(""))
+                            mat[I][J] = c.value();
+                        else
+                            mat[I][J] = 0;
+                    }
+                });
+            }
+        }
+
+        return mat;
+    }
+
+    protected Lexeme[] createVectorFromArea(@NotNull String coords, Sheet sheet) {
+        StringBuilder firstCoords = new StringBuilder();
+        String lastCoords;
+
+        int i = 0;
+        for (; coords.charAt(i) != ':'; i++)
+            firstCoords.append(coords.charAt(i));
+        lastCoords = coords.substring(i+1);
+
+        int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
+        int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
+        int lastCoordX = sheet.findCell(lastCoords).xCoord();
+        int lastCoordY = sheet.findCell(lastCoords).yCoord();
+        Lexeme[] vectorLong = new Lexeme[
+                (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
+                ];
+
+        i = 0;
+        for (Cell c : sheet.getCells())
+            if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
+                    c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
+                if (c.formula() != null)
+                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet, false));
+                else if (c.txt().equals(""))
+                    vectorLong[i++] = new Lexeme("I");
+                else
+                    vectorLong[i++] = new Lexeme(c.value());
+            }
+
+        Lexeme[] vector = new Lexeme[i];
+        System.arraycopy(vectorLong, 0, vector, 0, i);
+
+        return vector;
+    }
+
 
     private double sum(Lexeme[] nums) {
         double s = 0;
@@ -62,15 +133,16 @@ public class Formula extends Interpretable {
         ))[0];
     }
 
-    @Override
-    public double interpret(Sheet sheet) {
-        double result = super.interpret(sheet);
-        sheet.addCell(new Cell(
-            sCX,
-            sCY,
-            result,
-            this
-        ));
+    public double interpret(Sheet sheet, boolean createCell) {
+        double result = interpret(lexer(txt), sheet)[0].getVal();
+        if (createCell) {
+            sheet.addCell(new Cell(
+                sCX,
+                sCY,
+                result,
+                new Formula(txt, sCX, sCY)
+            ));
+        }
         return result;
     }
 
@@ -105,7 +177,7 @@ public class Formula extends Interpretable {
                         reduction = 2;
                         try {
                             reduced = new Lexeme(matMult(
-                                args[i - 3].getFunc(), args[i - 2].getFunc(), sheet
+                                args[i-2].getFunc(), args[i-1].getFunc(), sheet
                             ));
                         } catch (Exception e) {
                             System.out.println(e.getMessage());
@@ -187,7 +259,7 @@ public class Formula extends Interpretable {
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
         if (c.formula() != null) {
-            return new Lexeme(c.formula().interpret(sheet));
+            return new Lexeme(c.formula().interpret(sheet, false));
         }
         else if (c.txt().equals(""))
             return new Lexeme("I");
