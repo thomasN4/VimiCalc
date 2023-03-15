@@ -69,7 +69,7 @@ public class Formula extends Interpretable {
             sCX,
             sCY,
             result,
-            this
+            new Formula(txt, sCX, sCY);
         ));
         return result;
     }
