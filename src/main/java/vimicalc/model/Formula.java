@@ -77,13 +77,23 @@ public class Formula extends Interpretable {
                     }
                     case "det" -> {
                         reduction = 1;
-                        reduced = new Lexeme(determinant(args[i-1].getFunc(), sheet));
+                        try {
+                            reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            reduced = new Lexeme(0);
+                        }
                     }
                     case "matMult" -> {
                         reduction = 3;
-                        reduced = new Lexeme(matMult(
-                            args[i-1].getFunc(), args[i-3].getFunc(), args[i-2].getFunc(), sheet
-                        ));
+                        try {
+                            reduced = new Lexeme(matMult(
+                                args[i - 1].getFunc(), args[i - 3].getFunc(), args[i - 2].getFunc(), sheet
+                            ));
+                        } catch (Exception e) {
+                            System.out.println(e.getMessage());
+                            reduced = new Lexeme(0);
+                        }
                     }
                     case "+" -> {
                         if (i > 1) {
@@ -168,12 +178,15 @@ public class Formula extends Interpretable {
             return new Lexeme(c.value());
     }
 
-    private double determinant(String coords, Sheet sheet) {
+    private double determinant(String coords, Sheet sheet) throws Exception {
         return determinant(
             createMatrixFromArea(coords, sheet)
         );
     }
-    private double determinant(double[][] imat) {
+    private double determinant(double[][] imat) throws Exception {
+        if (imat.length != imat[0].length)
+            throw new Exception("The matrix isn't square.");
+
         if (imat.length > 2) {
             Matrix[] omats = new Matrix[imat.length];
             for (int ignoredRow = 0; ignoredRow < imat.length; ignoredRow++) {
@@ -196,21 +209,18 @@ public class Formula extends Interpretable {
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
     
-    private double matMult(String coords1, String coords2, String destinationCoord, Sheet sheet) {
-        return matMult(
-            createMatrixFromArea(coords1, sheet),
-            createMatrixFromArea(coords2, sheet),
-            destinationCoord,
-            sheet
-        );
-    }
-    public double matMult(double[][] mat1, double[][] mat2, String dC, Sheet sheet) {
+    public double matMult(String coords1, String coords2, String dC, Sheet sheet) throws Exception {
+        double[][] mat1 = createMatrixFromArea(coords1, sheet);
+        double[][] mat2 = createMatrixFromArea(coords2, sheet);
         double firstCellRes = 0;
         int dCX = sheet.findCell(dC).xCoord();
         int dCY = sheet.findCell(dC).yCoord();
 
+        if (mat1.length != mat2[0].length)
+            throw new Exception("Rows and columns amount mismatch");
+
         for (int i = 0; i < mat1.length; i++) {
-            for (int j = 0; j < mat2[0].length; j++) {
+            for (int j = 0; j < mat1.length; j++) {
                 double[] col = new double[]{mat2[0].length};
                 for (int k = 0; k < mat2.length; k++)
                     col[k] = mat2[k][j];
