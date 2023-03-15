@@ -26,8 +26,8 @@ public class Controller implements Initializable {
     private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
 
     //CD
-    private static int MOUSE_X;
-    private static int MOUSE_Y;
+//    private static int MOUSE_X;
+//    private static int MOUSE_Y;
 
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
 
