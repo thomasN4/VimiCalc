@@ -214,7 +214,7 @@ public class Formula extends Interpretable {
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
         int dCX = sheet.findCell(dC).xCoord();
         int dCY = sheet.findCell(dC).yCoord();
-        double firstCellRes = 0;
+        double firstCellVal = 0;
 
         if (mat1.getWidth() != mat2.getHeight())
             throw new Exception("Mismatch in the number of rows and columns.");
@@ -222,25 +222,25 @@ public class Formula extends Interpretable {
         for (int i = 0; i < mat1.getHeight(); i++) {
             for (int j = 0; j < mat2.getWidth(); j++) {
                 if (i == 0 && j == 0) {
-                    firstCellRes = sumForOneCell(mat1.getRow(i), mat2.getCol(j));
+                    firstCellVal = forOnePos(mat1.getRow(i), mat2.getCol(j));
                     continue;
                 }
                 sheet.addCell(new Cell(
                     dCX + j,
                     dCY + i,
-                    sumForOneCell(mat1.getRow(i), mat2.getCol(j))
+                    forOnePos(mat1.getRow(i), mat2.getCol(j))
                 ));
             }
         }
 
-        return firstCellRes;
+        return firstCellVal;
     }
-    public double sumForOneCell(double[] row, double[] col) {
-        double s = 0;
+    public double forOnePos(double[] row, double[] col) {
+        double v = 0;
         for (int i = 0; i < row.length; i++) {
-            s += row[i] * col[i];
+            v += row[i] * col[i];
         }
-        return s;
+        return v;
     }
 }
 
@@ -265,7 +265,7 @@ class Matrix {
     }
 
     public double[] getCol(int j) {
-        double[] col = new double[items[0].length];
+        double[] col = new double[items.length];
         for (int i = 0; i < items.length; i++)
             col[i] = items[i][j];
         return col;
