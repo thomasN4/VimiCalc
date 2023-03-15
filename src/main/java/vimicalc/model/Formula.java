@@ -66,6 +66,7 @@ public class Formula extends Interpretable {
             reduced = null;
             if (args[i].isFunction()) {
                 String func = args[i].getFunc();
+                System.out.println("func = \"" + func + '\"');
                 if (func.charAt(0) == '-' && func.length() > 1) {
                     args[i] = negative(func, sheet);
                     continue;
@@ -212,8 +213,8 @@ public class Formula extends Interpretable {
     public double matMult(String coords1, String coords2, String dC, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
-        int dCX = sheet.findCell(dC).xCoord();
-        int dCY = sheet.findCell(dC).yCoord();
+        int dCX = sheet.findCell(dC.substring(1)).xCoord();
+        int dCY = sheet.findCell(dC.substring(1)).yCoord();
         double firstCellVal = 0;
 
         if (mat1.getWidth() != mat2.getHeight())
