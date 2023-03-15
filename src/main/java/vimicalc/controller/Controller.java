@@ -330,55 +330,70 @@ public class Controller implements Initializable {
                         if (currXC > prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             maxXC = currXC;
-                        } else if (currXC < prevXC) {
+                        }
+                        else if (currXC < prevXC) {
                             purgeSCs(prevXC, -1);
                             maxXC = currXC;
-                        } else if (currYC > prevYC) {
+                        }
+                        else if (currYC > prevYC) {
                             addSCs(false, currYC, minXC, maxXC);
                             maxYC = currYC;
-                        } else if (currYC < prevYC) {
+                        }
+                        else if (currYC < prevYC){
                             purgeSCs(-1, prevYC);
                             maxYC = currYC;
                         }
-                    } else if (currXC >= originalXC) {
+                    }
+                    else if (currXC >= originalXC) {
                         if (currXC > prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             maxXC = currXC;
-                        } else if (currXC < prevXC) {
+                        }
+                        else if (currXC < prevXC) {
                             purgeSCs(prevXC, -1);
                             maxXC = currXC;
-                        } else if (currYC < prevYC) {
+                        }
+                        else if (currYC < prevYC) {
                             addSCs(false, currYC, minXC, maxXC);
                             minYC = currYC;
-                        } else if (currYC > prevYC) {
+                        }
+                        else if (currYC > prevYC) {
                             purgeSCs(-1, prevYC);
                             minYC = currYC;
                         }
-                    } else if (currYC >= originalYC) {
+                    }
+                    else if (currYC >= originalYC) {
                         if (currXC < prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             minXC = currXC;
-                        } else if (currXC > prevXC) {
+                        }
+                        else if (currXC > prevXC) {
                             purgeSCs(prevXC, -1);
                             minXC = currXC;
-                        } else if (currYC > prevYC) {
+                        }
+                        else if (currYC > prevYC) {
                             addSCs(false, currYC, minXC, maxXC);
                             maxYC = currYC;
-                        } else if (currYC < prevYC) {
+                        }
+                        else if (currYC < prevYC) {
                             purgeSCs(-1, prevYC);
                             maxYC = currYC;
                         }
-                    } else {
+                    }
+                    else {
                         if (currXC < prevXC) {
                             addSCs(true, currXC, minYC, maxYC);
                             minXC = currXC;
-                        } else if (currXC > prevXC) {
+                        }
+                        else if (currXC > prevXC) {
                             purgeSCs(prevXC, -1);
                             minXC = currXC;
-                        } else if (currYC < prevYC) {
+                        }
+                        else if (currYC < prevYC) {
                             addSCs(false, currYC, minXC, maxXC);
                             minYC = currYC;
-                        } else if (currYC > prevYC) {
+                        }
+                        else if (currYC > prevYC) {
                             purgeSCs(-1, prevYC);
                             minYC = currYC;
                         }
