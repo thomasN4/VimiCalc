@@ -210,28 +210,25 @@ public class Formula extends Interpretable {
     }
     
     public double matMult(String coords1, String coords2, String dC, Sheet sheet) throws Exception {
-        double[][] mat1 = createMatrixFromArea(coords1, sheet);
-        double[][] mat2 = createMatrixFromArea(coords2, sheet);
-        double firstCellRes = 0;
+        Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
+        Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
         int dCX = sheet.findCell(dC).xCoord();
         int dCY = sheet.findCell(dC).yCoord();
+        double firstCellRes = 0;
 
-        if (mat1.length != mat2[0].length)
-            throw new Exception("Rows and columns amount mismatch");
+        if (mat1.getWidth() != mat2.getHeight())
+            throw new Exception("Mismatch in the number of rows and columns.");
 
-        for (int i = 0; i < mat1.length; i++) {
-            for (int j = 0; j < mat1.length; j++) {
-                double[] col = new double[]{mat2[0].length};
-                for (int k = 0; k < mat2.length; k++)
-                    col[k] = mat2[k][j];
+        for (int i = 0; i < mat1.getHeight(); i++) {
+            for (int j = 0; j < mat2.getWidth(); j++) {
                 if (i == 0 && j == 0) {
-                    firstCellRes = sumForOneCell(mat1[i], col);
+                    firstCellRes = sumForOneCell(mat1.getRow(i), mat2.getCol(j));
                     continue;
                 }
                 sheet.addCell(new Cell(
                     dCX + j,
                     dCY + i,
-                    sumForOneCell(mat1[i], mat2[j])
+                    sumForOneCell(mat1.getRow(i), mat2.getCol(j))
                 ));
             }
         }
@@ -248,14 +245,37 @@ public class Formula extends Interpretable {
 }
 
 class Matrix {
-    double[][] items;
+    private final double[][] items;
+    private final int width;
+    private final int height;
 
+    @Contract(pure = true)
     Matrix(double[][] items) {
         this.items = items;
+        width = items[0].length;
+        height = items.length;
     }
 
     public double[][] getItems() {
         return items;
     }
-}
 
+    public double[] getRow(int i) {
+        return items[i];
+    }
+
+    public double[] getCol(int j) {
+        double[] col = new double[items[0].length];
+        for (int i = 0; i < items.length; i++)
+            col[i] = items[i][j];
+        return col;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+}
