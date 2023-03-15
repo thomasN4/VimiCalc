@@ -5,7 +5,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
 import vimicalc.model.Command;
@@ -24,6 +24,11 @@ public class Controller implements Initializable {
     private static final int DEFAULT_CELL_H = 23;
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
     private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
+
+    //CD
+    private static int MOUSE_X;
+    private static int MOUSE_Y;
+
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
 
     @FXML private Canvas canvas;
@@ -40,6 +45,19 @@ public class Controller implements Initializable {
     private static Sheet sheet;
     public static StatusBar statusBar;
 
+    /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
+    public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
+        MOUSE_X = (int) mouseEvent.getX() / DEFAULT_CELL_W;
+        MOUSE_Y = (int) mouseEvent.getY() / DEFAULT_CELL_H - 1;
+
+        System.out.print(" Mouse CLicked "+ MOUSE_X + " // " + MOUSE_Y);
+
+        cellSelector.setX(MOUSE_X);
+        cellSelector.setY(MOUSE_Y);
+
+        System.out.print(" Selected Cell "+ cellSelector.getX() + " // " + cellSelector.getY());
+    }
+    */
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1)
             cellSelector.updateXCoord(-1);
