@@ -250,7 +250,12 @@ public class Controller implements Initializable {
                         c.xCoord(),
                         c.yCoord()
                     );
-                    f.interpret(sheet, true);
+                    sheet.addCell(new Cell(
+                        c.xCoord(),
+                        c.yCoord(),
+                        f.interpret(sheet),
+                        f
+                    ));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
@@ -486,7 +491,13 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
-                cellSelector.getSelectedCell().formula().interpret(sheet, true);
+                cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().formula().interpret(sheet),
+                    cellSelector.getSelectedCell().formula()
+                ));
+                sheet.addCell(cellSelector.getSelectedCell());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 infoBar.setEnteringFormula(false);

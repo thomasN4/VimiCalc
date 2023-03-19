@@ -54,7 +54,7 @@ public class Picture extends Visible {
                     visibleCells.add(new Cell(
                         c.xCoord(),
                         c.yCoord(),
-                        c.formula().interpret(sheet, false),
+                        c.formula().interpret(sheet),
                         c.formula()
                     ));
                 else visibleCells.add(c);

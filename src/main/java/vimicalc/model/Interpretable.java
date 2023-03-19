@@ -43,6 +43,10 @@ abstract class Interpretable {
         this.txt = txt;
     }
 
+    public double interpret(Sheet sheet) {
+        return interpret(lexer(txt), sheet)[0].getVal();
+    }
+
     public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet);
 }
 

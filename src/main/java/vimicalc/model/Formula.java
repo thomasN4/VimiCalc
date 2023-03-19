@@ -34,7 +34,7 @@ public class Formula extends Interpretable {
                 sheet.getCells().forEach(c -> {
                     if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
                         if (c.formula() != null)
-                            mat[I][J] = c.formula().interpret(sheet, false);
+                            mat[I][J] = c.formula().interpret(sheet);
                         else if (!c.txt().equals(""))
                             mat[I][J] = c.value();
                         else
@@ -69,7 +69,7 @@ public class Formula extends Interpretable {
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                     c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
                 if (c.formula() != null)
-                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet, false));
+                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet));
                 else if (c.txt().equals(""))
                     vectorLong[i++] = new Lexeme("I");
                 else
@@ -131,19 +131,6 @@ public class Formula extends Interpretable {
             },
             sheet
         ))[0];
-    }
-
-    public double interpret(Sheet sheet, boolean createCell) {
-        double result = interpret(lexer(txt), sheet)[0].getVal();
-        if (createCell) {
-            sheet.addCell(new Cell(
-                sCX,
-                sCY,
-                result,
-                new Formula(txt, sCX, sCY)
-            ));
-        }
-        return result;
     }
 
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
@@ -259,7 +246,7 @@ public class Formula extends Interpretable {
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
         if (c.formula() != null) {
-            return new Lexeme(c.formula().interpret(sheet, false));
+            return new Lexeme(c.formula().interpret(sheet));
         }
         else if (c.txt().equals(""))
             return new Lexeme("I");

@@ -24,10 +24,6 @@ public class Command extends Interpretable {
         }
     }
 
-    public void interpret(Sheet sheet) {
-        interpret(lexer(txt), sheet);
-    }
-
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
