@@ -288,17 +288,14 @@ public class Formula extends Interpretable {
     public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
-        double firstCellVal = 0;
 
         if (mat1.getWidth() != mat2.getHeight())
-            throw new Exception("Mismatch in the number of rows and columns.");
+            throw new Exception("There's a mismatch in the number of rows and columns.");
 
         for (int i = 0; i < mat1.getHeight(); i++) {
             for (int j = 0; j < mat2.getWidth(); j++) {
-                if (i == 0 && j == 0) {
-                    firstCellVal = forOnePos(mat1.getRow(0), mat2.getCol(0));
+                if (i == 0 && j == 0)
                     continue;
-                }
                 sheet.addCell(new Cell(
                     sCX + j,
                     sCY + i,
@@ -307,7 +304,7 @@ public class Formula extends Interpretable {
             }
         }
 
-        return firstCellVal;
+        return forOnePos(mat1.getRow(0), mat2.getCol(0));
     }
     public double forOnePos(double[] row, double[] col) {
         double v = 0;

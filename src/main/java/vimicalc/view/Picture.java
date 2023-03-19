@@ -50,7 +50,7 @@ public class Picture extends Visible {
                 c.xCoord() <= (absX + w + DCW) / DCW &&
                 c.yCoord() >= absY / DCH + 1 &&
                 c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (c.formula() != null)
+                if (c.formula() != null && !c.formula().getTxt().contains("matMult"))
                     visibleCells.add(new Cell(
                         c.xCoord(),
                         c.yCoord(),
