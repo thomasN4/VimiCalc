@@ -35,7 +35,7 @@ public class Picture extends Visible {
                     c.txt(),
                     c.xCoord() * DCW - absX + 45,
                     c.yCoord() * DCH - absY + 16,
-                        DCW)
+                    DCW)
             );
         }
         isntReady = false;

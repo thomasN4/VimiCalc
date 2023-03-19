@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static vimicalc.Main.fromAlpha;
+import static vimicalc.utils.Conversions.fromAlpha;
 
 public class Sheet {
 

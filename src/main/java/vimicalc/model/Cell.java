@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
-import static vimicalc.Main.isNumber;
+import static vimicalc.utils.Conversions.isNumber;
 
 public class Cell {
     private final int xCoord;

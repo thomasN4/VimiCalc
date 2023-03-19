@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import static vimicalc.Main.toAlpha;
+import static vimicalc.utils.Conversions.toAlpha;
 
 public class CoordsCell extends Visible {
 

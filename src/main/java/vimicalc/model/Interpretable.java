@@ -2,7 +2,7 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import static vimicalc.Main.isNumber;
+import static vimicalc.utils.Conversions.isNumber;
 
 abstract class Interpretable {
     protected String txt;
