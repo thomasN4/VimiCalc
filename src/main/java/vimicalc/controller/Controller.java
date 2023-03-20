@@ -4,9 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
 import vimicalc.model.Command;
@@ -26,13 +25,16 @@ public class Controller implements Initializable {
     private static final int DEFAULT_CELL_H = 23;
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
     private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
-    private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
-    public static LinkedList<Integer> recordedxCoor = new LinkedList<>();
-    public static LinkedList<Integer> recordedyCoor = new LinkedList<>();
-    public static LinkedList<String> recordedWord = new LinkedList<>();
-    public static int dCounter = 1;
-    @FXML private Canvas canvas;
 
+    //CD
+//    private static int MOUSE_X;
+//    private static int MOUSE_Y;
+
+    private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
+    @FXML
+    private Canvas canvas;
+    public static LinkedList<Cell> recordedCell = new LinkedList<>();
+    public static int dCounter = 1;
     private static Camera camera;
     private static Command command;
     private static CoordsCell coordsCell;
@@ -45,6 +47,19 @@ public class Controller implements Initializable {
     private static Sheet sheet;
     public static StatusBar statusBar;
 
+    /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
+    public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
+        MOUSE_X = (int) mouseEvent.getX() / DEFAULT_CELL_W;
+        MOUSE_Y = (int) mouseEvent.getY() / DEFAULT_CELL_H - 1;
+
+        System.out.print(" Mouse CLicked "+ MOUSE_X + " // " + MOUSE_Y);
+
+        cellSelector.setX(MOUSE_X);
+        cellSelector.setY(MOUSE_Y);
+
+        System.out.print(" Selected Cell "+ cellSelector.getX() + " // " + cellSelector.getY());
+    }
+    */
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1)
             cellSelector.updateXCoord(-1);
@@ -138,70 +153,51 @@ public class Controller implements Initializable {
     }
 
     public static void undo() {
-        if (!recordedWord.isEmpty() && !(dCounter >= recordedWord.size())) {
-            if (recordedWord.get(recordedWord.size() - 1 - dCounter).matches(".*\\D.*")) {
-                cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        recordedWord.get(recordedWord.size() - 1 - dCounter)
-                ));
-            }
-            goTo();
+        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
+            goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
+            cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().txt()
+            ));
             sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - 1 - dCounter));
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
             dCounter = dCounter + 2;
         }
     }
 
     public static void redo() {
-        if (!recordedWord.isEmpty() && !(dCounter <= 1)) {
+        if (!recordedCell.isEmpty() && !(dCounter <= 1)) {
             dCounter = dCounter - 2;
-            goTo();
-            if (recordedWord.get(recordedWord.size() - dCounter).matches(".*\\D.*")) {
-                cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        recordedWord.get(recordedWord.size() - dCounter)
-                ));
-            }
+            goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
+            cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().txt()
+            ));
             sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedWord.get(recordedWord.size() - dCounter));
-       }
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
+        }
     }
 
-    public static void goTo() {
-        while ((recordedxCoor.get(recordedxCoor.size() - dCounter) - cellSelector.getXCoord()) > 0) {
+    public static void goTo(int x, int y) {
+        while ((x - cellSelector.getXCoord()) > 0) {
             moveRight();
-            firstRow.draw(gc, camera.getAbsX());
-            firstCol.draw(gc, camera.getAbsY());
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-            coordsCell.draw(gc);
-            statusBar.draw(gc);
         }
-        while ((recordedxCoor.get(recordedxCoor.size() - dCounter) - cellSelector.getXCoord()) < 0) {
+        while ((x - cellSelector.getXCoord()) < 0) {
             moveLeft();
-            firstRow.draw(gc, camera.getAbsX());
-            firstCol.draw(gc, camera.getAbsY());
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-            coordsCell.draw(gc);
-            statusBar.draw(gc);
         }
-        while ((recordedyCoor.get(recordedyCoor.size() - dCounter) - cellSelector.getYCoord()) > 0) {
+        while ((y - cellSelector.getYCoord()) > 0) {
             moveDown();
-            firstRow.draw(gc, camera.getAbsX());
-            firstCol.draw(gc, camera.getAbsY());
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-            coordsCell.draw(gc);
-            statusBar.draw(gc);
         }
-        while ((recordedyCoor.get(recordedyCoor.size() - dCounter) - cellSelector.getYCoord()) < 0) {
+        while ((y - cellSelector.getYCoord()) < 0) {
             moveUp();
-            firstRow.draw(gc, camera.getAbsX());
-            firstCol.draw(gc, camera.getAbsY());
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-            coordsCell.draw(gc);
-            statusBar.draw(gc);
         }
+        firstRow.draw(gc, camera.getAbsX());
+        firstCol.draw(gc, camera.getAbsY());
+        coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        coordsCell.draw(gc);
+        statusBar.draw(gc);
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
@@ -216,51 +212,40 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
-                        recordedWord.add(cellSelector.getSelectedCell().txt());
-                        recordedxCoor.add(cellSelector.getXCoord());
-                        recordedyCoor.add(cellSelector.getYCoord());
+                        recordedCell.add(cellSelector.getSelectedCell());
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
-                        cellSelector.setSelectedCell(cellSelector.getEmptyCell());
-                        recordedWord.add(cellSelector.getSelectedCell().txt());
-                        recordedxCoor.add(cellSelector.getXCoord());
-                        recordedyCoor.add(cellSelector.getYCoord());
+                        cellSelector.readCell(camera.picture.data());
+                        recordedCell.add(cellSelector.getSelectedCell());
                     }
                     case U -> {
                         undo();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
+                        cellSelector.readCell(camera.picture.data());
                     }
                     case R -> {
                         redo();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
+                        cellSelector.readCell(camera.picture.data());
                     }
                     case A, I -> {
+                        recordedCell.add(cellSelector.getSelectedCell());
                         statusBar.setMode(MODE[2]);
-                        recordedWord.add(cellSelector.getSelectedCell().txt());
-                        recordedxCoor.add(cellSelector.getXCoord());
-                        recordedyCoor.add(cellSelector.getYCoord());
+                        if (cellSelector.getSelectedCell().value() != 0) {
+                            cellSelector.getSelectedCell().setTxt(String.valueOf(
+                                    cellSelector.getSelectedCell().value()
+                            ));
+                        }
+                        cellSelector.draw(gc);
                     }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
-                        if (cellSelector.getSelectedCell().txt().matches(".*\\D.*")) {
-                            cellSelector.setSelectedCell(new Cell(
-                                    cellSelector.getXCoord(),
-                                    cellSelector.getYCoord(),
-                                    cellSelector.getSelectedCell().txt()
-                            ));
-                        }
-                        recordedWord.add(cellSelector.getSelectedCell().txt());
-                        recordedxCoor.add(cellSelector.getXCoord());
-                        recordedyCoor.add(cellSelector.getYCoord());
                         statusBar.setMode(MODE[1]);
                         infoBar.setEnteringFormula(true);
-                        if (cellSelector.getSelectedCell().formula() == null)
-                            cellSelector.getSelectedCell().setFormula(
-                                new Formula("")
-                            );
+                        recordedCell.add(cellSelector.getSelectedCell());
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
@@ -268,37 +253,24 @@ public class Controller implements Initializable {
                     }
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
+                        command = new Command("");
                         infoBar.setEnteringCommand(true);
                     }
                 }
             }
-            case 'V' -> {
-                switch (event.getCode()) {
-                    case D -> {
-                        selectedCoords.forEach(coord -> sheet.getCells().removeIf(
-                                cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
-                        ));
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        camera.ready();
-                        cellSelector.setSelectedCell(cellSelector.getEmptyCell());
-                    }
-                    case Y, P -> System.out.println("À implémenter.");
-                    default -> visualSelection(event);
-                }
-            }
+            case 'V' -> visualSelection(event);
         }
 
-        System.out.println("     sC.x: "+ cellSelector.getX()     +", yCoord: "+ cellSelector.getY());
-        System.out.println("sC.xCoord: "+ cellSelector.getXCoord()+", sC.yCoord: "+ cellSelector.getYCoord());
-        System.out.println(" cam.absX: "+camera.getAbsX()         +", cam.absY: "+camera.getAbsY());
-        System.out.println("    Cells: "+sheet.getCells());
+        System.out.println("     sC.x: " + cellSelector.getX() + ", yCoord: " + cellSelector.getY());
+        System.out.println("sC.xCoord: " + cellSelector.getXCoord() + ", sC.yCoord: " + cellSelector.getYCoord());
+        System.out.println(" cam.absX: " + camera.getAbsX() + ", cam.absY: " + camera.getAbsY());
+        System.out.println("    Cells: " + sheet.getCells());
         System.out.println("========================================");
 
         if (statusBar.getMode().equals(MODE[3])) {
             cellSelector.draw(gc);
             coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-        }
-        else if (statusBar.getMode().equals(MODE[4])) {
+        } else if (statusBar.getMode().equals(MODE[4])) {
             System.out.println("Selected coords = {");
             selectedCoords.forEach(c -> {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -325,9 +297,9 @@ public class Controller implements Initializable {
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command = new Command("");
+                infoBar.setCommandTxt("");
             }
             case ENTER -> {
-                command.interpret(sheet);
                 if (infoBar.isEnteringCommandInVISUAL()) {
                     selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
@@ -340,13 +312,17 @@ public class Controller implements Initializable {
                     }
                     destinationCoord.reverse();
 
-                    Formula f = new Formula(command.getTxt().substring(0, i+1) + coordsCell.getCoords());
                     Cell c = sheet.findCell(destinationCoord.toString());
+                    Formula f = new Formula(
+                            coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
+                            c.xCoord(),
+                            c.yCoord()
+                    );
                     sheet.addCell(new Cell(
-                        c.xCoord(),
-                        c.yCoord(),
-                        f.interpret(sheet),
-                        f
+                            c.xCoord(),
+                            c.yCoord(),
+                            f.interpret(sheet),
+                            f
                     ));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -354,161 +330,160 @@ public class Controller implements Initializable {
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
+                command.interpret(sheet);
                 command = new Command("");
+                infoBar.setCommandTxt("");
             }
             case BACK_SPACE -> command.setTxt(
-                    command.getTxt().substring(0, command.getTxt().length()-1)
-                );
+                    command.getTxt().substring(0, command.getTxt().length() - 1)
+            );
             default -> command.setTxt(command.getTxt() + event.getText());
         }
-        infoBar.setCommandTxt(command.getTxt());
+        if (!statusBar.getMode().equals(MODE[3]))
+            infoBar.setCommandTxt(command.getTxt());
     }
 
     private static void visualSelection(@NotNull KeyEvent event) {
         if (infoBar.isEnteringCommandInVISUAL()) {
             commandInput(event);
-        }
-        else if (event.getCode() == KeyCode.ESCAPE) {
-            statusBar.setMode(MODE[3]);
-            selectedCoords = new ArrayList<>();
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            camera.ready();
-            cellSelector.readCell(camera.picture.data());
-            cellSelector.draw(gc);
-        }
-        else if (event.getCode() == KeyCode.SEMICOLON) {
-            infoBar.setEnteringCommandInVISUAL(true);
-            command = new Command("");
-        }
-        else {
-            int originalXC = selectedCoords.get(0)[0];
-            int originalYC = selectedCoords.get(0)[1];
-
-            int prevXC = cellSelector.getXCoord();
-            int prevYC = cellSelector.getYCoord();
-
-            int maxXC;
-            int minXC;
-            int maxYC;
-            int minYC;
-            if (selectedCoords.size() > 1) {
-                maxXC = Integer.MIN_VALUE;
-                minXC = Integer.MAX_VALUE;
-                maxYC = Integer.MIN_VALUE;
-                minYC = Integer.MAX_VALUE;
-                for (int[] c : selectedCoords) {
-                    if (c[0] > maxXC) maxXC = c[0];
-                    if (c[0] < minXC) minXC = c[0];
-                    if (c[1] > maxYC) maxYC = c[1];
-                    if (c[1] < minYC) minYC = c[1];
-                }
-            }
-            else {
-                maxXC = originalXC;
-                minXC = maxXC;
-                maxYC = originalYC;
-                minYC = maxYC;
-            }
-            System.out.println("maxXC: "+ maxXC);
-            System.out.println("minXC: "+ minXC);
-            System.out.println("maxYC: "+ maxYC);
-            System.out.println("minYC: "+ minYC);
-
+        } else {
             switch (event.getCode()) {
-                case H, LEFT, BACK_SPACE -> moveLeft();
-                case J, DOWN, ENTER -> moveDown();
-                case K, UP -> moveUp();
-                case L, RIGHT, TAB, SPACE -> moveRight();
-            }
-            int currXC = cellSelector.getXCoord();
-            int currYC = cellSelector.getYCoord();
-            System.out.println("currXC: "+ currXC);
-            System.out.println("currYC: "+ currYC);
+                case D -> {
+                    selectedCoords.forEach(coord -> sheet.getCells().removeIf(
+                            cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
+                    ));
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
+                }
+                case ESCAPE -> {
+                    statusBar.setMode(MODE[3]);
+                    selectedCoords = new ArrayList<>();
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
+                    cellSelector.draw(gc);
+                }
+                case SEMICOLON -> {
+                    infoBar.setEnteringCommandInVISUAL(true);
+                    command = new Command("");
+                }
+                default -> {
+                    int originalXC = selectedCoords.get(0)[0];
+                    int originalYC = selectedCoords.get(0)[1];
 
-            System.out.println("originalXC = " + originalXC);
-            System.out.println("originalYC = " + originalYC);
+                    int prevXC = cellSelector.getXCoord();
+                    int prevYC = cellSelector.getYCoord();
 
-            if (currXC >= originalXC && currYC >= originalYC) {
-                if (currXC > prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    maxXC = currXC;
-                }
-                else if (currXC < prevXC) {
-                    purgeSCs(prevXC, -1);
-                    maxXC = currXC;
-                }
-                else if (currYC > prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    maxYC = currYC;
-                }
-                else if (currYC < prevYC) {
-                    purgeSCs(-1, prevYC);
-                    maxYC = currYC;
-                }
-            }
-            else if (currXC >= originalYC && currYC < originalYC) {
-                if (currXC > prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    maxXC = currXC;
-                }
-                else if (currXC < prevXC) {
-                    purgeSCs(prevXC, -1);
-                    maxXC = currXC;
-                }
-                else if (currYC < prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    minYC = currYC;
-                }
-                else if (currYC > prevYC) {
-                    purgeSCs(-1, prevYC);
-                    minYC = currYC;
-                }
-            }
-            else if (currXC < originalXC && currYC >= originalYC) {
-                if (currXC < prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    minXC = currXC;
-                }
-                else if (currXC > prevXC) {
-                    purgeSCs(prevXC, -1);
-                    minXC = currXC;
-                }
-                else if (currYC > prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    maxYC = currYC;
-                }
-                else if (currYC < prevYC) {
-                    purgeSCs(-1, prevYC);
-                    maxYC = currYC;
-                }
-            }
-            else {
-                if (currXC < prevXC) {
-                    addSCs(true, currXC, minYC, maxYC);
-                    minXC = currXC;
-                }
-                else if (currXC > prevXC) {
-                    purgeSCs(prevXC, -1);
-                    minXC = currXC;
-                }
-                else if (currYC < prevYC) {
-                    addSCs(false, currYC, minXC, maxXC);
-                    minYC = currYC;
-                }
-                else if (currYC > prevYC) {
-                    purgeSCs(-1, prevYC);
-                    minYC = currYC;
-                }
-            }
+                    int maxXC;
+                    int minXC;
+                    int maxYC;
+                    int minYC;
+                    if (selectedCoords.size() > 1) {
+                        maxXC = Integer.MIN_VALUE;
+                        minXC = Integer.MAX_VALUE;
+                        maxYC = Integer.MIN_VALUE;
+                        minYC = Integer.MAX_VALUE;
+                        for (int[] c : selectedCoords) {
+                            if (c[0] > maxXC) maxXC = c[0];
+                            if (c[0] < minXC) minXC = c[0];
+                            if (c[1] > maxYC) maxYC = c[1];
+                            if (c[1] < minYC) minYC = c[1];
+                        }
+                    } else {
+                        maxXC = originalXC;
+                        minXC = maxXC;
+                        maxYC = originalYC;
+                        minYC = maxYC;
+                    }
+                    System.out.println("maxXC: " + maxXC);
+                    System.out.println("minXC: " + minXC);
+                    System.out.println("maxYC: " + maxYC);
+                    System.out.println("minYC: " + minYC);
 
-            if (currXC == originalXC && currXC > prevXC)
-                purgeSCs(prevXC, -1);
-            else if (currYC == originalYC && currYC > prevYC)
-                purgeSCs(-1, prevYC);
+                    switch (event.getCode()) {
+                        case H, LEFT, BACK_SPACE -> moveLeft();
+                        case J, DOWN, ENTER -> moveDown();
+                        case K, UP -> moveUp();
+                        case L, RIGHT, TAB, SPACE -> moveRight();
+                    }
+                    int currXC = cellSelector.getXCoord();
+                    int currYC = cellSelector.getYCoord();
+                    System.out.println("currXC: " + currXC);
+                    System.out.println("currYC: " + currYC);
 
-            coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
+                    System.out.println("originalXC = " + originalXC);
+                    System.out.println("originalYC = " + originalYC);
+
+                    if (currXC >= originalXC && currYC >= originalYC) {
+                        if (currXC > prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            maxXC = currXC;
+                        } else if (currXC < prevXC) {
+                            purgeSCs(prevXC, -1);
+                            maxXC = currXC;
+                        } else if (currYC > prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            maxYC = currYC;
+                        } else if (currYC < prevYC) {
+                            purgeSCs(-1, prevYC);
+                            maxYC = currYC;
+                        }
+                    } else if (currXC >= originalXC) {
+                        if (currXC > prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            maxXC = currXC;
+                        } else if (currXC < prevXC) {
+                            purgeSCs(prevXC, -1);
+                            maxXC = currXC;
+                        } else if (currYC < prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            minYC = currYC;
+                        } else if (currYC > prevYC) {
+                            purgeSCs(-1, prevYC);
+                            minYC = currYC;
+                        }
+                    } else if (currYC >= originalYC) {
+                        if (currXC < prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            minXC = currXC;
+                        } else if (currXC > prevXC) {
+                            purgeSCs(prevXC, -1);
+                            minXC = currXC;
+                        } else if (currYC > prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            maxYC = currYC;
+                        } else if (currYC < prevYC) {
+                            purgeSCs(-1, prevYC);
+                            maxYC = currYC;
+                        }
+                    } else {
+                        if (currXC < prevXC) {
+                            addSCs(true, currXC, minYC, maxYC);
+                            minXC = currXC;
+                        } else if (currXC > prevXC) {
+                            purgeSCs(prevXC, -1);
+                            minXC = currXC;
+                        } else if (currYC < prevYC) {
+                            addSCs(false, currYC, minXC, maxXC);
+                            minYC = currYC;
+                        } else if (currYC > prevYC) {
+                            purgeSCs(-1, prevYC);
+                            minYC = currYC;
+                        }
+                    }
+
+                    if (currXC == originalXC && currXC > prevXC)
+                        purgeSCs(prevXC, -1);
+                    else if (currYC == originalYC && currYC > prevYC)
+                        purgeSCs(-1, prevYC);
+
+                    coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
+                }
+            }
         }
     }
+
     private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
         System.out.println("Adding cells to selectedCoords...");
         if (isAddingCol) for (int i = minC; i <= maxC; i++) {
@@ -520,6 +495,7 @@ public class Controller implements Initializable {
             System.out.println(currC + ", " + i);
         }
     }
+
     private static void purgeSCs(int col, int row) {
         System.out.println("Removing cells from selectedCoords...");
         if (col != -1)
@@ -535,16 +511,14 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
-                recordedWord.add(cellSelector.getSelectedCell().txt());
-                recordedxCoor.add(cellSelector.getXCoord());
-                recordedyCoor.add(cellSelector.getYCoord());
                 cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        cellSelector.getSelectedCell().txt()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                recordedCell.add(cellSelector.getSelectedCell());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -553,10 +527,13 @@ public class Controller implements Initializable {
                 }
                 statusBar.setMode(MODE[3]);
             }
-            case BACK_SPACE -> cellSelector.getSelectedCell().setTxt(
-                    cellSelector.getSelectedCell().txt().substring(0,
-                        cellSelector.getSelectedCell().txt().length() - 1)
+            case BACK_SPACE -> {
+                cellSelector.getSelectedCell().setTxt(
+                        cellSelector.getSelectedCell().txt().substring(0,
+                                cellSelector.getSelectedCell().txt().length() - 1)
                 );
+                cellSelector.draw(gc);
+            }
             default -> cellSelector.draw(gc, event.getText());
         }
     }
@@ -570,10 +547,10 @@ public class Controller implements Initializable {
             }
             case ENTER -> {
                 cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().formula().interpret(sheet),
-                    cellSelector.getSelectedCell().formula()
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        cellSelector.getSelectedCell().formula().interpret(sheet),
+                        cellSelector.getSelectedCell().formula()
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -581,23 +558,17 @@ public class Controller implements Initializable {
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
-                cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        cellSelector.getSelectedCell().txt()
-                ));
-                recordedWord.add(cellSelector.getSelectedCell().txt());
-                recordedxCoor.add(cellSelector.getXCoord());
-                recordedyCoor.add(cellSelector.getYCoord());
+                recordedCell.add(cellSelector.getSelectedCell());
+
             }
             case BACK_SPACE -> cellSelector.getSelectedCell().formula().setTxt(
-                cellSelector.getSelectedCell().formula().getTxt().substring(
-                    0, cellSelector.getSelectedCell().formula().getTxt().length()-1
-                )
+                    cellSelector.getSelectedCell().formula().getTxt().substring(
+                            0, cellSelector.getSelectedCell().formula().getTxt().length() - 1
+                    )
             );
             default -> cellSelector.getSelectedCell().formula().setTxt(
-                cellSelector.getSelectedCell().formula().getTxt() +
-                event.getText()
+                    cellSelector.getSelectedCell().formula().getTxt() +
+                            event.getText()
             );
         }
     }
@@ -613,55 +584,55 @@ public class Controller implements Initializable {
 
     public static void reset() {
         camera = new Camera(
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            CANVAS_W-DEFAULT_CELL_W,
-            CANVAS_H-3*DEFAULT_CELL_H-4,
-            DEFAULT_CELL_C,
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H
+                DEFAULT_CELL_W,
+                DEFAULT_CELL_H,
+                CANVAS_W - DEFAULT_CELL_W,
+                CANVAS_H - 3 * DEFAULT_CELL_H - 4,
+                DEFAULT_CELL_C,
+                DEFAULT_CELL_W,
+                DEFAULT_CELL_H
         );
         cellSelector = new CellSelector(
-            2*DEFAULT_CELL_W,
-            2*DEFAULT_CELL_H,
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            Color.DARKGRAY
+                2 * DEFAULT_CELL_W,
+                2 * DEFAULT_CELL_H,
+                DEFAULT_CELL_W,
+                DEFAULT_CELL_H,
+                Color.DARKGRAY
         );
         coordsCell = new CoordsCell(
-            0,
-            0,
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            Color.GRAY
+                0,
+                0,
+                DEFAULT_CELL_W,
+                DEFAULT_CELL_H,
+                Color.GRAY
         );
         firstCol = new FirstCol(
-            0,
-            DEFAULT_CELL_H,
-            DEFAULT_CELL_W,
-            CANVAS_H-2*DEFAULT_CELL_H-4,
-            Color.SILVER
+                0,
+                DEFAULT_CELL_H,
+                DEFAULT_CELL_W,
+                CANVAS_H - 2 * DEFAULT_CELL_H - 4,
+                Color.SILVER
         );
         firstRow = new FirstRow(
-            DEFAULT_CELL_W,
-            0,
-            CANVAS_W-DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            Color.SILVER
+                DEFAULT_CELL_W,
+                0,
+                CANVAS_W - DEFAULT_CELL_W,
+                DEFAULT_CELL_H,
+                Color.SILVER
         );
         infoBar = new InfoBar(
-            0,
-            CANVAS_H-DEFAULT_CELL_H,
-            CANVAS_W,
-            DEFAULT_CELL_H,
-            DEFAULT_CELL_C
+                0,
+                CANVAS_H - DEFAULT_CELL_H,
+                CANVAS_W,
+                DEFAULT_CELL_H,
+                DEFAULT_CELL_C
         );
         statusBar = new StatusBar(
-            0,
-            CANVAS_H-2*DEFAULT_CELL_H-4,
-            CANVAS_W,
-            DEFAULT_CELL_H+4,
-            Color.GRAY
+                0,
+                CANVAS_H - 2 * DEFAULT_CELL_H - 4,
+                CANVAS_W,
+                DEFAULT_CELL_H + 4,
+                Color.GRAY
         );
 
         command = new Command("");
