@@ -2,7 +2,7 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import static vimicalc.Main.isNumber;
+import static vimicalc.utils.Conversions.isNumber;
 
 abstract class Interpretable {
     protected String txt;
@@ -41,6 +41,10 @@ abstract class Interpretable {
 
     public void setTxt(String txt) {
         this.txt = txt;
+    }
+
+    public double interpret(Sheet sheet) {
+        return interpret(lexer(txt), sheet)[0].getVal();
     }
 
     public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet);

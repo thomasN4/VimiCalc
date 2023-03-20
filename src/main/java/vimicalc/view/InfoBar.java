@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.model.Cell;
 
-import static vimicalc.Main.isNumber;
+import static vimicalc.utils.Conversions.isNumber;
 
 public class InfoBar extends Visible {
 

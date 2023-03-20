@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 
-import static vimicalc.Main.toAlpha;
+import static vimicalc.utils.Conversions.toAlpha;
 
 public class FirstRow extends Visible {
     public FirstRow(int x, int y, int w, int h, Color c) {

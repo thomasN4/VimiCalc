@@ -35,7 +35,7 @@ public class Picture extends Visible {
                     c.txt(),
                     c.xCoord() * DCW - absX + 45,
                     c.yCoord() * DCH - absY + 16,
-                        DCW)
+                    DCW)
             );
         }
         isntReady = false;
@@ -50,11 +50,11 @@ public class Picture extends Visible {
                 c.xCoord() <= (absX + w + DCW) / DCW &&
                 c.yCoord() >= absY / DCH + 1 &&
                 c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (c.formula() != null)
+                if (c.formula() != null && !c.formula().getTxt().contains("matMult"))
                     visibleCells.add(new Cell(
                         c.xCoord(),
                         c.yCoord(),
-                        c.formula().interpret(sheet, false),
+                        c.formula().interpret(sheet),
                         c.formula()
                     ));
                 else visibleCells.add(c);

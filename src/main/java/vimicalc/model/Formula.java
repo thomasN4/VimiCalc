@@ -34,7 +34,7 @@ public class Formula extends Interpretable {
                 sheet.getCells().forEach(c -> {
                     if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
                         if (c.formula() != null)
-                            mat[I][J] = c.formula().interpret(sheet, false);
+                            mat[I][J] = c.formula().interpret(sheet);
                         else if (!c.txt().equals(""))
                             mat[I][J] = c.value();
                         else
@@ -69,7 +69,7 @@ public class Formula extends Interpretable {
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                     c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
                 if (c.formula() != null)
-                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet, false));
+                    vectorLong[i++] = new Lexeme(c.formula().interpret(sheet));
                 else if (c.txt().equals(""))
                     vectorLong[i++] = new Lexeme("I");
                 else
@@ -131,19 +131,6 @@ public class Formula extends Interpretable {
             },
             sheet
         ))[0];
-    }
-
-    public double interpret(Sheet sheet, boolean createCell) {
-        double result = interpret(lexer(txt), sheet)[0].getVal();
-        if (createCell) {
-            sheet.addCell(new Cell(
-                sCX,
-                sCY,
-                result,
-                new Formula(txt, sCX, sCY)
-            ));
-        }
-        return result;
     }
 
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
@@ -259,7 +246,7 @@ public class Formula extends Interpretable {
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
         if (c.formula() != null) {
-            return new Lexeme(c.formula().interpret(sheet, false));
+            return new Lexeme(c.formula().interpret(sheet));
         }
         else if (c.txt().equals(""))
             return new Lexeme("I");
@@ -301,17 +288,14 @@ public class Formula extends Interpretable {
     public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
-        double firstCellVal = 0;
 
         if (mat1.getWidth() != mat2.getHeight())
-            throw new Exception("Mismatch in the number of rows and columns.");
+            throw new Exception("There's a mismatch in the number of rows and columns.");
 
         for (int i = 0; i < mat1.getHeight(); i++) {
             for (int j = 0; j < mat2.getWidth(); j++) {
-                if (i == 0 && j == 0) {
-                    firstCellVal = forOnePos(mat1.getRow(0), mat2.getCol(0));
+                if (i == 0 && j == 0)
                     continue;
-                }
                 sheet.addCell(new Cell(
                     sCX + j,
                     sCY + i,
@@ -320,7 +304,7 @@ public class Formula extends Interpretable {
             }
         }
 
-        return firstCellVal;
+        return forOnePos(mat1.getRow(0), mat2.getCol(0));
     }
     public double forOnePos(double[] row, double[] col) {
         double v = 0;
