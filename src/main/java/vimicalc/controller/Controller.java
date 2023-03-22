@@ -232,7 +232,13 @@ public class Controller implements Initializable {
                         cellSelector.readCell(camera.picture.data());
                     }
                     case A, I -> {
+                        cellSelector.setSelectedCell(new Cell(
+                                cellSelector.getXCoord(),
+                                cellSelector.getYCoord(),
+                                cellSelector.getSelectedCell().txt()
+                        ));
                         recordedCell.add(cellSelector.getSelectedCell());
+                        cellSelector.readCell(camera.picture.data());
                         statusBar.setMode(MODE[2]);
                         if (cellSelector.getSelectedCell().value() != 0) {
                             cellSelector.getSelectedCell().setTxt(String.valueOf(
