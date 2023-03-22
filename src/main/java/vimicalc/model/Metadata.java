@@ -1,5 +1,6 @@
 package vimicalc.model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,14 +28,13 @@ public class Metadata {
     public void generate(int camAbsX, int camAbsY) {
         this.camAbsX = camAbsX;
         this.camAbsY = camAbsY;
-        cellAbsXs = new int[picW];
-        cellAbsYs = new int[picH];
+        int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
         int currAbsX = 0, currAbsY = 0, xC, yC;
         AtomicInteger xOffset = new AtomicInteger(),
                       yOffset = new AtomicInteger();  // idk Java refuse que j'utilise un simple int
         boolean firstXCFound = false, firstYCFound = false;
 
-        for (xC = 1; currAbsX <= camAbsX + picW; xC++) {
+        for (xC = 1; currAbsX <= camAbsX + picW + cellAbsXsLong[xC]-cellAbsXsLong[xC-1]; xC++) {
             xOffset.set(0);
             int finalXC = xC;
             xOffsets.forEach((k, v) -> {
@@ -46,13 +46,13 @@ public class Metadata {
                 firstXCFound = true;
             }
             currAbsX += DCW + xOffset.get();
-            cellAbsXs[xC] = currAbsX;
+            cellAbsXsLong[xC] = currAbsX;
         }
         lastXC = xC - 1;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
-        for (yC = 1; currAbsY <= camAbsY + picH; yC++) {
+        for (yC = 1; currAbsY <= camAbsY + picH + cellAbsYsLong[xC]-cellAbsYsLong[xC-1]; yC++) {
             yOffset.set(0);
             int finalYC = yC;
             yOffsets.forEach((k, v) -> {
@@ -64,11 +64,23 @@ public class Metadata {
                 firstYCFound = true;
             }
             currAbsY += DCH + yOffset.get();
-            cellAbsYs[yC] = currAbsY;
+            cellAbsYsLong[yC] = currAbsY;
         }
         lastYC = yC - 1;
+
+        cellAbsXs = new int[lastXC];
+        System.arraycopy(cellAbsXsLong, 0, cellAbsXs, 0, lastXC);
+        cellAbsYs = new int[lastYC];
+        System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, lastYC);
+
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
+        System.out.println("CellAbsXs : {");
+        System.out.println("\t" + Arrays.toString(cellAbsXs));
+        System.out.println('}');
+        System.out.println("CellAbsYs : {");
+        System.out.println("\t" + Arrays.toString(cellAbsYs));
+        System.out.println('}');
     }
 
     // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}

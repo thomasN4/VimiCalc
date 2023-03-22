@@ -532,9 +532,9 @@ public class Controller implements Initializable {
 
     public static void reset() {
         HashMap<Integer, Integer> yOffsets = new HashMap<>();
-        yOffsets.put(3, 6);
+//        yOffsets.put(3, 6);
         HashMap<Integer, Integer> xOffsets = new HashMap<>();
-        xOffsets.put(4, 7);
+//        xOffsets.put(4, 7);
 
         camera = new Camera(
             DEFAULT_CELL_W,
