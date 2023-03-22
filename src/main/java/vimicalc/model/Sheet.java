@@ -14,8 +14,18 @@ public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
 
+    private Metadata currPicMetaData;
+
     public Sheet() {
         cells = new ArrayList<>();
+    }
+
+    public Metadata getCurrPicMetaData() {
+        return currPicMetaData;
+    }
+
+    public void setCurrPicMetaData(Metadata currPicMetaData) {
+        this.currPicMetaData = currPicMetaData;
     }
 
     public ArrayList<Cell> getCells() {

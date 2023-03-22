@@ -136,6 +136,7 @@ public class Formula extends Interpretable {
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
         byte reduction;
         Lexeme reduced;
+
         for (int i = 0; args.length > 1; i++) {
             reduction = 0;
             reduced = null;
@@ -235,6 +236,7 @@ public class Formula extends Interpretable {
                 }
             }
         }
+
         if (!args[0].isFunction())
             return args;
         else if (args[0].getFunc().charAt(0) == '-')

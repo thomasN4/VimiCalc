@@ -5,9 +5,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
+import vimicalc.model.Metadata;
 import vimicalc.model.Sheet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Picture extends Visible {
     private final int DCW;  // 'C' pour "Cell"
@@ -15,14 +17,23 @@ public class Picture extends Visible {
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
 
-    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH) {
+    private final Metadata metadata;
+
+    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH,
+                   int camAbsX, int camAbsY, HashMap<Integer, Integer> xOffsets,
+                   HashMap<Integer, Integer> yOffsets) {
         super(x, y, w, h, c);
         this.DCW = DCW;
         this.DCH = DCH;
+        metadata = new Metadata(camAbsX, camAbsY, xOffsets, yOffsets, w, h, DCW, DCH);
     }
 
     public ArrayList<Cell> data() {
         return visibleCells;
+    }
+
+    public Metadata metadata() {
+        return metadata;
     }
 
     public void resend(GraphicsContext gc, int absX, int absY) {
@@ -44,12 +55,13 @@ public class Picture extends Visible {
     public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCells, int absX, int absY) {
         visibleCells = new ArrayList<>();
         super.draw(gc);
+        metadata.generate(absX, absY);
 
         for (Cell c : sheet.getCells()) {
-            if (c.xCoord() >= absX / DCW + 1 &&
-                c.xCoord() <= (absX + w + DCW) / DCW &&
-                c.yCoord() >= absY / DCH + 1 &&
-                c.yCoord() <= (absY + h + DCH) / DCH) {
+            if (c.xCoord() >= metadata.getFirstXC() &&
+                c.xCoord() <= metadata.getLastXC() &&
+                c.yCoord() >= metadata.getFirstYC() &&
+                c.yCoord() <= metadata.getLastYC()) {
                 if (c.formula() != null && !c.formula().getTxt().contains("matMult"))
                     visibleCells.add(new Cell(
                         c.xCoord(),

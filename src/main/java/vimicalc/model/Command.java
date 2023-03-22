@@ -27,6 +27,14 @@ public class Command extends Interpretable {
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
+            case "resCol" -> sheet.getCurrPicMetaData().generate(
+                new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
+                true
+            );
+            case "resRow" -> sheet.getCurrPicMetaData().generate(
+                new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
+                false
+            );
             case "w" -> writeFile(sheet, command);
             case "wq" -> {
                 writeFile(sheet, command);
