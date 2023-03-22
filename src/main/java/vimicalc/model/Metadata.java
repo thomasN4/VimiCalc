@@ -75,6 +75,7 @@ public class Metadata {
         lastYC = yC;
     }
 
+    // newOffset = {coord (X or Y, conditional on isXAxis), offset}
     public void generate(int[] newOffset, boolean isXAxis) {
         if (isXAxis)
             xOffsets.put(newOffset[0], newOffset[1]);
