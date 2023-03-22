@@ -62,6 +62,7 @@ public class Controller implements Initializable {
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1)
             cellSelector.updateXCoord(-1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < cellSelector.getW()) {
@@ -85,6 +86,7 @@ public class Controller implements Initializable {
     }
     private static void moveDown() {
         cellSelector.updateYCoord(1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(cellSelector.getH());
             if (cellSelector.getY() > camera.picture.getH()) {
@@ -106,6 +108,7 @@ public class Controller implements Initializable {
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1)
             cellSelector.updateYCoord(-1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != cellSelector.getH()) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < cellSelector.getH()) {
@@ -129,6 +132,7 @@ public class Controller implements Initializable {
     }
     private static void moveRight() {
         cellSelector.updateXCoord(1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(cellSelector.getW());
             if (cellSelector.getX() > camera.picture.getW()) {

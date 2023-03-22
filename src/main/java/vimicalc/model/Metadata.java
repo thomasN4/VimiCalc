@@ -27,55 +27,51 @@ public class Metadata {
     public void generate(int camAbsX, int camAbsY) {
         this.camAbsX = camAbsX;
         this.camAbsY = camAbsY;
-
         cellAbsXs = new int[picW];
-        int currCellWidth;
-        int maxAbsX = 0;
-        AtomicInteger xOffset = new AtomicInteger();  // idk Java refuse que j'utilise un simple int
-        int xC;
-        boolean firstXCFound = false;
-        for (xC = 1; maxAbsX < camAbsX + picW; xC++) {
+        cellAbsYs = new int[picH];
+        int currAbsX = 0, currAbsY = 0, xC, yC;
+        AtomicInteger xOffset = new AtomicInteger(),
+                      yOffset = new AtomicInteger();  // idk Java refuse que j'utilise un simple int
+        boolean firstXCFound = false, firstYCFound = false;
+
+        for (xC = 1; currAbsX <= camAbsX + picW; xC++) {
             xOffset.set(0);
             int finalXC = xC;
             xOffsets.forEach((k, v) -> {
                 if (k == finalXC)
                     xOffset.set(v);
             });
-            currCellWidth = DCW + xOffset.get();
-            maxAbsX += currCellWidth;
-            cellAbsXs[xC] = maxAbsX;
-            if (maxAbsX >= camAbsX && !firstXCFound) {
-                firstXC = xC;
+            if (currAbsX > camAbsX && !firstXCFound) {
+                firstXC = xC-1;
                 firstXCFound = true;
             }
+            currAbsX += DCW + xOffset.get();
+            cellAbsXs[xC] = currAbsX;
         }
-        lastXC = xC;
+        lastXC = xC - 1;
+        System.out.println("firstXC = " + firstXC);
+        System.out.println("lastXC = " + lastXC);
 
-        cellAbsYs = new int[picH];
-        int currCellHeigth;
-        int maxAbsY = 0;
-        AtomicInteger yOffset = new AtomicInteger();
-        int yC;
-        boolean firstYCFound = false;
-        for (yC = 1; maxAbsY < camAbsY + picH; yC++) {
+        for (yC = 1; currAbsY <= camAbsY + picH; yC++) {
             yOffset.set(0);
             int finalYC = yC;
             yOffsets.forEach((k, v) -> {
                 if (k == finalYC)
                     yOffset.set(v);
             });
-            currCellHeigth = DCH + yOffset.get();
-            maxAbsY += currCellHeigth;
-            cellAbsYs[yC] = maxAbsY;
-            if (maxAbsY >= camAbsY && !firstYCFound) {
-                firstYC = yC;
+            if (currAbsY > camAbsY && !firstYCFound) {
+                firstYC = yC-1;
                 firstYCFound = true;
             }
+            currAbsY += DCH + yOffset.get();
+            cellAbsYs[yC] = currAbsY;
         }
-        lastYC = yC;
+        lastYC = yC - 1;
+        System.out.println("firstYC = " + firstYC);
+        System.out.println("lastYC = " + lastYC);
     }
 
-    // newOffset = {coord (X or Y, conditional on isXAxis), offset}
+    // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}
     public void generate(int[] newOffset, boolean isXAxis) {
         if (isXAxis)
             xOffsets.put(newOffset[0], newOffset[1]);
@@ -107,6 +103,7 @@ public class Metadata {
     public int[] getCellAbsYs() {
         return cellAbsYs;
     }
+
     public int getPicW() {
         return picW;
     }
