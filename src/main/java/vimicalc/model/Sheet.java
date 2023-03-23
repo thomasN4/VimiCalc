@@ -102,6 +102,7 @@ public class Sheet {
 
     public void evalDependencies(Dependency d) {
         d.setToBeEvaluated(true);
+        System.out.println(d.log());
         if (d.isReadyToBeEvaluated()) {
             d.evaluate(this);
         }
@@ -259,6 +260,7 @@ class Dependency {
     public String log() {
         return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
                 "toBeEvaluated = " + toBeEvaluated + "\n" +
+                "readyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
                 "\tModifiers: {\n" +
                 "\t\t" + modifiers + "\n" +
                 "\t}\n" +
