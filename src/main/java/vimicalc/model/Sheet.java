@@ -269,8 +269,8 @@ class DependencyRelation {
 
     public boolean isReadyToBeEvaluated() {
         boolean b = true;
-        for (DependencyRelation m : dependeds) {
-            if (!m.isToBeEvaluated()) {
+        for (DependencyRelation d : dependeds) {
+            if (!d.isToBeEvaluated()) {
                 b = false;
                 break;
             }
@@ -287,6 +287,18 @@ class DependencyRelation {
                 c.yCoord(),
                 c.formula().interpret(sheet),
                 c.formula()
+            ));
+        else if (c.txt().equals(""))
+            sheet.getCells().add(new Cell(
+                c.xCoord(),
+                c.yCoord(),
+                ""
+            ));
+        else if (!c.txt().equals(""))
+            sheet.getCells().add(new Cell(
+                c.xCoord(),
+                c.yCoord(),
+                c.value()
             ));
         else
             sheet.getCells().add(new Cell(
