@@ -77,11 +77,12 @@ public class Sheet {
     }
 
     public void addDependency(int xCoord, int yCoord) {
-        try {
-            dependencies.add(findDependency(xCoord, yCoord));
-        } catch (Exception ignored) {
-            System.out.println("Dependency already added.");
+        if (findDependency(xCoord, yCoord) == null) {
+            dependencies.add(new Dependency(xCoord, yCoord));
+            dependencies.forEach(d -> System.out.println(d.log()));
         }
+        else
+            System.out.println("Dependency already added.");
     }
 
     public void addCell(Cell cell) {
@@ -202,16 +203,6 @@ class Dependency {
         toBeEvaluated = false;
         dependents = new ArrayList<>();
         modifiers = new ArrayList<>();
-        System.out.println(
-            "Dependency: " + xCoord + ", " + yCoord + " {\n" +
-            "\tModifiers: {\n" +
-            "\t\t" + modifiers +
-            "\t}" +
-            "\tDependents: {\n" +
-            "\t\t" + dependents +
-            "\t}" +
-            "}"
-        );
     }
 
     public int getxCoord() {
@@ -222,7 +213,7 @@ class Dependency {
         return yCoord;
     }
 
-    public void addModifier(Cell cell) {
+    public void addModifier(@NotNull Cell cell) {
         modifiers.removeIf(m ->
             m.getxCoord() == cell.xCoord() && m.getyCoord() == cell.yCoord()
         );
@@ -254,7 +245,7 @@ class Dependency {
         return toBeEvaluated & b;
     }
 
-    public void evaluate(Sheet sheet) {
+    public void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
         sheet.addCell(new Cell(
             c.xCoord(),
@@ -262,6 +253,18 @@ class Dependency {
             c.formula().interpret(sheet),
             c.formula()
         ));
-        toBeEvaluated = true;
+        toBeEvaluated = false;
+    }
+
+    public String log() {
+        return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
+                "toBeEvaluated = " + toBeEvaluated + "\n" +
+                "\tModifiers: {\n" +
+                "\t\t" + modifiers + "\n" +
+                "\t}\n" +
+                "\tDependents: {\n" +
+                "\t\t" + dependents + "\n" +
+                "\t}\n" +
+                "}";
     }
 }
