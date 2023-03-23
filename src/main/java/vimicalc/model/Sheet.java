@@ -44,6 +44,7 @@ public class Sheet {
             xCoord = 0;
             yCoord = 0;
         }
+
         checkForDependencies(xCoord, yCoord);
     }
 
@@ -132,6 +133,7 @@ public class Sheet {
                 break;
             }
         }
+
         cells.removeIf(c -> c.txt().equals("t3mp"));
         System.out.println("All of the dependencies:");
         dependencies.forEach(d -> System.out.println(d.log()));
@@ -141,14 +143,12 @@ public class Sheet {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        for (DependencyRelation e : d.getDependents()) {
-            if (e.isToBeEvaluated())
-                evalDependencies(e);
-        }
         for (DependencyRelation e : dependencies) {
             if (e.isReadyToBeEvaluated())
-                d.evaluate(this);
+                e.evaluate(this);
         }
+        for (DependencyRelation e : d.getDependents())
+            evalDependencies(e);
     }
 
     public void writeFile() throws IOException {
@@ -305,10 +305,10 @@ class DependencyRelation {
         return "DependencyRelation: " + xCoord + ", " + yCoord + " {\n" +
                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
-               "\tDependeds: {\n" +
+               "\tdependeds: {\n" +
                "\t\t" + dependeds + "\n" +
                "\t}\n" +
-               "\tDependents: {\n" +
+               "\tdependents: {\n" +
                "\t\t" + dependents + "\n" +
                "\t}\n" +
                "}";
