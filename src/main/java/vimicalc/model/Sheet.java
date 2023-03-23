@@ -92,6 +92,7 @@ public class Sheet {
     }
 
     public void checkForDependencies(int x, int y) {
+        System.out.println("Checking for dependencies...");
         for (Dependency d : dependencies) {
             if (d.getxCoord() == x && d.getyCoord() == y) {
                 evalDependencies(d);
@@ -101,14 +102,16 @@ public class Sheet {
     }
 
     public void evalDependencies(Dependency d) {
+        System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        if (d.isReadyToBeEvaluated()) {
-            d.evaluate(this);
-        }
         for (Dependency e : d.getDependents()) {
             if (e.isToBeEvaluated())
                 evalDependencies(e);
+        }
+        for (Dependency e : dependencies) {
+            if (e.isReadyToBeEvaluated())
+                d.evaluate(this);
         }
     }
 
@@ -169,13 +172,13 @@ public class Sheet {
                 int xCoord = Integer.parseInt(cellItems[0]);
                 int yCoord = Integer.parseInt(cellItems[1]);
                 if (!cellItems[3].equals("null"))
-                    cells.add(new Cell(
+                    addCell(new Cell(
                         xCoord,
                         yCoord,
                         Double.parseDouble(cellItems[2]),
                         new Formula(cellItems[3], xCoord, yCoord)
                 ));
-                else cells.add(new Cell(
+                else addCell(new Cell(
                     xCoord,
                     yCoord,
                     cellItems[2]
