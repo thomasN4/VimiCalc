@@ -13,7 +13,7 @@ public class Sheet {
 
     private ArrayList<Cell> cells;
     private File file;
-    private ArrayList<Dependency> dependencies;
+    private final ArrayList<Dependency> dependencies;
 
     public Sheet() {
         cells = new ArrayList<>();
@@ -57,12 +57,40 @@ public class Sheet {
         return found;
     }
 
+    public Cell findCell(int xCoord, int yCoord) {
+        Cell found = new Cell(xCoord, yCoord);
+
+        for (Cell c : getCells())
+            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
+                found = c;
+
+        System.out.println("Found cell: "+ found);
+        return found;
+    }
+
+    public Dependency findDependency(int x, int y) {
+        for (Dependency d : dependencies) {
+            if (d.getxCoord() == x && d.getyCoord() == y)
+                return d;
+        }
+        return null;
+    }
+
+    public void addDependency(int xCoord, int yCoord) {
+        try {
+            dependencies.add(findDependency(xCoord, yCoord));
+        } catch (Exception ignored) {
+            System.out.println("Dependency already added.");
+        }
+    }
+
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
+        checkForDependencies(cell.xCoord(), cell.yCoord());
     }
 
-    public void checkDependencies(int x, int y) {
+    public void checkForDependencies(int x, int y) {
         for (Dependency d : dependencies) {
             if (d.getxCoord() == x && d.getyCoord() == y) {
                 evalDependencies(d);
@@ -72,17 +100,11 @@ public class Sheet {
     }
 
     public void evalDependencies(Dependency d) {
-        boolean allDependentsEvaluated = true;
-        for (Dependency e : d.modifiers) {
-           if (e.isToBeEvaluated()) {
-               allDependentsEvaluated = false;
-               break;
-           }
-        }
-        if (allDependentsEvaluated) {
+        d.setToBeEvaluated(true);
+        if (d.isReadyToBeEvaluated()) {
             d.evaluate(this);
         }
-        for (Dependency e : d.dependents) {
+        for (Dependency e : d.getDependents()) {
             if (e.isToBeEvaluated())
                 evalDependencies(e);
         }
@@ -169,17 +191,17 @@ public class Sheet {
 }
 
 class Dependency {
-    private final Cell cell;
     private final int xCoord, yCoord;
     private boolean toBeEvaluated;
-    ArrayList<Dependency> dependents;
-    ArrayList<Dependency> modifiers;
+    private final ArrayList<Dependency> dependents;
+    private final ArrayList<Dependency> modifiers;
 
-    public Dependency(Cell cell) {
-        this.cell = cell;
-        xCoord = cell.xCoord();
-        yCoord = cell.yCoord();
+    public Dependency(int xCoord, int yCoord) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
         toBeEvaluated = false;
+        dependents = new ArrayList<>();
+        modifiers = new ArrayList<>();
     }
 
     public int getxCoord() {
@@ -190,20 +212,11 @@ class Dependency {
         return yCoord;
     }
 
-    public void addDependent(Cell cell) {
-        dependents.removeIf(d ->
-            d.getxCoord() == cell.xCoord() && d.getyCoord() == cell.yCoord()
-        );
-        Dependency dependent = new Dependency(cell);
-        dependent.modifiers.add(this);
-        dependents.add(dependent);
-    }
-
     public void addModifier(Cell cell) {
         modifiers.removeIf(m ->
             m.getxCoord() == cell.xCoord() && m.getyCoord() == cell.yCoord()
         );
-        Dependency modifier = new Dependency(cell);
+        Dependency modifier = new Dependency(cell.xCoord(), cell.yCoord());
         modifier.dependents.add(this);
         modifiers.add(modifier);
     }
@@ -212,12 +225,33 @@ class Dependency {
         return toBeEvaluated;
     }
 
+    public ArrayList<Dependency> getDependents() {
+        return dependents;
+    }
+
     public void setToBeEvaluated(boolean toBeEvaluated) {
         this.toBeEvaluated = toBeEvaluated;
     }
 
+    public boolean isReadyToBeEvaluated() {
+        boolean b = true;
+        for (Dependency m : modifiers) {
+            if (!m.isToBeEvaluated()) {
+                b = false;
+                break;
+            }
+        }
+        return toBeEvaluated & b;
+    }
+
     public void evaluate(Sheet sheet) {
-        cell.setValue(cell.formula().interpret(sheet));
+        Cell c = sheet.findCell(xCoord, yCoord);
+        sheet.addCell(new Cell(
+            c.xCoord(),
+            c.yCoord(),
+            c.formula().interpret(sheet),
+            c.formula()
+        ));
         toBeEvaluated = true;
     }
 }

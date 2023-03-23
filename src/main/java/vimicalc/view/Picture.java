@@ -45,22 +45,12 @@ public class Picture extends Visible {
         visibleCells = new ArrayList<>();
         super.draw(gc);
 
-        for (Cell c : sheet.getCells()) {
+        for (Cell c : sheet.getCells())
             if (c.xCoord() >= absX / DCW + 1 &&
                 c.xCoord() <= (absX + w + DCW) / DCW &&
                 c.yCoord() >= absY / DCH + 1 &&
-                c.yCoord() <= (absY + h + DCH) / DCH) {
-                if (c.formula() != null && !c.formula().getTxt().contains("matMult"))
-//                    visibleCells.add(new Cell(
-//                        c.xCoord(),
-//                        c.yCoord(),
-//                        c.formula().interpret(sheet),
-//                        c.formula()
-//                    ));
-                    c.setValue(c.formula().interpret(sheet));
-                else visibleCells.add(c);
-            }
-        }
+                c.yCoord() <= (absY + h + DCH) / DCH)
+                    visibleCells.add(c);
 
         gc.setFill(Color.DARKGRAY);
         selectedCells.forEach(c -> {
