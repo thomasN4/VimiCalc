@@ -100,6 +100,7 @@ public class Sheet {
             dependencies.add(new DependencyRelation(xCoord, yCoord));
         else
             System.out.println("DependencyRelation already added.");
+        System.out.println("All of the dependencies:");
         dependencies.forEach(d -> System.out.println(d.log()));
     }
 
@@ -112,6 +113,7 @@ public class Sheet {
         }
         else
             System.out.println("DependencyRelation already added.");
+        System.out.println("All of the dependencies:");
         dependencies.forEach(d -> System.out.println(d.log()));
     }
 
@@ -131,6 +133,7 @@ public class Sheet {
             }
         }
         cells.removeIf(c -> c.txt().equals("t3mp"));
+        System.out.println("All of the dependencies:");
         dependencies.forEach(d -> System.out.println(d.log()));
     }
 
@@ -292,28 +295,17 @@ class DependencyRelation {
             sheet.getCells().add(new Cell(
                 c.xCoord(),
                 c.yCoord(),
-                ""
-            ));
-        else if (!c.txt().equals(""))
-            sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
-                c.value()
-            ));
-        else
-            sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
                 "t3mp"
             ));
         toBeEvaluated = false;
+        System.out.println("Evaluating dependency " + xCoord + ", " + yCoord);
     }
 
     public String log() {
         return "DependencyRelation: " + xCoord + ", " + yCoord + " {\n" +
                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
-               "\tModifiers: {\n" +
+               "\tDependeds: {\n" +
                "\t\t" + dependeds + "\n" +
                "\t}\n" +
                "\tDependents: {\n" +
