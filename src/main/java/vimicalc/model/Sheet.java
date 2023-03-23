@@ -202,6 +202,16 @@ class Dependency {
         toBeEvaluated = false;
         dependents = new ArrayList<>();
         modifiers = new ArrayList<>();
+        System.out.println(
+            "Dependency: " + xCoord + ", " + yCoord + " {\n" +
+            "\tModifiers: {\n" +
+            "\t\t" + modifiers +
+            "\t}" +
+            "\tDependents: {\n" +
+            "\t\t" + dependents +
+            "\t}" +
+            "}"
+        );
     }
 
     public int getxCoord() {
