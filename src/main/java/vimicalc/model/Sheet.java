@@ -26,6 +26,25 @@ public class Sheet {
 
     public void deleteCell(String coords) {
         cells.remove(findCell(coords));
+
+        StringBuilder coordX = new StringBuilder(),
+                coordY = new StringBuilder();
+
+        for (int i = 0; i < coords.length(); i++) {
+            if (coords.charAt(i) > 64)
+                coordX.append(coords.charAt(i));
+            else coordY.append(coords.charAt(i));
+        }
+
+        int xCoord, yCoord;
+        try {
+            xCoord = fromAlpha(coordX.toString());
+            yCoord = Integer.parseInt(coordY.toString());
+        } catch (Exception ignored) {
+            xCoord = 0;
+            yCoord = 0;
+        }
+        checkForDependencies(xCoord, yCoord);
     }
 
     public Cell findCell(@NotNull String coords) {
@@ -85,23 +104,36 @@ public class Sheet {
             System.out.println("Dependency already added.");
     }
 
+    public void addModifier(int xCoord, int yCoord, Dependency dependent) {
+        Dependency modifier = new Dependency(xCoord, yCoord);
+        dependent.getModifiers().removeIf(m ->
+            m.getxCoord() == modifier.getxCoord() && m.getyCoord() == modifier.getyCoord()
+        );
+        modifier.getDependents().add(dependent);
+        dependent.getModifiers().add(modifier);
+        dependencies.add(modifier);
+    }
+
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
         checkForDependencies(cell.xCoord(), cell.yCoord());
     }
 
-    public void checkForDependencies(int x, int y) {
+    public void checkForDependencies(int xCoord, int yCoord) {
         System.out.println("Checking for dependencies...");
+        dependencies.forEach(d -> System.out.println(d.log()));
         for (Dependency d : dependencies) {
-            if (d.getxCoord() == x && d.getyCoord() == y) {
+            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord) {
                 evalDependencies(d);
                 break;
             }
         }
+        cells.removeIf(c -> c.txt().equals("t3mp"));
+        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
-    public void evalDependencies(Dependency d) {
+    public void evalDependencies(@NotNull Dependency d) {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
@@ -171,12 +203,13 @@ public class Sheet {
                 pos = 0;
                 int xCoord = Integer.parseInt(cellItems[0]);
                 int yCoord = Integer.parseInt(cellItems[1]);
+                Formula f = new Formula(cellItems[3], xCoord, yCoord);
                 if (!cellItems[3].equals("null"))
                     addCell(new Cell(
                         xCoord,
                         yCoord,
-                        Double.parseDouble(cellItems[2]),
-                        new Formula(cellItems[3], xCoord, yCoord)
+                        f.interpret(this),
+                        f
                 ));
                 else addCell(new Cell(
                     xCoord,
@@ -217,13 +250,8 @@ class Dependency {
         return yCoord;
     }
 
-    public void addModifier(@NotNull Cell cell) {
-        modifiers.removeIf(m ->
-            m.getxCoord() == cell.xCoord() && m.getyCoord() == cell.yCoord()
-        );
-        Dependency modifier = new Dependency(cell.xCoord(), cell.yCoord());
-        modifier.dependents.add(this);
-        modifiers.add(modifier);
+    public ArrayList<Dependency> getModifiers() {
+        return modifiers;
     }
 
     public boolean isToBeEvaluated() {
@@ -251,19 +279,26 @@ class Dependency {
 
     public void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
-        sheet.addCell(new Cell(
-            c.xCoord(),
-            c.yCoord(),
-            c.formula().interpret(sheet),
-            c.formula()
-        ));
+        if (c.formula() != null)
+            sheet.addCell(new Cell(
+                c.xCoord(),
+                c.yCoord(),
+                c.formula().interpret(sheet),
+                c.formula()
+            ));
+        else
+            sheet.addCell(new Cell(
+                c.xCoord(),
+                c.yCoord(),
+                "t3mp"
+            ));
         toBeEvaluated = false;
     }
 
     public String log() {
         return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
-                "toBeEvaluated = " + toBeEvaluated + "\n" +
-                "readyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
+                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
+                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
                 "\tModifiers: {\n" +
                 "\t\t" + modifiers + "\n" +
                 "\t}\n" +

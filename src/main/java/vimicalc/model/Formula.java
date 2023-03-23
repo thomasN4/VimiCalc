@@ -34,11 +34,11 @@ public class Formula extends Interpretable {
                 final int J = j;
                 sheet.getCells().forEach(c -> {
                     if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
-                        if (!c.txt().equals(""))
+                        if (!c.txt().equals("") || c.txt().equals("t3mp"))
                             mat[I][J] = c.value();
                         else
                             mat[I][J] = 0;
-                        sheet.findDependency(sCX, sCY).addModifier(c);
+                        sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
                     }
                 });
             }
@@ -69,11 +69,11 @@ public class Formula extends Interpretable {
         for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                 c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
-                if (c.txt().equals(""))
+                if (c.txt().equals("") || c.txt().equals("t3mp"))
                     vectorLong[i++] = new Lexeme("I");
                 else
                     vectorLong[i++] = new Lexeme(c.value());
-                sheet.findDependency(sCX, sCY).addModifier(c);
+                sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
             }
 
         Lexeme[] vector = new Lexeme[i];
@@ -246,8 +246,9 @@ public class Formula extends Interpretable {
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
         sheet.addDependency(sCX, sCY);
-        sheet.findDependency(sCX, sCY).addModifier(c);
-        if (c.txt().equals(""))
+        sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+
+        if (c.txt().equals("") || c.txt().equals("t3mp"))
             return new Lexeme("I");
         else
             return new Lexeme(c.value());
