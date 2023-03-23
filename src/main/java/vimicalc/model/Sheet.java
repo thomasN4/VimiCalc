@@ -45,7 +45,7 @@ public class Sheet {
             yCoord = 0;
         }
 
-        checkForDependencies(xCoord, yCoord);
+        checkForDependents(xCoord, yCoord);
     }
 
     public Cell findCell(@NotNull String coords) {
@@ -121,21 +121,22 @@ public class Sheet {
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        checkForDependencies(cell.xCoord(), cell.yCoord());
+        checkForDependents(cell.xCoord(), cell.yCoord());
     }
 
-    public void checkForDependencies(int xCoord, int yCoord) {
-        System.out.println("Checking for dependencies...");
+    public void checkForDependents(int xCoord, int yCoord) {
+        System.out.println("Checking for dependents...");
         dependencies.forEach(d -> System.out.println(d.log()));
         for (DependencyRelation d : dependencies) {
-            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord) {
+            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord &&
+                d.getDependents().size() != 0) {
                 evalDependencies(d);
                 break;
             }
         }
 
         cells.removeIf(c -> c.txt().equals("t3mp"));
-        System.out.println("All of the dependencies:");
+        System.out.println("All of the dependencies (result):");
         dependencies.forEach(d -> System.out.println(d.log()));
     }
 
@@ -298,7 +299,7 @@ class DependencyRelation {
                 "t3mp"
             ));
         toBeEvaluated = false;
-        System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord);
+        System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord + "...");
     }
 
     public String log() {
