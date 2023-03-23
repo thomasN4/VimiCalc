@@ -96,12 +96,11 @@ public class Sheet {
     }
 
     public void addDependent(int xCoord, int yCoord) {
-        if (findDependency(xCoord, yCoord) == null) {
+        if (findDependency(xCoord, yCoord) == null)
             dependencies.add(new DependencyRelation(xCoord, yCoord));
-            dependencies.forEach(d -> System.out.println(d.log()));
-        }
         else
             System.out.println("DependencyRelation already added.");
+        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
     public void addDepended(int xCoord, int yCoord, DependencyRelation dependent) {
@@ -110,10 +109,10 @@ public class Sheet {
             dependent.getDependeds().add(depended);
             depended.getDependents().add(dependent);
             dependencies.add(depended);
-            dependencies.forEach(d -> System.out.println(d.log()));
         }
         else
             System.out.println("DependencyRelation already added.");
+        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
     public void addCell(Cell cell) {
