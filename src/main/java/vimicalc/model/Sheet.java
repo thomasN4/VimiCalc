@@ -297,14 +297,14 @@ class Dependency {
 
     public String log() {
         return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
-                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
-                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
-                "\tModifiers: {\n" +
-                "\t\t" + modifiers + "\n" +
-                "\t}\n" +
-                "\tDependents: {\n" +
-                "\t\t" + dependents + "\n" +
-                "\t}\n" +
-                "}";
+               "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
+               "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
+               "\tModifiers: {\n" +
+               "\t\t" + modifiers + "\n" +
+               "\t}\n" +
+               "\tDependents: {\n" +
+               "\t\t" + dependents + "\n" +
+               "\t}\n" +
+               "}";
     }
 }
