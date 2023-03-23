@@ -279,15 +279,16 @@ class Dependency {
 
     public void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
+        sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
         if (c.formula() != null)
-            sheet.addCell(new Cell(
+            sheet.getCells().add(new Cell(
                 c.xCoord(),
                 c.yCoord(),
                 c.formula().interpret(sheet),
                 c.formula()
             ));
         else
-            sheet.addCell(new Cell(
+            sheet.getCells().add(new Cell(
                 c.xCoord(),
                 c.yCoord(),
                 "t3mp"
