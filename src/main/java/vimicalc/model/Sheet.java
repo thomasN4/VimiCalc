@@ -141,13 +141,13 @@ public class Sheet {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        for (DependencyRelation e : d.getDependents()) {
-            if (e.isToBeEvaluated())
-                evalDependencies(e);
-        }
         for (DependencyRelation e : dependencies) {
             if (e.isReadyToBeEvaluated())
                 d.evaluate(this);
+        }
+        for (DependencyRelation e : d.getDependents()) {
+            if (e.isToBeEvaluated())
+                evalDependencies(e);
         }
     }
 
@@ -273,7 +273,7 @@ class DependencyRelation {
     public boolean isReadyToBeEvaluated() {
         boolean b = true;
         for (DependencyRelation d : dependeds) {
-            if (!d.isToBeEvaluated()) {
+            if (d.isToBeEvaluated()) {
                 b = false;
                 break;
             }
@@ -286,15 +286,15 @@ class DependencyRelation {
         sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
         if (c.formula() != null)
             sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
+                xCoord,
+                yCoord,
                 c.formula().interpret(sheet),
                 c.formula()
             ));
         else if (c.txt().equals(""))
             sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
+                xCoord,
+                yCoord,
                 "t3mp"
             ));
         toBeEvaluated = false;
