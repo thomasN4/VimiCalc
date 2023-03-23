@@ -38,7 +38,7 @@ public class Formula extends Interpretable {
                             mat[I][J] = c.value();
                         else
                             mat[I][J] = 0;
-                        sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+                        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
                     }
                 });
             }
@@ -73,7 +73,7 @@ public class Formula extends Interpretable {
                     vectorLong[i++] = new Lexeme("I");
                 else
                     vectorLong[i++] = new Lexeme(c.value());
-                sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+                sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
             }
 
         Lexeme[] vector = new Lexeme[i];
@@ -246,7 +246,7 @@ public class Formula extends Interpretable {
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
         sheet.addDependency(sCX, sCY);
-        sheet.addModifier(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
 
         if (c.txt().equals("") || c.txt().equals("t3mp"))
             return new Lexeme("I");

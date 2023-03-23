@@ -13,7 +13,7 @@ public class Sheet {
 
     private ArrayList<Cell> cells;
     private File file;
-    private final ArrayList<Dependency> dependencies;
+    private final ArrayList<DependencyRelation> dependencies;
 
     public Sheet() {
         cells = new ArrayList<>();
@@ -87,8 +87,8 @@ public class Sheet {
         return found;
     }
 
-    public Dependency findDependency(int x, int y) {
-        for (Dependency d : dependencies) {
+    public DependencyRelation findDependency(int x, int y) {
+        for (DependencyRelation d : dependencies) {
             if (d.getxCoord() == x && d.getyCoord() == y)
                 return d;
         }
@@ -97,21 +97,21 @@ public class Sheet {
 
     public void addDependency(int xCoord, int yCoord) {
         if (findDependency(xCoord, yCoord) == null) {
-            dependencies.add(new Dependency(xCoord, yCoord));
+            dependencies.add(new DependencyRelation(xCoord, yCoord));
             dependencies.forEach(d -> System.out.println(d.log()));
         }
         else
-            System.out.println("Dependency already added.");
+            System.out.println("DependencyRelation already added.");
     }
 
-    public void addModifier(int xCoord, int yCoord, Dependency dependent) {
-        Dependency modifier = new Dependency(xCoord, yCoord);
-        dependent.getModifiers().removeIf(m ->
-            m.getxCoord() == modifier.getxCoord() && m.getyCoord() == modifier.getyCoord()
+    public void addDepended(int xCoord, int yCoord, DependencyRelation dependent) {
+        DependencyRelation depended = new DependencyRelation(xCoord, yCoord);
+        dependent.getDependeds().removeIf(d ->
+            d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()
         );
-        modifier.getDependents().add(dependent);
-        dependent.getModifiers().add(modifier);
-        dependencies.add(modifier);
+        depended.getDependents().add(dependent);
+        dependent.getDependeds().add(depended);
+        dependencies.add(depended);
     }
 
     public void addCell(Cell cell) {
@@ -123,7 +123,7 @@ public class Sheet {
     public void checkForDependencies(int xCoord, int yCoord) {
         System.out.println("Checking for dependencies...");
         dependencies.forEach(d -> System.out.println(d.log()));
-        for (Dependency d : dependencies) {
+        for (DependencyRelation d : dependencies) {
             if (d.getxCoord() == xCoord && d.getyCoord() == yCoord) {
                 evalDependencies(d);
                 break;
@@ -133,15 +133,15 @@ public class Sheet {
         dependencies.forEach(d -> System.out.println(d.log()));
     }
 
-    public void evalDependencies(@NotNull Dependency d) {
+    public void evalDependencies(@NotNull DependencyRelation d) {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        for (Dependency e : d.getDependents()) {
+        for (DependencyRelation e : d.getDependents()) {
             if (e.isToBeEvaluated())
                 evalDependencies(e);
         }
-        for (Dependency e : dependencies) {
+        for (DependencyRelation e : dependencies) {
             if (e.isReadyToBeEvaluated())
                 d.evaluate(this);
         }
@@ -228,18 +228,18 @@ public class Sheet {
     }
 }
 
-class Dependency {
+class DependencyRelation {
     private final int xCoord, yCoord;
     private boolean toBeEvaluated;
-    private final ArrayList<Dependency> dependents;
-    private final ArrayList<Dependency> modifiers;
+    private final ArrayList<DependencyRelation> dependents;
+    private final ArrayList<DependencyRelation> dependeds;
 
-    public Dependency(int xCoord, int yCoord) {
+    public DependencyRelation(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         toBeEvaluated = false;
         dependents = new ArrayList<>();
-        modifiers = new ArrayList<>();
+        dependeds = new ArrayList<>();
     }
 
     public int getxCoord() {
@@ -250,15 +250,15 @@ class Dependency {
         return yCoord;
     }
 
-    public ArrayList<Dependency> getModifiers() {
-        return modifiers;
+    public ArrayList<DependencyRelation> getDependeds() {
+        return dependeds;
     }
 
     public boolean isToBeEvaluated() {
         return toBeEvaluated;
     }
 
-    public ArrayList<Dependency> getDependents() {
+    public ArrayList<DependencyRelation> getDependents() {
         return dependents;
     }
 
@@ -268,7 +268,7 @@ class Dependency {
 
     public boolean isReadyToBeEvaluated() {
         boolean b = true;
-        for (Dependency m : modifiers) {
+        for (DependencyRelation m : dependeds) {
             if (!m.isToBeEvaluated()) {
                 b = false;
                 break;
@@ -297,11 +297,11 @@ class Dependency {
     }
 
     public String log() {
-        return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
+        return "DependencyRelation: " + xCoord + ", " + yCoord + " {\n" +
                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
                "\tModifiers: {\n" +
-               "\t\t" + modifiers + "\n" +
+               "\t\t" + dependeds + "\n" +
                "\t}\n" +
                "\tDependents: {\n" +
                "\t\t" + dependents + "\n" +
