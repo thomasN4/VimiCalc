@@ -127,17 +127,23 @@ public class Sheet {
     public void checkForDependents(int xCoord, int yCoord) {
         System.out.println("Checking for dependents...");
         dependencies.forEach(d -> System.out.println(d.log()));
+        boolean needsEvaluating = false;
         for (DependencyRelation d : dependencies) {
             if (d.getxCoord() == xCoord && d.getyCoord() == yCoord &&
                 d.getDependents().size() != 0) {
                 evalDependencies(d);
+                needsEvaluating = true;
                 break;
             }
         }
 
-        cells.removeIf(c -> c.txt().equals("t3mp"));
-        System.out.println("All of the dependencies (result):");
-        dependencies.forEach(d -> System.out.println(d.log()));
+        if (needsEvaluating) {
+            cells.removeIf(c -> c.txt().equals("t3mp"));
+            System.out.println("All of the dependencies (result):");
+            dependencies.forEach(d -> System.out.println(d.log()));
+        }
+        else
+            System.out.println("No evaluations done.");
     }
 
     public void evalDependencies(@NotNull DependencyRelation d) {
