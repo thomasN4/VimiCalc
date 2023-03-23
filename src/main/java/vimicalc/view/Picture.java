@@ -51,12 +51,13 @@ public class Picture extends Visible {
                 c.yCoord() >= absY / DCH + 1 &&
                 c.yCoord() <= (absY + h + DCH) / DCH) {
                 if (c.formula() != null && !c.formula().getTxt().contains("matMult"))
-                    visibleCells.add(new Cell(
-                        c.xCoord(),
-                        c.yCoord(),
-                        c.formula().interpret(sheet),
-                        c.formula()
-                    ));
+//                    visibleCells.add(new Cell(
+//                        c.xCoord(),
+//                        c.yCoord(),
+//                        c.formula().interpret(sheet),
+//                        c.formula()
+//                    ));
+                    c.setValue(c.formula().interpret(sheet));
                 else visibleCells.add(c);
             }
         }

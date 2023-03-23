@@ -113,4 +113,9 @@ public class Cell {
     public void setTxt(String txt) {
         this.txt = txt;
     }
+
+    public void setValue(Double value) {
+        this.value = value;
+        txt = format.format(value);
+    }
 }

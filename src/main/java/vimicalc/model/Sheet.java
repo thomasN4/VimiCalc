@@ -13,9 +13,11 @@ public class Sheet {
 
     private ArrayList<Cell> cells;
     private File file;
+    private ArrayList<Dependency> dependencies;
 
     public Sheet() {
         cells = new ArrayList<>();
+        dependencies = new ArrayList<>();
     }
 
     public ArrayList<Cell> getCells() {
@@ -58,6 +60,32 @@ public class Sheet {
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
+    }
+
+    public void checkDependencies(int x, int y) {
+        for (Dependency d : dependencies) {
+            if (d.getxCoord() == x && d.getyCoord() == y) {
+                evalDependencies(d);
+                break;
+            }
+        }
+    }
+
+    public void evalDependencies(Dependency d) {
+        boolean allDependentsEvaluated = true;
+        for (Dependency e : d.modifiers) {
+           if (e.isToBeEvaluated()) {
+               allDependentsEvaluated = false;
+               break;
+           }
+        }
+        if (allDependentsEvaluated) {
+            d.evaluate(this);
+        }
+        for (Dependency e : d.dependents) {
+            if (e.isToBeEvaluated())
+                evalDependencies(e);
+        }
     }
 
     public void writeFile() throws IOException {
@@ -137,5 +165,59 @@ public class Sheet {
         Controller.reset();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());
+    }
+}
+
+class Dependency {
+    private final Cell cell;
+    private final int xCoord, yCoord;
+    private boolean toBeEvaluated;
+    ArrayList<Dependency> dependents;
+    ArrayList<Dependency> modifiers;
+
+    public Dependency(Cell cell) {
+        this.cell = cell;
+        xCoord = cell.xCoord();
+        yCoord = cell.yCoord();
+        toBeEvaluated = false;
+    }
+
+    public int getxCoord() {
+        return xCoord;
+    }
+
+    public int getyCoord() {
+        return yCoord;
+    }
+
+    public void addDependent(Cell cell) {
+        dependents.removeIf(d ->
+            d.getxCoord() == cell.xCoord() && d.getyCoord() == cell.yCoord()
+        );
+        Dependency dependent = new Dependency(cell);
+        dependent.modifiers.add(this);
+        dependents.add(dependent);
+    }
+
+    public void addModifier(Cell cell) {
+        modifiers.removeIf(m ->
+            m.getxCoord() == cell.xCoord() && m.getyCoord() == cell.yCoord()
+        );
+        Dependency modifier = new Dependency(cell);
+        modifier.dependents.add(this);
+        modifiers.add(modifier);
+    }
+
+    public boolean isToBeEvaluated() {
+        return toBeEvaluated;
+    }
+
+    public void setToBeEvaluated(boolean toBeEvaluated) {
+        this.toBeEvaluated = toBeEvaluated;
+    }
+
+    public void evaluate(Sheet sheet) {
+        cell.setValue(cell.formula().interpret(sheet));
+        toBeEvaluated = true;
     }
 }
