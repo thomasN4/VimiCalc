@@ -74,6 +74,8 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
+            infoBar.setErrorTxt("CAN'T GO LEFT");
+            infoBar.setError(true);
             camera.updateAbsX(-cellSelector.getW());
             if (camera.getAbsX() < 0)
                 while (camera.getAbsX() != 0)
@@ -99,6 +101,8 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
+            infoBar.setErrorTxt("CAN'T GO UP");
+            infoBar.setError(true);
             camera.updateAbsY(-cellSelector.getH());
             if (camera.getAbsY() < 0)
                 while (camera.getAbsY() != 0)
@@ -152,32 +156,28 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
 
-    public static void undo() {
-        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
-            goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
-            cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
-            ));
-            sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
-            dCounter = dCounter + 2;
-        }
+    public static void undo() {//the value is at zero when i record them, hence the errors
+        goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
+        cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
+        ));
+        sheet.addCell(cellSelector.getSelectedCell());
+        cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
+        dCounter = dCounter + 2;
     }
 
     public static void redo() {
-        if (!recordedCell.isEmpty() && !(dCounter <= 1)) {
-            dCounter = dCounter - 2;
-            goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
-            cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
-            ));
-            sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
-        }
+        dCounter = dCounter - 2;
+        goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
+        cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
+        ));
+        sheet.addCell(cellSelector.getSelectedCell());
+        cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
     }
 
     public static void goTo(int x, int y) {
@@ -201,6 +201,7 @@ public class Controller implements Initializable {
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
+        infoBar.setError(false);
         switch (statusBar.getMode().charAt(1)) {
             case 'C' -> commandInput(event);
             case 'F' -> formulaInput(event);
@@ -212,6 +213,10 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
+                        if (cellSelector.getSelectedCell().txt().equals("")) {
+                            infoBar.setErrorTxt("CAN'T DELETE RIGHT NOW");
+                            infoBar.setError(true);
+                        }
                         recordedCell.add(cellSelector.getSelectedCell());
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -220,13 +225,31 @@ public class Controller implements Initializable {
                         recordedCell.add(cellSelector.getSelectedCell());
                     }
                     case U -> {
-                        undo();
+                        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
+                            if (infoBar.isError()) {
+                                infoBar.setError(false);
+                            }
+                            undo();
+                        }
+                        else {
+                            infoBar.setErrorTxt("CAN'T UNDO RIGHT NOW");
+                            infoBar.setError(true);
+                        }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
                     case R -> {
-                        redo();
+                        if (!recordedCell.isEmpty() && !(dCounter <= 1)) {
+                            if (infoBar.isError()) {
+                                infoBar.setError(false);
+                            }
+                            redo();
+                        }
+                        else {
+                            infoBar.setErrorTxt("CAN'T REDO RIGHT NOW");
+                            infoBar.setError(true);
+                        }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
@@ -339,6 +362,11 @@ public class Controller implements Initializable {
                 command.interpret(sheet);
                 command = new Command("");
                 infoBar.setCommandTxt("");
+                if (!command.commandExists) {
+                    infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
+                    infoBar.setError(true);
+                }
+
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length() - 1)
@@ -534,11 +562,17 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case BACK_SPACE -> {
-                cellSelector.getSelectedCell().setTxt(
-                        cellSelector.getSelectedCell().txt().substring(0,
-                                cellSelector.getSelectedCell().txt().length() - 1)
-                );
-                cellSelector.draw(gc);
+                if (cellSelector.getSelectedCell().txt().equals("")) {
+                    infoBar.setErrorTxt("CELL IS EMPTY");
+                    infoBar.setError(true);
+                }
+                else {
+                    cellSelector.getSelectedCell().setTxt(
+                            cellSelector.getSelectedCell().txt().substring(0,
+                                    cellSelector.getSelectedCell().txt().length() - 1)
+                    );
+                    cellSelector.draw(gc);
+                }
             }
             default -> cellSelector.draw(gc, event.getText());
         }
@@ -565,7 +599,6 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
                 recordedCell.add(cellSelector.getSelectedCell());
-
             }
             case BACK_SPACE -> cellSelector.getSelectedCell().formula().setTxt(
                     cellSelector.getSelectedCell().formula().getTxt().substring(

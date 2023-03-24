@@ -1,12 +1,11 @@
 package vimicalc.model;
 
 import javafx.application.Platform;
-
 public class Command extends Interpretable {
     public Command(String txt) {
         super(txt);
     }
-
+    public static boolean commandExists = true;
     public void readFile(Sheet sheet, Lexeme[] command) {
         try {
             sheet.readFile(command[1].getFunc());
@@ -25,6 +24,7 @@ public class Command extends Interpretable {
     }
 
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
+        commandExists = true;
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
             case "w" -> writeFile(sheet, command);
@@ -33,7 +33,10 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            default -> System.out.println("Command \"" + command[0] + "\" doesn't exist.");
+            default -> {
+                commandExists = false;
+                System.out.println("Command \"" + command[0] + "\" doesn't exist.");
+            }
         }
         return new Lexeme[]{new Lexeme(0)};
     }
