@@ -38,6 +38,7 @@ public class Picture extends Visible {
     }
 
     public void resend(GraphicsContext gc, int absX, int absY) {
+        super.draw(gc);
         if (!isntReady)
             drawVCells(gc, absX, absY);
         isntReady = false;
