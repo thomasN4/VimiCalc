@@ -2,7 +2,6 @@ package vimicalc.model;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Metadata {
     private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC;
@@ -30,51 +29,40 @@ public class Metadata {
         this.camAbsY = camAbsY;
         int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
         int currAbsX = 0, currAbsY = 0, xC, yC;
-        AtomicInteger xOffset = new AtomicInteger(),
-                      yOffset = new AtomicInteger();  // idk Java refuse que j'utilise un simple int
         boolean firstXCFound = false, firstYCFound = false;
+        Integer xOffset, yOffset;
 
         for (xC = 1; currAbsX <= camAbsX + picW + cellAbsXsLong[xC]-cellAbsXsLong[xC-1]; xC++) {
-            xOffset.set(0);
-            int finalXC = xC;
-            xOffsets.forEach((k, v) -> {
-                if (k == finalXC)
-                    xOffset.set(v);
-            });
             if (currAbsX > camAbsX && !firstXCFound) {
-                firstXC = xC-1;
+                firstXC = xC - 1;
                 firstXCFound = true;
             }
-            currAbsX += DCW + xOffset.get();
+            xOffset = xOffsets.get(xC);
+            currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
             cellAbsXsLong[xC] = currAbsX;
         }
         lastXC = xC - 1;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
-        for (yC = 1; currAbsY <= camAbsY + picH + cellAbsYsLong[xC]-cellAbsYsLong[xC-1]; yC++) {
-            yOffset.set(0);
-            int finalYC = yC;
-            yOffsets.forEach((k, v) -> {
-                if (k == finalYC)
-                    yOffset.set(v);
-            });
+        for (yC = 1; currAbsY <= camAbsY + picH + cellAbsYsLong[yC]-cellAbsYsLong[yC-1]; yC++) {
             if (currAbsY > camAbsY && !firstYCFound) {
                 firstYC = yC-1;
                 firstYCFound = true;
             }
-            currAbsY += DCH + yOffset.get();
+            yOffset = yOffsets.get(yC);
+            currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
             cellAbsYsLong[yC] = currAbsY;
         }
         lastYC = yC - 1;
+        System.out.println("firstYC = " + firstYC);
+        System.out.println("lastYC = " + lastYC);
 
         cellAbsXs = new int[lastXC];
         System.arraycopy(cellAbsXsLong, 0, cellAbsXs, 0, lastXC);
         cellAbsYs = new int[lastYC];
         System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, lastYC);
 
-        System.out.println("firstYC = " + firstYC);
-        System.out.println("lastYC = " + lastYC);
         System.out.println("CellAbsXs : {");
         System.out.println("\t" + Arrays.toString(cellAbsXs));
         System.out.println('}');

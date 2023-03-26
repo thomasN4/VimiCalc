@@ -22,7 +22,7 @@ public class FirstCol extends Visible {
         for (int yC = currPicMetaData.getFirstYC(); yC <= currPicMetaData.getLastYC(); yC++) {
             gc.fillText(""+yC
                 , 45
-                , currPicMetaData.getCellAbsYs()[yC] % currPicMetaData.getPicH()
+                , currPicMetaData.getCellAbsYs()[yC] % currPicMetaData.getPicH() + 1
                 , currPicMetaData.getCellAbsYs()[yC] - currPicMetaData.getCellAbsYs()[yC-1]);
         }
     }

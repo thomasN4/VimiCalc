@@ -21,9 +21,9 @@ public class FirstRow extends Visible {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
-        for (int xC = currPicMetaData.getFirstYC(); xC <= currPicMetaData.getLastYC(); xC++) {
+        for (int xC = currPicMetaData.getFirstXC(); xC <= currPicMetaData.getLastXC(); xC++) {
             gc.fillText(""+toAlpha(xC-1)
-                , currPicMetaData.getCellAbsXs()[xC] % currPicMetaData.getPicW()
+                , currPicMetaData.getCellAbsXs()[xC] % currPicMetaData.getPicW() + 1
                 , 16
                 , currPicMetaData.getCellAbsXs()[xC] - currPicMetaData.getCellAbsXs()[xC-1]);
         }
