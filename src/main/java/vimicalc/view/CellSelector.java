@@ -1,5 +1,6 @@
 package vimicalc.view;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -44,16 +45,24 @@ public class CellSelector extends Visible {
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
+        gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(selectedCell.txt(), x+45, y+16);
+        gc.fillText(selectedCell.txt()
+            , currPicMetadata.getDCW() - currPicMetadata.getCamAbsX() + x + (float) w/2
+            , currPicMetadata.getDCH() - currPicMetadata.getCamAbsY() + y + (float) h/2
+            , w);
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
         super.draw(gc);
         selectedCell.setTxt(selectedCell.txt() + insertedChar);
         gc.setFill(Color.BLACK);
+        gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(selectedCell.txt(), x+45, y+16);
+        gc.fillText(selectedCell.txt()
+            , currPicMetadata.getDCW() - currPicMetadata.getCamAbsX() + x + (float) w/2
+            , currPicMetadata.getDCH() - currPicMetadata.getCamAbsY() + y + (float) h/2
+            , w);
     }
 
     public void updateX(int x_mov) {

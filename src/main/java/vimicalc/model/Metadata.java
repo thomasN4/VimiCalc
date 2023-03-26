@@ -33,35 +33,35 @@ public class Metadata {
         Integer xOffset, yOffset;
 
         for (xC = 1; currAbsX < camAbsX + picW; xC++) {
+            xOffset = xOffsets.get(xC);
+            currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
+            cellAbsXsLong[xC] = currAbsX;
             if (currAbsX > camAbsX && !firstXCFound) {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
-            xOffset = xOffsets.get(xC);
-            currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
-            cellAbsXsLong[xC] = currAbsX;
         }
-        lastXC = xC - 1;
+        lastXC = xC - 2;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
         for (yC = 1; currAbsY < camAbsY + picH; yC++) {
+            yOffset = yOffsets.get(yC);
+            currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
+            cellAbsYsLong[yC] = currAbsY;
             if (currAbsY > camAbsY && !firstYCFound) {
                 firstYC = yC-1;
                 firstYCFound = true;
             }
-            yOffset = yOffsets.get(yC);
-            currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
-            cellAbsYsLong[yC] = currAbsY;
         }
-        lastYC = yC - 1;
+        lastYC = yC - 2;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 
-        cellAbsXs = new int[lastXC];
-        System.arraycopy(cellAbsXsLong, 0, cellAbsXs, 0, lastXC);
-        cellAbsYs = new int[lastYC];
-        System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, lastYC);
+        cellAbsXs = new int[xC-1];
+        System.arraycopy(cellAbsXsLong, 0, cellAbsXs, 0, xC-1);
+        cellAbsYs = new int[yC-1];
+        System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, yC-1);
 
         System.out.println("CellAbsXs: {");
         System.out.println("\t" + Arrays.toString(cellAbsXs));
@@ -104,11 +104,19 @@ public class Metadata {
         return cellAbsYs;
     }
 
-    public int getPicW() {
-        return picW;
+    public int getCamAbsX() {
+        return camAbsX;
     }
 
-    public int getPicH() {
-        return picH;
+    public int getCamAbsY() {
+        return camAbsY;
+    }
+
+    public int getDCW() {
+        return DCW;
+    }
+
+    public int getDCH() {
+        return DCH;
     }
 }

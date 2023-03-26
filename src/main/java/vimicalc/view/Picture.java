@@ -1,5 +1,6 @@
 package vimicalc.view;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -52,7 +53,7 @@ public class Picture extends Visible {
         isntReady = false;
     }
 
-    public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCells, int absX, int absY) {
+    public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCoords, int absX, int absY) {
         visibleCells = new ArrayList<>();
         super.draw(gc);
         metadata.generate(absX, absY);
@@ -74,24 +75,30 @@ public class Picture extends Visible {
         }
 
         gc.setFill(Color.DARKGRAY);
-        selectedCells.forEach(c -> {
+        selectedCoords.forEach(c -> {
             System.out.println("Drawing the selected cells...");
             gc.fillRect(
-                c[0] * DCW - absX,
-                c[1] * DCH - absY,
-                DCW,
-                DCH
+                metadata.getCellAbsXs()[c[0]] - metadata.getCamAbsX() + DCW,
+                metadata.getCellAbsYs()[c[1]] - metadata.getCamAbsY() + DCH,
+                metadata.getCellAbsXs()[c[0]] - metadata.getCellAbsXs()[c[0]-1],
+                metadata.getCellAbsYs()[c[1]] - metadata.getCellAbsYs()[c[1]-1]
             );
         });
 
         gc.setFill(Color.BLACK);
+        gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
-        visibleCells.forEach(c -> gc.fillText(
-            c.txt(),
-            c.xCoord() * DCW - absX + 45,
-            c.yCoord() * DCH - absY + 16,
-            DCW
-        ));
+        int cellHeight, cellWidth;
+        for (Cell c : visibleCells) {
+            cellHeight = metadata.getCellAbsYs()[c.yCoord()] - metadata.getCellAbsYs()[c.yCoord()-1];
+            cellWidth = metadata.getCellAbsXs()[c.xCoord()] - metadata.getCellAbsXs()[c.xCoord()-1];
+            gc.fillText(
+                c.txt(),
+                metadata.getCellAbsXs()[c.xCoord()] - metadata.getCamAbsX() + DCW + (float) cellWidth/2,
+                metadata.getCellAbsYs()[c.yCoord()] - metadata.getCamAbsY() + DCH + (float) cellHeight/2,
+                cellWidth
+            );
+        }
 
         isntReady = true;
     }

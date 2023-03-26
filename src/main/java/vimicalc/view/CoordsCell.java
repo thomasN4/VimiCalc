@@ -1,5 +1,6 @@
 package vimicalc.view;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -32,6 +33,7 @@ public class CoordsCell extends Visible {
         super.draw(gc);
         gc.setFill(Color.WHITE);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(coords, 45, 16, w);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText(coords, (float) w/2, (float) h/2, w);
     }
 }
