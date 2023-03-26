@@ -40,15 +40,20 @@ public class Picture extends Visible {
     public void resend(GraphicsContext gc, int absX, int absY) {
         if (!isntReady) {
             super.draw(gc);
-            gc.setTextAlign(TextAlignment.CENTER);
             gc.setFill(Color.BLACK);
-            visibleCells.forEach(c ->
+            gc.setTextBaseline(VPos.CENTER);
+            gc.setTextAlign(TextAlignment.CENTER);
+            int cellHeight, cellWidth;
+            for (Cell c : visibleCells) {
+                cellHeight = metadata.getCellAbsYs()[c.yCoord()] - metadata.getCellAbsYs()[c.yCoord()-1];
+                cellWidth = metadata.getCellAbsXs()[c.xCoord()] - metadata.getCellAbsXs()[c.xCoord()-1];
                 gc.fillText(
-                    c.txt(),
-                    c.xCoord() * DCW - absX + 45,
-                    c.yCoord() * DCH - absY + 16,
-                    DCW)
-            );
+                        c.txt(),
+                        metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                        metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
+                        cellWidth
+                );
+            }
         }
         isntReady = false;
     }
@@ -78,8 +83,8 @@ public class Picture extends Visible {
         selectedCoords.forEach(c -> {
             System.out.println("Drawing the selected cells...");
             gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - metadata.getCamAbsX() + DCW,
-                metadata.getCellAbsYs()[c[1]] - metadata.getCamAbsY() + DCH,
+                metadata.getCellAbsXs()[c[0]] - absX + DCW,
+                metadata.getCellAbsYs()[c[1]] - absY + DCH,
                 metadata.getCellAbsXs()[c[0]] - metadata.getCellAbsXs()[c[0]-1],
                 metadata.getCellAbsYs()[c[1]] - metadata.getCellAbsYs()[c[1]-1]
             );
@@ -94,8 +99,8 @@ public class Picture extends Visible {
             cellWidth = metadata.getCellAbsXs()[c.xCoord()] - metadata.getCellAbsXs()[c.xCoord()-1];
             gc.fillText(
                 c.txt(),
-                metadata.getCellAbsXs()[c.xCoord()] - metadata.getCamAbsX() + DCW + (float) cellWidth/2,
-                metadata.getCellAbsYs()[c.yCoord()] - metadata.getCamAbsY() + DCH + (float) cellHeight/2,
+                metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
                 cellWidth
             );
         }
