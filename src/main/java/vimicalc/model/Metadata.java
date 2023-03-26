@@ -32,7 +32,7 @@ public class Metadata {
         boolean firstXCFound = false, firstYCFound = false;
         Integer xOffset, yOffset;
 
-        for (xC = 1; currAbsX <= camAbsX + picW + cellAbsXsLong[xC]-cellAbsXsLong[xC-1]; xC++) {
+        for (xC = 1; currAbsX < camAbsX + picW; xC++) {
             if (currAbsX > camAbsX && !firstXCFound) {
                 firstXC = xC - 1;
                 firstXCFound = true;
@@ -45,7 +45,7 @@ public class Metadata {
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
-        for (yC = 1; currAbsY <= camAbsY + picH + cellAbsYsLong[yC]-cellAbsYsLong[yC-1]; yC++) {
+        for (yC = 1; currAbsY < camAbsY + picH; yC++) {
             if (currAbsY > camAbsY && !firstYCFound) {
                 firstYC = yC-1;
                 firstYCFound = true;
@@ -63,10 +63,10 @@ public class Metadata {
         cellAbsYs = new int[lastYC];
         System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, lastYC);
 
-        System.out.println("CellAbsXs : {");
+        System.out.println("CellAbsXs: {");
         System.out.println("\t" + Arrays.toString(cellAbsXs));
         System.out.println('}');
-        System.out.println("CellAbsYs : {");
+        System.out.println("CellAbsYs: {");
         System.out.println("\t" + Arrays.toString(cellAbsYs));
         System.out.println('}');
     }
