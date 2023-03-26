@@ -25,14 +25,12 @@ public class Metadata {
     }
 
     public void generate(int camAbsX, int camAbsY) {
-        this.camAbsX = camAbsX;
-        this.camAbsY = camAbsY;
         int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
-        int currAbsX = 0, currAbsY = 0, xC, yC;
+        int currAbsX = 0, currAbsY = 0, xC = 1, yC = 1;
         boolean firstXCFound = false, firstYCFound = false;
         Integer xOffset, yOffset;
 
-        for (xC = 1; currAbsX < camAbsX + picW; xC++) {
+        while (currAbsX <= camAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC))) {
             xOffset = xOffsets.get(xC);
             currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
             cellAbsXsLong[xC] = currAbsX;
@@ -40,12 +38,13 @@ public class Metadata {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
+            xC++;
         }
         lastXC = xC - 2;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
-        for (yC = 1; currAbsY < camAbsY + picH; yC++) {
+        while (currAbsY <= camAbsY + picH + DCW + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC))) {
             yOffset = yOffsets.get(yC);
             currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
             cellAbsYsLong[yC] = currAbsY;
@@ -53,6 +52,7 @@ public class Metadata {
                 firstYC = yC-1;
                 firstYCFound = true;
             }
+            yC++;
         }
         lastYC = yC - 2;
         System.out.println("firstYC = " + firstYC);
@@ -69,6 +69,9 @@ public class Metadata {
         System.out.println("CellAbsYs: {");
         System.out.println("\t" + Arrays.toString(cellAbsYs));
         System.out.println('}');
+
+        this.camAbsX = camAbsX;
+        this.camAbsY = camAbsY;
     }
 
     // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}
