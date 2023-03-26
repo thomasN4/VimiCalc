@@ -30,7 +30,7 @@ public class Metadata {
         boolean firstXCFound = false, firstYCFound = false;
         Integer xOffset, yOffset;
 
-        while (currAbsX <= camAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC))) {
+        do {
             xOffset = xOffsets.get(xC);
             currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
             cellAbsXsLong[xC] = currAbsX;
@@ -39,12 +39,12 @@ public class Metadata {
                 firstXCFound = true;
             }
             xC++;
-        }
-        lastXC = xC - 2;
+        } while (currAbsX <= camAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)));
+        lastXC = xC - 3;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
-        while (currAbsY <= camAbsY + picH + DCW + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC))) {
+        do {
             yOffset = yOffsets.get(yC);
             currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
             cellAbsYsLong[yC] = currAbsY;
@@ -53,8 +53,8 @@ public class Metadata {
                 firstYCFound = true;
             }
             yC++;
-        }
-        lastYC = yC - 2;
+        } while (currAbsY <= camAbsY + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)));
+        lastYC = yC - 3;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 

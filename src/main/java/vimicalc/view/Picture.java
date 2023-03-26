@@ -38,23 +38,8 @@ public class Picture extends Visible {
     }
 
     public void resend(GraphicsContext gc, int absX, int absY) {
-        if (!isntReady) {
-            super.draw(gc);
-            gc.setFill(Color.BLACK);
-            gc.setTextBaseline(VPos.CENTER);
-            gc.setTextAlign(TextAlignment.CENTER);
-            int cellHeight, cellWidth;
-            for (Cell c : visibleCells) {
-                cellHeight = metadata.getCellAbsYs()[c.yCoord()] - metadata.getCellAbsYs()[c.yCoord()-1];
-                cellWidth = metadata.getCellAbsXs()[c.xCoord()] - metadata.getCellAbsXs()[c.xCoord()-1];
-                gc.fillText(
-                        c.txt(),
-                        metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
-                        metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
-                        cellWidth
-                );
-            }
-        }
+        if (!isntReady)
+            drawVCells(gc, absX, absY);
         isntReady = false;
     }
 
@@ -85,30 +70,33 @@ public class Picture extends Visible {
             gc.fillRect(
                 metadata.getCellAbsXs()[c[0]] - absX + DCW,
                 metadata.getCellAbsYs()[c[1]] - absY + DCH,
-                metadata.getCellAbsXs()[c[0]] - metadata.getCellAbsXs()[c[0]-1],
-                metadata.getCellAbsYs()[c[1]] - metadata.getCellAbsYs()[c[1]-1]
+                metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
+                metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
             );
         });
 
-        gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.setTextAlign(TextAlignment.CENTER);
-        int cellHeight, cellWidth;
-        for (Cell c : visibleCells) {
-            cellHeight = metadata.getCellAbsYs()[c.yCoord()] - metadata.getCellAbsYs()[c.yCoord()-1];
-            cellWidth = metadata.getCellAbsXs()[c.xCoord()] - metadata.getCellAbsXs()[c.xCoord()-1];
-            gc.fillText(
-                c.txt(),
-                metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
-                metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
-                cellWidth
-            );
-        }
-
+        drawVCells(gc, absX, absY);
         isntReady = true;
     }
 
     public void setIsntReady(boolean isntReady) {
         this.isntReady = isntReady;
+    }
+
+    private void drawVCells(@NotNull GraphicsContext gc, int absX, int absY) {
+        gc.setFill(Color.BLACK);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.setTextAlign(TextAlignment.CENTER);
+        int cellHeight, cellWidth;
+        for (Cell c : visibleCells) {
+            cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
+            cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
+            gc.fillText(
+                    c.txt(),
+                    metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                    metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
+                    cellWidth
+            );
+        }
     }
 }
