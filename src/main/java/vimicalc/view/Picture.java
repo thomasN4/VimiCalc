@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Picture extends Visible {
-    private final int DCW;  // 'C' pour "Cell"
+    private final int DCW;
     private final int DCH;
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
