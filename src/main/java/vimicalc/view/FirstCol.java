@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Metadata;
 
 public class FirstCol extends Visible {
-    Metadata currPicMetaData;
+    Metadata picMetadata;
 
-    public FirstCol(int x, int y, int w, int h, Color c, Metadata currPicMetaData) {
+    public FirstCol(int x, int y, int w, int h, Color c, Metadata picMetadata) {
         super(x, y, w, h, c);
-        this.currPicMetaData = currPicMetaData;
+        this.picMetadata = picMetadata;
     }
 
     @Override
@@ -22,13 +22,13 @@ public class FirstCol extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         int cellHeight;
-        for (int yC = currPicMetaData.getFirstYC(); yC <= currPicMetaData.getLastYC(); yC++) {
+        for (int yC = picMetadata.getFirstYC(); yC <= picMetadata.getLastYC(); yC++) {
 //            System.out.println("FirstCol currCellAbsY: " +
-//                (currPicMetaData.getCellAbsYs()[yC] - currPicMetaData.getCamAbsY() + y));
-            cellHeight = currPicMetaData.getCellAbsYs()[yC] - currPicMetaData.getCellAbsYs()[yC-1];
+//                (picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y));
+            cellHeight = picMetadata.getCellAbsYs()[yC] - picMetadata.getCellAbsYs()[yC-1];
             gc.fillText(""+yC
                 , (float) w/2
-                , currPicMetaData.getCellAbsYs()[yC] - currPicMetaData.getCamAbsY() + y + (float) cellHeight/2
+                , picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y + (float) cellHeight/2
                 , cellHeight);
         }
     }

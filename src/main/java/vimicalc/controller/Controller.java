@@ -75,11 +75,11 @@ public class Controller implements Initializable {
             }
         } else {
             camera.updateAbsX(-cellSelector.getW());
-            if (camera.getAbsX() < 0)
-                while (camera.getAbsX() != 0)
+            if (camera.getAbsX() < DEFAULT_CELL_W)
+                while (camera.getAbsX() != DEFAULT_CELL_W)
                     camera.updateAbsX(1);
             firstRow.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, DEFAULT_CELL_W, camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -121,11 +121,11 @@ public class Controller implements Initializable {
             }
         } else {
             camera.updateAbsY(-cellSelector.getH());
-            if (camera.getAbsY() < 0)
-                while (camera.getAbsY() != 0)
+            if (camera.getAbsY() < DEFAULT_CELL_H)
+                while (camera.getAbsY() != DEFAULT_CELL_H)
                     camera.updateAbsY(1);
             firstCol.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), DEFAULT_CELL_H);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());

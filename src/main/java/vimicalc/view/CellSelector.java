@@ -16,11 +16,11 @@ public class CellSelector extends Visible {
     private int xCoord;
     private int yCoord;
     private Cell selectedCell;
-    private final Metadata currPicMetadata;
+    private final Metadata picMetadata;
 
-    public CellSelector(int x, int y, int w, int h, Color c, Metadata currPicMetadata) {
+    public CellSelector(int x, int y, int w, int h, Color c, Metadata picMetadata) {
         super(x, y, w, h, c);
-        this.currPicMetadata = currPicMetadata;
+        this.picMetadata = picMetadata;
         xCoord = x/w;
         yCoord = y/h;
     }
@@ -48,8 +48,8 @@ public class CellSelector extends Visible {
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt()
-            , currPicMetadata.getDCW() - currPicMetadata.getCamAbsX() + x + (float) w/2
-            , currPicMetadata.getDCH() - currPicMetadata.getCamAbsY() + y + (float) h/2
+            , picMetadata.getDCW() - picMetadata.getCamAbsX() + x + (float) w/2
+            , picMetadata.getDCH() - picMetadata.getCamAbsY() + y + (float) h/2
             , w);
     }
 
@@ -60,8 +60,8 @@ public class CellSelector extends Visible {
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt()
-            , currPicMetadata.getDCW() - currPicMetadata.getCamAbsX() + x + (float) w/2
-            , currPicMetadata.getDCH() - currPicMetadata.getCamAbsY() + y + (float) h/2
+            , picMetadata.getDCW() - picMetadata.getCamAbsX() + x + (float) w/2
+            , picMetadata.getDCH() - picMetadata.getCamAbsY() + y + (float) h/2
             , w);
     }
 
@@ -110,7 +110,7 @@ public class CellSelector extends Visible {
                     );
                 break;
             }
-        w = currPicMetadata.getCellAbsXs()[xCoord+1] - currPicMetadata.getCellAbsXs()[xCoord];
-        h = currPicMetadata.getCellAbsYs()[yCoord+1] - currPicMetadata.getCellAbsYs()[yCoord];
+        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
+        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }
