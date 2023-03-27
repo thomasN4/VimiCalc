@@ -1,21 +1,35 @@
 package vimicalc.view;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.jetbrains.annotations.NotNull;
+import vimicalc.model.Metadata;
 
-public class FirstCol extends Visible{
-    public FirstCol(int x, int y, int w, int h, Color c) {
+public class FirstCol extends Visible {
+    Metadata picMetadata;
+
+    public FirstCol(int x, int y, int w, int h, Color c, Metadata picMetadata) {
         super(x, y, w, h, c);
+        this.picMetadata = picMetadata;
     }
 
-    public void draw(GraphicsContext gc, int absY) {
+    @Override
+    public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
-        int jump = y;  // équivalent à DEFAULT_CELL_HEIGHT
-        for (int i = 1; i < gc.getCanvas().getHeight()/jump; i++) {
-            gc.setFill(Color.BLACK);
-            gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+(i+absY/jump), 45, (i+1)*jump-absY%jump-7, jump);
+        gc.setFill(Color.BLACK);
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setTextBaseline(VPos.CENTER);
+        int cellHeight;
+        for (int yC = picMetadata.getFirstYC(); yC <= picMetadata.getLastYC(); yC++) {
+//            System.out.println("FirstCol currCellAbsY: " +
+//                (picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y));
+            cellHeight = picMetadata.getCellAbsYs()[yC+1] - picMetadata.getCellAbsYs()[yC];
+            gc.fillText(""+yC
+                , (float) w/2
+                , picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y + (float) cellHeight/2
+                , cellHeight);
         }
     }
 }

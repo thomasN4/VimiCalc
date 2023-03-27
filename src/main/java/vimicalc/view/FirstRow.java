@@ -3,21 +3,33 @@ package vimicalc.view;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import org.jetbrains.annotations.NotNull;
+import vimicalc.model.Metadata;
 
 import static vimicalc.utils.Conversions.toAlpha;
 
 public class FirstRow extends Visible {
-    public FirstRow(int x, int y, int w, int h, Color c) {
+    Metadata picMetadata;
+
+    public FirstRow(int x, int y, int w, int h, Color c, Metadata picMetadata) {
         super(x, y, w, h, c);
+        this.picMetadata = picMetadata;
     }
 
-    public void draw(GraphicsContext gc, int absX) {
+    @Override
+    public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
-        int jump = x; // équivalent à DEFAULT_CELL_WIDTH
-        for (int i = 1; i <= gc.getCanvas().getWidth()/jump+1; i++) {
-            gc.setFill(Color.BLACK);
-            gc.setTextAlign(TextAlignment.CENTER);
-            gc.fillText(""+toAlpha(i+absX/jump-1), (i+1)*jump-absX%jump-45, 16, jump);
+        gc.setFill(Color.BLACK);
+        gc.setTextAlign(TextAlignment.CENTER);
+        int cellWidth;
+        for (int xC = picMetadata.getFirstXC(); xC <= picMetadata.getLastXC(); xC++) {
+//            System.out.println("FirstRow currCellAbsX: " +
+//                (picMetadata.getCellAbsXs()[xC] - picMetadata.getCamAbsX() + x));
+            cellWidth = picMetadata.getCellAbsXs()[xC+1] - picMetadata.getCellAbsXs()[xC];
+            gc.fillText(toAlpha(xC-1)
+                , picMetadata.getCellAbsXs()[xC] - picMetadata.getCamAbsX() + x + (float) cellWidth/2
+                , (float) h/2
+                , cellWidth);
         }
     }
 }

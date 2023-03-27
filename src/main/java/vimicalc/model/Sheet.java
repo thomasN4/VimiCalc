@@ -15,9 +15,19 @@ public class Sheet {
     private File file;
     private final ArrayList<DependencyRelation> dependencies;
 
+    private Metadata currPicMetaData;
+
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
+    }
+
+    public Metadata getCurrPicMetaData() {
+        return currPicMetaData;
+    }
+
+    public void setCurrPicMetaData(Metadata currPicMetaData) {
+        this.currPicMetaData = currPicMetaData;
     }
 
     public ArrayList<Cell> getCells() {

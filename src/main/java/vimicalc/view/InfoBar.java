@@ -1,5 +1,6 @@
 package vimicalc.view;
 
+import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -48,6 +49,7 @@ public class InfoBar extends Visible {
     public void draw(GraphicsContext gc, Cell selectedCell) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
+        gc.setTextBaseline(VPos.BASELINE);
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.fillText(keyStroke, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
