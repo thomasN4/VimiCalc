@@ -91,9 +91,10 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
     private static void moveDown() {
+        int prevH = cellSelector.getH();
         cellSelector.updateYCoord(1);
         if (cellSelector.getY() != camera.picture.getH()) {
-            cellSelector.updateY(cellSelector.getH());
+            cellSelector.updateY(prevH);
             if (cellSelector.getY() > camera.picture.getH()) {
                 while (cellSelector.getY() != camera.picture.getH()) {
                     cellSelector.updateY(-1);
@@ -104,7 +105,7 @@ public class Controller implements Initializable {
             }
         }
         else {
-            camera.updateAbsY(cellSelector.getH());
+            camera.updateAbsY(prevH);
             firstCol.draw(gc);
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
@@ -139,9 +140,10 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
     private static void moveRight() {
+        int prevW = cellSelector.getW();
         cellSelector.updateXCoord(1);
         if (cellSelector.getX() != camera.picture.getW()) {
-            cellSelector.updateX(cellSelector.getW());
+            cellSelector.updateX(prevW);
             if (cellSelector.getX() > camera.picture.getW()) {
                 while (cellSelector.getX() != camera.picture.getW()) {
                     cellSelector.updateX(-1);
@@ -152,7 +154,7 @@ public class Controller implements Initializable {
             }
         }
         else {
-            camera.updateAbsX(cellSelector.getW());
+            camera.updateAbsX(prevW);
             firstRow.draw(gc);
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
