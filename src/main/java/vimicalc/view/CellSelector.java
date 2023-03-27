@@ -48,8 +48,8 @@ public class CellSelector extends Visible {
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt()
-            , picMetadata.getDCW() - picMetadata.getCamAbsX() + x + (float) w/2
-            , picMetadata.getDCH() - picMetadata.getCamAbsY() + y + (float) h/2
+            , x + (float) w/2
+            , y + (float) h/2
             , w);
     }
 
@@ -60,8 +60,8 @@ public class CellSelector extends Visible {
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt()
-            , picMetadata.getDCW() - picMetadata.getCamAbsX() + x + (float) w/2
-            , picMetadata.getDCH() - picMetadata.getCamAbsY() + y + (float) h/2
+            , x + (float) w/2
+            , y + (float) h/2
             , w);
     }
 
