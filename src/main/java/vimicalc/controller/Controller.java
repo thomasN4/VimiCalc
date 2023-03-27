@@ -355,7 +355,10 @@ public class Controller implements Initializable {
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
-                command.interpret(sheet );
+                int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
+                goTo(1, 1);
+                command.interpret(sheet);
+                goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setCommandTxt("");
                 if (!command.commandExists()) {
