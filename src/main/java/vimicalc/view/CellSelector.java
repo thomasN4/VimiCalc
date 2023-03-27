@@ -75,10 +75,12 @@ public class CellSelector extends Visible {
 
     public void updateXCoord(int xCoord_mov) {
         xCoord += xCoord_mov;
+        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
     }
 
     public void updateYCoord(int yCoord_mov) {
         yCoord += yCoord_mov;
+        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
@@ -110,13 +112,5 @@ public class CellSelector extends Visible {
                     );
                 break;
             }
-    }
-
-    public void updateW() {
-        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
-    }
-
-    public void updateH() {
-        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }
