@@ -61,6 +61,7 @@ public class Controller implements Initializable {
         System.out.print(" Selected Cell "+ cellSelector.getX() + " // " + cellSelector.getY());
     }
     */
+
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1)
             cellSelector.updateXCoord(-1);
@@ -707,6 +708,6 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
         infoBar.draw(gc, cellSelector.getSelectedCell());
-        sheet.setCurrPicMetaData(camera.picture.metadata());
+        sheet.setPicMetadata(camera.picture.metadata());
     }
 }

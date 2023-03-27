@@ -15,19 +15,19 @@ public class Sheet {
     private File file;
     private final ArrayList<Dependency> dependencies;
 
-    private Metadata currPicMetaData;
+    private Metadata picMetadata;
 
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
 
-    public Metadata getCurrPicMetaData() {
-        return currPicMetaData;
+    public Metadata getPicMetadata() {
+        return picMetadata;
     }
 
-    public void setCurrPicMetaData(Metadata currPicMetaData) {
-        this.currPicMetaData = currPicMetaData;
+    public void setPicMetadata(Metadata picMetadata) {
+        this.picMetadata = picMetadata;
     }
 
     public ArrayList<Cell> getCells() {
@@ -56,6 +56,7 @@ public class Sheet {
         }
 
         checkForDependents(xCoord, yCoord);
+        dependencies.remove(findDependency(xCoord, yCoord));
     }
 
     public Cell findCell(@NotNull String coords) {
@@ -109,10 +110,6 @@ public class Sheet {
     public void addDependent(int xCoord, int yCoord) {
         if (findDependency(xCoord, yCoord) == null)
             dependencies.add(new Dependency(xCoord, yCoord));
-//        else
-//            System.out.println("Dependency already added.");
-//        System.out.println("All of the dependencies:");
-//        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
     public boolean dependedAlreadyAdded(Dependency dependent, Dependency depended) {
@@ -136,10 +133,6 @@ public class Sheet {
             dependent.getDependeds().add(depended);
             dependencies.add(depended);
         }
-//        else
-//            System.out.println("Dependency already added.");
-//        System.out.println("All of the dependencies:");
-//        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
     public void addCell(Cell cell) {

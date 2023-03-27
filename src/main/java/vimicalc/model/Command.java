@@ -27,11 +27,11 @@ public class Command extends Interpretable {
         commandExists = true;
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
-            case "resCol" -> sheet.getCurrPicMetaData().generate(
+            case "resCol" -> sheet.getPicMetadata().generate(
                 new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
                 true
             );
-            case "resRow" -> sheet.getCurrPicMetaData().generate(
+            case "resRow" -> sheet.getPicMetadata().generate(
                 new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
                 false
             );
