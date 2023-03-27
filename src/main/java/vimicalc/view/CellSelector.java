@@ -84,6 +84,8 @@ public class CellSelector extends Visible {
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
+        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
+        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
         selectedCell = new Cell(xCoord, yCoord, "", new Formula("", xCoord, yCoord));
         for (Cell c : cells)
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {

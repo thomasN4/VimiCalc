@@ -4,12 +4,8 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class Formula extends Interpretable {
-    private final int sCX;  // Coordonnée x de la cellule associée
-    private final int sCY;
     public Formula(String txt, int sCX, int sCY) {
-        super(txt);
-        this.sCX = sCX;
-        this.sCY = sCY;
+        super(txt, sCX, sCY);
     }
 
     protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) {

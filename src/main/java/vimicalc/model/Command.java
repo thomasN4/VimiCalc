@@ -2,8 +2,8 @@ package vimicalc.model;
 
 import javafx.application.Platform;
 public class Command extends Interpretable {
-    public Command(String txt) {
-        super(txt);
+    public Command(String txt, int sCX, int sCY) {
+        super(txt, sCX, sCY);
     }
     private boolean commandExists = true;
     public void readFile(Sheet sheet, Lexeme[] command) {
@@ -28,11 +28,11 @@ public class Command extends Interpretable {
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPicMetadata().generate(
-                new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
+                new int[]{sCX, (int) command[1].getVal()},
                 true
             );
             case "resRow" -> sheet.getPicMetadata().generate(
-                new int[]{(int) command[1].getVal(), (int) command[2].getVal()},
+                new int[]{sCY, (int) command[1].getVal()},
                 false
             );
             case "w" -> writeFile(sheet, command);

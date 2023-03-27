@@ -280,7 +280,7 @@ public class Controller implements Initializable {
                     }
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
-                        command = new Command("");
+                        command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                         infoBar.setEnteringCommand(true);
                     }
                 }
@@ -324,7 +324,7 @@ public class Controller implements Initializable {
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
-                command = new Command("");
+                command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setCommandTxt("");
             }
             case ENTER -> {
@@ -352,20 +352,19 @@ public class Controller implements Initializable {
                         f.interpret(sheet),
                         f
                     ));
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    cellSelector.readCell(camera.picture.data());
                 }
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command.interpret(sheet );
-                command = new Command("");
+                command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setCommandTxt("");
                 if (!command.commandExists()) {
                     infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
                     infoBar.setError(true);
                 }
-
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.ready();
+                cellSelector.readCell(camera.picture.data());
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length()-1)
@@ -400,7 +399,7 @@ public class Controller implements Initializable {
                 }
                 case SEMICOLON -> {
                     infoBar.setEnteringCommandInVISUAL(true);
-                    command = new Command("");
+                    command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 }
                 default -> {
                     int originalXC = selectedCoords.get(0)[0];
@@ -697,7 +696,7 @@ public class Controller implements Initializable {
             Color.GRAY
         );
 
-        command = new Command("");
+        command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         selectedCoords = new ArrayList<>();
 
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
