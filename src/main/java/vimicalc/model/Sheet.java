@@ -13,7 +13,7 @@ public class Sheet {
 
     private ArrayList<Cell> cells;
     private File file;
-    private final ArrayList<DependencyRelation> dependencies;
+    private final ArrayList<Dependency> dependencies;
 
     private Metadata currPicMetaData;
 
@@ -54,7 +54,8 @@ public class Sheet {
             xCoord = 0;
             yCoord = 0;
         }
-        checkForDependencies(xCoord, yCoord);
+
+        checkForDependents(xCoord, yCoord);
     }
 
     public Cell findCell(@NotNull String coords) {
@@ -97,64 +98,88 @@ public class Sheet {
         return found;
     }
 
-    public DependencyRelation findDependency(int x, int y) {
-        for (DependencyRelation d : dependencies) {
+    public Dependency findDependency(int x, int y) {
+        for (Dependency d : dependencies) {
             if (d.getxCoord() == x && d.getyCoord() == y)
                 return d;
         }
         return null;
     }
 
-    public void addDependency(int xCoord, int yCoord) {
-        if (findDependency(xCoord, yCoord) == null) {
-            dependencies.add(new DependencyRelation(xCoord, yCoord));
-            dependencies.forEach(d -> System.out.println(d.log()));
-        }
-        else
-            System.out.println("DependencyRelation already added.");
+    public void addDependent(int xCoord, int yCoord) {
+        if (findDependency(xCoord, yCoord) == null)
+            dependencies.add(new Dependency(xCoord, yCoord));
+//        else
+//            System.out.println("Dependency already added.");
+//        System.out.println("All of the dependencies:");
+//        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
-    public void addDepended(int xCoord, int yCoord, DependencyRelation dependent) {
-        DependencyRelation depended = new DependencyRelation(xCoord, yCoord);
-        dependent.getDependeds().removeIf(d ->
-            d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()
-        );
-        depended.getDependents().add(dependent);
-        dependent.getDependeds().add(depended);
-        dependencies.add(depended);
+    public boolean dependedAlreadyAdded(Dependency dependent, Dependency depended) {
+        for (Dependency d : dependent.getDependeds()) {
+            if (d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public void addDepended(int xCoord, int yCoord, Dependency dependent) {
+        Dependency depended = findDependency(xCoord, yCoord);
+        if (depended == null) {
+            depended = new Dependency(xCoord, yCoord);
+            depended.getDependents().add(dependent);
+            dependent.getDependeds().add(depended);
+            dependencies.add(depended);
+        }
+        else if (!dependedAlreadyAdded(dependent, depended)) {
+            depended.getDependents().add(dependent);
+            dependent.getDependeds().add(depended);
+            dependencies.add(depended);
+        }
+//        else
+//            System.out.println("Dependency already added.");
+//        System.out.println("All of the dependencies:");
+//        dependencies.forEach(d -> System.out.println(d.log()));
     }
 
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        checkForDependencies(cell.xCoord(), cell.yCoord());
+        checkForDependents(cell.xCoord(), cell.yCoord());
     }
 
-    public void checkForDependencies(int xCoord, int yCoord) {
-        System.out.println("Checking for dependencies...");
-        dependencies.forEach(d -> System.out.println(d.log()));
-        for (DependencyRelation d : dependencies) {
-            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord) {
+    public void checkForDependents(int xCoord, int yCoord) {
+        System.out.println("Checking for dependents...");
+        boolean needsEvaluating = false;
+        for (Dependency d : dependencies) {
+            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord &&
+                d.getDependents().size() != 0) {
+                dependencies.forEach(e -> System.out.println(e.log()));
                 evalDependencies(d);
+                needsEvaluating = true;
                 break;
             }
         }
-        cells.removeIf(c -> c.txt().equals("t3mp"));
-        dependencies.forEach(d -> System.out.println(d.log()));
+
+        if (needsEvaluating) {
+            cells.removeIf(c -> c.txt().equals("t3mp"));
+            System.out.println("All of the dependencies (result):");
+            dependencies.forEach(d -> System.out.println(d.log()));
+        }
+        else
+            System.out.println("No evaluations done.");
     }
 
-    public void evalDependencies(@NotNull DependencyRelation d) {
+    public void evalDependencies(@NotNull Dependency d) {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        for (DependencyRelation e : d.getDependents()) {
-            if (e.isToBeEvaluated())
-                evalDependencies(e);
-        }
-        for (DependencyRelation e : dependencies) {
+        for (Dependency e : dependencies) {
             if (e.isReadyToBeEvaluated())
-                d.evaluate(this);
+                e.evaluate(this);
         }
+        for (Dependency e : d.getDependents())
+            evalDependencies(e);
     }
 
     public void writeFile() throws IOException {
@@ -238,13 +263,13 @@ public class Sheet {
     }
 }
 
-class DependencyRelation {
+class Dependency {
     private final int xCoord, yCoord;
     private boolean toBeEvaluated;
-    private final ArrayList<DependencyRelation> dependents;
-    private final ArrayList<DependencyRelation> dependeds;
+    private final ArrayList<Dependency> dependents;
+    private final ArrayList<Dependency> dependeds;
 
-    public DependencyRelation(int xCoord, int yCoord) {
+    public Dependency(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         toBeEvaluated = false;
@@ -260,7 +285,7 @@ class DependencyRelation {
         return yCoord;
     }
 
-    public ArrayList<DependencyRelation> getDependeds() {
+    public ArrayList<Dependency> getDependeds() {
         return dependeds;
     }
 
@@ -268,7 +293,7 @@ class DependencyRelation {
         return toBeEvaluated;
     }
 
-    public ArrayList<DependencyRelation> getDependents() {
+    public ArrayList<Dependency> getDependents() {
         return dependents;
     }
 
@@ -278,8 +303,8 @@ class DependencyRelation {
 
     public boolean isReadyToBeEvaluated() {
         boolean b = true;
-        for (DependencyRelation m : dependeds) {
-            if (!m.isToBeEvaluated()) {
+        for (Dependency d : dependeds) {
+            if (d.isToBeEvaluated()) {
                 b = false;
                 break;
             }
@@ -289,31 +314,35 @@ class DependencyRelation {
 
     public void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
-        sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
-        if (c.formula() != null)
+        if (c.formula() != null) {
+            sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
             sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
+                xCoord,
+                yCoord,
                 c.formula().interpret(sheet),
                 c.formula()
             ));
-        else
+        }
+        else if (c.txt().equals("")) {
+            sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
             sheet.getCells().add(new Cell(
-                c.xCoord(),
-                c.yCoord(),
+                xCoord,
+                yCoord,
                 "t3mp"
             ));
+        }
         toBeEvaluated = false;
+        System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord + "...");
     }
 
     public String log() {
-        return "DependencyRelation: " + xCoord + ", " + yCoord + " {\n" +
+        return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +
-               "\tModifiers: {\n" +
+               "\tdependeds: {\n" +
                "\t\t" + dependeds + "\n" +
                "\t}\n" +
-               "\tDependents: {\n" +
+               "\tdependents: {\n" +
                "\t\t" + dependents + "\n" +
                "\t}\n" +
                "}";

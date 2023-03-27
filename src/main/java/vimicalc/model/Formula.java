@@ -13,7 +13,7 @@ public class Formula extends Interpretable {
     }
 
     protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) {
-        sheet.addDependency(sCX, sCY);
+        sheet.addDependent(sCX, sCY);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -48,7 +48,7 @@ public class Formula extends Interpretable {
     }
 
     protected Lexeme[] createVectorFromArea(@NotNull String coords, @NotNull Sheet sheet) {
-        sheet.addDependency(sCX, sCY);
+        sheet.addDependent(sCX, sCY);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -247,7 +247,7 @@ public class Formula extends Interpretable {
     @Contract("_, _ -> new")
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
-        sheet.addDependency(sCX, sCY);
+        sheet.addDependent(sCX, sCY);
         sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
 
         if (c.txt().equals("") || c.txt().equals("t3mp"))
