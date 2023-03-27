@@ -27,7 +27,8 @@ public class Metadata {
     public void generate(int camAbsX, int camAbsY) {
         int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
         int currAbsX = 0, currAbsY = 0, xC = 1, yC = 1;
-        boolean firstXCFound = false, firstYCFound = false;
+        boolean firstXCFound = false, firstYCFound = false,
+                lastXCFound = false, lastYCFound = false;
         Integer xOffset, yOffset;
 
         do {
@@ -38,9 +39,13 @@ public class Metadata {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
+            if (currAbsX > camAbsX + picW && !lastXCFound) {
+                lastXC = xC - 1;
+                lastXCFound = true;
+            }
             xC++;
         } while (currAbsX <= camAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)));
-        lastXC = xC - 3;
+        lastXC = firstXC + 7;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
@@ -52,9 +57,12 @@ public class Metadata {
                 firstYC = yC - 1;
                 firstYCFound = true;
             }
+            if (currAbsY > camAbsY + picH && !lastYCFound) {
+                lastYC = yC - 1;
+                lastYCFound = true;
+            }
             yC++;
         } while (currAbsY <= camAbsY + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)));
-        lastYC = yC - 3;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 
