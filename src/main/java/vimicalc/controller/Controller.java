@@ -83,7 +83,7 @@ public class Controller implements Initializable {
                     camera.updateAbsX(1);
             }
             firstRow.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, DEFAULT_CELL_W, camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             cellSelector.readCell(camera.picture.data());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
@@ -132,7 +132,7 @@ public class Controller implements Initializable {
                     camera.updateAbsY(1);
             }
             firstCol.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), DEFAULT_CELL_H);
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());

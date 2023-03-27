@@ -24,7 +24,7 @@ public class Metadata {
         this.DCH = DCH;
     }
 
-    public void generate(int camAbsX, int camAbsY) {
+    public void generate(int cAbsX, int cAbsY) {
         int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, firstYCFound = false,
@@ -32,36 +32,36 @@ public class Metadata {
         Integer xOffset, yOffset;
 
         do {
-            if (currAbsX > camAbsX && !firstXCFound) {
+            if (currAbsX > cAbsX && !firstXCFound) {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
             cellAbsXsLong[xC] = currAbsX;
             xOffset = xOffsets.get(xC);
             currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
-            if (currAbsX >= camAbsX + picW && !lastXCFound) {
+            if (currAbsX >= cAbsX + picW && !lastXCFound) {
                 lastXC = xC;
                 lastXCFound = true;
             }
             xC++;
-        } while (currAbsX <= camAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)));
+        } while (currAbsX <= cAbsX + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)));
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
         do {
-            if (currAbsY > camAbsY && !firstYCFound) {
+            if (currAbsY > cAbsY && !firstYCFound) {
                 firstYC = yC - 1;
                 firstYCFound = true;
             }
             cellAbsYsLong[yC] = currAbsY;
             yOffset = yOffsets.get(yC);
             currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
-            if (currAbsY >= camAbsY + picH && !lastYCFound) {
+            if (currAbsY >= cAbsY + picH && !lastYCFound) {
                 lastYC = yC;
                 lastYCFound = true;
             }
             yC++;
-        } while (currAbsY <= camAbsY + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)));
+        } while (currAbsY <= cAbsY + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)));
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 
@@ -77,8 +77,8 @@ public class Metadata {
         System.out.println("\t" + Arrays.toString(cellAbsYs));
         System.out.println('}');
 
-        this.camAbsX = camAbsX;
-        this.camAbsY = camAbsY;
+        this.camAbsX = cAbsX;
+        this.camAbsY = cAbsY;
     }
 
     // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}
