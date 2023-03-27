@@ -75,7 +75,8 @@ public class Controller implements Initializable {
                 firstRow.draw(gc);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
-        } else {
+        } 
+        else {
             camera.updateAbsX(-cellSelector.getW());
             if (camera.getAbsX() < DEFAULT_CELL_W) {
                 infoBar.setErrorTxt("CAN'T GO LEFT");
@@ -125,7 +126,8 @@ public class Controller implements Initializable {
                 firstCol.draw(gc);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
-        } else {
+        }
+        else {
             camera.updateAbsY(-cellSelector.getH());
             if (camera.getAbsY() < DEFAULT_CELL_H) {
                 infoBar.setErrorTxt("CAN'T GO UP");
