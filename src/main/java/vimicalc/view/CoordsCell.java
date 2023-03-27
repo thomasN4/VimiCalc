@@ -21,7 +21,7 @@ public class CoordsCell extends Visible {
     }
 
     public void setCoords(int maxXC, int minXC, int maxYC, int minYC) {
-        coords = toAlpha(minXC-1) + minYC + ";" + toAlpha(maxXC-1) + maxYC;
+        coords = toAlpha(minXC-1) + minYC + ":" + toAlpha(maxXC-1) + maxYC;
     }
 
     public String getCoords() {
