@@ -68,7 +68,7 @@ public class Controller implements Initializable {
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < cellSelector.getW()) {
-                while (cellSelector.getX() != cellSelector.getW()) {
+                while (cellSelector.getX() != DEFAULT_CELL_W) {
                     cellSelector.updateX(1);
                     camera.updateAbsX(-1);
                 }
@@ -95,8 +95,8 @@ public class Controller implements Initializable {
         cellSelector.updateYCoord(1);
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
-            if (cellSelector.getY() > camera.picture.getH()) {
-                while (cellSelector.getY() != camera.picture.getH()) {
+            if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
+                while (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
                     cellSelector.updateY(-1);
                     camera.updateAbsY(1);
                 }
@@ -115,7 +115,7 @@ public class Controller implements Initializable {
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1)
             cellSelector.updateYCoord(-1);
-        if (cellSelector.getY() != cellSelector.getH()) {
+        if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < cellSelector.getH()) {
                 while (cellSelector.getY() != cellSelector.getH()) {
@@ -144,8 +144,8 @@ public class Controller implements Initializable {
         cellSelector.updateXCoord(1);
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);
-            if (cellSelector.getX() > camera.picture.getW()) {
-                while (cellSelector.getX() != camera.picture.getW()) {
+            if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
+                while (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
                     cellSelector.updateX(-1);
                     camera.updateAbsX(1);
                 }
@@ -356,8 +356,10 @@ public class Controller implements Initializable {
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
-                goTo(1, 1);
+                moveUp();
+                moveLeft();
                 command.interpret(sheet);
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setCommandTxt("");
@@ -365,9 +367,6 @@ public class Controller implements Initializable {
                     infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
                     infoBar.setError(true);
                 }
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                camera.ready();
-                cellSelector.readCell(camera.picture.data());
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length()-1)
