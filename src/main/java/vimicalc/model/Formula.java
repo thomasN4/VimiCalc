@@ -18,7 +18,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for ( ; s.charAt(i) != ':'; i++)
+        for ( ; s.charAt(i) != ';'; i++)
             firstCoords.append(s.charAt(i));
         lastCoords = s.substring(i+1);
 
@@ -53,7 +53,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for (; coords.charAt(i) != ':'; i++)
+        for (; coords.charAt(i) != ';'; i++)
             firstCoords.append(coords.charAt(i));
         lastCoords = coords.substring(i+1);
 
@@ -217,7 +217,7 @@ public class Formula extends Interpretable {
                             System.out.println("Not enough args.");
                     }
                     default -> {
-                        if (func.contains(":") || func.contains("\\")) continue;
+                        if (func.contains(";") || func.contains("\\")) continue;
                         args[i] = cellToLexeme(func, sheet);
                     }
                 }

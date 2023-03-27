@@ -12,9 +12,11 @@ public class InfoBar extends Visible {
 
     private String keyStroke;
     private String commandTxt;
+    private String errorTxt;
     private boolean enteringFormula;
     private boolean enteringCommand;
     private boolean enteringCommandInVISUAL;
+    private boolean error;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
@@ -37,6 +39,9 @@ public class InfoBar extends Visible {
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
+    public void setError(boolean error) { this.error = error; }
+
+    public boolean isError() { return error; }
 
     public void setKeyStroke(String keyStroke) {
         this.keyStroke = keyStroke;
@@ -44,6 +49,9 @@ public class InfoBar extends Visible {
 
     public void setCommandTxt(String commandTxt) {
         this.commandTxt = commandTxt;
+    }
+    public void setErrorTxt(String errorTxt) {
+        this.errorTxt = errorTxt;
     }
 
     public void draw(GraphicsContext gc, Cell selectedCell) {
@@ -63,7 +71,9 @@ public class InfoBar extends Visible {
             gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
         } else if (isNumber(selectedCell.txt())) {
             gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
-        } else
+        } else if (error) {
+            gc.fillText(errorTxt, 2, y + 16);
+        }  else
             gc.fillText("(I)", 2, y + 16);
     }
 }

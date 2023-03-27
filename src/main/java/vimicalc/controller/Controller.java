@@ -17,6 +17,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
@@ -31,9 +32,10 @@ public class Controller implements Initializable {
 //    private static int MOUSE_Y;
 
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
-
-    @FXML private Canvas canvas;
-
+    @FXML
+    private Canvas canvas;
+    public static LinkedList<Cell> recordedCell = new LinkedList<>();
+    public static int dCounter = 1;
     private static Camera camera;
     private static Command command;
     private static CoordsCell coordsCell;
@@ -74,6 +76,8 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
+            infoBar.setErrorTxt("CAN'T GO LEFT");
+            infoBar.setError(true);
             camera.updateAbsX(-cellSelector.getW());
             if (camera.getAbsX() < DEFAULT_CELL_W)
                 while (camera.getAbsX() != DEFAULT_CELL_W)
@@ -87,8 +91,8 @@ public class Controller implements Initializable {
     private static void moveDown() {
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
-        cellSelector.updateY(cellSelector.getH());
         if (cellSelector.getY() != camera.picture.getH()) {
+            cellSelector.updateY(cellSelector.getH());
             if (cellSelector.getY() > camera.picture.getH()) {
                 while (cellSelector.getY() != camera.picture.getH()) {
                     cellSelector.updateY(-1);
@@ -121,6 +125,8 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } else {
+            infoBar.setErrorTxt("CAN'T GO UP");
+            infoBar.setError(true);
             camera.updateAbsY(-cellSelector.getH());
             if (camera.getAbsY() < DEFAULT_CELL_H)
                 while (camera.getAbsY() != DEFAULT_CELL_H)
@@ -134,8 +140,8 @@ public class Controller implements Initializable {
     private static void moveRight() {
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
-        cellSelector.updateX(cellSelector.getW());
         if (cellSelector.getX() != camera.picture.getW()) {
+            cellSelector.updateX(cellSelector.getW());
             if (cellSelector.getX() > camera.picture.getW()) {
                 while (cellSelector.getX() != camera.picture.getW()) {
                     cellSelector.updateX(-1);
@@ -154,7 +160,52 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
 
+    public static void undo() {//the value is at zero when i record them, hence the errors
+        goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
+        cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
+        ));
+        sheet.addCell(cellSelector.getSelectedCell());
+        cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
+        dCounter = dCounter + 2;
+    }
+
+    public static void redo() {
+        dCounter = dCounter - 2;
+        goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
+        cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
+        ));
+        sheet.addCell(cellSelector.getSelectedCell());
+        cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
+    }
+
+    public static void goTo(int x, int y) {
+        while ((x - cellSelector.getXCoord()) > 0) {
+            moveRight();
+        }
+        while ((x - cellSelector.getXCoord()) < 0) {
+            moveLeft();
+        }
+        while ((y - cellSelector.getYCoord()) > 0) {
+            moveDown();
+        }
+        while ((y - cellSelector.getYCoord()) < 0) {
+            moveUp();
+        }
+        firstRow.draw(gc, camera.getAbsX());
+        firstCol.draw(gc, camera.getAbsY());
+        coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        coordsCell.draw(gc);
+        statusBar.draw(gc);
+    }
+
     public static void onKeyPressed(@NotNull KeyEvent event) {
+        infoBar.setError(false);
         switch (statusBar.getMode().charAt(1)) {
             case 'C' -> commandInput(event);
             case 'F' -> formulaInput(event);
@@ -166,7 +217,43 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
+                        if (cellSelector.getSelectedCell().txt().equals("")) {
+                            infoBar.setErrorTxt("CAN'T DELETE RIGHT NOW");
+                            infoBar.setError(true);
+                        }
+                        recordedCell.add(cellSelector.getSelectedCell());
                         sheet.deleteCell(coordsCell.getCoords());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                        recordedCell.add(cellSelector.getSelectedCell());
+                    }
+                    case U -> {
+                        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
+                            if (infoBar.isError()) {
+                                infoBar.setError(false);
+                            }
+                            undo();
+                        }
+                        else {
+                            infoBar.setErrorTxt("CAN'T UNDO RIGHT NOW");
+                            infoBar.setError(true);
+                        }
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                    }
+                    case R -> {
+                        if (!recordedCell.isEmpty() && !(dCounter <= 1)) {
+                            if (infoBar.isError()) {
+                                infoBar.setError(false);
+                            }
+                            redo();
+                        }
+                        else {
+                            infoBar.setErrorTxt("CAN'T REDO RIGHT NOW");
+                            infoBar.setError(true);
+                        }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
@@ -178,6 +265,7 @@ public class Controller implements Initializable {
                                 cellSelector.getSelectedCell().value()
                             ));
                         }
+                        recordedCell.add(cellSelector.getSelectedCell());
                         cellSelector.draw(gc);
                     }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
@@ -272,6 +360,11 @@ public class Controller implements Initializable {
                 command.interpret(sheet );
                 command = new Command("");
                 infoBar.setCommandTxt("");
+                if (!command.commandExists) {
+                    infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
+                    infoBar.setError(true);
+                }
+
             }
             case BACK_SPACE -> command.setTxt(
                     command.getTxt().substring(0, command.getTxt().length()-1)
@@ -471,6 +564,7 @@ public class Controller implements Initializable {
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                recordedCell.add(cellSelector.getSelectedCell());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -480,11 +574,17 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case BACK_SPACE -> {
-                cellSelector.getSelectedCell().setTxt(
-                    cellSelector.getSelectedCell().txt().substring(0,
-                        cellSelector.getSelectedCell().txt().length() - 1)
-                );
-                cellSelector.draw(gc);
+                if (cellSelector.getSelectedCell().txt().equals("")) {
+                    infoBar.setErrorTxt("CELL IS EMPTY");
+                    infoBar.setError(true);
+                }
+                else {
+                    cellSelector.getSelectedCell().setTxt(
+                            cellSelector.getSelectedCell().txt().substring(0,
+                                    cellSelector.getSelectedCell().txt().length() - 1)
+                    );
+                    cellSelector.draw(gc);
+                }
             }
             default -> cellSelector.draw(gc, event.getText());
         }
@@ -510,6 +610,7 @@ public class Controller implements Initializable {
                 infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
+                recordedCell.add(cellSelector.getSelectedCell());
             }
             case BACK_SPACE -> cellSelector.getSelectedCell().formula().setTxt(
                 cellSelector.getSelectedCell().formula().getTxt().substring(
@@ -602,8 +703,8 @@ public class Controller implements Initializable {
         camera.ready();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         coordsCell.draw(gc);
-        firstCol.draw(gc);
-        firstRow.draw(gc);
+        firstCol.draw(gc, camera.getAbsY());
+        firstRow.draw(gc, camera.getAbsX());
         statusBar.draw(gc);
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
