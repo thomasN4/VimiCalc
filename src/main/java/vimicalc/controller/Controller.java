@@ -174,7 +174,6 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
         dCounter = dCounter + 2;
     }
-
     public static void redo() {
         dCounter = dCounter - 2;
         goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
