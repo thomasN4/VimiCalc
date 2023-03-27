@@ -110,7 +110,13 @@ public class CellSelector extends Visible {
                     );
                 break;
             }
+    }
+
+    public void updateW() {
         w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
+    }
+
+    public void updateH() {
         h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }

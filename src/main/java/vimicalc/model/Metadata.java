@@ -49,7 +49,7 @@ public class Metadata {
             currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
             cellAbsYsLong[yC] = currAbsY;
             if (currAbsY > camAbsY && !firstYCFound) {
-                firstYC = yC-1;
+                firstYC = yC - 1;
                 firstYCFound = true;
             }
             yC++;
