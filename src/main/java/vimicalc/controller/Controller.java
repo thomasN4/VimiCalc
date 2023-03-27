@@ -160,7 +160,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
 
-    public static void undo() {//the value is at zero when i record them, hence the errors
+    public static void undo() {  // the value is at zero when I record them, hence the errors
         goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
         cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -197,8 +197,8 @@ public class Controller implements Initializable {
         while ((y - cellSelector.getYCoord()) < 0) {
             moveUp();
         }
-        firstRow.draw(gc, camera.getAbsX());
-        firstCol.draw(gc, camera.getAbsY());
+        firstRow.draw(gc);
+        firstCol.draw(gc);
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         coordsCell.draw(gc);
         statusBar.draw(gc);
@@ -360,7 +360,7 @@ public class Controller implements Initializable {
                 command.interpret(sheet );
                 command = new Command("");
                 infoBar.setCommandTxt("");
-                if (!command.commandExists) {
+                if (!command.commandExists()) {
                     infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
                     infoBar.setError(true);
                 }
@@ -703,8 +703,8 @@ public class Controller implements Initializable {
         camera.ready();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         coordsCell.draw(gc);
-        firstCol.draw(gc, camera.getAbsY());
-        firstRow.draw(gc, camera.getAbsX());
+        firstCol.draw(gc);
+        firstRow.draw(gc);
         statusBar.draw(gc);
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
