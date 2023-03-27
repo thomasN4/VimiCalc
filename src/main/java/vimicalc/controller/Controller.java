@@ -64,7 +64,6 @@ public class Controller implements Initializable {
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1)
             cellSelector.updateXCoord(-1);
-        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < cellSelector.getW()) {
@@ -90,7 +89,6 @@ public class Controller implements Initializable {
     }
     private static void moveDown() {
         cellSelector.updateYCoord(1);
-        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(cellSelector.getH());
             if (cellSelector.getY() > camera.picture.getH()) {
@@ -113,7 +111,6 @@ public class Controller implements Initializable {
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1)
             cellSelector.updateYCoord(-1);
-        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != cellSelector.getH()) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < cellSelector.getH()) {
@@ -139,7 +136,6 @@ public class Controller implements Initializable {
     }
     private static void moveRight() {
         cellSelector.updateXCoord(1);
-        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(cellSelector.getW());
             if (cellSelector.getX() > camera.picture.getW()) {
@@ -163,9 +159,9 @@ public class Controller implements Initializable {
     public static void undo() {  // the value is at zero when I record them, hence the errors
         goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
         cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
+            cellSelector.getXCoord(),
+            cellSelector.getYCoord(),
+            cellSelector.getSelectedCell().txt()
         ));
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
@@ -176,9 +172,9 @@ public class Controller implements Initializable {
         dCounter = dCounter - 2;
         goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
         cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
+            cellSelector.getXCoord(),
+            cellSelector.getYCoord(),
+            cellSelector.getSelectedCell().txt()
         ));
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
