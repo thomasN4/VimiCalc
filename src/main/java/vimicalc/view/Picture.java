@@ -61,13 +61,11 @@ public class Picture extends Visible {
         gc.setFill(Color.DARKGRAY);
         selectedCoords.forEach(c -> {
             System.out.println("Drawing the selected cells...");
-            int cellW = metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
-                cellH = metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]];
             gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - absX + cellW,
-                metadata.getCellAbsYs()[c[1]] - absY + cellH,
-                cellW,
-                cellH
+                metadata.getCellAbsXs()[c[0]] - absX + DCW,
+                metadata.getCellAbsYs()[c[1]] - absY + DCH,
+                metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
+                metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
             );
         });
 
