@@ -114,8 +114,28 @@ public class Cell {
         this.txt = txt;
     }
 
-    public void setValue(Double value) {
-        this.value = value;
-        txt = format.format(value);
+    public Cell copy() {
+        if (formula != null) {
+            return new Cell(
+                xCoord,
+                yCoord,
+                value,
+                new Formula(formula.getTxt(), xCoord, yCoord)
+            );
+        }
+        else if (isNumber(txt)) {
+            return new Cell(
+                xCoord,
+                yCoord,
+                value
+            );
+        }
+        else {
+            return new Cell(
+                xCoord,
+                yCoord,
+                txt
+            );
+        }
     }
 }
