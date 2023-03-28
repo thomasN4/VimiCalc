@@ -14,7 +14,6 @@ public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
     private final ArrayList<Dependency> dependencies;
-
     private Metadata picMetadata;
 
     public Sheet() {

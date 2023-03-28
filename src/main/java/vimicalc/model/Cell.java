@@ -13,55 +13,49 @@ public class Cell {
     private String txt;
     private Formula formula;
     private double value;
-    private final DecimalFormat format; // final, pour l'instant, car le compiler va complain otherwise
+    private final DecimalFormat format;  // final, pour l'instant
+    private Cell mergedWith;
+    private boolean mergeStart;
+    private boolean mergeEnd;
 
     public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        format = new DecimalFormat("0.0");
+        this(xCoord, yCoord);
         value = result;
-        txt = format.format(result);
+        txt = String.valueOf(result);
+        if (txt.contains("."))
+            txt = format.format(result);
         if (isNumber(formula.getTxt()))
             this.formula = null;
         else this.formula = formula;
     }
 
     public Cell(int xCoord, int yCoord, String txt) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        format = new DecimalFormat("0.0");
+        this(xCoord, yCoord);
         try {
             value = Double.parseDouble(txt);
-            this.txt = format.format(value);
+            this.txt = String.valueOf(value);
+            if (this.txt.contains("."))
+                this.txt = format.format(value);
         } catch (Exception ignored) {
-            value = 0;
             this.txt = txt;
         }
     }
 
     public Cell(int xCoord, int yCoord, double value) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
+        this(xCoord, yCoord);
         this.value = value;
-        format = new DecimalFormat("0.0");
-        txt = format.format(value);
-    }
-
-    public Cell(int xCoord, int yCoord, String txt, Formula formula) {
-        this.xCoord = xCoord;
-        this.yCoord = yCoord;
-        this.txt = txt;
-        value = 0;
-        this.formula = formula;
-        format = new DecimalFormat("0.0");
+        txt = String.valueOf(value);
+        if (txt.contains("."))
+            txt = format.format(value);
     }
 
     public Cell(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
-        txt = "";
-        value = 0;
         format = new DecimalFormat("0.0");
+        mergeStart = false;
+        mergeEnd = false;
+        mergedWith = null;
     }
 
     public int xCoord() {
@@ -112,6 +106,30 @@ public class Cell {
 
     public void setTxt(String txt) {
         this.txt = txt;
+    }
+
+    public Cell getMergedWith() {
+        return mergedWith;
+    }
+
+    public void setMergedWith(Cell mergedWith) {
+        this.mergedWith = mergedWith;
+    }
+
+    public boolean isMergeStart() {
+        return mergeStart;
+    }
+
+    public void setMergeStart(boolean mergeStart) {
+        this.mergeStart = mergeStart;
+    }
+
+    public boolean isMergeEnd() {
+        return mergeEnd;
+    }
+
+    public void setMergeEnd(boolean mergeEnd) {
+        this.mergeEnd = mergeEnd;
     }
 
     public Cell copy() {

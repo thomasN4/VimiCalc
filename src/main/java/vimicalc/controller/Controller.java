@@ -231,6 +231,41 @@ public class Controller implements Initializable {
                         cellSelector.readCell(camera.picture.data());
                         recordedCell.add(cellSelector.getSelectedCell());
                     }
+                    case M -> {
+                        boolean mergedCsInside = false;
+                        for (int[] coord : selectedCoords) {
+                            if (sheet.findCell(coord[0], coord[1]).isMergeStart()) {
+                                mergedCsInside = true;
+                                break;
+                            }
+                        }
+                        if (mergedCsInside) {
+                            Cell c = sheet.findCell(coordsCell.getCoords());
+                            if (c.isMergeStart()) {
+                                c.setMergeStart(false);
+                                for (Cell d : sheet.getCells()) {
+                                    if (d.getMergedWith() == c) {
+                                        d.setMergedWith(null);
+                                        if (d.isMergeEnd())
+                                            d.setMergeEnd(false);
+                                    }
+                                }
+                            }
+                            else if (c.getMergedWith() != null) {
+                                c.setMergedWith(null);
+                                if (c.isMergeEnd()) c.setMergeEnd(false);
+                                for (Cell d : sheet.getCells()) {
+                                    if (d.getMergedWith() == c.getMergedWith()) {
+                                        d.setMergedWith(null);
+                                        if (d.isMergeEnd())
+                                            d.setMergeEnd(false);
+                                    }
+                                    if (c.getMergedWith() == d)
+                                        d.setMergeStart(false);
+                                }
+                            }
+                        }
+                    }
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
                             if (infoBar.isError()) {
@@ -399,6 +434,55 @@ public class Controller implements Initializable {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
+                }
+                case M -> {
+                    boolean mergedCsInside = false;
+                    for (int[] coord : selectedCoords) {
+                        if (sheet.findCell(coord[0], coord[1]).isMergeStart()) {
+                            mergedCsInside = true;
+                            break;
+                        }
+                    }
+                    if (mergedCsInside) {
+                        for (int[] coord : selectedCoords) {
+                            Cell c = sheet.findCell(coord[0], coord[1]);
+                            if (c.isMergeStart()) {
+                                c.setMergeStart(false);
+                                for (Cell d : sheet.getCells()) {
+                                    if (d.getMergedWith() == c) {
+                                        d.setMergedWith(null);
+                                        if (d.isMergeEnd())
+                                            d.setMergeEnd(false);
+                                    }
+                                }
+                            }
+                            else if (c.getMergedWith() != null) {
+                                c.setMergedWith(null);
+                                if (c.isMergeEnd()) c.setMergeEnd(false);
+                                for (Cell d : sheet.getCells()) {
+                                    if (d.getMergedWith() == c.getMergedWith()) {
+                                        d.setMergedWith(null);
+                                        if (d.isMergeEnd())
+                                            d.setMergeEnd(false);
+                                    }
+                                    if (c.getMergedWith() == d)
+                                        d.setMergeStart(false);
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        Cell mergeStart = sheet.findCell(selectedCoords.get(0)[0], selectedCoords.get(0)[1]);
+                        mergeStart.setMergeStart(true);
+                        sheet.addCell(mergeStart);
+                        Cell mergeEnd = sheet.findCell(
+                                selectedCoords.get(selectedCoords.size() - 1)[0],
+                                selectedCoords.get(selectedCoords.size() - 1)[1]
+                        );
+                        mergeEnd.setMergeEnd(true);
+                        mergeEnd.setMergedWith(mergeStart);
+                        sheet.addCell(mergeEnd);
+                    }
                 }
                 case ESCAPE -> {
                     statusBar.setMode(MODE[3]);
