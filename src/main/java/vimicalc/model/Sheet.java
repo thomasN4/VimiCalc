@@ -167,10 +167,8 @@ public class Sheet {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated(true);
         System.out.println(d.log());
-        for (Dependency e : dependencies) {
-            if (e.isReadyToBeEvaluated())
-                e.evaluate(this);
-        }
+        if (d.isReadyToBeEvaluated())
+            d.evaluate(this);
         for (Dependency e : d.getDependents())
             evalDependencies(e);
     }

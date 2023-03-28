@@ -274,6 +274,13 @@ public class Controller implements Initializable {
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
                         statusBar.setMode(MODE[1]);
+                        if (cellSelector.getSelectedCell().formula() == null)
+                            cellSelector.setSelectedCell(new Cell(
+                                cellSelector.getXCoord(),
+                                cellSelector.getYCoord(),
+                                cellSelector.getSelectedCell().value(),
+                                new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                            ));
                         infoBar.setEnteringFormula(true);
                     }
                     case V -> {

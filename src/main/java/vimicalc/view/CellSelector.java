@@ -6,7 +6,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
-import vimicalc.model.Formula;
 import vimicalc.model.Metadata;
 
 import java.util.ArrayList;
@@ -86,32 +85,10 @@ public class CellSelector extends Visible {
     public void readCell(@NotNull ArrayList<Cell> cells) {
         w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
         h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
-        selectedCell = new Cell(xCoord, yCoord, "", new Formula("", xCoord, yCoord));
+        selectedCell = new Cell(xCoord, yCoord);
         for (Cell c : cells)
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.formula() == null) {
-                    if (c.value() != 0)
-                        selectedCell = new Cell(
-                            xCoord,
-                            yCoord,
-                            c.txt(),
-                            new Formula(String.valueOf(c.value()), xCoord, yCoord)
-                        );
-                    else
-                        selectedCell = new Cell(
-                            xCoord,
-                            yCoord,
-                            c.txt(),
-                            new Formula("", xCoord, yCoord)
-                        );
-                }
-                else
-                    selectedCell = new Cell(
-                        xCoord,
-                        yCoord,
-                        c.value(),
-                        new Formula(c.formula().getTxt(), xCoord, yCoord)
-                    );
+                selectedCell = c.copy();
                 break;
             }
     }

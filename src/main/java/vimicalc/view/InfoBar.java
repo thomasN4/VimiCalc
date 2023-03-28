@@ -67,7 +67,7 @@ public class InfoBar extends Visible {
             gc.fillText(':' + commandTxt, 2, y + 16);
         } else if (enteringCommandInVISUAL) {
             gc.fillText(":'<,'>" + commandTxt, 2, y + 16);
-        } else if (!selectedCell.formula().getTxt().equals("")) {
+        } else if (selectedCell.formula() != null) {
             gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
         } else if (isNumber(selectedCell.txt())) {
             gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
