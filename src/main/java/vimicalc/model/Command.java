@@ -5,7 +5,7 @@ public class Command extends Interpretable {
     public Command(String txt, int sCX, int sCY) {
         super(txt, sCX, sCY);
     }
-    private boolean commandExists = true;
+    private static boolean commandExists = true;
     public void readFile(Sheet sheet, Lexeme[] command) {
         try {
             sheet.readFile(command[1].getFunc());
