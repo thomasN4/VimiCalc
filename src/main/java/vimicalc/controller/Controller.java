@@ -298,11 +298,8 @@ public class Controller implements Initializable {
                     }
                     case A, I -> {
                         statusBar.setMode(MODE[2]);
-                        if (cellSelector.getSelectedCell().value() != 0) {
-                            cellSelector.getSelectedCell().setTxt(String.valueOf(
-                                cellSelector.getSelectedCell().value()
-                            ));
-                        }
+                        if (cellSelector.getSelectedCell().txt() == null)
+                            cellSelector.getSelectedCell().setTxt("");
                         recordedCell.add(cellSelector.getSelectedCell());
                         cellSelector.draw(gc);
                     }
