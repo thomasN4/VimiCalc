@@ -73,7 +73,8 @@ public class InfoBar extends Visible {
             gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
         } else if (error) {
             gc.fillText(errorTxt, 2, y + 16);
-        }  else
+        } else {
             gc.fillText("(I)", 2, y + 16);
+        }
     }
 }
