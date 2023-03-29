@@ -313,7 +313,7 @@ class Dependency {
                 c.formula()
             ));
         }
-        else if (c.txt().equals("")) {
+        else if (c.txt() == null) {
             sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
             sheet.getCells().add(new Cell(
                 xCoord,
