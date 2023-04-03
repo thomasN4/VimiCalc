@@ -42,7 +42,6 @@ public class Sheet {
     public void deleteCell(int xCoord, int yCoord) {
         cells.remove(findCell(xCoord, yCoord));
         checkForDependents(xCoord, yCoord);
-        dependencies.remove(findDependency(xCoord, yCoord));
     }
 
     public Cell findCell(@NotNull String coords) {
