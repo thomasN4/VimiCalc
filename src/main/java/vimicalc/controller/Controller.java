@@ -417,7 +417,24 @@ public class Controller implements Initializable {
                     for (int[] coord : selectedCoords) {
                         Cell c = sheet.findCell(coord[0], coord[1]);
                         if (c.getMergedWith() != null) {
-                            c.unMerge();
+                            for (int i = c.getMergedWith().xCoord();
+                                 i <= c.getMergedWith().getMergedWith().xCoord();
+                                 i++)
+                            {
+                                for (int j = c.getMergedWith().yCoord();
+                                     j <= c.getMergedWith().getMergedWith().yCoord();
+                                     j++)
+                                {
+                                    if (!(i == c.getMergedWith().xCoord() && j == c.getMergedWith().yCoord()) &&
+                                        !(i == c.getMergedWith().getMergedWith().xCoord() &&
+                                          j == c.getMergedWith().getMergedWith().yCoord()))
+                                    {
+                                        sheet.findCell(i, j).unMerge();
+                                    }
+                                }
+                            }
+                            c.getMergedWith().getMergedWith().unMerge();
+                            c.getMergedWith().unMerge();
                             if (!mergedCsInside) mergedCsInside = true;
                         }
                     }
@@ -445,6 +462,18 @@ public class Controller implements Initializable {
                             sheet.addCell(mergeStart);
                         if (mergeEnd.txt() == null)
                             sheet.addCell(mergeEnd);
+
+                        for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord() ; i++) {
+                            for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); j++) {
+                                if (!(i == mergeStart.xCoord() && j == mergeStart.yCoord()) &&
+                                    !(i == mergeEnd.xCoord() && j == mergeEnd.yCoord())) {
+                                    Cell c = sheet.findCell(i, j);
+                                    c.setMergedWith(mergeStart);
+                                    if (c.txt() == null)
+                                        sheet.addCell(c);
+                                }
+                            }
+                        }
                     }
                 }
                 case ESCAPE -> {
