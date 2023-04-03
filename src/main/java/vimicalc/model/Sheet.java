@@ -42,6 +42,9 @@ public class Sheet {
     public void deleteCell(int xCoord, int yCoord) {
         cells.remove(findCell(xCoord, yCoord));
         checkForDependents(xCoord, yCoord);
+        Dependency d = findDependency(xCoord, yCoord);
+        if (d != null)
+            d.setDependeds(new ArrayList<>());
     }
 
     public void purgeEmptyCells() {
@@ -223,7 +226,7 @@ class Dependency {
     private final int xCoord, yCoord;
     private boolean toBeEvaluated;
     private final ArrayList<Dependency> dependents;
-    private final ArrayList<Dependency> dependeds;
+    private ArrayList<Dependency> dependeds;
 
     public Dependency(int xCoord, int yCoord) {
         this.xCoord = xCoord;
@@ -251,6 +254,10 @@ class Dependency {
 
     public ArrayList<Dependency> getDependents() {
         return dependents;
+    }
+
+    public void setDependeds(ArrayList<Dependency> dependeds) {
+        this.dependeds = dependeds;
     }
 
     public void setToBeEvaluated(boolean toBeEvaluated) {
