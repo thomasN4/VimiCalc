@@ -31,20 +31,27 @@ public class Cell {
     public Cell(int xCoord, int yCoord, String txt) {
         this(xCoord, yCoord);
         try {
-            value = Double.parseDouble(txt);
-            this.txt = String.valueOf(value);
-            if (this.txt.contains("."))
-                this.txt = format.format(value);
-        } catch (Exception ignored) {
+            value = Integer.parseInt(txt);
             this.txt = txt;
+        } catch (Exception ignored) {
+            try {
+                value = Double.parseDouble(txt);
+                this.txt = String.valueOf(value);
+                if (this.txt.contains("."))
+                    this.txt = format.format(value);
+            } catch (Exception ignored1) {
+                this.txt = txt;
+            }
         }
     }
 
     public Cell(int xCoord, int yCoord, double value) {
         this(xCoord, yCoord);
         this.value = value;
-        txt = String.valueOf(value);
-        if (txt.contains("."))
+        int valInt = (int) value;
+        if (valInt - value == 0)
+            txt = String.valueOf(valInt);
+        else
             txt = format.format(value);
     }
 
