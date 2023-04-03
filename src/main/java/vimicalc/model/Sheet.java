@@ -44,6 +44,10 @@ public class Sheet {
         checkForDependents(xCoord, yCoord);
     }
 
+    public void purgeEmptyCells() {
+        cells.removeIf(c -> c.txt() == null && c.getMergedWith() == null);
+    }
+
     public Cell findCell(@NotNull String coords) {
         int[] coordsInt = coordsStrToInt(coords);
         return findCell(coordsInt[0], coordsInt[1]);
@@ -116,7 +120,7 @@ public class Sheet {
         }
 
         if (needsEvaluating) {
-            cells.removeIf(c -> c.txt().equals("t3mp"));
+            purgeEmptyCells();
             System.out.println("All of the dependencies (result):");
             dependencies.forEach(d -> System.out.println(d.log()));
         }
@@ -277,11 +281,7 @@ class Dependency {
         }
         else if (c.txt() == null) {
             sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
-            sheet.getCells().add(new Cell(
-                xCoord,
-                yCoord,
-                "t3mp"
-            ));
+            sheet.getCells().add(new Cell(xCoord, yCoord));
         }
         toBeEvaluated = false;
         System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord + "...");

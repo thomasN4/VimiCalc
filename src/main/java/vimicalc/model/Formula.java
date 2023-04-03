@@ -30,7 +30,7 @@ public class Formula extends Interpretable {
                 final int J = j;
                 sheet.getCells().forEach(c -> {
                     if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
-                        if (c.txt() == null || c.txt().equals("t3mp"))
+                        if (c.txt() == null)
                             mat[I][J] = 0;
                         else
                             mat[I][J] = c.value();
@@ -65,7 +65,7 @@ public class Formula extends Interpretable {
         for (Cell c : sheet.getCells())
             if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
                 c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
-                if (c.txt() == null || c.txt().equals("t3mp"))
+                if (c.txt() == null)
                     vectorLong[i++] = new Lexeme("I");
                 else
                     vectorLong[i++] = new Lexeme(c.value());
@@ -246,7 +246,7 @@ public class Formula extends Interpretable {
         sheet.addDependent(sCX, sCY);
         sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
 
-        if (c.txt() == null || c.txt().equals("t3mp"))
+        if (c.txt() == null)
             return new Lexeme("I");
         else
             return new Lexeme(c.value());

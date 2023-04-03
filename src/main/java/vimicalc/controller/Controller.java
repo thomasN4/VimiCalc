@@ -438,6 +438,7 @@ public class Controller implements Initializable {
                             if (!mergedCsInside) mergedCsInside = true;
                         }
                     }
+                    sheet.purgeEmptyCells();
 
                     if (!mergedCsInside) {
                         int maxXC = Integer.MIN_VALUE;
