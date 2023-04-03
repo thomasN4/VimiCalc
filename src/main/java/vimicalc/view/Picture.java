@@ -55,6 +55,14 @@ public class Picture extends Visible {
                 c.xCoord() <= metadata.getLastXC() &&
                 c.yCoord() >= metadata.getFirstYC() &&
                 c.yCoord() <= metadata.getLastYC()) {
+                if (c.getMergedWith() != null && !c.isMergeStart()) {
+                    visibleCells.removeIf(d ->
+                        c.getMergedWith().xCoord() == d.xCoord() &&
+                        c.getMergedWith().yCoord() == d.yCoord()
+                    );
+                    visibleCells.add(c.getMergedWith());
+                }
+                else
                     visibleCells.add(c);
             }
         }
@@ -85,13 +93,21 @@ public class Picture extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         int cellHeight, cellWidth;
         for (Cell c : visibleCells) {
-            cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
-            cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
+            if (c.isMergeStart()) {
+                cellHeight = metadata.getCellAbsYs()[c.getMergedWith().yCoord()+1] -
+                             metadata.getCellAbsYs()[c.yCoord()];
+                cellWidth = metadata.getCellAbsXs()[c.getMergedWith().xCoord()+1] -
+                            metadata.getCellAbsXs()[c.xCoord()];
+            }
+            else {
+                cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
+                cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
+            }
             gc.fillText(
-                    c.txt(),
-                    metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
-                    metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
-                    cellWidth
+                c.txt(),
+                metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
+                cellWidth
             );
         }
     }

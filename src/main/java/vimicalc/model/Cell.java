@@ -16,7 +16,6 @@ public class Cell {
     private final DecimalFormat format;  // final, pour l'instant
     private Cell mergedWith;
     private boolean mergeStart;
-    private boolean mergeEnd;
 
     public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
         this(xCoord, yCoord);
@@ -54,7 +53,6 @@ public class Cell {
         this.yCoord = yCoord;
         format = new DecimalFormat("0.0");
         mergeStart = false;
-        mergeEnd = false;
         mergedWith = null;
     }
 
@@ -116,20 +114,19 @@ public class Cell {
         this.mergedWith = mergedWith;
     }
 
+    public void unMerge() {
+        mergeStart = false;
+        mergedWith.setMergeStart(false);
+        mergedWith.setMergedWith(null);
+        mergedWith = null;
+    }
+
     public boolean isMergeStart() {
         return mergeStart;
     }
 
     public void setMergeStart(boolean mergeStart) {
         this.mergeStart = mergeStart;
-    }
-
-    public boolean isMergeEnd() {
-        return mergeEnd;
-    }
-
-    public void setMergeEnd(boolean mergeEnd) {
-        this.mergeEnd = mergeEnd;
     }
 
     public Cell copy() {

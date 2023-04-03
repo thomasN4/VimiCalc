@@ -63,8 +63,10 @@ public class Controller implements Initializable {
     */
 
     private static void moveLeft() {
-        if (cellSelector.getXCoord() != 1)
+        if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
+            cellSelector.readCell(camera.picture.data());
+        }
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < cellSelector.getW()) {
@@ -73,7 +75,6 @@ public class Controller implements Initializable {
                     camera.updateAbsX(-1);
                 }
                 firstRow.draw(gc);
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             }
         } 
         else {
@@ -94,6 +95,7 @@ public class Controller implements Initializable {
     private static void moveDown() {
         int prevH = cellSelector.getH();
         cellSelector.updateYCoord(1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -114,8 +116,10 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
     }
     private static void moveUp() {
-        if (cellSelector.getYCoord() != 1)
+        if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
+            cellSelector.readCell(camera.picture.data());
+        }
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < cellSelector.getH()) {
@@ -144,6 +148,7 @@ public class Controller implements Initializable {
     private static void moveRight() {
         int prevW = cellSelector.getW();
         cellSelector.updateXCoord(1);
+        cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);
             if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
@@ -220,7 +225,7 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
-                        if (cellSelector.getSelectedCell().txt().equals("")) {
+                        if (cellSelector.getSelectedCell().txt() == null) {
                             infoBar.setErrorTxt("CAN'T DELETE RIGHT NOW");
                             infoBar.setError(true);
                         }
@@ -232,39 +237,9 @@ public class Controller implements Initializable {
                         recordedCell.add(cellSelector.getSelectedCell());
                     }
                     case M -> {
-                        boolean mergedCsInside = false;
-                        for (int[] coord : selectedCoords) {
-                            if (sheet.findCell(coord[0], coord[1]).isMergeStart()) {
-                                mergedCsInside = true;
-                                break;
-                            }
-                        }
-                        if (mergedCsInside) {
-                            Cell c = sheet.findCell(coordsCell.getCoords());
-                            if (c.isMergeStart()) {
-                                c.setMergeStart(false);
-                                for (Cell d : sheet.getCells()) {
-                                    if (d.getMergedWith() == c) {
-                                        d.setMergedWith(null);
-                                        if (d.isMergeEnd())
-                                            d.setMergeEnd(false);
-                                    }
-                                }
-                            }
-                            else if (c.getMergedWith() != null) {
-                                c.setMergedWith(null);
-                                if (c.isMergeEnd()) c.setMergeEnd(false);
-                                for (Cell d : sheet.getCells()) {
-                                    if (d.getMergedWith() == c.getMergedWith()) {
-                                        d.setMergedWith(null);
-                                        if (d.isMergeEnd())
-                                            d.setMergeEnd(false);
-                                    }
-                                    if (c.getMergedWith() == d)
-                                        d.setMergeStart(false);
-                                }
-                            }
-                        }
+                        Cell c = sheet.findCell(coordsCell.getCoords());
+                        if (c.getMergedWith() != null)
+                            c.unMerge();
                     }
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
@@ -397,8 +372,14 @@ public class Controller implements Initializable {
                 infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
-                moveUp();
-                moveLeft();
+                if (cellSelector.getX() == 0)
+                    moveRight();
+                else
+                    moveLeft();
+                if (cellSelector.getY() == 0)
+                    moveDown();
+                else
+                    moveUp();
                 command.interpret(sheet);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 goTo(prevXC, prevYC);
@@ -425,60 +406,45 @@ public class Controller implements Initializable {
         else {
             switch (event.getCode()) {
                 case D -> {
-                    selectedCoords.forEach(coord -> sheet.getCells().removeIf(
-                        cell -> cell.xCoord() == coord[0] && cell.yCoord() == coord[1]
-                    ));
+                    selectedCoords.forEach(coord -> sheet.deleteCell(coord[0], coord[1]));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                 }
                 case M -> {
                     boolean mergedCsInside = false;
+
                     for (int[] coord : selectedCoords) {
-                        if (sheet.findCell(coord[0], coord[1]).isMergeStart()) {
-                            mergedCsInside = true;
-                            break;
+                        Cell c = sheet.findCell(coord[0], coord[1]);
+                        if (c.getMergedWith() != null) {
+                            c.unMerge();
+                            if (!mergedCsInside) mergedCsInside = true;
                         }
                     }
-                    if (mergedCsInside) {
-                        for (int[] coord : selectedCoords) {
-                            Cell c = sheet.findCell(coord[0], coord[1]);
-                            if (c.isMergeStart()) {
-                                c.setMergeStart(false);
-                                for (Cell d : sheet.getCells()) {
-                                    if (d.getMergedWith() == c) {
-                                        d.setMergedWith(null);
-                                        if (d.isMergeEnd())
-                                            d.setMergeEnd(false);
-                                    }
-                                }
-                            }
-                            else if (c.getMergedWith() != null) {
-                                c.setMergedWith(null);
-                                if (c.isMergeEnd()) c.setMergeEnd(false);
-                                for (Cell d : sheet.getCells()) {
-                                    if (d.getMergedWith() == c.getMergedWith()) {
-                                        d.setMergedWith(null);
-                                        if (d.isMergeEnd())
-                                            d.setMergeEnd(false);
-                                    }
-                                    if (c.getMergedWith() == d)
-                                        d.setMergeStart(false);
-                                }
-                            }
+
+                    if (!mergedCsInside) {
+                        int maxXC = Integer.MIN_VALUE;
+                        int minXC = Integer.MAX_VALUE;
+                        int maxYC = Integer.MIN_VALUE;
+                        int minYC = Integer.MAX_VALUE;
+                        for (int[] c : selectedCoords) {
+                            if (c[0] > maxXC) maxXC = c[0];
+                            if (c[0] < minXC) minXC = c[0];
+                            if (c[1] > maxYC) maxYC = c[1];
+                            if (c[1] < minYC) minYC = c[1];
                         }
-                    }
-                    else {
-                        Cell mergeStart = sheet.findCell(selectedCoords.get(0)[0], selectedCoords.get(0)[1]);
+
+                        Cell mergeStart = sheet.findCell(maxXC, maxYC);
+                        Cell mergeEnd = sheet.findCell(minXC, minYC);
+
                         mergeStart.setMergeStart(true);
-                        sheet.addCell(mergeStart);
-                        Cell mergeEnd = sheet.findCell(
-                                selectedCoords.get(selectedCoords.size() - 1)[0],
-                                selectedCoords.get(selectedCoords.size() - 1)[1]
-                        );
-                        mergeEnd.setMergeEnd(true);
+                        mergeStart.setMergedWith(mergeEnd);
                         mergeEnd.setMergedWith(mergeStart);
-                        sheet.addCell(mergeEnd);
+
+                        if (mergeStart.txt() == null)
+                            sheet.addCell(mergeStart);
+                        if (mergeEnd.txt() == null)
+                            sheet.addCell(mergeEnd);
                     }
                 }
                 case ESCAPE -> {

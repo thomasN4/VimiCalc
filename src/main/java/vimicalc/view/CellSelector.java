@@ -22,6 +22,7 @@ public class CellSelector extends Visible {
         this.picMetadata = picMetadata;
         xCoord = x/w;
         yCoord = y/h;
+        selectedCell = new Cell(xCoord, yCoord);
     }
 
     public Cell getSelectedCell() {
@@ -74,32 +75,40 @@ public class CellSelector extends Visible {
 
     public void updateXCoord(int xCoord_mov) {
         xCoord += xCoord_mov;
-        setW();
     }
 
     public void updateYCoord(int yCoord_mov) {
         yCoord += yCoord_mov;
-        setH();
     }
 
     public void readCell(@NotNull ArrayList<Cell> cells) {
-        setW();
-        setH();
-        selectedCell = new Cell(xCoord, yCoord);
-
-
-        for (Cell c : cells)
+        for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                selectedCell = c.copy();
-                break;
+                if (c.getMergedWith() != null && !c.isMergeStart())
+                    selectedCell = c.getMergedWith().copy();
+                else
+                    selectedCell = c.copy();
+                setW(); setH();
+                return;
             }
+        }
+        selectedCell = new Cell(xCoord, yCoord);
+        setW(); setH();
     }
 
     private void setW() {
-        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
+        if (selectedCell.isMergeStart())
+            w = picMetadata.getCellAbsXs()[selectedCell.getMergedWith().xCoord()+1] -
+                picMetadata.getCellAbsXs()[selectedCell.xCoord()];
+        else
+            w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
     }
 
     private void setH() {
-        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
+        if (selectedCell.isMergeStart())
+            h = picMetadata.getCellAbsYs()[selectedCell.getMergedWith().yCoord()+1] -
+                picMetadata.getCellAbsYs()[yCoord];
+        else
+            h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }

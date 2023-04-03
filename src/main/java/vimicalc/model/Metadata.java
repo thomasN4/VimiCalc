@@ -25,10 +25,10 @@ public class Metadata {
     }
 
     public void generate(int cAbsX, int cAbsY) {
-        int[] cellAbsXsLong = new int[picW], cellAbsYsLong = new int[picH];
+        int[] cellAbsXsLong = new int[picW+DCW], cellAbsYsLong = new int[picH+DCH];
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
-        boolean firstXCFound = false, firstYCFound = false,
-                lastXCFound = false, lastYCFound = false;
+        boolean firstXCFound = false, lastXCFound = false,
+                firstYCFound = false, lastYCFound = false;
         Integer xOffset, yOffset;
 
         do {
@@ -40,13 +40,15 @@ public class Metadata {
             xOffset = xOffsets.get(xC);
             currAbsX += DCW + ((xOffset == null) ? 0 : xOffset);
             if (currAbsX >= cAbsX + picW && !lastXCFound) {
+                System.out.println(currAbsX + " " + cAbsX + " " + picW + " " + DCW);
                 lastXC = xC;
                 lastXCFound = true;
             }
             xC++;
-        } while (currAbsX <= cAbsX + picW + 2*DCW +
-                ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
-                ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1)));
+        } while (currAbsX <= cAbsX + picW + DCW +
+                 ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC))/* +
+                 ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1))*/);
+        cellAbsXsLong[xC] = currAbsX;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
@@ -59,13 +61,15 @@ public class Metadata {
             yOffset = yOffsets.get(yC);
             currAbsY += DCH + ((yOffset == null) ? 0 : yOffset);
             if (currAbsY >= cAbsY + picH && !lastYCFound) {
+                System.out.println(currAbsY + " " + cAbsY + " " + picH + " " + DCH);
                 lastYC = yC;
                 lastYCFound = true;
             }
             yC++;
-        } while (currAbsY <= cAbsY + picH + 2*DCH +
-                ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
-                ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1)));
+        } while (currAbsY <= cAbsY + picH + DCH +
+                 ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC))/* +
+                 ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1))*/);
+        cellAbsYsLong[yC] = currAbsY;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 

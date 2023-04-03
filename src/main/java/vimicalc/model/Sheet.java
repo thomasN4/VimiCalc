@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static vimicalc.utils.Conversions.fromAlpha;
+import static vimicalc.utils.Conversions.*;
 
 public class Sheet {
 
@@ -33,58 +33,21 @@ public class Sheet {
         return cells;
     }
 
-    public void deleteCell(String coords) {
-        cells.remove(findCell(coords));
 
-        StringBuilder coordX = new StringBuilder(),
-                coordY = new StringBuilder();
+    public void deleteCell(@NotNull String coords) {
+        int[] coordsInt = coordsStrToInt(coords);
+        deleteCell(coordsInt[0], coordsInt[1]);
+    }
 
-        for (int i = 0; i < coords.length(); i++) {
-            if (coords.charAt(i) > 64)
-                coordX.append(coords.charAt(i));
-            else coordY.append(coords.charAt(i));
-        }
-
-        int xCoord, yCoord;
-        try {
-            xCoord = fromAlpha(coordX.toString());
-            yCoord = Integer.parseInt(coordY.toString());
-        } catch (Exception ignored) {
-            xCoord = 0;
-            yCoord = 0;
-        }
-
+    public void deleteCell(int xCoord, int yCoord) {
+        cells.remove(findCell(xCoord, yCoord));
         checkForDependents(xCoord, yCoord);
         dependencies.remove(findDependency(xCoord, yCoord));
     }
 
     public Cell findCell(@NotNull String coords) {
-        StringBuilder coordX = new StringBuilder(),
-                coordY = new StringBuilder();
-
-        for (int i = 0; i < coords.length(); i++) {
-            if (coords.charAt(i) > 64)
-                coordX.append(coords.charAt(i));
-            else coordY.append(coords.charAt(i));
-        }
-
-        int xCoord, yCoord;
-        try {
-            xCoord = fromAlpha(coordX.toString());
-            yCoord = Integer.parseInt(coordY.toString());
-        } catch (Exception ignored) {
-            xCoord = 0;
-            yCoord = 0;
-        }
-
-        Cell found = new Cell(xCoord, yCoord);
-
-        for (Cell c : getCells())
-            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
-                found = c;
-
-        System.out.println("Found cell: "+ found);
-        return found;
+        int[] coordsInt = coordsStrToInt(coords);
+        return findCell(coordsInt[0], coordsInt[1]);
     }
 
     public Cell findCell(int xCoord, int yCoord) {
