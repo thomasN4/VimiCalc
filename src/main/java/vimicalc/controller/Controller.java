@@ -65,15 +65,17 @@ public class Controller implements Initializable {
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
+            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
             cellSelector.readCell(camera.picture.data());
         }
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
-            if (cellSelector.getX() < cellSelector.getW()) {
+            if (cellSelector.getX() < DEFAULT_CELL_W) {
                 while (cellSelector.getX() != DEFAULT_CELL_W) {
                     cellSelector.updateX(1);
                     camera.updateAbsX(-1);
                 }
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 firstRow.draw(gc);
             }
         } 
@@ -95,6 +97,7 @@ public class Controller implements Initializable {
     private static void moveDown() {
         int prevH = cellSelector.getH();
         cellSelector.updateYCoord(1);
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
@@ -118,6 +121,7 @@ public class Controller implements Initializable {
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             cellSelector.readCell(camera.picture.data());
         }
         if (cellSelector.getY() != DEFAULT_CELL_H) {
@@ -148,6 +152,7 @@ public class Controller implements Initializable {
     private static void moveRight() {
         int prevW = cellSelector.getW();
         cellSelector.updateXCoord(1);
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);

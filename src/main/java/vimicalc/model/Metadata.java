@@ -25,6 +25,7 @@ public class Metadata {
     }
 
     public void generate(int cAbsX, int cAbsY) {
+        System.out.println("Generating metadata...");
         int[] cellAbsXsLong = new int[picW+DCW], cellAbsYsLong = new int[picH+DCH];
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,

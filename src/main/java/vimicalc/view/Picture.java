@@ -87,7 +87,6 @@ public class Picture extends Visible {
     }
 
     private void drawVCells(@NotNull GraphicsContext gc, int absX, int absY) {
-        System.out.println("Drawing the visible cells...");
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);

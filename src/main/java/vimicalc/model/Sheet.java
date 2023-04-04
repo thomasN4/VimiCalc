@@ -59,9 +59,14 @@ public class Sheet {
     public Cell findCell(int xCoord, int yCoord) {
         Cell found = new Cell(xCoord, yCoord);
 
-        for (Cell c : getCells())
-            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
-                found = c;
+        for (Cell c : getCells()) {
+            if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
+                if (c.getMergedWith() != null && !c.isMergeStart())
+                    found = c.getMergedWith();
+                else
+                    found = c;
+            }
+        }
 
         System.out.println("Found cell: "+ found);
         return found;
