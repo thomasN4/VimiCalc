@@ -84,6 +84,8 @@ public class Cell {
         return value;
     }
 
+    public void setFormula(Formula formula) { this.formula = formula; }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;

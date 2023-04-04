@@ -12,25 +12,17 @@ public class InfoBar extends Visible {
 
     private String keyStroke;
     private String commandTxt;
-    private String errorTxt;
-    private boolean enteringFormula;
+    private String infobarTxt;
     private boolean enteringCommand;
     private boolean enteringCommandInVISUAL;
-    private boolean error;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         keyStroke = "";
         commandTxt = "";
     }
-
-    public boolean isEnteringCommandInVISUAL() {
-        return enteringCommandInVISUAL;
-    }
-
-    public void setEnteringFormula(boolean enteringFormula) {
-        this.enteringFormula = enteringFormula;
-    }
+    public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
+    public String isEnteringCommand() { return ":" + commandTxt; }
 
     public void setEnteringCommand(boolean enteringCommand) {
         this.enteringCommand = enteringCommand;
@@ -39,9 +31,6 @@ public class InfoBar extends Visible {
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
-    public void setError(boolean error) { this.error = error; }
-
-    public boolean isError() { return error; }
 
     public void setKeyStroke(String keyStroke) {
         this.keyStroke = keyStroke;
@@ -50,10 +39,18 @@ public class InfoBar extends Visible {
     public void setCommandTxt(String commandTxt) {
         this.commandTxt = commandTxt;
     }
-    public void setErrorTxt(String errorTxt) {
-        this.errorTxt = errorTxt;
+
+    public void setEnteringFormula(String infobarTxt) {
+        this.infobarTxt = "% " + infobarTxt;
     }
 
+    public void setInfobarTxt(String infobarTxt) {
+        if (!infobarTxt.isEmpty()) {
+            this.infobarTxt = "(" + infobarTxt + ")";
+        } else {
+            this.infobarTxt = "(I)";
+        }
+    }
     public void draw(GraphicsContext gc, Cell selectedCell) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
@@ -61,7 +58,8 @@ public class InfoBar extends Visible {
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.fillText(keyStroke, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
-        if (enteringFormula) {
+        gc.fillText(infobarTxt,2, y + 16);
+        /*if (enteringFormula) {
             gc.fillText("% " + selectedCell.formula().getTxt(), 2, y + 16);
         } else if (enteringCommand) {
             gc.fillText(':' + commandTxt, 2, y + 16);
@@ -75,6 +73,6 @@ public class InfoBar extends Visible {
             gc.fillText(errorTxt, 2, y + 16);
         } else {
             gc.fillText("(I)", 2, y + 16);
-        }
+        }*/
     }
 }
