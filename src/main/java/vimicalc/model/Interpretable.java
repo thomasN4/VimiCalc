@@ -82,10 +82,6 @@ class Lexeme {
         return isFunction;
     }
 
-    void setFunc(String func) {
-        this.func = func;
-    }
-
     void setVal(double val) {
         this.val = val;
         isFunction = false;
