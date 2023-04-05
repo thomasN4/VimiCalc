@@ -113,6 +113,10 @@ public class Cell {
         this.txt = txt;
     }
 
+    public void setFormula(Formula formula) {
+        this.formula = formula;
+    }
+
     public Cell getMergedWith() {
         return mergedWith;
     }
