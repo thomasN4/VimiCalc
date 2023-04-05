@@ -7,10 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.model.Cell;
-import vimicalc.model.Command;
-import vimicalc.model.Formula;
-import vimicalc.model.Sheet;
+import vimicalc.model.*;
 import vimicalc.view.*;
 
 import java.net.URL;
@@ -35,9 +32,10 @@ public class Controller implements Initializable {
     @FXML
     private Canvas canvas;
     private static LinkedList<Cell> recordedCell = new LinkedList<>();
-    private static LinkedList<Formula> recordedFormula = new LinkedList<>();
+    private static LinkedList<String> recordedFormula = new LinkedList<>();
     private static int dCounter = 1;
-    private static int fCounter = 0;
+    private static int fCounter = 1;
+    private static int tabbedFormula;
     private static Camera camera;
     private static Command command;
     private static CoordsCell coordsCell;
@@ -90,6 +88,9 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        /*if (cellSelector.getSelectedCell().formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.getLast());
+        }*/
     }
     private static void moveDown() {
         int prevH = cellSelector.getH();
@@ -113,6 +114,9 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        /*if (cellSelector.getSelectedCell().formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.getLast());
+        }*/
     }
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1)
@@ -141,6 +145,9 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        /*if (cellSelector.getSelectedCell().formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.getLast());
+        }*/
     }
     private static void moveRight() {
         int prevW = cellSelector.getW();
@@ -164,6 +171,9 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        /*if (cellSelector.getSelectedCell().formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.getLast());
+        }*/
     }
 
     private static void undo() {
@@ -180,13 +190,11 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
         dCounter = dCounter + 2;
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        fCounter--;
     }
     private static void redo() {
         dCounter = dCounter - 2;
         goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
-        if (recordedCell.get(recordedCell.size() - dCounter).formula() != null) {
-            cellSelector.getSelectedCell().setFormula(recordedFormula.getLast());
-        }
         if (recordedCell.get(recordedCell.size() - dCounter).txt().matches(".*\\d.*") &&
                 recordedCell.get(recordedCell.size() - dCounter).formula() == null) {
             cellSelector.setSelectedCell(new Cell(
@@ -203,6 +211,10 @@ public class Controller implements Initializable {
                     cellSelector.getSelectedCell().txt()
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        }
+        if (recordedCell.get(recordedCell.size() - dCounter).formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.get(recordedFormula.size() - fCounter));
+            fCounter++;//try on paper
         }
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
@@ -249,8 +261,9 @@ public class Controller implements Initializable {
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                         recordedCell.add(cellSelector.getSelectedCell());
+                        infoBar.setInfobarTxt("");
                     }
-
+                    case P -> System.out.println(recordedCell);
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) undo();
                         else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
@@ -330,7 +343,7 @@ public class Controller implements Initializable {
         firstRow.draw(gc);
         statusBar.draw(gc);
         infoBar.setKeyStroke(event.getCode().toString());
-        infoBar.draw(gc, cellSelector.getSelectedCell());
+        infoBar.draw(gc);
         coordsCell.draw(gc);
     }
 
@@ -638,15 +651,14 @@ public class Controller implements Initializable {
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     sheet.addCell(cellSelector.getSelectedCell());
                 }
+                if (recordedCell.getLast().formula() != null) {
+                    recordedFormula.add(infoBar.getInfobarTxt().replace("% ", ""));
+                }
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
-                if (recordedCell.getLast().formula() != null) {
-                    recordedFormula.add(recordedCell.getLast().formula());
-                    infoBar.setEnteringFormula(recordedFormula.getLast() + "");
-                }
             }
             case BACK_SPACE -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
@@ -666,6 +678,9 @@ public class Controller implements Initializable {
                 );
                 infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
             }
+        }
+        if (recordedCell.getLast().formula() != null) {
+            infoBar.setInfobarTxt(recordedFormula.getLast());
         }
     }
 
@@ -754,7 +769,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        infoBar.draw(gc, cellSelector.getSelectedCell());
+        infoBar.draw(gc);
         sheet.setPicMetadata(camera.picture.metadata());
     }
 }

@@ -5,6 +5,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.model.Cell;
+import vimicalc.model.Formula;
 
 public class InfoBar extends Visible {
 
@@ -19,7 +20,6 @@ public class InfoBar extends Visible {
         commandTxt = "";
     }
     public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
-    public String isEnteringCommand() { return ":" + commandTxt; }
 
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
@@ -43,7 +43,9 @@ public class InfoBar extends Visible {
         }
     }
 
-    public void draw(GraphicsContext gc, Cell selectedCell) {
+    public String getInfobarTxt() { return infobarTxt; }
+
+    public void draw(GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.BASELINE);
