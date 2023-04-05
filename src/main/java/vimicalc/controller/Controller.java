@@ -62,10 +62,30 @@ public class Controller implements Initializable {
     }
     */
 
+    private static boolean cellIsMerged(Cell prevCell) {
+        if (cellSelector.getSelectedCell().getMergedWith() != null &&
+            !cellSelector.getSelectedCell().isMergeStart() &&
+            (prevCell.getMergedWith() == null ||
+             prevCell.getMergedWith() != cellSelector.getSelectedCell().getMergedWith())) {
+            goTo(cellSelector.getXCoord(), cellSelector.getYCoord());
+            cellSelector.setW(
+                camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().xCoord()+1] -
+                camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().getMergedWith().xCoord()]
+            );
+            cellSelector.setH(
+                camera.picture.metadata().getCellAbsYs()[cellSelector.getSelectedCell().yCoord()+1] -
+                camera.picture.metadata().getCellAbsYs()[cellSelector.getSelectedCell().getMergedWith().yCoord()]
+            );
+            return true;
+        }
+        return false;
+    }
     private static void moveLeft() {
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
+            Cell prevCell = cellSelector.getSelectedCell();
             cellSelector.readCell(camera.picture.data());
+            if (cellIsMerged(prevCell)) return;
         }
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
@@ -96,7 +116,12 @@ public class Controller implements Initializable {
     private static void moveDown() {
         int prevH = cellSelector.getH();
         cellSelector.updateYCoord(1);
+        Cell prevCell = cellSelector.getSelectedCell();
         cellSelector.readCell(camera.picture.data());
+        if (cellIsMerged(prevCell)) return;
+        if (cellSelector.getSelectedCell().isMergeStart())
+            goTo(cellSelector.getSelectedCell().xCoord(),
+                 cellSelector.getSelectedCell().getMergedWith().yCoord()+1);
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -119,7 +144,9 @@ public class Controller implements Initializable {
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
+            Cell prevCell = cellSelector.getSelectedCell();
             cellSelector.readCell(camera.picture.data());
+            if (cellIsMerged(prevCell)) return;
         }
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
@@ -149,7 +176,12 @@ public class Controller implements Initializable {
     private static void moveRight() {
         int prevW = cellSelector.getW();
         cellSelector.updateXCoord(1);
+        Cell prevCell = cellSelector.getSelectedCell();
         cellSelector.readCell(camera.picture.data());
+        if (cellIsMerged(prevCell)) return;
+        if (cellSelector.getSelectedCell().isMergeStart())
+            goTo(cellSelector.getSelectedCell().getMergedWith().xCoord()+1,
+                 cellSelector.getSelectedCell().yCoord());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);
             if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
@@ -193,19 +225,15 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
     }
 
-    public static void goTo(int x, int y) {
-        while ((x - cellSelector.getXCoord()) > 0) {
+    public static void goTo(int xCoord, int yCoord) {
+        while (xCoord - cellSelector.getXCoord() > 0)
             moveRight();
-        }
-        while ((x - cellSelector.getXCoord()) < 0) {
+        while (xCoord - cellSelector.getXCoord() < 0)
             moveLeft();
-        }
-        while ((y - cellSelector.getYCoord()) > 0) {
+        while (yCoord - cellSelector.getYCoord() > 0)
             moveDown();
-        }
-        while ((y - cellSelector.getYCoord()) < 0) {
+        while (yCoord - cellSelector.getYCoord() < 0)
             moveUp();
-        }
         firstRow.draw(gc);
         firstCol.draw(gc);
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
@@ -239,8 +267,29 @@ public class Controller implements Initializable {
                     }
                     case M -> {
                         Cell c = sheet.findCell(coordsCell.getCoords());
-                        if (c.getMergedWith() != null)
+                        if (c.isMergeStart()) {
                             c.unMerge();
+                        }
+                        else if (c.getMergedWith() != null) {
+                            for (int i = c.getMergedWith().xCoord();
+                                 i <= c.getMergedWith().getMergedWith().xCoord();
+                                 ++i)
+                            {
+                                for (int j = c.getMergedWith().yCoord();
+                                     j <= c.getMergedWith().getMergedWith().yCoord();
+                                     ++j)
+                                {
+                                    if (!(i == c.getMergedWith().xCoord() && j == c.getMergedWith().yCoord()) &&
+                                        !(i == c.getMergedWith().getMergedWith().xCoord() &&
+                                          j == c.getMergedWith().getMergedWith().yCoord()))
+                                    {
+                                        sheet.findCell(i, j).unMerge();
+                                    }
+                                }
+                            }
+                            c.getMergedWith().getMergedWith().unMerge();
+                            c.getMergedWith().unMerge();
+                        }
                     }
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
@@ -420,11 +469,11 @@ public class Controller implements Initializable {
                         if (c.getMergedWith() != null) {
                             for (int i = c.getMergedWith().xCoord();
                                  i <= c.getMergedWith().getMergedWith().xCoord();
-                                 i++)
+                                 ++i)
                             {
                                 for (int j = c.getMergedWith().yCoord();
                                      j <= c.getMergedWith().getMergedWith().yCoord();
-                                     j++)
+                                     ++j)
                                 {
                                     if (!(i == c.getMergedWith().xCoord() && j == c.getMergedWith().yCoord()) &&
                                         !(i == c.getMergedWith().getMergedWith().xCoord() &&
@@ -442,6 +491,7 @@ public class Controller implements Initializable {
                     sheet.purgeEmptyCells();
 
                     if (!mergedCsInside) {
+                        System.out.println("Merging cells...");
                         int maxXC = Integer.MIN_VALUE;
                         int minXC = Integer.MAX_VALUE;
                         int maxYC = Integer.MIN_VALUE;
@@ -453,8 +503,8 @@ public class Controller implements Initializable {
                             if (c[1] < minYC) minYC = c[1];
                         }
 
-                        Cell mergeStart = sheet.findCell(maxXC, maxYC);
-                        Cell mergeEnd = sheet.findCell(minXC, minYC);
+                        Cell mergeStart = sheet.findCell(minXC, minYC);
+                        Cell mergeEnd = sheet.findCell(maxXC, maxYC);
 
                         mergeStart.setMergeStart(true);
                         mergeStart.setMergedWith(mergeEnd);
@@ -476,6 +526,16 @@ public class Controller implements Initializable {
                                 }
                             }
                         }
+
+                        int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
+                        do {
+                            moveRight();
+                        } while (cellSelector.getSelectedCell().getMergedWith() != null);
+                        selectedCoords = new ArrayList<>();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        statusBar.setMode(MODE[3]);
+                        goTo(prevXC, prevYC);
+                        cellSelector.readCell(camera.picture.data());
                     }
                 }
                 case ESCAPE -> {
@@ -621,7 +681,6 @@ public class Controller implements Initializable {
         }
     }
     private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
-        System.out.println("Adding cells to selectedCoords...");
         if (isAddingCol) for (int i = minC; i <= maxC; i++) {
             selectedCoords.add(new int[]{currC, i});
             System.out.println(currC + ", " + i);
@@ -632,7 +691,6 @@ public class Controller implements Initializable {
         }
     }
     private static void purgeSCs(int col, int row) {
-        System.out.println("Removing cells from selectedCoords...");
         if (col != -1)
             selectedCoords.removeIf(c -> c[0] == col);
         else
@@ -723,11 +781,6 @@ public class Controller implements Initializable {
     }
 
     public static void reset() {
-        HashMap<Integer, Integer> yOffsets = new HashMap<>();
-//        yOffsets.put(3, 6);
-        HashMap<Integer, Integer> xOffsets = new HashMap<>();
-//        xOffsets.put(4, 7);
-
         camera = new Camera(
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
@@ -736,8 +789,8 @@ public class Controller implements Initializable {
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
-            xOffsets,
-            yOffsets
+            new HashMap<>(),
+            new HashMap<>()
         );
         cellSelector = new CellSelector(
             2*DEFAULT_CELL_W,

@@ -51,4 +51,12 @@ abstract class Visible {
     public void setC(Color c) {
         this.c = c;
     }
+
+    public void setW(int w) {
+        this.w = w;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
 }

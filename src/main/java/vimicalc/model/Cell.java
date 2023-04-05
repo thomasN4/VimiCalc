@@ -102,11 +102,11 @@ public class Cell {
     @Override
     public String toString() {
         return "Cell[" +
-                "xCoord=" + xCoord + ", " +
-                "yCoord=" + yCoord + ", " +
-                "txt=" + txt + ", " +
-                "formula=" + formula + ", " +
-                "value=" + value + ']';
+               "xCoord=" + xCoord + ", " +
+               "yCoord=" + yCoord + ", " +
+               "txt=" + txt + ", " +
+               "formula=" + formula + ", " +
+               "value=" + value + ']';
     }
 
     public void setTxt(String txt) {
@@ -122,9 +122,7 @@ public class Cell {
     }
 
     public void unMerge() {
-        mergeStart = false;
-        mergedWith.setMergeStart(false);
-        mergedWith.setMergedWith(null);
+        if (mergeStart) mergeStart = false;
         mergedWith = null;
     }
 
