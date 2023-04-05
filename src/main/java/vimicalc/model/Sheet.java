@@ -10,7 +10,6 @@ import java.util.Arrays;
 import static vimicalc.utils.Conversions.*;
 
 public class Sheet {
-
     private ArrayList<Cell> cells;
     private File file;
     private final ArrayList<Dependency> dependencies;
@@ -38,9 +37,15 @@ public class Sheet {
         int[] coordsInt = coordsStrToInt(coords);
         deleteCell(coordsInt[0], coordsInt[1]);
     }
-
     public void deleteCell(int xCoord, int yCoord) {
-        cells.remove(findCell(xCoord, yCoord));
+        Cell c = findCell(xCoord, yCoord);
+        if (c.isMergeStart()) {
+            Cell mergeEnd = c.getMergedWith();
+            c = new Cell(xCoord, yCoord);
+            c.setMergeStart(true);
+            c.setMergedWith(mergeEnd);
+        }
+        else cells.remove(c);
         checkForDependents(xCoord, yCoord);
         Dependency d = findDependency(xCoord, yCoord);
         if (d != null)
@@ -55,21 +60,16 @@ public class Sheet {
         int[] coordsInt = coordsStrToInt(coords);
         return findCell(coordsInt[0], coordsInt[1]);
     }
-
     public Cell findCell(int xCoord, int yCoord) {
-        Cell found = new Cell(xCoord, yCoord);
-
         for (Cell c : getCells()) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 if (c.getMergedWith() != null && !c.isMergeStart())
-                    found = c.getMergedWith();
+                    return c.getMergedWith();
                 else
-                    found = c;
+                    return c;
             }
         }
-
-        System.out.println("Found cell: "+ found);
-        return found;
+        return new Cell(xCoord, yCoord);
     }
 
     public Dependency findDependency(int x, int y) {
@@ -85,7 +85,7 @@ public class Sheet {
             dependencies.add(new Dependency(xCoord, yCoord));
     }
 
-    public boolean dependedAlreadyAdded(Dependency dependent, Dependency depended) {
+    public boolean dependedAlreadyAdded(@NotNull Dependency dependent, Dependency depended) {
         for (Dependency d : dependent.getDependeds()) {
             if (d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()) {
                 return true;
@@ -138,7 +138,7 @@ public class Sheet {
 
     public void evalDependencies(@NotNull Dependency d) {
         System.out.println("Evaluating dependencies...");
-        d.setToBeEvaluated(true);
+        d.setToBeEvaluated();
         System.out.println(d.log());
         if (d.isReadyToBeEvaluated())
             d.evaluate(this);
@@ -228,12 +228,12 @@ public class Sheet {
 }
 
 class Dependency {
-    private final int xCoord, yCoord;
-    private boolean toBeEvaluated;
-    private final ArrayList<Dependency> dependents;
-    private ArrayList<Dependency> dependeds;
+    final int xCoord, yCoord;
+    boolean toBeEvaluated;
+    final ArrayList<Dependency> dependents;
+    ArrayList<Dependency> dependeds;
 
-    public Dependency(int xCoord, int yCoord) {
+    Dependency(int xCoord, int yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
         toBeEvaluated = false;
@@ -241,35 +241,35 @@ class Dependency {
         dependeds = new ArrayList<>();
     }
 
-    public int getxCoord() {
+    int getxCoord() {
         return xCoord;
     }
 
-    public int getyCoord() {
+    int getyCoord() {
         return yCoord;
     }
 
-    public ArrayList<Dependency> getDependeds() {
+    ArrayList<Dependency> getDependeds() {
         return dependeds;
     }
 
-    public boolean isToBeEvaluated() {
+    boolean isToBeEvaluated() {
         return toBeEvaluated;
     }
 
-    public ArrayList<Dependency> getDependents() {
+    ArrayList<Dependency> getDependents() {
         return dependents;
     }
 
-    public void setDependeds(ArrayList<Dependency> dependeds) {
+    void setDependeds(ArrayList<Dependency> dependeds) {
         this.dependeds = dependeds;
     }
 
-    public void setToBeEvaluated(boolean toBeEvaluated) {
-        this.toBeEvaluated = toBeEvaluated;
+    void setToBeEvaluated() {
+        this.toBeEvaluated = true;
     }
 
-    public boolean isReadyToBeEvaluated() {
+    boolean isReadyToBeEvaluated() {
         boolean b = true;
         for (Dependency d : dependeds) {
             if (d.isToBeEvaluated()) {
@@ -280,7 +280,7 @@ class Dependency {
         return toBeEvaluated & b;
     }
 
-    public void evaluate(@NotNull Sheet sheet) {
+    void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
         if (c.formula() != null) {
             sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
@@ -299,7 +299,7 @@ class Dependency {
         System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord + "...");
     }
 
-    public String log() {
+    String log() {
         return "Dependency: " + xCoord + ", " + yCoord + " {\n" +
                "\ttoBeEvaluated = " + toBeEvaluated + "\n" +
                "\treadyToBeEvaluated = " + isReadyToBeEvaluated() + "\n" +

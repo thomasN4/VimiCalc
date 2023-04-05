@@ -314,9 +314,9 @@ public class Formula extends Interpretable {
 }
 
 class Matrix {
-    private final double[][] items;
-    private final int width;
-    private final int height;
+    final double[][] items;
+    final int width;
+    final int height;
 
     @Contract(pure = true)
     Matrix(double[][] items) {
@@ -325,26 +325,26 @@ class Matrix {
         height = items.length;
     }
 
-    public double[][] getItems() {
+    double[][] getItems() {
         return items;
     }
 
-    public double[] getRow(int i) {
+    double[] getRow(int i) {
         return items[i];
     }
 
-    public double[] getCol(int j) {
+    double[] getCol(int j) {
         double[] col = new double[items.length];
         for (int i = 0; i < items.length; i++)
             col[i] = items[i][j];
         return col;
     }
 
-    public int getWidth() {
+    int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    int getHeight() {
         return height;
     }
 }

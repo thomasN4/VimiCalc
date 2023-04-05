@@ -55,9 +55,9 @@ abstract class Interpretable {
 }
 
 class Lexeme {
-    private String func;
-    private double val;
-    private boolean isFunction;
+    String func;
+    double val;
+    boolean isFunction;
 
     Lexeme(String func) {
         this.func = func;
@@ -70,23 +70,19 @@ class Lexeme {
         func = "";
     }
 
-    public String getFunc() {
+    String getFunc() {
         return func;
     }
 
-    public double getVal() {
+    double getVal() {
         return val;
     }
 
-    public boolean isFunction() {
+    boolean isFunction() {
         return isFunction;
     }
 
-    public void setFunc(String func) {
-        this.func = func;
-    }
-
-    public void setVal(double val) {
+    void setVal(double val) {
         this.val = val;
         isFunction = false;
     }

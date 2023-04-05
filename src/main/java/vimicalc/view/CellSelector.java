@@ -54,15 +54,8 @@ public class CellSelector extends Visible {
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
-        super.draw(gc);
         selectedCell.setTxt(selectedCell.txt() + insertedChar);
-        gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(selectedCell.txt()
-            , x + (float) w/2
-            , y + (float) h/2
-            , w);
+        this.draw(gc);
     }
 
     public void updateX(int x_mov) {
@@ -84,10 +77,8 @@ public class CellSelector extends Visible {
     public void readCell(@NotNull ArrayList<Cell> cells) {
         for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.getMergedWith() != null && !c.isMergeStart())
-                    selectedCell = c.getMergedWith().copy();
-                else
-                    selectedCell = c.copy();
+                selectedCell = c.copy();
+                if (c.isMergeStart()) return;
                 setW(); setH();
                 return;
             }
@@ -97,18 +88,10 @@ public class CellSelector extends Visible {
     }
 
     private void setW() {
-        if (selectedCell.isMergeStart())
-            w = picMetadata.getCellAbsXs()[selectedCell.getMergedWith().xCoord()+1] -
-                picMetadata.getCellAbsXs()[selectedCell.xCoord()];
-        else
-            w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
+        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
     }
 
     private void setH() {
-        if (selectedCell.isMergeStart())
-            h = picMetadata.getCellAbsYs()[selectedCell.getMergedWith().yCoord()+1] -
-                picMetadata.getCellAbsYs()[yCoord];
-        else
-            h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
+        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }
