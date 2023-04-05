@@ -300,7 +300,7 @@ public class Controller implements Initializable {
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
                         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                        infoBar.setEnteringCommand(true);
+                        infoBar.setCommandTxt(command.getTxt());
                     }
                 }
             }
@@ -341,10 +341,8 @@ public class Controller implements Initializable {
                     selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
                 }
-                infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                infoBar.setCommandTxt("");
             }
             case ENTER -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
@@ -372,7 +370,6 @@ public class Controller implements Initializable {
                             f
                     ));
                 }
-                infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
                 moveUp();
@@ -381,17 +378,20 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                infoBar.setCommandTxt("");
                 if (!command.commandExists()) {
                     infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
                 }
             }
-            case BACK_SPACE -> command.setTxt(
-                    command.getTxt().substring(0, command.getTxt().length()-1)
-            );
+            case BACK_SPACE -> {
+                if (command.getTxt().equals("")) {
+                    infoBar.setInfobarTxt("COMMAND IS EMPTY");
+                } else {
+                    command.setTxt(command.getTxt().substring(0, command.getTxt().length()-1));
+                }
+            }
             default -> {
                 command.setTxt(command.getTxt() + event.getText());
-                infoBar.setInfobarTxt(":" +command.getTxt() + event.getText());
+                infoBar.setCommandTxt(command.getTxt() + event.getText());
             }
         }
         if(!statusBar.getMode().equals(MODE[3]))
@@ -422,6 +422,7 @@ public class Controller implements Initializable {
                 }
                 case SEMICOLON -> {
                     infoBar.setEnteringCommandInVISUAL(true);
+                    infoBar.setCommandTxt(command.getTxt());
                     command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 }
                 default -> {
@@ -606,6 +607,7 @@ public class Controller implements Initializable {
                                     cellSelector.getSelectedCell().txt().length() - 1)
                     );
                     cellSelector.draw(gc);
+                    infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 }
             }
             default -> {
@@ -622,29 +624,37 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case ENTER -> {
-                cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        cellSelector.getSelectedCell().formula().interpret(sheet),
-                        cellSelector.getSelectedCell().formula()
-                ));
-                recordedCell.add(cellSelector.getSelectedCell().copy());
-                sheet.addCell(cellSelector.getSelectedCell());
+                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
+                    infoBar.setInfobarTxt("CELL IS EMPTY");
+                } else {
+                    cellSelector.setSelectedCell(new Cell(
+                            cellSelector.getXCoord(),
+                            cellSelector.getYCoord(),
+                            cellSelector.getSelectedCell().formula().interpret(sheet),
+                            cellSelector.getSelectedCell().formula()
+                    ));
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    sheet.addCell(cellSelector.getSelectedCell());
+                }
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
-                if (recordedCell.getLast().formula() != null) recordedFormula.add(recordedCell.getLast().formula());
+                if (recordedCell.getLast().formula() != null) {
+                    recordedFormula.add(recordedCell.getLast().formula());
+                    infoBar.setEnteringFormula(recordedFormula.getLast() + "");
+                }
             }
             case BACK_SPACE -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
-                    infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
+                    infoBar.setInfobarTxt("CELL IS EMPTY");
                 } else {
                     cellSelector.getSelectedCell().formula().setTxt(
                             cellSelector.getSelectedCell().formula().getTxt().substring(
                                     0, cellSelector.getSelectedCell().formula().getTxt().length()-1
                             ));
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
                 }
             }
             default -> {

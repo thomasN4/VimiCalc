@@ -1,5 +1,7 @@
 package vimicalc.model;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -121,7 +123,7 @@ public class Cell {
             return new Cell(
                     xCoord,
                     yCoord,
-                    txt,
+                    value,
                     new Formula(formula.getTxt(), xCoord, yCoord)
             );
         }
@@ -129,7 +131,7 @@ public class Cell {
             return new Cell(
                     xCoord,
                     yCoord,
-                    txt
+                    value
             );
         }
         else {

@@ -64,7 +64,6 @@ public class CellSelector extends Visible {
             , y + (float) h/2
             , w);
     }
-
     public void updateX(int x_mov) {
         x += x_mov;
     }

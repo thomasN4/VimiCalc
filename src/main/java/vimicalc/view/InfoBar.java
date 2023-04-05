@@ -6,14 +6,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import vimicalc.model.Cell;
 
-import static vimicalc.utils.Conversions.isNumber;
-
 public class InfoBar extends Visible {
 
     private String keyStroke;
     private String commandTxt;
     private String infobarTxt;
-    private boolean enteringCommand;
     private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
@@ -24,10 +21,6 @@ public class InfoBar extends Visible {
     public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
     public String isEnteringCommand() { return ":" + commandTxt; }
 
-    public void setEnteringCommand(boolean enteringCommand) {
-        this.enteringCommand = enteringCommand;
-    }
-
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
@@ -36,9 +29,7 @@ public class InfoBar extends Visible {
         this.keyStroke = keyStroke;
     }
 
-    public void setCommandTxt(String commandTxt) {
-        this.commandTxt = commandTxt;
-    }
+    public void setCommandTxt(String infobarTxt) { this.infobarTxt = ":" + infobarTxt; }
 
     public void setEnteringFormula(String infobarTxt) {
         this.infobarTxt = "% " + infobarTxt;
@@ -51,6 +42,7 @@ public class InfoBar extends Visible {
             this.infobarTxt = "(I)";
         }
     }
+
     public void draw(GraphicsContext gc, Cell selectedCell) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
@@ -59,20 +51,5 @@ public class InfoBar extends Visible {
         gc.fillText(keyStroke, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
         gc.fillText(infobarTxt,2, y + 16);
-        /*if (enteringFormula) {
-            gc.fillText("% " + selectedCell.formula().getTxt(), 2, y + 16);
-        } else if (enteringCommand) {
-            gc.fillText(':' + commandTxt, 2, y + 16);
-        } else if (enteringCommandInVISUAL) {
-            gc.fillText(":'<,'>" + commandTxt, 2, y + 16);
-        } else if (!selectedCell.formula().getTxt().equals("")) {
-            gc.fillText('(' + selectedCell.formula().getTxt() + ')', 2, y + 16);
-        } else if (isNumber(selectedCell.txt())) {
-            gc.fillText("(" + selectedCell.value() + ")", 2, y + 16);
-        } else if (error) {
-            gc.fillText(errorTxt, 2, y + 16);
-        } else {
-            gc.fillText("(I)", 2, y + 16);
-        }*/
     }
 }
