@@ -343,6 +343,7 @@ public class Controller implements Initializable {
                 }
                 statusBar.setMode(MODE[3]);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
@@ -622,6 +623,7 @@ public class Controller implements Initializable {
             case ESCAPE -> {
                 cellSelector.readCell(camera.picture.data());
                 statusBar.setMode(MODE[3]);
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
