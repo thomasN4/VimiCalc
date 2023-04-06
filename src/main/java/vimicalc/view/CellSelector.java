@@ -57,7 +57,6 @@ public class CellSelector extends Visible {
         selectedCell.setTxt(selectedCell.txt() + insertedChar);
         this.draw(gc);
     }
-
     public void updateX(int x_mov) {
         x += x_mov;
     }

@@ -34,8 +34,10 @@ public class Controller implements Initializable {
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
     @FXML
     private Canvas canvas;
-    public static LinkedList<Cell> recordedCell = new LinkedList<>();
-    public static int dCounter = 1;
+    private static LinkedList<Cell> recordedCell = new LinkedList<>();
+    private static LinkedList<Formula> recordedFormula = new LinkedList<>();
+    private static int dCounter = 1;
+    private static int fCounter = 0;
     private static Camera camera;
     private static Command command;
     private static CoordsCell coordsCell;
@@ -97,12 +99,12 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 firstRow.draw(gc);
             }
-        } 
+        }
         else {
             camera.updateAbsX(-cellSelector.getW());
             if (camera.getAbsX() < DEFAULT_CELL_W) {
-                infoBar.setErrorTxt("CAN'T GO LEFT");
-                infoBar.setError(true);
+                infoBar.setInfobarTxt("CAN'T GO LEFT");
+
                 while (camera.getAbsX() != DEFAULT_CELL_W)
                     camera.updateAbsX(1);
             }
@@ -112,6 +114,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
     }
     private static void moveDown() {
         int prevH = cellSelector.getH();
@@ -140,6 +143,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
     }
     private static void moveUp() {
         if (cellSelector.getYCoord() != 1) {
@@ -162,8 +166,7 @@ public class Controller implements Initializable {
         else {
             camera.updateAbsY(-cellSelector.getH());
             if (camera.getAbsY() < DEFAULT_CELL_H) {
-                infoBar.setErrorTxt("CAN'T GO UP");
-                infoBar.setError(true);
+                infoBar.setInfobarTxt("CAN'T GO UP");
                 while (camera.getAbsY() != DEFAULT_CELL_H)
                     camera.updateAbsY(1);
             }
@@ -172,6 +175,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
     }
     private static void moveRight() {
         int prevW = cellSelector.getW();
@@ -200,10 +204,14 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
     }
 
-    public static void undo() {  // the value is at zero when I record them, hence the errors
+    private static void undo() {
         goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
+        if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt().equals("")) {
+            sheet.deleteCell(coordsCell.getCoords());
+        }
         cellSelector.setSelectedCell(new Cell(
             cellSelector.getXCoord(),
             cellSelector.getYCoord(),
@@ -212,20 +220,36 @@ public class Controller implements Initializable {
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
         dCounter = dCounter + 2;
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
     }
-    public static void redo() {
+    private static void redo() {
         dCounter = dCounter - 2;
         goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
-        cellSelector.setSelectedCell(new Cell(
-            cellSelector.getXCoord(),
-            cellSelector.getYCoord(),
-            cellSelector.getSelectedCell().txt()
-        ));
+        if (recordedCell.get(recordedCell.size() - dCounter).formula() != null) {
+            cellSelector.getSelectedCell().setFormula(recordedFormula.getLast());
+        }
+        if (recordedCell.get(recordedCell.size() - dCounter).txt().matches(".*\\d.*") &&
+                recordedCell.get(recordedCell.size() - dCounter).formula() == null) {
+            cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().formula().interpret(sheet),
+                cellSelector.getSelectedCell().formula()
+            ));
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+        } else {
+            cellSelector.setSelectedCell(new Cell(
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
+            ));
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        }
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - dCounter).txt());
     }
 
-    public static void goTo(int xCoord, int yCoord) {
+    private static void goTo(int xCoord, int yCoord) {
         while (xCoord - cellSelector.getXCoord() > 0)
             moveRight();
         while (xCoord - cellSelector.getXCoord() < 0)
@@ -242,7 +266,6 @@ public class Controller implements Initializable {
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
-        infoBar.setError(false);
         switch (statusBar.getMode().charAt(1)) {
             case 'C' -> commandInput(event);
             case 'F' -> formulaInput(event);
@@ -254,10 +277,8 @@ public class Controller implements Initializable {
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
                     case D, DELETE -> {
-                        if (cellSelector.getSelectedCell().txt() == null) {
-                            infoBar.setErrorTxt("CAN'T DELETE RIGHT NOW");
-                            infoBar.setError(true);
-                        }
+                        if (cellSelector.getSelectedCell().txt() == null)
+                            infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         recordedCell.add(cellSelector.getSelectedCell());
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -292,31 +313,15 @@ public class Controller implements Initializable {
                         }
                     }
                     case U -> {
-                        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) {
-                            if (infoBar.isError()) {
-                                infoBar.setError(false);
-                            }
-                            undo();
-                        }
-                        else {
-                            infoBar.setErrorTxt("CAN'T UNDO RIGHT NOW");
-                            infoBar.setError(true);
-                        }
+                        if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) undo();
+                        else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
                     case R -> {
-                        if (!recordedCell.isEmpty() && !(dCounter <= 1)) {
-                            if (infoBar.isError()) {
-                                infoBar.setError(false);
-                            }
-                            redo();
-                        }
-                        else {
-                            infoBar.setErrorTxt("CAN'T REDO RIGHT NOW");
-                            infoBar.setError(true);
-                        }
+                        if (!recordedCell.isEmpty() && !(dCounter <= 1)) redo();
+                        else infoBar.setInfobarTxt("CAN'T REDO RIGHT NOW");
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
@@ -326,6 +331,7 @@ public class Controller implements Initializable {
                         if (cellSelector.getSelectedCell().txt() == null)
                             cellSelector.getSelectedCell().setTxt("");
                         recordedCell.add(cellSelector.getSelectedCell());
+                        cellSelector.readCell(camera.picture.data());
                         cellSelector.draw(gc);
                     }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
@@ -338,7 +344,9 @@ public class Controller implements Initializable {
                                 cellSelector.getSelectedCell().value(),
                                 new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
                             ));
-                        infoBar.setEnteringFormula(true);
+                        recordedCell.add(cellSelector.getSelectedCell());
+                        cellSelector.readCell(camera.picture.data());
+                        infoBar.setEnteringFormula(cellSelector.getSelectedCell().txt());
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
@@ -347,7 +355,7 @@ public class Controller implements Initializable {
                     case SEMICOLON -> {
                         statusBar.setMode(MODE[0]);
                         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                        infoBar.setEnteringCommand(true);
+                        infoBar.setCommandTxt(command.getTxt());
                     }
                 }
             }
@@ -388,10 +396,9 @@ public class Controller implements Initializable {
                     selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
                 }
-                infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                infoBar.setCommandTxt("");
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
@@ -419,7 +426,6 @@ public class Controller implements Initializable {
                         f
                     ));
                 }
-                infoBar.setEnteringCommand(false);
                 statusBar.setMode(MODE[3]);
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
                 if (cellSelector.getX() == 0)
@@ -434,16 +440,21 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                infoBar.setCommandTxt("");
                 if (!command.commandExists()) {
-                    infoBar.setErrorTxt("COMMAND OR FILE DOES NOT EXIST");
-                    infoBar.setError(true);
+                    infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
                 }
             }
-            case BACK_SPACE -> command.setTxt(
-                    command.getTxt().substring(0, command.getTxt().length()-1)
-                );
-            default -> command.setTxt(command.getTxt() + event.getText());
+            case BACK_SPACE -> {
+                if (command.getTxt().equals("")) {
+                    infoBar.setInfobarTxt("COMMAND IS EMPTY");
+                } else {
+                    command.setTxt(command.getTxt().substring(0, command.getTxt().length()-1));
+                }
+            }
+            default -> {
+                command.setTxt(command.getTxt() + event.getText());
+                infoBar.setCommandTxt(command.getTxt() + event.getText());
+            }
         }
         if(!statusBar.getMode().equals(MODE[3]))
             infoBar.setCommandTxt(command.getTxt());
@@ -548,6 +559,7 @@ public class Controller implements Initializable {
                 }
                 case SEMICOLON -> {
                     infoBar.setEnteringCommandInVISUAL(true);
+                    infoBar.setCommandTxt(command.getTxt());
                     command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 }
                 default -> {
@@ -711,7 +723,7 @@ public class Controller implements Initializable {
                 ));
                 sheet.addCell(cellSelector.getSelectedCell());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                recordedCell.add(cellSelector.getSelectedCell());
+                recordedCell.add(cellSelector.getSelectedCell().copy());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -721,19 +733,21 @@ public class Controller implements Initializable {
                 statusBar.setMode(MODE[3]);
             }
             case BACK_SPACE -> {
-                if (cellSelector.getSelectedCell().txt().equals("")) {
-                    infoBar.setErrorTxt("CELL IS EMPTY");
-                    infoBar.setError(true);
-                }
+                if (cellSelector.getSelectedCell().txt().equals(""))
+                    infoBar.setInfobarTxt("CELL IS EMPTY");
                 else {
                     cellSelector.getSelectedCell().setTxt(
-                            cellSelector.getSelectedCell().txt().substring(0,
-                                    cellSelector.getSelectedCell().txt().length() - 1)
+                        cellSelector.getSelectedCell().txt().substring(0,
+                            cellSelector.getSelectedCell().txt().length() - 1)
                     );
                     cellSelector.draw(gc);
+                    infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 }
             }
-            default -> cellSelector.draw(gc, event.getText());
+            default -> {
+                cellSelector.draw(gc, event.getText());
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+            }
         }
     }
 
@@ -741,33 +755,50 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case ESCAPE -> {
                 cellSelector.readCell(camera.picture.data());
-                infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
-                cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().formula().interpret(sheet),
-                    cellSelector.getSelectedCell().formula()
-                ));
-                sheet.addCell(cellSelector.getSelectedCell());
+                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
+                    infoBar.setInfobarTxt("CELL IS EMPTY");
+                } else {
+                    cellSelector.setSelectedCell(new Cell(
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        cellSelector.getSelectedCell().formula().interpret(sheet),
+                        cellSelector.getSelectedCell().formula()
+                    ));
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    sheet.addCell(cellSelector.getSelectedCell());
+                }
+                infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
-                infoBar.setEnteringFormula(false);
                 statusBar.setMode(MODE[3]);
                 cellSelector.readCell(camera.picture.data());
-                recordedCell.add(cellSelector.getSelectedCell());
+                if (recordedCell.getLast().formula() != null) {
+                    recordedFormula.add(recordedCell.getLast().formula());
+                    infoBar.setEnteringFormula(recordedFormula.getLast() + "");
+                }
             }
-            case BACK_SPACE -> cellSelector.getSelectedCell().formula().setTxt(
-                cellSelector.getSelectedCell().formula().getTxt().substring(
-                    0, cellSelector.getSelectedCell().formula().getTxt().length()-1
-                )
-            );
-            default -> cellSelector.getSelectedCell().formula().setTxt(
-                cellSelector.getSelectedCell().formula().getTxt() +
-                event.getText()
-            );
+            case BACK_SPACE -> {
+                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
+                    infoBar.setInfobarTxt("CELL IS EMPTY");
+                } else {
+                    cellSelector.getSelectedCell().formula().setTxt(
+                        cellSelector.getSelectedCell().formula().getTxt().substring(
+                            0, cellSelector.getSelectedCell().formula().getTxt().length()-1
+                    ));
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                }
+            }
+            default -> {
+                cellSelector.getSelectedCell().formula().setTxt(
+                    cellSelector.getSelectedCell().formula().getTxt() +
+                        event.getText()
+                );
+                infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+            }
         }
     }
 
@@ -850,6 +881,7 @@ public class Controller implements Initializable {
         statusBar.draw(gc);
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
+        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         infoBar.draw(gc, cellSelector.getSelectedCell());
         sheet.setPicMetadata(camera.picture.metadata());
     }
