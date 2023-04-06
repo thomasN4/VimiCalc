@@ -34,10 +34,10 @@ public class Controller implements Initializable {
     private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
     @FXML
     private Canvas canvas;
-    private static LinkedList<Cell> recordedCell = new LinkedList<>();
-    private static LinkedList<Formula> recordedFormula = new LinkedList<>();
+    private static final LinkedList<Cell> recordedCell = new LinkedList<>();
+    private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
     private static int dCounter = 1;
-    private static int fCounter = 0;
+//    private static int fCounter = 0;
     private static Camera camera;
     private static Command command;
     private static CoordsCell coordsCell;
@@ -385,7 +385,7 @@ public class Controller implements Initializable {
         firstRow.draw(gc);
         statusBar.draw(gc);
         infoBar.setKeyStroke(event.getCode().toString());
-        infoBar.draw(gc, cellSelector.getSelectedCell());
+        infoBar.draw(gc);
         coordsCell.draw(gc);
     }
 
@@ -882,7 +882,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        infoBar.draw(gc, cellSelector.getSelectedCell());
+        infoBar.draw(gc);
         sheet.setPicMetadata(camera.picture.metadata());
     }
 }

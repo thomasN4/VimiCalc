@@ -4,22 +4,22 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
-import vimicalc.model.Cell;
+import org.jetbrains.annotations.NotNull;
 
 public class InfoBar extends Visible {
 
     private String keyStroke;
-    private String commandTxt;
+//    private final String commandTxt;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         keyStroke = "";
-        commandTxt = "";
+//        commandTxt = "";
     }
     public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
-    public String isEnteringCommand() { return ":" + commandTxt; }
+//    public String isEnteringCommand() { return ":" + commandTxt; }
 
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
@@ -36,14 +36,14 @@ public class InfoBar extends Visible {
     }
 
     public void setInfobarTxt(String infobarTxt) {
-        if (!infobarTxt.isEmpty()) {
+        if (infobarTxt != null)
             this.infobarTxt = "(" + infobarTxt + ")";
-        } else {
+        else
             this.infobarTxt = "(I)";
-        }
     }
 
-    public void draw(GraphicsContext gc, Cell selectedCell) {
+    @Override
+    public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.BASELINE);
