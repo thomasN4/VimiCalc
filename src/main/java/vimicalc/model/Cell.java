@@ -138,6 +138,10 @@ public class Cell {
         this.mergeStart = mergeStart;
     }
 
+    public boolean isEmpty() {
+        return (mergedWith == null) & (txt == null);
+    }
+
     public Cell copy() {
         if (formula != null) {
             return new Cell(

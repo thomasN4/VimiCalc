@@ -53,7 +53,7 @@ public class Sheet {
     }
 
     public void purgeEmptyCells() {
-        cells.removeIf(c -> c.txt() == null && c.getMergedWith() == null);
+        cells.removeIf(Cell::isEmpty);
     }
 
     public Cell findCell(@NotNull String coords) {
