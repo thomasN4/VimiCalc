@@ -331,22 +331,17 @@ public class Controller implements Initializable {
                         if (cellSelector.getSelectedCell().txt() == null)
                             cellSelector.getSelectedCell().setTxt("");
                         recordedCell.add(cellSelector.getSelectedCell());
-                        cellSelector.readCell(camera.picture.data());
                         cellSelector.draw(gc);
                     }
                     case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
                         statusBar.setMode(MODE[1]);
                         if (cellSelector.getSelectedCell().formula() == null)
-                            cellSelector.setSelectedCell(new Cell(
-                                cellSelector.getXCoord(),
-                                cellSelector.getYCoord(),
-                                cellSelector.getSelectedCell().value(),
+                            cellSelector.getSelectedCell().setFormula(
                                 new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
-                            ));
+                            );
                         recordedCell.add(cellSelector.getSelectedCell());
-                        cellSelector.readCell(camera.picture.data());
-                        infoBar.setEnteringFormula(cellSelector.getSelectedCell().txt());
+                        infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
                     }
                     case V -> {
                         statusBar.setMode(MODE[4]);
