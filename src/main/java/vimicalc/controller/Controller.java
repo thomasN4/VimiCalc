@@ -482,12 +482,10 @@ public class Controller implements Initializable {
                                      j <= c.getMergedWith().getMergedWith().yCoord();
                                      ++j)
                                 {
-                                    if (!(i == c.getMergedWith().xCoord() && j == c.getMergedWith().yCoord()) &&
-                                        !(i == c.getMergedWith().getMergedWith().xCoord() &&
-                                          j == c.getMergedWith().getMergedWith().yCoord()))
-                                    {
-                                        sheet.findCell(i, j).unMerge();
-                                    }
+                                    Cell d = sheet.findCell(i, j);
+                                    if (d.isMergeStart() || d == d.getMergedWith().getMergedWith())
+                                        continue;
+                                    d.unMerge();
                                 }
                             }
                             c.getMergedWith().getMergedWith().unMerge();
@@ -524,13 +522,12 @@ public class Controller implements Initializable {
 
                         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord() ; i++) {
                             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); j++) {
-                                if (!(i == mergeStart.xCoord() && j == mergeStart.yCoord()) &&
-                                    !(i == mergeEnd.xCoord() && j == mergeEnd.yCoord())) {
-                                    Cell c = sheet.findCell(i, j);
-                                    c.setMergedWith(mergeStart);
-                                    if (c.txt() == null)
-                                        sheet.addCell(c);
-                                }
+                                Cell c = sheet.findCell(i, j);
+                                if (c == mergeStart || c == mergeEnd)
+                                    continue;
+                                c.setMergedWith(mergeStart);
+                                if (c.txt() == null)
+                                    sheet.addCell(c);
                             }
                         }
 
