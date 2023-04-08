@@ -69,7 +69,8 @@ public class Controller implements Initializable {
             !cellSelector.getSelectedCell().isMergeStart() &&
             (prevCell.getMergedWith() == null ||
              prevCell.getMergedWith() != cellSelector.getSelectedCell().getMergedWith())) {
-            goTo(cellSelector.getXCoord(), cellSelector.getYCoord());
+            goTo(cellSelector.getSelectedCell().getMergedWith().xCoord(),
+                cellSelector.getSelectedCell().getMergedWith().yCoord());
             cellSelector.setW(
                 camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().xCoord()+1] -
                 camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().getMergedWith().xCoord()]
