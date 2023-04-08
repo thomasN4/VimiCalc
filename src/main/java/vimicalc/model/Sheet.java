@@ -43,7 +43,7 @@ public class Sheet {
             Cell mergeEnd = c.getMergedWith();
             c = new Cell(xCoord, yCoord);
             c.setMergeStart(true);
-            c.setMergedWith(mergeEnd);
+            c.mergeWith(mergeEnd);
         }
         else cells.remove(c);
         checkForDependents(xCoord, yCoord);

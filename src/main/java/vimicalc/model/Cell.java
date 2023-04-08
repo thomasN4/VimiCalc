@@ -121,7 +121,7 @@ public class Cell {
         return mergedWith;
     }
 
-    public void setMergedWith(Cell mergedWith) {
+    public void mergeWith(Cell mergedWith) {
         this.mergedWith = mergedWith;
     }
 

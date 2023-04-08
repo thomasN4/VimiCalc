@@ -301,12 +301,10 @@ public class Controller implements Initializable {
                                      j <= c.getMergedWith().getMergedWith().yCoord();
                                      ++j)
                                 {
-                                    if (!(i == c.getMergedWith().xCoord() && j == c.getMergedWith().yCoord()) &&
-                                        !(i == c.getMergedWith().getMergedWith().xCoord() &&
-                                          j == c.getMergedWith().getMergedWith().yCoord()))
-                                    {
-                                        sheet.findCell(i, j).unMerge();
-                                    }
+                                    Cell d = sheet.findCell(i, j);
+                                    if (d.isMergeStart() || d == c.getMergedWith().getMergedWith())
+                                        continue;
+                                    d.unMerge();
                                 }
                             }
                             c.getMergedWith().getMergedWith().unMerge();
@@ -512,8 +510,8 @@ public class Controller implements Initializable {
                         Cell mergeEnd = sheet.findCell(maxXC, maxYC);
 
                         mergeStart.setMergeStart(true);
-                        mergeStart.setMergedWith(mergeEnd);
-                        mergeEnd.setMergedWith(mergeStart);
+                        mergeStart.mergeWith(mergeEnd);
+                        mergeEnd.mergeWith(mergeStart);
 
                         if (mergeStart.txt() == null)
                             sheet.addCell(mergeStart);
@@ -525,7 +523,7 @@ public class Controller implements Initializable {
                                 Cell c = sheet.findCell(i, j);
                                 if (c == mergeStart || c == mergeEnd)
                                     continue;
-                                c.setMergedWith(mergeStart);
+                                c.mergeWith(mergeStart);
                                 if (c.txt() == null)
                                     sheet.addCell(c);
                             }
@@ -539,7 +537,6 @@ public class Controller implements Initializable {
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         statusBar.setMode(MODE[3]);
                         goTo(prevXC, prevYC);
-                        cellSelector.readCell(camera.picture.data());
                     }
                 }
                 case ESCAPE -> {
