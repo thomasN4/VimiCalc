@@ -44,7 +44,7 @@ public class Sheet {
     public void deleteCell(int xCoord, int yCoord) {
         Cell c = findCell(xCoord, yCoord);
         if (c.isMergeStart()) {
-            Cell mergeEnd = c.getMergedWith();
+            Cell mergeEnd = c.getMergeDelimiter();
             c = new Cell(xCoord, yCoord);
             c.setMergeStart(true);
             c.mergeWith(mergeEnd);
@@ -67,8 +67,8 @@ public class Sheet {
     public Cell findCell(int xCoord, int yCoord) {
         for (Cell c : getCells()) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.getMergedWith() != null && !c.isMergeStart())
-                    return c.getMergedWith();
+                if (c.getMergeDelimiter() != null && !c.isMergeStart())
+                    return c.getMergeDelimiter();
                 else
                     return c;
             }

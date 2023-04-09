@@ -14,7 +14,7 @@ public class Cell {
     private Formula formula;
     private double value;
     private final DecimalFormat format;  // final, pour l'instant
-    private Cell mergedWith;
+    private Cell mergeDelimiter;
     private boolean mergeStart;
 
     public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
@@ -60,7 +60,7 @@ public class Cell {
         this.yCoord = yCoord;
         format = new DecimalFormat("0.0");
         mergeStart = false;
-        mergedWith = null;
+        mergeDelimiter = null;
     }
 
     public int xCoord() {
@@ -117,17 +117,17 @@ public class Cell {
         this.formula = formula;
     }
 
-    public Cell getMergedWith() {
-        return mergedWith;
+    public Cell getMergeDelimiter() {
+        return mergeDelimiter;
     }
 
     public void mergeWith(Cell mergedWith) {
-        this.mergedWith = mergedWith;
+        this.mergeDelimiter = mergedWith;
     }
 
     public void unMerge() {
         if (mergeStart) mergeStart = false;
-        mergedWith = null;
+        mergeDelimiter = null;
     }
 
     public boolean isMergeStart() {
@@ -139,7 +139,7 @@ public class Cell {
     }
 
     public boolean isEmpty() {
-        return (mergedWith == null) & (txt == null);
+        return (mergeDelimiter == null) & (txt == null);
     }
 
     public Cell copy() {
