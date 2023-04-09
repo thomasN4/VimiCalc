@@ -86,19 +86,16 @@ public class CellSelector extends Visible {
                 }
                 else if (c.getMergeDelimiter() != null) break;
                 selectedCell = c.copy();
-                setW(); setH();
+                setDimensions();
                 return;
             }
         }
         selectedCell = new Cell(xCoord, yCoord);
-        setW(); setH();
+        setDimensions();
     }
 
-    private void setW() {
+    private void setDimensions() {
         w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
-    }
-
-    private void setH() {
         h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
 }
