@@ -78,16 +78,18 @@ public class CellSelector extends Visible {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 if (c.isMergeStart()) {
                     Cell mergeEnd = c.getMergeDelimiter();
+                    selectedCell = c.copy();
                     w = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
                         picMetadata.getCellAbsXs()[xCoord];
                     h = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
                         picMetadata.getCellAbsYs()[yCoord];
-                    return;
                 }
                 else if (c.getMergeDelimiter() != null) break;
-                selectedCell = c.copy();
-                setDimensions();
-                return;
+                else {
+                    selectedCell = c.copy();
+                    setDimensions();
+                    return;
+                }
             }
         }
         selectedCell = new Cell(xCoord, yCoord);
