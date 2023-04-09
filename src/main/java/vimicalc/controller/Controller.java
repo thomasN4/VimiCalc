@@ -14,7 +14,6 @@ import vimicalc.model.Sheet;
 import vimicalc.view.*;
 
 import java.net.URL;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -65,31 +64,20 @@ public class Controller implements Initializable {
     }
     */
 
-    private static boolean cellIsMerged(Cell prevCell) {
+    private static void goToMergeStart(Cell prevCell) {
         if (cellSelector.getSelectedCell().getMergedWith() != null &&
             !cellSelector.getSelectedCell().isMergeStart() &&
             (prevCell.getMergedWith() == null ||
              prevCell.getMergedWith() != cellSelector.getSelectedCell().getMergedWith())) {
             goTo(cellSelector.getSelectedCell().getMergedWith().xCoord(),
                 cellSelector.getSelectedCell().getMergedWith().yCoord());
-            cellSelector.setW(
-                camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().xCoord()+1] -
-                camera.picture.metadata().getCellAbsXs()[cellSelector.getSelectedCell().getMergedWith().xCoord()]
-            );
-            cellSelector.setH(
-                camera.picture.metadata().getCellAbsYs()[cellSelector.getSelectedCell().yCoord()+1] -
-                camera.picture.metadata().getCellAbsYs()[cellSelector.getSelectedCell().getMergedWith().yCoord()]
-            );
-            return true;
         }
-        return false;
     }
     private static void moveLeft() {
+        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
-            Cell prevCell = cellSelector.getSelectedCell();
             cellSelector.readCell(camera.picture.data());
-            if (cellIsMerged(prevCell)) return;
         }
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
@@ -120,13 +108,13 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
         }
+        goToMergeStart(prevCell);
     }
     private static void moveDown() {
         int prevH = cellSelector.getH();
+        Cell prevCell = cellSelector.getSelectedCell().copy();
         cellSelector.updateYCoord(1);
-        Cell prevCell = cellSelector.getSelectedCell();
         cellSelector.readCell(camera.picture.data());
-        if (cellIsMerged(prevCell)) return;
         if (cellSelector.getSelectedCell().isMergeStart())
             goTo(cellSelector.getSelectedCell().xCoord(),
                  cellSelector.getSelectedCell().getMergedWith().yCoord()+1);
@@ -152,13 +140,13 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
         }
+        goToMergeStart(prevCell);
     }
     private static void moveUp() {
+        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
-            Cell prevCell = cellSelector.getSelectedCell();
             cellSelector.readCell(camera.picture.data());
-            if (cellIsMerged(prevCell)) return;
         }
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
@@ -187,13 +175,13 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
         }
+        goToMergeStart(prevCell);
     }
     private static void moveRight() {
         int prevW = cellSelector.getW();
+        Cell prevCell = cellSelector.getSelectedCell().copy();
         cellSelector.updateXCoord(1);
-        Cell prevCell = cellSelector.getSelectedCell();
         cellSelector.readCell(camera.picture.data());
-        if (cellIsMerged(prevCell)) return;
         if (cellSelector.getSelectedCell().isMergeStart())
             goTo(cellSelector.getSelectedCell().getMergedWith().xCoord()+1,
                  cellSelector.getSelectedCell().yCoord());
@@ -219,11 +207,12 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
         }
+        goToMergeStart(prevCell);
     }
 
     private static void undo() {
         goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
-        if (recordedCell.get(recordedCell.size() - 1 - dCounter).equals("")) {
+        if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt().equals("")) {
             sheet.deleteCell(coordsCell.getCoords());
         }
         cellSelector.setSelectedCell(new Cell(
