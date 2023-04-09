@@ -216,9 +216,9 @@ public class Controller implements Initializable {
             sheet.deleteCell(coordsCell.getCoords());
         }
         cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
+            cellSelector.getXCoord(),
+            cellSelector.getYCoord(),
+            cellSelector.getSelectedCell().txt()
         ));
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         sheet.addCell(cellSelector.getSelectedCell());
@@ -233,17 +233,17 @@ public class Controller implements Initializable {
         goTo(recordedCell.get(recordedCell.size() - dCounter).xCoord(), recordedCell.get(recordedCell.size() - dCounter).yCoord());
         if (recordedCell.get(recordedCell.size() - dCounter).txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                            recordedCell.get(recordedCell.size() - dCounter).value())
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
+                    recordedCell.get(recordedCell.size() - dCounter).value())
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
