@@ -469,8 +469,13 @@ public class Controller implements Initializable {
                 case M -> {
                     boolean mergedCsInside = false;
 
-                    for (int[] coord : selectedCoords)
-                        sheet.unmergeCells(sheet.findCell(coord[0], coord[1]));
+                    for (int[] coord : selectedCoords) {
+                        Cell c = sheet.findCell(coord[0], coord[1]);
+                        if (c.getMergeDelimiter() != null) {
+                            sheet.unmergeCells(c);
+                            if (!mergedCsInside) mergedCsInside = true;
+                        }
+                    }
 
                     if (!mergedCsInside) {
                         System.out.println("Merging cells...");
@@ -498,11 +503,11 @@ public class Controller implements Initializable {
                         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord() ; i++) {
                             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); j++) {
                                 Cell c = sheet.findCell(i, j);
-                                if (c == mergeStart || c == mergeEnd)
-                                    continue;
-                                c.mergeWith(mergeStart);
-                                if (c.txt() == null)
-                                    sheet.addCell(c);
+                                if (c != mergeStart && c != mergeEnd) {
+                                    c.mergeWith(mergeStart);
+                                    if (c.txt() == null)
+                                        sheet.addCell(c);
+                                }
                             }
                         }
 
