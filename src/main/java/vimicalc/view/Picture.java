@@ -55,15 +55,15 @@ public class Picture extends Visible {
                 c.xCoord() <= metadata.getLastXC() &&
                 c.yCoord() >= metadata.getFirstYC() &&
                 c.yCoord() <= metadata.getLastYC()) {
-                if (c.getMergeDelimiter() != null && !c.isMergeStart()) {
+                if (c.getMergeDelimiter() == null || c.isMergeStart())
+                    visibleCells.add(c);
+                else {
                     visibleCells.removeIf(d ->
                         c.getMergeDelimiter().xCoord() == d.xCoord() &&
                         c.getMergeDelimiter().yCoord() == d.yCoord()
                     );
                     visibleCells.add(c.getMergeDelimiter());
                 }
-                else
-                    visibleCells.add(c);
             }
         }
 
