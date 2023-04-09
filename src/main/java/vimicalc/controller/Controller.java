@@ -68,8 +68,8 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().getMergeDelimiter().isMergeStart()) {
             Cell cMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
-                 pMergeStart = prevCell.getMergeDelimiter();
-            if (pMergeStart == null || pMergeStart != cMergeStart)
+                 pMergeDel = prevCell.getMergeDelimiter();
+            if (pMergeDel == null || pMergeDel != cMergeStart)
                 goTo(cMergeStart.xCoord(), cMergeStart.yCoord());
         }
     }

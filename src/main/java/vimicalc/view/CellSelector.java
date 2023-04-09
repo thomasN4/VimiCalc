@@ -76,15 +76,16 @@ public class CellSelector extends Visible {
     public void readCell(@NotNull ArrayList<Cell> cells) {
         for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.getMergeDelimiter() != null && !c.isMergeStart()) break;
-                selectedCell = c.copy();
                 if (c.isMergeStart()) {
-                    w = picMetadata.getCellAbsXs()[xCoord+1] -
-                        picMetadata.getCellAbsXs()[selectedCell.getMergeDelimiter().xCoord()];
-                    h = picMetadata.getCellAbsYs()[yCoord+1] -
-                        picMetadata.getCellAbsYs()[selectedCell.getMergeDelimiter().yCoord()];
+                    Cell mergeEnd = selectedCell.getMergeDelimiter();
+                    w = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
+                        picMetadata.getCellAbsXs()[xCoord];
+                    h = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
+                        picMetadata.getCellAbsYs()[yCoord];
                     return;
                 }
+                else if (c.getMergeDelimiter() != null) break;
+                selectedCell = c.copy();
                 setW(); setH();
                 return;
             }
