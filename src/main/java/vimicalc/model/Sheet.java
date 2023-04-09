@@ -86,11 +86,10 @@ public class Sheet {
         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
                 Cell c = findCell(i, j);
-                if (c != mergeStart && c != mergeEnd)
+                if (c != mergeStart)
                     c.mergeWith(null);
             }
         }
-        mergeEnd.mergeWith(null);
         mergeStart.mergeWith(null);
         mergeStart.setMergeStart(false);
     }
