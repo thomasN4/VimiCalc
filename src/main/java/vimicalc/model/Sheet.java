@@ -32,7 +32,11 @@ public class Sheet {
         return cells;
     }
 
-
+    public double redoCell(int xCoord, int yCoord, double value) {
+        Cell c = findCell(xCoord, yCoord);
+        c = new Cell(xCoord, yCoord, value);
+        return value;
+    }
     public void deleteCell(@NotNull String coords) {
         int[] coordsInt = coordsStrToInt(coords);
         deleteCell(coordsInt[0], coordsInt[1]);
