@@ -298,30 +298,7 @@ public class Controller implements Initializable {
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                         }
                     }
-                    case M -> {
-                        Cell c = sheet.findCell(coordsCell.getCoords());
-                        if (c.isMergeStart()) {
-                            c.unMerge();
-                        }
-                        else if (c.getMergeDelimiter() != null) {
-                            for (int i = c.getMergeDelimiter().xCoord();
-                                 i <= c.getMergeDelimiter().getMergeDelimiter().xCoord();
-                                 ++i)
-                            {
-                                for (int j = c.getMergeDelimiter().yCoord();
-                                     j <= c.getMergeDelimiter().getMergeDelimiter().yCoord();
-                                     ++j)
-                                {
-                                    Cell d = sheet.findCell(i, j);
-                                    if (d.isMergeStart() || d == c.getMergeDelimiter().getMergeDelimiter())
-                                        continue;
-                                    d.unMerge();
-                                }
-                            }
-                            c.getMergeDelimiter().getMergeDelimiter().unMerge();
-                            c.getMergeDelimiter().unMerge();
-                        }
-                    }
+                    case M -> sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
                     case P -> System.out.println(recordedCell.get(1).value());
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) undo();
@@ -492,29 +469,8 @@ public class Controller implements Initializable {
                 case M -> {
                     boolean mergedCsInside = false;
 
-                    for (int[] coord : selectedCoords) {
-                        Cell c = sheet.findCell(coord[0], coord[1]);
-                        if (c.getMergeDelimiter() != null) {
-                            for (int i = c.getMergeDelimiter().xCoord();
-                                 i <= c.getMergeDelimiter().getMergeDelimiter().xCoord();
-                                 ++i)
-                            {
-                                for (int j = c.getMergeDelimiter().yCoord();
-                                     j <= c.getMergeDelimiter().getMergeDelimiter().yCoord();
-                                     ++j)
-                                {
-                                    Cell d = sheet.findCell(i, j);
-                                    if (d.isMergeStart() || d == d.getMergeDelimiter().getMergeDelimiter())
-                                        continue;
-                                    d.unMerge();
-                                }
-                            }
-                            c.getMergeDelimiter().getMergeDelimiter().unMerge();
-                            c.getMergeDelimiter().unMerge();
-                            if (!mergedCsInside) mergedCsInside = true;
-                        }
-                    }
-                    sheet.purgeEmptyCells();
+                    for (int[] coord : selectedCoords)
+                        sheet.unmergeCells(sheet.findCell(coord[0], coord[1]));
 
                     if (!mergedCsInside) {
                         System.out.println("Merging cells...");

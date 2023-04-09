@@ -121,13 +121,8 @@ public class Cell {
         return mergeDelimiter;
     }
 
-    public void mergeWith(Cell mergedWith) {
-        this.mergeDelimiter = mergedWith;
-    }
-
-    public void unMerge() {
-        if (mergeStart) mergeStart = false;
-        mergeDelimiter = null;
+    public void mergeWith(Cell mergeDelimiter) {
+        this.mergeDelimiter = mergeDelimiter;
     }
 
     public boolean isMergeStart() {

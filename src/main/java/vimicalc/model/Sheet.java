@@ -56,10 +56,6 @@ public class Sheet {
             d.setDependeds(new ArrayList<>());
     }
 
-    public void purgeEmptyCells() {
-        cells.removeIf(Cell::isEmpty);
-    }
-
     public Cell findCell(@NotNull String coords) {
         int[] coordsInt = coordsStrToInt(coords);
         return findCell(coordsInt[0], coordsInt[1]);
@@ -74,6 +70,29 @@ public class Sheet {
             }
         }
         return new Cell(xCoord, yCoord);
+    }
+
+    public void unmergeCells(@NotNull Cell c) {
+        if (c.isMergeStart()) {
+            unmergeCellsSubOp(c, c.getMergeDelimiter());
+            cells.removeIf(Cell::isEmpty);
+        }
+        else if (c.getMergeDelimiter() != null) {
+            unmergeCellsSubOp(c.getMergeDelimiter(), c.getMergeDelimiter().getMergeDelimiter());
+            cells.removeIf(Cell::isEmpty);
+        }
+    }
+    private void unmergeCellsSubOp(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
+        for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
+            for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
+                Cell c = findCell(i, j);
+                if (c != mergeStart && c != mergeEnd)
+                    c.mergeWith(null);
+            }
+        }
+        mergeEnd.mergeWith(null);
+        mergeStart.mergeWith(null);
+        mergeStart.setMergeStart(false);
     }
 
     public Dependency findDependency(int x, int y) {
@@ -132,7 +151,7 @@ public class Sheet {
         }
 
         if (needsEvaluating) {
-            purgeEmptyCells();
+            cells.removeIf(Cell::isEmpty);
             System.out.println("All of the dependencies (result):");
             dependencies.forEach(d -> System.out.println(d.log()));
         }
