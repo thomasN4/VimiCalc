@@ -131,9 +131,8 @@ public class Sheet {
     }
 
     public void addCell(Cell cell) {
-        Cell newCell = cell.copy();
-        cells.removeIf(c -> c.xCoord() == newCell.xCoord() && c.yCoord() == newCell.yCoord());
-        cells.add(newCell);
+        cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
+        cells.add(cell);
         checkForDependents(cell.xCoord(), cell.yCoord());
     }
 

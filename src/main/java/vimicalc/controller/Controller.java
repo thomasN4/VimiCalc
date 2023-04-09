@@ -490,11 +490,12 @@ public class Controller implements Initializable {
 
                         Cell mergeStart = sheet.findCell(minXC, minYC);
                         Cell mergeEnd = sheet.findCell(maxXC, maxYC);
+                        if (mergeStart.isEmpty()) sheet.addCell(mergeStart);
+                        if (mergeEnd.isEmpty()) sheet.addCell(mergeEnd);
+                        else mergeEnd = new Cell(mergeEnd.xCoord(), mergeEnd.yCoord());
                         mergeStart.setMergeStart(true);
                         mergeStart.mergeWith(mergeEnd);
                         mergeEnd.mergeWith(mergeStart);
-                        sheet.addCell(mergeStart);
-                        sheet.addCell(mergeEnd);
 
                         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord() ; i++) {
                             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); j++) {
