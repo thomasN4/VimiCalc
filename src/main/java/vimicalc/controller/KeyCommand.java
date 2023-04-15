@@ -6,7 +6,7 @@ import vimicalc.model.Cell;
 import vimicalc.model.Command;
 import vimicalc.model.Formula;
 
-import java.util.HashMap;
+//import java.util.HashMap;
 
 import static vimicalc.controller.Controller.*;
 import static vimicalc.utils.Conversions.isNumber;
