@@ -100,4 +100,8 @@ public class CellSelector extends Visible {
         w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
         h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
     }
+
+    public void setC() {
+
+    }
 }

@@ -1,5 +1,7 @@
 package vimicalc.model;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -160,5 +162,10 @@ public class Cell {
                 txt
             );
         }
+    }
+
+    public void setColor(Color color, Cell c, int xCoord, int yCoord, GraphicsContext gc) {
+        c = new Cell(xCoord, yCoord);
+        gc.setFill(color);
     }
 }

@@ -210,17 +210,30 @@ public class Controller implements Initializable {
 
     private static void undo() {
         goTo(recordedCell.get(recordedCell.size() - 1 - dCounter).xCoord(), recordedCell.get(recordedCell.size() - 1 - dCounter).yCoord());
-        if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt().equals("")) {
+        if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt() == null) {
+            System.out.println("sd");
             sheet.deleteCell(coordsCell.getCoords());
+            infoBar.setInfobarTxt("I");
+        } else if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt().matches(".*\\d.*")) {
+            cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
+                            recordedCell.get(recordedCell.size() - 1 - dCounter).value())
+            ));
+            sheet.addCell(cellSelector.getSelectedCell());
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+        } else {
+            cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().txt()
+            ));
+            sheet.addCell(cellSelector.getSelectedCell());
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
-        cellSelector.setSelectedCell(new Cell(
-            cellSelector.getXCoord(),
-            cellSelector.getYCoord(),
-            cellSelector.getSelectedCell().txt()
-        ));
-        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        sheet.addCell(cellSelector.getSelectedCell());
-        cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
         /*if (recordedCell.get(recordedCell.size() - dCounter).formula() != null) {
             fCounter--;
         }*/
@@ -297,7 +310,6 @@ public class Controller implements Initializable {
                         }
                     }
                     case M -> sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
-                    case P -> System.out.println(recordedCell.get(1).value());
                     case U -> {
                         if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) undo();
                         else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
