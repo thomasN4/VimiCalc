@@ -37,17 +37,25 @@ public class KeyCommand {
             }
             case DELETE -> c = 'd';
             case EQUALS -> {
-                currMode = Mode.VISUAL;
-                selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
-                expr = "";
-                return;
+                cellSelector.setSelectedCell(new Cell(
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().txt()
+                ));
+                recordedCell.add(cellSelector.getSelectedCell().copy());
+                currMode = Mode.FORMULA;
+                if (cellSelector.getSelectedCell().formula() == null)
+                    cellSelector.getSelectedCell().setFormula(
+                        new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                    );
+                infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                expr = ""; return;
             }
             case SEMICOLON -> {
                 currMode = Mode.COMMAND;
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setCommandTxt(command.getTxt());
-                expr = "";
-                return;
+                expr = ""; return;
             }
         }
         expr += c;
@@ -107,20 +115,6 @@ public class KeyCommand {
                 if (cellSelector.getSelectedCell().txt() == null)
                     cellSelector.getSelectedCell().setTxt("");
                 cellSelector.draw(gc);
-            }
-            case '=' -> {
-                cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
-                ));
-                recordedCell.add(cellSelector.getSelectedCell().copy());
-                currMode = Mode.FORMULA;
-                if (cellSelector.getSelectedCell().formula() == null)
-                    cellSelector.getSelectedCell().setFormula(
-                        new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
-                    );
-                infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
             }
             case 'v' -> {
                 currMode = Mode.VISUAL;
