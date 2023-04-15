@@ -28,7 +28,6 @@ public class Controller implements Initializable {
 //    private static int MOUSE_X;
 //    private static int MOUSE_Y;
 
-    private static final String[] MODE = {"[COMMAND]", "[FORMULA]", "[INSERT]", "[NORMAL]", "[VISUAL]"};
     @FXML
     private Canvas canvas;
     private static final LinkedList<Cell> recordedCell = new LinkedList<>();
@@ -47,6 +46,7 @@ public class Controller implements Initializable {
     private static Sheet sheet;
     public static StatusBar statusBar;
     public static KeyCommand keyCommand;
+    public static Mode currMode;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
     public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
@@ -286,11 +286,11 @@ public class Controller implements Initializable {
         return formula;
     }
     public static void onKeyPressed(@NotNull KeyEvent event) {
-        switch (statusBar.getMode().charAt(1)) {
-            case 'C' -> commandInput(event);
-            case 'F' -> formulaInput(event);
-            case 'I' -> textInput(event);
-            case 'N' -> {
+        switch (currMode) {
+            case COMMAND -> commandInput(event);
+            case FORMULA -> formulaInput(event);
+            case INSERT -> textInput(event);
+            case NORMAL -> {
                 switch (event.getCode()) {
                     case H, LEFT, BACK_SPACE -> moveLeft();
                     case J, DOWN, ENTER -> moveDown();
@@ -332,12 +332,11 @@ public class Controller implements Initializable {
                         ));
                         recordedCell.add(cellSelector.getSelectedCell().copy());
                         cellSelector.readCell(camera.picture.data());
-                        statusBar.setMode(MODE[2]);
+                        currMode = Mode.INSERT;
                         if (cellSelector.getSelectedCell().txt() == null)
                             cellSelector.getSelectedCell().setTxt("");
                         cellSelector.draw(gc);
                     }
-                    case ESCAPE -> statusBar.setMode(MODE[3]);
                     case EQUALS -> {
                         cellSelector.setSelectedCell(new Cell(
                                 cellSelector.getXCoord(),
@@ -345,7 +344,7 @@ public class Controller implements Initializable {
                                 cellSelector.getSelectedCell().txt()
                         ));
                         recordedCell.add(cellSelector.getSelectedCell().copy());
-                        statusBar.setMode(MODE[1]);
+                        currMode = Mode.FORMULA;
                         if (cellSelector.getSelectedCell().formula() == null)
                             cellSelector.getSelectedCell().setFormula(
                                 new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
@@ -353,17 +352,17 @@ public class Controller implements Initializable {
                         infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
                     }
                     case V -> {
-                        statusBar.setMode(MODE[4]);
+                        currMode = Mode.VISUAL;
                         selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
                     }
                     case SEMICOLON -> {
-                        statusBar.setMode(MODE[0]);
+                        currMode = Mode.COMMAND;
                         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                         infoBar.setCommandTxt(command.getTxt());
                     }
                 }
             }
-            case 'V' -> visualSelection(event);
+            case VISUAL -> visualSelection(event);
         }
 
         System.out.println("     sC.x: "+ cellSelector.getX()     +", yCoord: "+ cellSelector.getY());
@@ -372,11 +371,11 @@ public class Controller implements Initializable {
         System.out.println("    Cells: "+sheet.getCells());
         System.out.println("========================================");
 
-        if (statusBar.getMode().equals(MODE[3])) {
+        if (currMode == Mode.NORMAL) {
             cellSelector.draw(gc);
             coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         }
-        else if (statusBar.getMode().equals(MODE[4])) {
+        else if (currMode == Mode.VISUAL) {
             System.out.println("Selected coords = {");
             selectedCoords.forEach(c -> {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -400,7 +399,7 @@ public class Controller implements Initializable {
                     selectedCoords = new ArrayList<>();
                     infoBar.setEnteringCommandInVISUAL(false);
                 }
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
@@ -430,7 +429,7 @@ public class Controller implements Initializable {
                         f
                     ));
                 }
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
                 if (cellSelector.getX() == 0)
                     moveRight();
@@ -460,7 +459,7 @@ public class Controller implements Initializable {
                 infoBar.setCommandTxt(command.getTxt() + event.getText());
             }
         }
-        if(!statusBar.getMode().equals(MODE[3]))
+        if(currMode != Mode.NORMAL)
             infoBar.setCommandTxt(command.getTxt());
     }
 
@@ -523,12 +522,12 @@ public class Controller implements Initializable {
                         } while (cellSelector.getSelectedCell().getMergeDelimiter() != null);
                         selectedCoords = new ArrayList<>();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        statusBar.setMode(MODE[3]);
+                        currMode = Mode.NORMAL;
                         moveLeft();
                     }
                 }
                 case ESCAPE -> {
-                    statusBar.setMode(MODE[3]);
+                    currMode = Mode.NORMAL;
                     selectedCoords = new ArrayList<>();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -691,7 +690,7 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case ESCAPE -> {
                 cellSelector.readCell(camera.picture.data());
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
                 cellSelector.setSelectedCell(new Cell(
@@ -708,7 +707,7 @@ public class Controller implements Initializable {
                     case UP -> moveUp();
                     case RIGHT, TAB -> moveRight();
                 }
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
             }
             case BACK_SPACE -> {
                 if (cellSelector.getSelectedCell().txt().equals(""))
@@ -733,7 +732,7 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case ESCAPE -> {
                 cellSelector.readCell(camera.picture.data());
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
@@ -755,7 +754,7 @@ public class Controller implements Initializable {
                 } else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
-                statusBar.setMode(MODE[3]);
+                currMode = Mode.NORMAL;
                 cellSelector.readCell(camera.picture.data());
             }
             case BACK_SPACE -> {
@@ -846,6 +845,7 @@ public class Controller implements Initializable {
             Color.GRAY
         );
 
+        currMode = Mode.NORMAL;
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         selectedCoords = new ArrayList<>();
 
