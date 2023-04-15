@@ -7,10 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.model.Cell;
-import vimicalc.model.Command;
-import vimicalc.model.Formula;
-import vimicalc.model.Sheet;
+import vimicalc.model.*;
 import vimicalc.view.*;
 
 import java.net.URL;
@@ -49,6 +46,7 @@ public class Controller implements Initializable {
     private static ArrayList<int[]> selectedCoords;
     private static Sheet sheet;
     public static StatusBar statusBar;
+    public static KeyCommand keyCommand;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
     public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
