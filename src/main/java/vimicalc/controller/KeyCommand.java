@@ -25,7 +25,11 @@ public class KeyCommand {
     }
 
     public void addChar(@NotNull KeyEvent event) {
-        char c = event.getText().charAt(0);
+        char c = 0;
+        try {
+            c = event.getText().charAt(0);
+        } catch (Exception ignored) {}
+
         switch (event.getCode()) {
             case LEFT -> c = 'h';
             case DOWN, ENTER -> c = 'j';
@@ -35,6 +39,7 @@ public class KeyCommand {
                 if (event.isShiftDown()) c = 'h';
                 else c = 'l';
             }
+            case A, INSERT -> c = 'i';
             case DELETE -> c = 'd';
             case EQUALS -> {
                 cellSelector.setSelectedCell(new Cell(
@@ -58,7 +63,8 @@ public class KeyCommand {
                 expr = ""; return;
             }
         }
-        expr += c;
+
+        if (c != 0) expr += c;
         verifyExprCompleteness(c);
     }
 
@@ -103,7 +109,7 @@ public class KeyCommand {
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
             }
-            case 'a', 'i' -> {
+            case 'i' -> {
                 cellSelector.setSelectedCell(new Cell(
                     cellSelector.getXCoord(),
                     cellSelector.getYCoord(),
