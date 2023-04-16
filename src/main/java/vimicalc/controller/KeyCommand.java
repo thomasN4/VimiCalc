@@ -97,7 +97,12 @@ public class KeyCommand {
     }
 
     private void runMacro(char macroName) {
-        ;
+        String[] macro = macros.get(macroName).toArray(new String[0]);
+        for (String e : macro) {
+            expr = e;
+            evaluate();
+        }
+        expr = "";
     }
 
     public void evaluate() {
