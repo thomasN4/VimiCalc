@@ -7,6 +7,7 @@ import vimicalc.model.Command;
 import vimicalc.model.Formula;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static vimicalc.controller.Controller.*;
@@ -15,8 +16,8 @@ import static vimicalc.utils.Conversions.isNumber;
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
 
-    /* Les fonctions A sont des fonctions avec des arguments, tandis que les fonctions B, non */
-//    private final char[] Afuncs = {'d', 'y', 'p'};
+    /* Les fonctions A sont des fonctions qui doivent avoir des arguments, tandis que les fonctions B, non */
+//    private final char[] Afuncs = {'d', 'y', 'p', 'q'};
     private final char[] Bfuncs = {'h', 'j', 'k', 'l', 'a', 'i'};
     private final HashMap<Character, ArrayList<String>> macros;
     private String expr;
@@ -33,6 +34,7 @@ public class KeyCommand {
         char c = 0;
         try {
             c = event.getText().charAt(0);
+            System.out.println("Event text: " + c);
         } catch (Exception ignored) {}
 
         switch (event.getCode()) {
@@ -44,7 +46,7 @@ public class KeyCommand {
                 if (event.isShiftDown()) c = 'h';
                 else c = 'l';
             }
-            case A, INSERT -> c = 'i';
+            case INSERT -> c = 'i';
             case DELETE -> c = 'd';
             case EQUALS -> {
                 cellSelector.setSelectedCell(new Cell(
@@ -67,11 +69,6 @@ public class KeyCommand {
                 infoBar.setCommandTxt(command.getTxt());
                 expr = ""; return;
             }
-            case V -> {
-                currMode = Mode.VISUAL;
-                selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
-                expr = ""; return;
-            }
         }
 
         if (c != 0) expr += c;
@@ -79,8 +76,6 @@ public class KeyCommand {
     }
 
     public void verifyExprCompleteness(char c) {
-        for (char f : Bfuncs)
-            if (c == f) evaluate();
         if (expr.length() > 1) {
             if (expr.charAt(0) == expr.charAt(1))
                 evaluate();
@@ -92,23 +87,47 @@ public class KeyCommand {
             else if (expr.charAt(0) == '@')
                 runMacro(expr.charAt(1));
         }
-        else if (recordingMacro && expr.charAt(0) == 'q')
-            recordingMacro = false;
+        else if (recordingMacro) {
+            try {
+                if (expr.charAt(0) == 'q') {
+                    System.out.println("Recorded macro: " + currMacro);
+                    recordingMacro = false;
+                    expr = "";
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        for (char f : Bfuncs)
+            if (c == f) evaluate();
     }
 
     private void runMacro(char macroName) {
-        String[] macro = macros.get(macroName).toArray(new String[0]);
-        for (String e : macro) {
-            expr = e;
-            evaluate();
+        try {
+            System.out.println("Trying to run a macro...");
+            String[] macro = macros.get(macroName).toArray(new String[0]);
+            System.out.println("The macro: " + Arrays.toString(macro));
+            for (String e : macro) {
+                System.out.println("Macro expression: " + e);
+                expr = e;
+                evaluate();
+            }
+            System.out.println("Macro execution finished");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            expr = "";
         }
-        expr = "";
     }
 
     public void evaluate() {
         byte firstFuncIndex = 0;
         int multiplier = 1;
         String multiplierStr = "";
+
+        System.out.println("recordingMacro = " + recordingMacro);
+        if (recordingMacro && expr.charAt(0) != 'q')
+            currMacro.add(expr);
+        if (expr.equals("")) return;
 
         for (int i = 0; i < expr.length(); i++) {
             if (isNumber(""+expr.charAt(i))) {
@@ -124,6 +143,7 @@ public class KeyCommand {
 
         for (int i = 0; i < multiplier; i++) {
             switch (expr.charAt(firstFuncIndex)) {
+                case '@' -> runMacro(expr.charAt(firstFuncIndex+1));
                 case 'h' -> moveLeft();
                 case 'j' -> moveDown();
                 case 'k' -> moveUp();
@@ -156,11 +176,11 @@ public class KeyCommand {
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                 }
-                case 'i' -> {
+                case 'a', 'i' -> {
                     cellSelector.setSelectedCell(new Cell(
-                            cellSelector.getXCoord(),
-                            cellSelector.getYCoord(),
-                            cellSelector.getSelectedCell().txt()
+                        cellSelector.getXCoord(),
+                        cellSelector.getYCoord(),
+                        cellSelector.getSelectedCell().txt()
                     ));
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     cellSelector.readCell(camera.picture.data());
@@ -169,11 +189,12 @@ public class KeyCommand {
                         cellSelector.getSelectedCell().setTxt("");
                     cellSelector.draw(gc);
                 }
+                case 'v' -> {
+                    currMode = Mode.VISUAL;
+                    selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
+                }
             }
         }
-
-        if (recordingMacro)
-            currMacro.add(expr);
         expr = "";
     }
 }

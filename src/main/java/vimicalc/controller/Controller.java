@@ -294,10 +294,10 @@ public class Controller implements Initializable {
             }
         }
 
-        System.out.println("     sC.x: "+ cellSelector.getX()     +", yCoord: "+ cellSelector.getY());
-        System.out.println("sC.xCoord: "+ cellSelector.getXCoord()+", sC.yCoord: "+ cellSelector.getYCoord());
-        System.out.println(" cam.absX: "+ camera.getAbsX()        +", cam.absY: "+camera.getAbsY());
-        System.out.println("    Cells: "+ sheet.getCells());
+        System.out.println("     sC.x: "+cellSelector.getX()     +", yCoord: "+cellSelector.getY());
+        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
+        System.out.println(" cam.absX: "+camera.getAbsX()        +", cam.absY: "+camera.getAbsY());
+        System.out.println("    Cells: "+sheet.getCells());
         System.out.println("========================================");
 
         if (currMode == Mode.NORMAL) {
