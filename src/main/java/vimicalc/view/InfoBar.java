@@ -9,22 +9,18 @@ import org.jetbrains.annotations.NotNull;
 public class InfoBar extends Visible {
 
     private String keyStroke;
-//    private final String commandTxt;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         keyStroke = "";
-//        commandTxt = "";
     }
     public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
-//    public String isEnteringCommand() { return ":" + commandTxt; }
 
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
-
     public void setKeyStroke(String keyStroke) {
         this.keyStroke = keyStroke;
     }
@@ -32,7 +28,7 @@ public class InfoBar extends Visible {
     public void setCommandTxt(String infobarTxt) { this.infobarTxt = ":" + infobarTxt; }
 
     public void setEnteringFormula(String infobarTxt) {
-        this.infobarTxt = "% " + infobarTxt;
+        this.infobarTxt = "% " + infobarTxt.replace(".0" , "");
     }
 
     public void setInfobarTxt(String infobarTxt) {
@@ -41,6 +37,7 @@ public class InfoBar extends Visible {
         else
             this.infobarTxt = "(I)";
     }
+    public String getInfobarTxt() { return infobarTxt; }
 
     @Override
     public void draw(@NotNull GraphicsContext gc) {

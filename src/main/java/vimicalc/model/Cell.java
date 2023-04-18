@@ -1,5 +1,7 @@
 package vimicalc.model;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -14,7 +16,7 @@ public class Cell {
     private Formula formula;
     private double value;
     private final DecimalFormat format;  // final, pour l'instant
-    private Cell mergedWith;
+    private Cell mergeDelimiter;
     private boolean mergeStart;
 
     public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
@@ -60,7 +62,7 @@ public class Cell {
         this.yCoord = yCoord;
         format = new DecimalFormat("0.0");
         mergeStart = false;
-        mergedWith = null;
+        mergeDelimiter = null;
     }
 
     public int xCoord() {
@@ -117,17 +119,12 @@ public class Cell {
         this.formula = formula;
     }
 
-    public Cell getMergedWith() {
-        return mergedWith;
+    public Cell getMergeDelimiter() {
+        return mergeDelimiter;
     }
 
-    public void mergeWith(Cell mergedWith) {
-        this.mergedWith = mergedWith;
-    }
-
-    public void unMerge() {
-        if (mergeStart) mergeStart = false;
-        mergedWith = null;
+    public void mergeWith(Cell mergeDelimiter) {
+        this.mergeDelimiter = mergeDelimiter;
     }
 
     public boolean isMergeStart() {
@@ -139,7 +136,7 @@ public class Cell {
     }
 
     public boolean isEmpty() {
-        return (mergedWith == null) & (txt == null);
+        return (mergeDelimiter == null) & (txt == null);
     }
 
     public Cell copy() {
@@ -165,5 +162,10 @@ public class Cell {
                 txt
             );
         }
+    }
+
+    public void setColor(Color color, Cell c, int xCoord, int yCoord, GraphicsContext gc) {
+        c = new Cell(xCoord, yCoord);
+        gc.setFill(color);
     }
 }

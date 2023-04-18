@@ -55,15 +55,15 @@ public class Picture extends Visible {
                 c.xCoord() <= metadata.getLastXC() &&
                 c.yCoord() >= metadata.getFirstYC() &&
                 c.yCoord() <= metadata.getLastYC()) {
-                if (c.getMergedWith() != null && !c.isMergeStart()) {
-                    visibleCells.removeIf(d ->
-                        c.getMergedWith().xCoord() == d.xCoord() &&
-                        c.getMergedWith().yCoord() == d.yCoord()
-                    );
-                    visibleCells.add(c.getMergedWith());
-                }
-                else
+                if (c.getMergeDelimiter() == null || c.isMergeStart())
                     visibleCells.add(c);
+                else {
+                    visibleCells.removeIf(d ->
+                        c.getMergeDelimiter().xCoord() == d.xCoord() &&
+                        c.getMergeDelimiter().yCoord() == d.yCoord()
+                    );
+                    visibleCells.add(c.getMergeDelimiter());
+                }
             }
         }
 
@@ -92,9 +92,9 @@ public class Picture extends Visible {
         int cellHeight, cellWidth;
         for (Cell c : visibleCells) {
             if (c.isMergeStart()) {
-                cellHeight = metadata.getCellAbsYs()[c.getMergedWith().yCoord()+1] -
+                cellHeight = metadata.getCellAbsYs()[c.getMergeDelimiter().yCoord()+1] -
                              metadata.getCellAbsYs()[c.yCoord()];
-                cellWidth = metadata.getCellAbsXs()[c.getMergedWith().xCoord()+1] -
+                cellWidth = metadata.getCellAbsXs()[c.getMergeDelimiter().xCoord()+1] -
                             metadata.getCellAbsXs()[c.xCoord()];
             }
             else {

@@ -297,14 +297,14 @@ public class Formula extends Interpretable {
                 sheet.addCell(new Cell(
                     sCX + j,
                     sCY + i,
-                    forOnePos(mat1.getRow(i), mat2.getCol(j))
+                    for1Pos(mat1.getRow(i), mat2.getCol(j))
                 ));
             }
         }
 
-        return forOnePos(mat1.getRow(0), mat2.getCol(0));
+        return for1Pos(mat1.getRow(0), mat2.getCol(0));
     }
-    public double forOnePos(double[] row, double[] col) {
+    public double for1Pos(double[] row, double[] col) {
         double v = 0;
         for (int i = 0; i < row.length; i++) {
             v += row[i] * col[i];
