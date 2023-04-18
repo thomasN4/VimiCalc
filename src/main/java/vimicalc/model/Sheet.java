@@ -197,7 +197,7 @@ public class Sheet {
                     c.yCoord() + "," +
                     data + "," +
                     frmlTxt + "," +
-                    mergeStatus + ", " +
+                    mergeStatus + "," +
                     isMergeHead  + "\n"
                 );
                 fW.flush();
