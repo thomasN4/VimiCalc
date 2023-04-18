@@ -90,6 +90,7 @@ public class KeyCommand {
     }
 
     public void evaluate() {
+        if (expr.equals("")) return;
         boolean evaluationFinished = false;
         byte firstFuncIndex = 0;
         int multiplier = 1;
@@ -98,7 +99,6 @@ public class KeyCommand {
         System.out.println("recordingMacro = " + recordingMacro);
         if (recordingMacro && expr.charAt(0) != 'q')
             currMacro.add(expr);
-        if (expr.equals("")) return;
 
         for (int i = 0; i < expr.length(); i++) {
             if (isNumber(""+expr.charAt(i))) {

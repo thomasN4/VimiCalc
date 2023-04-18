@@ -172,7 +172,8 @@ public class Sheet {
         writeFile(file.getPath());
     }
 
-    public void writeFile(String path) throws IOException {
+    public void writeFile(@NotNull String path) throws IOException {
+        if (!path.endsWith(".wss")) path += ".wss";
         BufferedWriter fW = new BufferedWriter(new FileWriter(path));
         fW.write("xCoord,yCoord,data,formula\n");
         fW.flush();
@@ -202,6 +203,13 @@ public class Sheet {
     public void readFile(String path) throws IOException {
         cells = new ArrayList<>();
         BufferedReader fR = new BufferedReader(new FileReader(path));
+        if (!path.endsWith(".wss")) {
+            /* On va devoir afficher cela dans le infobar, de manière optimale.
+             * Je suggère d'avoir une variable statique pour le texte d'infobar, au lieu
+             * de rendre tout le infobar static. */
+            String errorMessage = "File is not of .wss format";
+            throw new EOFException(errorMessage);
+        }
 
         int b;
         char c = '\0';
