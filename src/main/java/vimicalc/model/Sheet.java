@@ -301,7 +301,7 @@ public class Sheet {
 
         while (true) {
             b = fR.read();
-            if (b == '*' && prevB == '\n') break;
+            if (b == -1) break;
             if (b == ',')
                 readingYC = false;
 
@@ -317,7 +317,6 @@ public class Sheet {
                 yOffset = new StringBuilder();
                 readingYC = true;
             }
-            prevB = b;
         }
 
         fR.close();
