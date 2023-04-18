@@ -6,6 +6,7 @@ import vimicalc.controller.Controller;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static vimicalc.utils.Conversions.*;
 
@@ -195,6 +196,22 @@ public class Sheet {
                 throw new RuntimeException(e);
             }
         });
+        fW.write("*****");
+        fW.flush();
+
+        for (HashMap.Entry<Integer, Integer> set : picMetadata.getxOffsets().entrySet()) {
+            int key = set.getKey(), value = set.getValue();
+            fW.write(key + ", " + value + "\n");
+            fW.flush();
+        }
+        fW.write("*****");
+        fW.flush();
+        for (HashMap.Entry<Integer, Integer> set : picMetadata.getyOffsets().entrySet()) {
+            int key = set.getKey(), value = set.getValue();
+            fW.write(key + ", " + value + "\n");
+            fW.flush();
+        }
+
         fW.close();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());
@@ -211,7 +228,7 @@ public class Sheet {
             throw new EOFException(errorMessage);
         }
 
-        int b;
+        int b, prevB = 0;
         char c = '\0';
         String[] cellItems = new String[4];
         for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
@@ -223,7 +240,7 @@ public class Sheet {
 
         while (true) {
             b = fR.read();
-            if (b == -1) break;
+            if (b == '*' && prevB == '\n') break;
             else c = (char) b;
 
             if (c == ',') pos++;
@@ -248,6 +265,59 @@ public class Sheet {
                 cellItems = new String[4];
                 for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
             } else cellItems[pos] += c;
+            prevB = b;
+        }
+        while (b == '*') b = fR.read();
+
+        StringBuilder xC = new StringBuilder(),
+                      yC = new StringBuilder(),
+                      xOffset = new StringBuilder(),
+                      yOffset = new StringBuilder();
+        boolean readingXC = true, readingYC = true;
+        picMetadata.getxOffsets().clear();
+        picMetadata.getyOffsets().clear();
+
+        while (true) {
+            b = fR.read();
+            if (b == '*' && prevB == '\n') break;
+            if (b == ',')
+                readingXC = false;
+
+            if (readingXC)
+                xC.append(b);
+            else
+                xOffset.append(b);
+
+            if (b == '\n') {
+                picMetadata.getxOffsets().put(Integer.parseInt(xC.toString()),
+                                              Integer.parseInt(xOffset.toString()));
+                xC = new StringBuilder();
+                xOffset = new StringBuilder();
+                readingXC = true;
+            }
+            prevB = b;
+        }
+        while (b == '*') b = fR.read();
+
+        while (true) {
+            b = fR.read();
+            if (b == '*' && prevB == '\n') break;
+            if (b == ',')
+                readingYC = false;
+
+            if (readingYC)
+                yC.append(b);
+            else
+                yOffset.append(b);
+
+            if (b == '\n') {
+                picMetadata.getyOffsets().put(Integer.parseInt(yC.toString()),
+                        Integer.parseInt(yOffset.toString()));
+                yC = new StringBuilder();
+                yOffset = new StringBuilder();
+                readingYC = true;
+            }
+            prevB = b;
         }
 
         fR.close();

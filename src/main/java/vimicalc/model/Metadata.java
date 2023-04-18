@@ -130,4 +130,12 @@ public class Metadata {
     public int getCamAbsY() {
         return camAbsY;
     }
+
+    public HashMap<Integer, Integer> getxOffsets() {
+        return xOffsets;
+    }
+
+    public HashMap<Integer, Integer> getyOffsets() {
+        return yOffsets;
+    }
 }
