@@ -176,20 +176,29 @@ public class Sheet {
     public void writeFile(@NotNull String path) throws IOException {
         if (!path.endsWith(".wss")) path += ".wss";
         BufferedWriter fW = new BufferedWriter(new FileWriter(path));
-        fW.write("xCoord,yCoord,data,formula\n");
+        fW.write("xCoord,yCoord,data,formula,merge delimiter,is the start of a merged section\n");
         fW.flush();
         cells.forEach(c -> {
             try {
-                String data;
+                String data, mergeStatus, isMergeHead, frmlTxt = "null";
                 if (c.value() != 0) data = String.valueOf(c.value());
                 else data = c.txt();
-                String frmlTxt = "null";
                 if (c.formula() != null) frmlTxt = c.formula().getTxt();
+                if (c.getMergeDelimiter() == null)
+                    mergeStatus = "unmerged";
+                else
+                    mergeStatus = toAlpha(c.getMergeDelimiter().xCoord()) +
+                                  c.getMergeDelimiter().yCoord();
+                if (c.isMergeStart())
+                    isMergeHead = "true";
+                else isMergeHead = "false";
                 fW.write(
-                   c.xCoord() + "," +
+                   toAlpha(c.xCoord()) + "," +
                     c.yCoord() + "," +
                     data + "," +
-                    frmlTxt + "\n"
+                    frmlTxt + "," +
+                    mergeStatus +
+                    isMergeHead  + "\n"
                 );
                 fW.flush();
             } catch (IOException e) {
@@ -217,7 +226,7 @@ public class Sheet {
         Controller.statusBar.setFilename(file.getName());
     }
 
-    public void readFile(String path) throws IOException {
+    public void readFile(String path) throws Exception {
         cells = new ArrayList<>();
         BufferedReader fR = new BufferedReader(new FileReader(path));
         if (!path.endsWith(".wss")) {
@@ -225,12 +234,12 @@ public class Sheet {
              * Je suggère d'avoir une variable statique pour le texte d'infobar, au lieu
              * de rendre tout le infobar static. */
             String errorMessage = "File is not of .wss format";
-            throw new EOFException(errorMessage);
+            throw new Exception(errorMessage);
         }
 
         int b, prevB = 0;
         char c = '\0';
-        String[] cellItems = new String[4];
+        String[] cellItems = new String[6];
         for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
         byte pos = 0;
 
@@ -247,22 +256,28 @@ public class Sheet {
             else if (c == '\n') {
                 System.out.println("Cell items: " + Arrays.toString(cellItems));
                 pos = 0;
-                int xCoord = Integer.parseInt(cellItems[0]);
+                int xCoord = fromAlpha(cellItems[0]);
                 int yCoord = Integer.parseInt(cellItems[1]);
                 Formula f = new Formula(cellItems[3], xCoord, yCoord);
+                Cell cell;
                 if (!cellItems[3].equals("null"))
-                    addCell(new Cell(
+                    cell = new Cell(
                         xCoord,
                         yCoord,
                         f.interpret(this),
                         f
-                ));
-                else addCell(new Cell(
+                    );
+                else cell = new Cell(
                     xCoord,
                     yCoord,
                     cellItems[2]
-                ));
-                cellItems = new String[4];
+                );
+                if (!cellItems[4].equals("unmerged"))
+                    cell.mergeWith(findCell(cellItems[4]));
+                if (cellItems[5].equals("true"))
+                    cell.setMergeStart(true);
+                addCell(cell.copy());
+                cellItems = new String[6];
                 for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
             } else cellItems[pos] += c;
             prevB = b;
