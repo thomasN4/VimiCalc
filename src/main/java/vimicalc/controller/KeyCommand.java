@@ -11,12 +11,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import static vimicalc.controller.Controller.*;
+import static vimicalc.utils.Booleans.intersect;
 import static vimicalc.utils.Conversions.isNumber;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
-//    private final char[] F_functions = {'y', 'p', 'd'};  // Fonctions répétables sur des plages de cellules
-//    private ArrayList<Character> M_functions;
+    private final char[] F_functions = {'y', 'p', 'd'};  // Fonctions répétables sur des plages de cellules
+    private final char[] M_functions = {'h', 'j', 'k', 'l'};
     private final HashMap<Character, ArrayList<String>> macros;
     private String expr;
     private ArrayList<String> currMacro;
@@ -26,11 +27,6 @@ public class KeyCommand {
         expr = "";
         macros = new HashMap<>();
         recordingMacro = false;
-//        M_functions = new ArrayList<>();
-//        M_functions.add('h');
-//        M_functions.add('j');
-//        M_functions.add('k');
-//        M_functions.add('l');
     }
 
     public void addChar(@NotNull KeyEvent event) {
@@ -96,10 +92,11 @@ public class KeyCommand {
         }
     }
 
+
     public void evaluate(String expr) {
         if (expr.equals("")) return;
         boolean evaluationFinished = false;
-        byte firstFuncIndex = 0;
+        byte frstFuncIndex = 0;
         int multiplier = 1;
         String multiplierStr = "";
 
@@ -110,48 +107,33 @@ public class KeyCommand {
         for (int i = 0; i < expr.length(); i++) {
             if (isNumber(""+expr.charAt(i))) {
                 multiplierStr += expr.charAt(i);
-                ++firstFuncIndex;
+                ++frstFuncIndex;
             }
             else {
                 System.out.println("Multiplier: ");
-                if (firstFuncIndex != 0)
+                if (frstFuncIndex != 0)
                     multiplier = Integer.parseInt(multiplierStr);
                 break;
             }
         }
 
-        if (firstFuncIndex >= expr.length())
+        if (frstFuncIndex >= expr.length())
             return;
-        char func = expr.charAt(firstFuncIndex);
-//        boolean isF_function = false;
-//
-//        for (char F_func : F_functions) {
-//            if (func == F_func) {
-//                isF_function = true;
-//                break;
-//            }
-//        }
-//
-//        if (isF_function) {
-//            for (int i = 0; i < expr.length(); i++) {
-//                for (char M_func : M_functions) {
-//                    char maybeM_func = Character.toLowerCase(expr.charAt(i));
-//                    if (maybeM_func == M_func) {
-//
-//                        return;
-//                    }
-//                }
-//            }
-//        }
+        char func = expr.charAt(frstFuncIndex);
+
+        if (intersect(new char[]{expr.charAt(expr.length()-1)}, M_functions) &&
+            intersect(new char[]{expr.charAt(frstFuncIndex)}, F_functions)) {
+            return;
+        }
 
         for (int i = 0; i < multiplier; i++) {
             switch (func) {
                 case 'q' -> {
-                    if (!recordingMacro && expr.length() - 1 > firstFuncIndex) {
-                        char arg = expr.charAt(firstFuncIndex+1);
+                    if (!recordingMacro && expr.length() - 1 > frstFuncIndex) {
+                        char arg = expr.charAt(frstFuncIndex +1);
                         infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
                         currMacro = new ArrayList<>();
-                        macros.put(expr.charAt(firstFuncIndex+1), currMacro);
+                        macros.put(expr.charAt(frstFuncIndex +1), currMacro);
                         recordingMacro = true;
                         evaluationFinished = true;
                     }
@@ -164,7 +146,7 @@ public class KeyCommand {
                 }
                 case '@' -> {
                     if (expr.length() > 1) {
-                        runMacro(expr.charAt(firstFuncIndex + 1));
+                        runMacro(expr.charAt(frstFuncIndex + 1));
                         evaluationFinished = true;
                     }
                 }
@@ -239,7 +221,7 @@ public class KeyCommand {
                 }
                 case 'Z' -> {
                     if (expr.length() > 1) {
-                        char arg = expr.charAt(firstFuncIndex + 1);
+                        char arg = expr.charAt(frstFuncIndex + 1);
                         if (arg == 'Q')
                             command = new Command("q", 0, 0);
                         else if (arg == 'Z')
