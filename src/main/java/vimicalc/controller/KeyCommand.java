@@ -250,6 +250,7 @@ public class KeyCommand {
                         command.interpret(sheet);
                     }
                 }
+                default -> evaluationFinished = true;
             }
         }
         if (evaluationFinished) this.expr = "";

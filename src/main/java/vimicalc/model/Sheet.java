@@ -108,14 +108,6 @@ public class Sheet {
             dependencies.add(new Dependency(xCoord, yCoord));
     }
 
-    public boolean dependedAlreadyAdded(@NotNull Dependency dependent, Dependency depended) {
-        for (Dependency d : dependent.getDependeds()) {
-            if (d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()) {
-                return true;
-            }
-        }
-        return false;
-    }
     public void addDepended(int xCoord, int yCoord, Dependency dependent) {
         Dependency depended = findDependency(xCoord, yCoord);
         if (depended == null) {
@@ -129,6 +121,14 @@ public class Sheet {
             dependent.getDependeds().add(depended);
             dependencies.add(depended);
         }
+    }
+    public boolean dependedAlreadyAdded(@NotNull Dependency dependent, Dependency depended) {
+        for (Dependency d : dependent.getDependeds()) {
+            if (d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addCell(Cell cell) {
@@ -176,7 +176,7 @@ public class Sheet {
     public void writeFile(@NotNull String path) throws IOException {
         if (!path.endsWith(".wss")) path += ".wss";
         BufferedWriter fW = new BufferedWriter(new FileWriter(path));
-        fW.write("xCoord,yCoord,data,formula,merge delimiter,is the start of a merged section\n");
+        fW.write("xCoord,yCoord,data,formula,merge_delimiter,is_merge_head\n");
         fW.flush();
         cells.forEach(c -> {
             try {

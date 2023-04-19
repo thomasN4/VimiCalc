@@ -92,7 +92,6 @@ public class Controller implements Initializable {
             camera.updateAbsX(-cellSelector.getW());
             if (camera.getAbsX() < DEFAULT_CELL_W) {
                 infoBar.setInfobarTxt("CAN'T GO LEFT");
-
                 while (camera.getAbsX() != DEFAULT_CELL_W)
                     camera.updateAbsX(1);
             }
