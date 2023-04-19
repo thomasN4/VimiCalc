@@ -90,7 +90,7 @@ public class KeyCommand {
         }
     }
 
-    public int[] parseFIndexAndMult(int subI, String subExpr) {
+    public int[] parseFIndexAndMult(int subI, @NotNull String subExpr) {
         StringBuilder multStr = new StringBuilder();
         int i = subI;
         for ( ; isNumber(""+subExpr.charAt(i)); i++)
@@ -100,14 +100,10 @@ public class KeyCommand {
         return new int[]{i, Integer.parseInt(multStr.toString())};
     }
 
-    public void evaluate(String expr) {
+    public void evaluate(@NotNull String expr) {
         if (expr.equals("") || isNumber(""+expr.charAt(expr.length()-1))) return;
         boolean evaluationFinished = false;
         int[] fstFIandM = parseFIndexAndMult(0, expr);  // 1st item = index, 2nd item = multiplier
-
-        System.out.println("recordingMacro = " + recordingMacro);
-        if (recordingMacro && expr.charAt(0) != 'q')
-            currMacro.add(expr);
 
         if (fstFIandM[0] >= expr.length())
             return;
@@ -181,7 +177,7 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'd' -> {
-                    if (expr.charAt(expr.length()-1) == 'd' && expr.length() > 1) {
+                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'd') {
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         recordedCell.add(cellSelector.getSelectedCell());
@@ -249,6 +245,11 @@ public class KeyCommand {
                 default -> evaluationFinished = true;
             }
         }
-        if (evaluationFinished) this.expr = "";
+
+        if (evaluationFinished) {
+            if (recordingMacro && expr.charAt(0) != 'q')
+                currMacro.add(expr);
+            this.expr = "";
+        }
     }
 }
