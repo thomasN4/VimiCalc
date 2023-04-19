@@ -1,24 +1,24 @@
 package vimicalc.utils;
 
-public class Var {
+public class CompVar {
     private char chr = 0;
     private String str;
     private Double dbl;
     private boolean bool;
 
-    public Var(char chr) {
+    public CompVar(char chr) {
         this.chr = chr;
     }
 
-    public Var(String str) {
+    public CompVar(String str) {
         this.str = str;
     }
 
-    public Var(double dbl) {
+    public CompVar(double dbl) {
         this.str = str;
     }
 
-    public Var(boolean bool) {
+    public CompVar(boolean bool) {
         this.bool = bool;
     }
 

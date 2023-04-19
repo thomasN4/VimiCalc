@@ -5,21 +5,17 @@ import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
 import vimicalc.model.Command;
 import vimicalc.model.Formula;
-import vimicalc.utils.Var;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 import static vimicalc.controller.Controller.*;
-import static vimicalc.utils.Booleans.intersect;
 import static vimicalc.utils.Conversions.isNumber;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
     // Les fonctions F sont celles qui sont répétables sur des plages de cellules
-    private final Var[] F_functions = {new Var('y'), new Var('p'), new Var('d')};
-    private final Var[] M_functions = {new Var('h'), new Var('j'), new Var('k'), new Var('l')};
+    private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
+    private final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
     private final HashMap<Character, ArrayList<String>> macros;
     private String expr;
     private ArrayList<String> currMacro;
@@ -94,48 +90,64 @@ public class KeyCommand {
         }
     }
 
+    public int[] parseFIndexAndMult(int subI, String subExpr) {
+        StringBuilder multStr = new StringBuilder();
+        int i = subI;
+        for ( ; isNumber(""+subExpr.charAt(i)); i++)
+            multStr.append(subExpr.charAt(i));
+        if (i == subI)
+            return new int[]{i, 1};
+        return new int[]{i, Integer.parseInt(multStr.toString())};
+    }
 
     public void evaluate(String expr) {
-        if (expr.equals("")) return;
+        if (expr.equals("") || isNumber(""+expr.charAt(expr.length()-1))) return;
         boolean evaluationFinished = false;
-        byte frstFuncIndex = 0;
-        int multiplier = 1;
-        String multiplierStr = "";
+        int[] fstFIandM = parseFIndexAndMult(0, expr);  // 1st item = index, 2nd item = multiplier
 
         System.out.println("recordingMacro = " + recordingMacro);
         if (recordingMacro && expr.charAt(0) != 'q')
             currMacro.add(expr);
 
-        for (int i = 0; i < expr.length(); i++) {
-            if (isNumber(""+expr.charAt(i))) {
-                multiplierStr += expr.charAt(i);
-                ++frstFuncIndex;
+        if (fstFIandM[0] >= expr.length())
+            return;
+        char fstFunc = expr.charAt(fstFIandM[0]);
+
+        if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length()-1))) {
+            System.out.println("Executing one of these KeyCommand functions...");
+            ArrayList<String> sMacro = new ArrayList<>();
+            sMacro.add(fstFunc+""+fstFunc);
+
+            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0]+1, expr.substring(fstFIandM[0]));
+            char sndFunc = expr.charAt(sndFIandM[0]);
+            if (sndFIandM[0] == expr.length()-1) {
+                for (int i = 1; i <= sndFIandM[1]; i++) {
+                    sMacro.add(""+sndFunc);
+                    sMacro.add(fstFunc+""+fstFunc);
+                }
             }
-            else {
-                System.out.println("Multiplier: ");
-                if (frstFuncIndex != 0)
-                    multiplier = Integer.parseInt(multiplierStr);
-                break;
-            }
+//            else {
+//                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0]+1, expr.substring(sndFIandM[0]+1));
+//                char trdFunc = expr.charAt(trdFIandM[0]);
+//            }
+
+            System.out.println("Special macro: " + sMacro);
+            for (int i = 0; i < fstFIandM[1]; i++)
+                for (String e : sMacro)
+                    evaluate(e);
+
+            this.expr = "";
+            return;
         }
 
-        if (frstFuncIndex >= expr.length())
-            return;
-        char func = expr.charAt(frstFuncIndex);
-
-        if (intersect(new Var[]{new Var(expr.charAt(expr.length()-1))}, M_functions) &&
-            intersect(new Var[]{new Var(expr.charAt(frstFuncIndex))}, F_functions)) {
-            return;
-        }
-
-        for (int i = 0; i < multiplier; i++) {
-            switch (func) {
+        for (int i = 0; i < fstFIandM[1]; i++) {
+            switch (fstFunc) {
                 case 'q' -> {
-                    if (!recordingMacro && expr.length() - 1 > frstFuncIndex) {
-                        char arg = expr.charAt(frstFuncIndex +1);
+                    if (!recordingMacro && expr.length()-1 > fstFIandM[0]) {
+                        char arg = expr.charAt(fstFIandM[0]+1);
                         infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
                         currMacro = new ArrayList<>();
-                        macros.put(expr.charAt(frstFuncIndex +1), currMacro);
+                        macros.put(expr.charAt(fstFIandM[0]+1), currMacro);
                         recordingMacro = true;
                         evaluationFinished = true;
                     }
@@ -147,8 +159,8 @@ public class KeyCommand {
                     }
                 }
                 case '@' -> {
-                    if (expr.length() > 1) {
-                        runMacro(expr.charAt(frstFuncIndex + 1));
+                    if (expr.length() > fstFIandM[0]+1) {
+                        runMacro(expr.charAt(fstFIandM[0]+1));
                         evaluationFinished = true;
                     }
                 }
@@ -223,7 +235,7 @@ public class KeyCommand {
                 }
                 case 'Z' -> {
                     if (expr.length() > 1) {
-                        char arg = expr.charAt(frstFuncIndex + 1);
+                        char arg = expr.charAt(fstFIandM[0]+1);
                         if (arg == 'Q')
                             command = new Command("q", 0, 0);
                         else if (arg == 'Z')
