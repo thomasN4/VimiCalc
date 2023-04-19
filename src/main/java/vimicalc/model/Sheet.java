@@ -180,32 +180,32 @@ public class Sheet {
         fW.flush();
         cells.forEach(c -> {
             try {
-                String data, mergeStatus, isMergeHead, frmlTxt = "null";
+                String data, /*mergeStatus, isMergeHead,*/ frmlTxt = "null";
                 if (c.value() != 0) data = String.valueOf(c.value());
                 else data = c.txt();
                 if (c.formula() != null) frmlTxt = c.formula().getTxt();
-                if (c.getMergeDelimiter() == null)
-                    mergeStatus = "unmerged";
-                else
-                    mergeStatus = toAlpha(c.getMergeDelimiter().xCoord()) +
-                                  c.getMergeDelimiter().yCoord();
-                if (c.isMergeStart())
-                    isMergeHead = "true";
-                else isMergeHead = "false";
+//                if (c.getMergeDelimiter() == null)
+//                    mergeStatus = "unmerged";
+//                else
+//                    mergeStatus = toAlpha(c.getMergeDelimiter().xCoord()) +
+//                                  c.getMergeDelimiter().yCoord();
+//                if (c.isMergeStart())
+//                    isMergeHead = "true";
+//                else isMergeHead = "false";
                 fW.write(
                    toAlpha(c.xCoord()) + "," +
                     c.yCoord() + "," +
                     data + "," +
-                    frmlTxt + "," +
+                    frmlTxt +/* "," +
                     mergeStatus + "," +
-                    isMergeHead  + "\n"
+                    isMergeHead  +*/ "\n"
                 );
                 fW.flush();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
-        fW.write("*****");
+        fW.write("*****\n");
         fW.flush();
 
         for (HashMap.Entry<Integer, Integer> set : picMetadata.getxOffsets().entrySet()) {
@@ -213,7 +213,7 @@ public class Sheet {
             fW.write(key + ", " + value + "\n");
             fW.flush();
         }
-        fW.write("*****");
+        fW.write("*****\n");
         fW.flush();
         for (HashMap.Entry<Integer, Integer> set : picMetadata.getyOffsets().entrySet()) {
             int key = set.getKey(), value = set.getValue();
@@ -239,7 +239,7 @@ public class Sheet {
 
         int b, prevB = 0;
         char c = '\0';
-        String[] cellItems = new String[6];
+        String[] cellItems = new String[4];
         for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
         byte pos = 0;
 
@@ -272,12 +272,12 @@ public class Sheet {
                     yCoord,
                     cellItems[2]
                 );
-                if (!cellItems[4].equals("unmerged"))
-                    cell.mergeWith(findCell(cellItems[4]));
-                if (cellItems[5].equals("true"))
-                    cell.setMergeStart(true);
+//                if (!cellItems[4].equals("unmerged"))
+//                    cell.mergeWith(findCell(cellItems[4]));
+//                if (cellItems[5].equals("true"))
+//                    cell.setMergeStart(true);
                 addCell(cell.copy());
-                cellItems = new String[6];
+                cellItems = new String[4];
                 for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
             } else cellItems[pos] += c;
             prevB = b;
@@ -327,7 +327,7 @@ public class Sheet {
 
             if (b == '\n') {
                 picMetadata.getyOffsets().put(Integer.parseInt(yC.toString()),
-                        Integer.parseInt(yOffset.toString()));
+                                              Integer.parseInt(yOffset.toString()));
                 yC = new StringBuilder();
                 yOffset = new StringBuilder();
                 readingYC = true;
