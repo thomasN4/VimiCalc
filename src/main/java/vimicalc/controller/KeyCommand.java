@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
 import vimicalc.model.Command;
 import vimicalc.model.Formula;
+import vimicalc.utils.Var;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,8 +17,9 @@ import static vimicalc.utils.Conversions.isNumber;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
-    private final char[] F_functions = {'y', 'p', 'd'};  // Fonctions répétables sur des plages de cellules
-    private final char[] M_functions = {'h', 'j', 'k', 'l'};
+    // Les fonctions F sont celles qui sont répétables sur des plages de cellules
+    private final Var[] F_functions = {new Var('y'), new Var('p'), new Var('d')};
+    private final Var[] M_functions = {new Var('h'), new Var('j'), new Var('k'), new Var('l')};
     private final HashMap<Character, ArrayList<String>> macros;
     private String expr;
     private ArrayList<String> currMacro;
@@ -121,8 +123,8 @@ public class KeyCommand {
             return;
         char func = expr.charAt(frstFuncIndex);
 
-        if (intersect(new char[]{expr.charAt(expr.length()-1)}, M_functions) &&
-            intersect(new char[]{expr.charAt(frstFuncIndex)}, F_functions)) {
+        if (intersect(new Var[]{new Var(expr.charAt(expr.length()-1))}, M_functions) &&
+            intersect(new Var[]{new Var(expr.charAt(frstFuncIndex))}, F_functions)) {
             return;
         }
 
