@@ -15,6 +15,8 @@ import static vimicalc.utils.Conversions.isNumber;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
+//    private final char[] F_functions = {'y', 'p', 'd'};  // Fonctions répétables sur des plages de cellules
+//    private ArrayList<Character> M_functions;
     private final HashMap<Character, ArrayList<String>> macros;
     private String expr;
     private ArrayList<String> currMacro;
@@ -24,6 +26,11 @@ public class KeyCommand {
         expr = "";
         macros = new HashMap<>();
         recordingMacro = false;
+//        M_functions = new ArrayList<>();
+//        M_functions.add('h');
+//        M_functions.add('j');
+//        M_functions.add('k');
+//        M_functions.add('l');
     }
 
     public void addChar(@NotNull KeyEvent event) {
@@ -68,7 +75,8 @@ public class KeyCommand {
         }
 
         if (c != 0) expr += c;
-        evaluate();
+        vimicalc.view.InfoBar.keyStroke = expr;
+        evaluate(expr);
     }
 
     private void runMacro(char macroName) {
@@ -78,8 +86,7 @@ public class KeyCommand {
             System.out.println("The macro: " + Arrays.toString(macro));
             for (String e : macro) {
                 System.out.println("Macro expression: " + e);
-                expr = e;
-                evaluate();
+                evaluate(e);
             }
             System.out.println("Macro execution finished");
         } catch (Exception e) {
@@ -89,7 +96,7 @@ public class KeyCommand {
         }
     }
 
-    public void evaluate() {
+    public void evaluate(String expr) {
         if (expr.equals("")) return;
         boolean evaluationFinished = false;
         byte firstFuncIndex = 0;
@@ -106,14 +113,39 @@ public class KeyCommand {
                 ++firstFuncIndex;
             }
             else {
+                System.out.println("Multiplier: ");
                 if (firstFuncIndex != 0)
                     multiplier = Integer.parseInt(multiplierStr);
                 break;
             }
         }
 
+        if (firstFuncIndex >= expr.length())
+            return;
+        char func = expr.charAt(firstFuncIndex);
+//        boolean isF_function = false;
+//
+//        for (char F_func : F_functions) {
+//            if (func == F_func) {
+//                isF_function = true;
+//                break;
+//            }
+//        }
+//
+//        if (isF_function) {
+//            for (int i = 0; i < expr.length(); i++) {
+//                for (char M_func : M_functions) {
+//                    char maybeM_func = Character.toLowerCase(expr.charAt(i));
+//                    if (maybeM_func == M_func) {
+//
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+
         for (int i = 0; i < multiplier; i++) {
-            switch (expr.charAt(firstFuncIndex)) {
+            switch (func) {
                 case 'q' -> {
                     if (!recordingMacro && expr.length() - 1 > firstFuncIndex) {
                         char arg = expr.charAt(firstFuncIndex+1);
@@ -153,9 +185,9 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'd' -> {
-                    if (cellSelector.getSelectedCell().txt() == null)
-                        infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
-                    else {
+                    if (expr.charAt(expr.length()-1) == 'd' && expr.length() > 1) {
+                        if (cellSelector.getSelectedCell().txt() == null)
+                            infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         recordedCell.add(cellSelector.getSelectedCell());
                         sheet.deleteCell(coordsCell.getCoords());
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -163,8 +195,8 @@ public class KeyCommand {
                         cellSelector.readCell(camera.picture.data());
                         recordedCell.add(cellSelector.getSelectedCell().copy());
                         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                        evaluationFinished = true;
                     }
-                    evaluationFinished = true;
                 }
                 case 'm' -> {
                     sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
@@ -213,13 +245,13 @@ public class KeyCommand {
                         else if (arg == 'Z')
                             command = new Command("wq", 0, 0);
                         else {
-                            expr = ""; return;
+                            this.expr = ""; return;
                         }
                         command.interpret(sheet);
                     }
                 }
             }
         }
-        if (evaluationFinished) expr = "";
+        if (evaluationFinished) this.expr = "";
     }
 }

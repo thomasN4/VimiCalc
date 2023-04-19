@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class InfoBar extends Visible {
 
-    private String keyStroke;
+    public static String keyStroke;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
@@ -20,9 +20,6 @@ public class InfoBar extends Visible {
 
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
-    }
-    public void setKeyStroke(String keyStroke) {
-        this.keyStroke = keyStroke;
     }
 
     public void setCommandTxt(String infobarTxt) { this.infobarTxt = ":" + infobarTxt; }

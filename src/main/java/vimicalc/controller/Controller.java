@@ -313,7 +313,6 @@ public class Controller implements Initializable {
             camera.ready();
             System.out.println('}');
         }
-        infoBar.setKeyStroke(event.getCode().toString());
         updateVisualState();
     }
 
