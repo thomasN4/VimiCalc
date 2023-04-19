@@ -96,10 +96,9 @@ public class Sheet {
     }
 
     public Dependency findDependency(int x, int y) {
-        for (Dependency d : dependencies) {
+        for (Dependency d : dependencies)
             if (d.getxCoord() == x && d.getyCoord() == y)
                 return d;
-        }
         return null;
     }
 
