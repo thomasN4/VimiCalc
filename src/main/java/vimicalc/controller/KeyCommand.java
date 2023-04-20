@@ -90,11 +90,11 @@ public class KeyCommand {
         }
     }
 
-    public int[] parseFIndexAndMult(int subI, @NotNull String subExpr) {
+    public int[] parseFIndexAndMult(int subI, @NotNull String expr) {
         StringBuilder multStr = new StringBuilder();
         int i = subI;
-        for ( ; isNumber(""+subExpr.charAt(i)); i++)
-            multStr.append(subExpr.charAt(i));
+        for (; isNumber(""+expr.charAt(i)); i++)
+            multStr.append(expr.charAt(i));
         if (i == subI)
             return new int[]{i, 1};
         return new int[]{i, Integer.parseInt(multStr.toString())};
@@ -103,7 +103,7 @@ public class KeyCommand {
     public void evaluate(@NotNull String expr) {
         if (expr.equals("") || isNumber(""+expr.charAt(expr.length()-1))) return;
         boolean evaluationFinished = false;
-        int[] fstFIandM = parseFIndexAndMult(0, expr);  // 1st item = index, 2nd item = multiplier
+        int[] fstFIandM = parseFIndexAndMult(0, expr);  // 1er item: indexe de la fonction, 2e item: coefficient
 
         if (fstFIandM[0] >= expr.length())
             return;
@@ -111,25 +111,40 @@ public class KeyCommand {
 
         if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length()-1))) {
             System.out.println("Executing one of these KeyCommand functions...");
-            ArrayList<String> sMacro = new ArrayList<>();
-            sMacro.add(fstFunc+""+fstFunc);
+            ArrayList<String> tempMacro = new ArrayList<>();
+            tempMacro.add(fstFunc+""+fstFunc);
 
-            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0]+1, expr.substring(fstFIandM[0]));
+            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0]+1, expr);
             char sndFunc = expr.charAt(sndFIandM[0]);
             if (sndFIandM[0] == expr.length()-1) {
                 for (int i = 1; i <= sndFIandM[1]; i++) {
-                    sMacro.add(""+sndFunc);
-                    sMacro.add(fstFunc+""+fstFunc);
+                    tempMacro.add(""+sndFunc);
+                    tempMacro.add(fstFunc+""+fstFunc);
                 }
             }
-//            else {
-//                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0]+1, expr.substring(sndFIandM[0]+1));
-//                char trdFunc = expr.charAt(trdFIandM[0]);
-//            }
+            else {
+                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0]+1, expr);
+                char trdFunc = expr.charAt(expr.length()-1);
+                fstFIandM[1] *= trdFIandM[1];
+                sndFunc = Character.toLowerCase(sndFunc);
+                char invSndFunc = 0;
+                switch (sndFunc) {
+                    case 'h' -> invSndFunc = 'l';
+                    case 'j' -> invSndFunc = 'k';
+                    case 'k' -> invSndFunc = 'j';
+                    case 'l' -> invSndFunc = 'h';
+                }
+                for (int i = 1; i <= sndFIandM[1]; i++) {
+                    tempMacro.add(""+sndFunc);
+                    tempMacro.add(fstFunc+""+fstFunc);
+                }
+                tempMacro.add(""+trdFunc);
+                tempMacro.add(sndFIandM[1]+""+ invSndFunc);
+            }
 
-            System.out.println("Special macro: " + sMacro);
+            System.out.println("Special macro: " + tempMacro);
             for (int i = 0; i < fstFIandM[1]; i++)
-                for (String e : sMacro)
+                for (String e : tempMacro)
                     evaluate(e);
 
             this.expr = "";
