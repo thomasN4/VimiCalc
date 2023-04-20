@@ -143,12 +143,14 @@ public class KeyCommand {
             }
 
             System.out.println("Special macro: " + tempMacro);
-            for (int i = 0; i < fstFIandM[1]; i++)
-                for (String e : tempMacro)
-                    evaluate(e);
-
-            this.expr = "";
-            return;
+            for (int i = 0; i < fstFIandM[1]; i++) {
+                for (int j = 0; j < tempMacro.size(); j++) {
+                    if (i == fstFIandM[1]-1 && j == tempMacro.size()-1) {
+                        this.expr = "";
+                        return;
+                    } else evaluate(tempMacro.get(j));
+                }
+            }
         }
 
         for (int i = 0; i < fstFIandM[1]; i++) {
