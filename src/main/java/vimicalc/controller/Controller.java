@@ -353,12 +353,14 @@ public class Controller implements Initializable {
                         c.xCoord(),
                         c.yCoord()
                     );
+                    recordedCell.add(c.copy());
                     sheet.addCell(new Cell(
                         c.xCoord(),
                         c.yCoord(),
                         f.interpret(sheet),
                         f
                     ));
+                    recordedFormula.add(f);
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
