@@ -198,13 +198,15 @@ public class KeyCommand {
                         System.out.println("Trying to delete a cell's content...");
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
-                        recordedCell.add(cellSelector.getSelectedCell());
-                        sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        camera.ready();
-                        cellSelector.readCell(camera.picture.data());
-                        recordedCell.add(cellSelector.getSelectedCell().copy());
-                        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                        else {
+                            recordedCell.add(cellSelector.getSelectedCell());
+                            sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
+                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                            camera.ready();
+                            cellSelector.readCell(camera.picture.data());
+                            recordedCell.add(cellSelector.getSelectedCell().copy());
+                            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                        }
                         evaluationFinished = true;
                     }
                 }
