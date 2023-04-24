@@ -248,8 +248,8 @@ public class KeyCommand {
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
-                            this.expr = "";
                             if (arg == 'd') evaluate("dd");
+                            evaluationFinished = true;
                         }
                     }
                 }
