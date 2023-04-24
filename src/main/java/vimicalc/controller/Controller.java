@@ -17,6 +17,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
+import static vimicalc.controller.KeyCommand.currMacro;
+import static vimicalc.controller.KeyCommand.recordingMacro;
+
 public class Controller implements Initializable {
     private static int CANVAS_W;
     private static int CANVAS_H;
@@ -339,8 +342,8 @@ public class Controller implements Initializable {
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
-        if (currMode == Mode.NORMAL)
-            keyCommand.addChar(event);
+        if (recordingMacro) currMacro.add(event);
+        if (currMode == Mode.NORMAL) keyCommand.addChar(event);
         else {
             switch (currMode) {
                 case COMMAND -> commandInput(event);
