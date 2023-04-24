@@ -116,11 +116,12 @@ public class Controller implements Initializable {
     protected static void moveDown() {
         int prevH = cellSelector.getH();
         Cell prevCell = cellSelector.getSelectedCell().copy();
+        if (prevCell.isMergeStart())
+            cellSelector.updateYCoord(
+                prevCell.getMergeDelimiter().yCoord() - prevCell.yCoord()
+            );
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getSelectedCell().isMergeStart())
-            goTo(cellSelector.getSelectedCell().xCoord(),
-                 cellSelector.getSelectedCell().getMergeDelimiter().yCoord()+1);
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -183,11 +184,12 @@ public class Controller implements Initializable {
     protected static void moveRight() {
         int prevW = cellSelector.getW();
         Cell prevCell = cellSelector.getSelectedCell().copy();
+        if (prevCell.isMergeStart())
+            cellSelector.updateXCoord(
+                prevCell.getMergeDelimiter().xCoord() - prevCell.xCoord()
+            );
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getSelectedCell().isMergeStart())
-            goTo(cellSelector.getSelectedCell().getMergeDelimiter().xCoord()+1,
-                 cellSelector.getSelectedCell().yCoord());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);
             if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
