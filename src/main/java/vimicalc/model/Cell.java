@@ -1,7 +1,5 @@
 package vimicalc.model;
 
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -140,8 +138,9 @@ public class Cell {
     }
 
     public Cell copy() {
+        Cell c;
         if (formula != null) {
-            return new Cell(
+            c = new Cell(
                 xCoord,
                 yCoord,
                 value,
@@ -149,18 +148,21 @@ public class Cell {
             );
         }
         else if (isNumber(txt)) {
-            return new Cell(
+            c = new Cell(
                 xCoord,
                 yCoord,
                 value
             );
         }
         else {
-            return new Cell(
+            c = new Cell(
                 xCoord,
                 yCoord,
                 txt
             );
         }
+        c.setMergeStart(mergeStart);
+        c.mergeWith(mergeDelimiter);
+        return c;
     }
 }

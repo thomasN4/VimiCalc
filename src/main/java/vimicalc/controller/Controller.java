@@ -116,12 +116,10 @@ public class Controller implements Initializable {
     protected static void moveDown() {
         int prevH = cellSelector.getH();
         Cell prevCell = cellSelector.getSelectedCell().copy();
-        if (prevCell.isMergeStart()) {
-            System.out.println("Hello?");
+        if (prevCell.isMergeStart())
             cellSelector.updateYCoord(
                 prevCell.getMergeDelimiter().yCoord() - prevCell.yCoord()
             );
-        }
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
         if (cellSelector.getY() != camera.picture.getH()) {

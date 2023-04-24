@@ -77,6 +77,7 @@ public class CellSelector extends Visible {
         for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 selectedCell = c.copy();
+                System.out.println("c.isMergeStart() == " + c.isMergeStart());
                 if (c.isMergeStart()) {
                     Cell mergeEnd = c.getMergeDelimiter();
                     w = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
