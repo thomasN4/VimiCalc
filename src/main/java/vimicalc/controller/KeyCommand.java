@@ -198,13 +198,15 @@ public class KeyCommand {
                         System.out.println("Trying to delete a cell's content...");
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
-                        recordedCell.add(cellSelector.getSelectedCell());
-                        sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        camera.ready();
-                        cellSelector.readCell(camera.picture.data());
-                        recordedCell.add(cellSelector.getSelectedCell().copy());
-                        infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                        else {
+                            recordedCell.add(cellSelector.getSelectedCell());
+                            sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
+                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                            camera.ready();
+                            cellSelector.readCell(camera.picture.data());
+                            recordedCell.add(cellSelector.getSelectedCell().copy());
+                            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                        }
                         evaluationFinished = true;
                     }
                 }
@@ -228,12 +230,27 @@ public class KeyCommand {
                     cellSelector.readCell(camera.picture.data());
                     evaluationFinished = true;
                 }
+                case 'c' -> {
+                    if (cellSelector.getSelectedCell().txt() == null) infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
+                    else copy();
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
+                    evaluationFinished = true;
+                }
+                case 'b' -> {
+                    System.out.println(recordedCell.size());evaluationFinished = true;
+                }
+                case 'p' -> {
+                    if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
+                    else paste();
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
+                    evaluationFinished = true;
+                }
                 case 'a', 'i' -> {
-                    cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
-                        cellSelector.getSelectedCell().txt()
-                    ));
+                    newCell();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     cellSelector.readCell(camera.picture.data());
                     currMode = Mode.INSERT;

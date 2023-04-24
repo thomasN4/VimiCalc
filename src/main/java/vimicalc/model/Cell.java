@@ -163,9 +163,4 @@ public class Cell {
             );
         }
     }
-
-    public void setColor(Color color, Cell c, int xCoord, int yCoord, GraphicsContext gc) {
-        c = new Cell(xCoord, yCoord);
-        gc.setFill(color);
-    }
 }
