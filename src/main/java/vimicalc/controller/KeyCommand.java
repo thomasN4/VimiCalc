@@ -73,11 +73,19 @@ public class KeyCommand {
         evaluate(expr);
     }
 
+    private String macroStr(LinkedList<KeyEvent> macro) {
+        StringBuilder str = new StringBuilder();
+        for (KeyEvent event : macro) {
+            str.append(event.getText());
+        }
+        return str.toString();
+    }
+
     private void runMacro(char macroName) {
         try {
             System.out.println("Trying to run a macro...");
             KeyEvent[] macro = macros.get(macroName).toArray(new KeyEvent[0]);
-            System.out.println("The macro: " + Arrays.toString(macro));
+            System.out.println("The macro: " + macroStr(macros.get(macroName)));
             for (KeyEvent event : macro) {
                 System.out.println("Macro expression: " + event);
                 onKeyPressed(event);
@@ -166,7 +174,7 @@ public class KeyCommand {
                     }
                     else if (recordingMacro) {
                         infoBar.setInfobarTxt("Macro recorded");
-                        System.out.println("Recorded macro: " + currMacro);
+                        System.out.println("Recorded macro: " + macroStr(currMacro));
                         recordingMacro = false;
                         evaluationFinished = true;
                     }
