@@ -87,7 +87,7 @@ public class KeyCommand {
             KeyEvent[] macro = macros.get(macroName).toArray(new KeyEvent[0]);
             System.out.println("The macro: " + macroStr(macros.get(macroName)));
             for (KeyEvent event : macro) {
-                System.out.println("Macro expression: " + event);
+                System.out.println("Macro expression: " + event.getText());
                 onKeyPressed(event);
             }
             System.out.println("Macro execution finished");
@@ -174,6 +174,7 @@ public class KeyCommand {
                     }
                     else if (recordingMacro) {
                         infoBar.setInfobarTxt("Macro recorded");
+                        currMacro.removeLast();
                         System.out.println("Recorded macro: " + macroStr(currMacro));
                         recordingMacro = false;
                         evaluationFinished = true;
