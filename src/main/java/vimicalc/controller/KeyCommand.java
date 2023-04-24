@@ -180,7 +180,7 @@ public class KeyCommand {
                 case '@' -> {
                     if (expr.length() > fstFIandM[0]+1) {
                         char arg = expr.charAt(fstFIandM[0]+1);
-                        expr = "";
+                        this.expr = "";
                         runMacro(arg);
                         evaluationFinished = true;
                     }
