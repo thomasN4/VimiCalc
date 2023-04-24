@@ -118,6 +118,9 @@ public class Controller implements Initializable {
         Cell prevCell = cellSelector.getSelectedCell().copy();
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
+        if (cellSelector.getSelectedCell().isMergeStart())
+            goTo(cellSelector.getSelectedCell().xCoord(),
+                 cellSelector.getSelectedCell().getMergeDelimiter().yCoord()+1);
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -182,6 +185,9 @@ public class Controller implements Initializable {
         Cell prevCell = cellSelector.getSelectedCell().copy();
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
+        if (cellSelector.getSelectedCell().isMergeStart())
+            goTo(cellSelector.getSelectedCell().getMergeDelimiter().xCoord()+1,
+                 cellSelector.getSelectedCell().yCoord());
         if (cellSelector.getX() != camera.picture.getW()) {
             cellSelector.updateX(prevW);
             if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
