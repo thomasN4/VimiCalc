@@ -239,14 +239,18 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'y' -> {
-                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'y') {
-                        if (cellSelector.getSelectedCell().txt() == null)
-                            infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
-                        else copy();
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                        camera.ready();
-                        cellSelector.readCell(camera.picture.data());
-                        evaluationFinished = true;
+                    if (expr.length() > 1) {
+                        char arg = expr.charAt(fstFIandM[0]+1);
+                        if (arg == 'y' || arg == 'd') {
+                            if (cellSelector.getSelectedCell().txt() == null)
+                                infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
+                            else copy();
+                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                            camera.ready();
+                            cellSelector.readCell(camera.picture.data());
+                            this.expr = "";
+                            if (arg == 'd') evaluate("dd");
+                        }
                     }
                 }
                 case 'b' -> {

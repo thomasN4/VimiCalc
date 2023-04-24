@@ -71,8 +71,10 @@ public class Controller implements Initializable {
             !cellSelector.getSelectedCell().getMergeDelimiter().isMergeStart()) {
             Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
                  prevMergeDel = prevCell.getMergeDelimiter();
-            if (prevMergeDel == null || prevMergeDel != currMergeStart)
+            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
+                System.out.println("Going to mergeStart...");
                 goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
+            }
         }
     }
     protected static void moveLeft() {
