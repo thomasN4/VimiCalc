@@ -16,10 +16,10 @@ public class KeyCommand {
     // Les fonctions F sont celles qui sont répétables sur des plages de cellules
     private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
     private final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
-    private final HashMap<Character, ArrayList<String>> macros;
+    private final HashMap<Character, LinkedList<KeyEvent>> macros;
     private String expr;
-    private ArrayList<String> currMacro;
-    private boolean recordingMacro;
+    public static LinkedList<KeyEvent> currMacro;
+    public static boolean recordingMacro;
 
     public KeyCommand() {
         expr = "";
@@ -76,11 +76,11 @@ public class KeyCommand {
     private void runMacro(char macroName) {
         try {
             System.out.println("Trying to run a macro...");
-            String[] macro = macros.get(macroName).toArray(new String[0]);
+            KeyEvent[] macro = macros.get(macroName).toArray(new KeyEvent[0]);
             System.out.println("The macro: " + Arrays.toString(macro));
-            for (String e : macro) {
-                System.out.println("Macro expression: " + e);
-                evaluate(e);
+            for (KeyEvent event : macro) {
+                System.out.println("Macro expression: " + event);
+                onKeyPressed(event);
             }
             System.out.println("Macro execution finished");
         } catch (Exception e) {
@@ -110,7 +110,7 @@ public class KeyCommand {
         char fstFunc = expr.charAt(fstFIandM[0]);
 
         if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length()-1))) {
-            System.out.println("Executing one of these KeyCommand functions...");
+            System.out.println("Executing one of *these* KeyCommand functions...");
             ArrayList<String> tempMacro = new ArrayList<>();
             tempMacro.add(fstFunc+""+fstFunc);
 
@@ -159,7 +159,7 @@ public class KeyCommand {
                     if (!recordingMacro && expr.length()-1 > fstFIandM[0]) {
                         char arg = expr.charAt(fstFIandM[0]+1);
                         infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
-                        currMacro = new ArrayList<>();
+                        currMacro = new LinkedList<>();
                         macros.put(expr.charAt(fstFIandM[0]+1), currMacro);
                         recordingMacro = true;
                         evaluationFinished = true;
@@ -281,10 +281,7 @@ public class KeyCommand {
             }
         }
 
-        if (evaluationFinished) {
-            if (recordingMacro && expr.charAt(0) != 'q')
-                currMacro.add(expr);
+        if (evaluationFinished)
             this.expr = "";
-        }
     }
 }

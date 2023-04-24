@@ -215,19 +215,19 @@ public class Controller implements Initializable {
             infoBar.setInfobarTxt("I");
         } else if (recordedCell.get(recordedCell.size() - 1 - dCounter).txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                            recordedCell.get(recordedCell.size() - 1 - dCounter).value())
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
+                    recordedCell.get(recordedCell.size() - 1 - dCounter).value())
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedCell.get(recordedCell.size() - 1 - dCounter).txt());
@@ -279,16 +279,16 @@ public class Controller implements Initializable {
     protected static void copy() {
         if (cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
             copiedCell = new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().value()
-                    );
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().value()
+            );
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             copiedCell = new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             );
         }
     }
@@ -297,18 +297,18 @@ public class Controller implements Initializable {
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
         if (copiedCell.value() != 0 && copiedCell.txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    copiedCell.value()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                copiedCell.value()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.value() + "");
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.txt());
@@ -317,18 +317,22 @@ public class Controller implements Initializable {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
     }
+
+    // Hey il faudrait m'avertir avant de modifier ma part du code. Et je ferais du même pour ta part, promis.
+    // Sauf pour des modifications purement cosmétiques, par contre.
+    // Il faudrait y trouver un nom moins ambiguë btw.
     protected static void newCell() {
         if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().value()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().value()
             ));
         } else {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             ));
         }
         sheet.addCell(cellSelector.getSelectedCell());
