@@ -321,9 +321,7 @@ public class Controller implements Initializable {
         removeList();
     }
 
-    // Hey il faudrait m'avertir avant de modifier ma part du code. Et je ferais du même pour ta part, promis.
-    // Sauf pour des modifications purement cosmétiques, par contre.
-    // Il faudrait y trouver un nom moins ambiguë btw.
+    // Il faudrait y trouver un nom moins ambiguë tbh.
     protected static void newCell() {
         if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
@@ -744,9 +742,9 @@ public class Controller implements Initializable {
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
-                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
+                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
                     infoBar.setInfobarTxt("CELL IS EMPTY");
-                } else {
+                else {
                     removeList();
                     cellSelector.setSelectedCell(new Cell(
                         cellSelector.getXCoord(),
@@ -760,7 +758,8 @@ public class Controller implements Initializable {
                 if (recordedCell.getLast().formula() != null) {
                     recordedFormula.add(cellSelector.getSelectedCell().formula());
                     infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-                } else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+                }
+                else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 currMode = Mode.NORMAL;
