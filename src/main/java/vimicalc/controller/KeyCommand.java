@@ -240,15 +240,15 @@ public class KeyCommand {
                 }
                 case 'y' -> {
                     if (expr.length() > 1) {
-                        char arg = expr.charAt(fstFIandM[0]+1);
-                        if (arg == 'y' || arg == 'd') {
+                        char arg1 = expr.charAt(fstFIandM[0]+1);
+                        if (arg1 == 'y' || arg1 == 'd') {
                             if (cellSelector.getSelectedCell().txt() == null)
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                             else copy();
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
-                            if (arg == 'd') evaluate("dd");
+                            if (arg1 == 'd') evaluate("dd");
                             evaluationFinished = true;
                         }
                     }

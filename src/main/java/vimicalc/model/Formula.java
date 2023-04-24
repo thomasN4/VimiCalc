@@ -58,8 +58,8 @@ public class Formula extends Interpretable {
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
         Lexeme[] vectorLong = new Lexeme[
-                (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
-                ];
+            (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
+        ];
 
         i = 0;
         for (Cell c : sheet.getCells())
