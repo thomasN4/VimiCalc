@@ -239,23 +239,28 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'y' -> {
-                    if (cellSelector.getSelectedCell().txt() == null) infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
-                    else copy();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    cellSelector.readCell(camera.picture.data());
-                    evaluationFinished = true;
+                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'y') {
+                        if (cellSelector.getSelectedCell().txt() == null)
+                            infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
+                        else copy();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                        evaluationFinished = true;
+                    }
                 }
                 case 'b' -> {
                     System.out.println(recordedCell.size());evaluationFinished = true;
                 }
                 case 'p' -> {
-                    if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
-                    else paste();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    cellSelector.readCell(camera.picture.data());
-                    evaluationFinished = true;
+                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
+                        if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
+                        else paste();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                        evaluationFinished = true;
+                    }
                 }
                 case 'a', 'i' -> {
                     newCell();
