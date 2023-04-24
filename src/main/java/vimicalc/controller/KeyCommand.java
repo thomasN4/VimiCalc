@@ -86,10 +86,7 @@ public class KeyCommand {
             System.out.println("Trying to run a macro...");
             KeyEvent[] macro = macros.get(macroName).toArray(new KeyEvent[0]);
             System.out.println("The macro: " + macroStr(macros.get(macroName)));
-            for (KeyEvent event : macro) {
-                System.out.println("Macro expression: " + event.getText());
-                onKeyPressed(event);
-            }
+            for (KeyEvent event : macro) onKeyPressed(event);
             System.out.println("Macro execution finished");
         } catch (Exception e) {
             infoBar.setInfobarTxt("Macro '" + macroName + "' doesn't exist.");
@@ -182,7 +179,9 @@ public class KeyCommand {
                 }
                 case '@' -> {
                     if (expr.length() > fstFIandM[0]+1) {
-                        runMacro(expr.charAt(fstFIandM[0]+1));
+                        char arg = expr.charAt(fstFIandM[0]+1);
+                        expr = "";
+                        runMacro(arg);
                         evaluationFinished = true;
                     }
                 }
