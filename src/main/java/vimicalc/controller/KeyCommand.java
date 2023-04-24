@@ -238,7 +238,7 @@ public class KeyCommand {
                     cellSelector.readCell(camera.picture.data());
                     evaluationFinished = true;
                 }
-                case 'c' -> {
+                case 'y' -> {
                     if (cellSelector.getSelectedCell().txt() == null) infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                     else copy();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());

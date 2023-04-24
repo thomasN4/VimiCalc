@@ -69,10 +69,10 @@ public class Controller implements Initializable {
     private static void maybeGoToMergeStart(Cell prevCell) {
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().getMergeDelimiter().isMergeStart()) {
-            Cell cMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
-                 pMergeDel = prevCell.getMergeDelimiter();
-            if (pMergeDel == null || pMergeDel != cMergeStart)
-                goTo(cMergeStart.xCoord(), cMergeStart.yCoord());
+            Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
+                 prevMergeDel = prevCell.getMergeDelimiter();
+            if (prevMergeDel == null || prevMergeDel != currMergeStart)
+                goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
         }
     }
     protected static void moveLeft() {
