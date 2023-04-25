@@ -24,9 +24,7 @@ public class InfoBar extends Visible {
 
     public void setCommandTxt(String infobarTxt) { this.infobarTxt = ":" + infobarTxt; }
 
-    public void setEnteringFormula(String infobarTxt) {
-        this.infobarTxt = "% " + infobarTxt.replace(".0" , "");
-    }
+    public void setEnteringFormula(String infobarTxt) { this.infobarTxt = "% " + infobarTxt.replace(".0" , ""); }
 
     public void setInfobarTxt(String infobarTxt) {
         if (infobarTxt != null)

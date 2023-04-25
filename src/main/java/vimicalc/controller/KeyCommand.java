@@ -199,7 +199,7 @@ public class KeyCommand {
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         else {
-                            recordedCell.add(cellSelector.getSelectedCell());
+                            recordedCell.add(cellSelector.getSelectedCell().copy());
                             sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
@@ -230,16 +230,13 @@ public class KeyCommand {
                     cellSelector.readCell(camera.picture.data());
                     evaluationFinished = true;
                 }
-                case 'c' -> {
+                case 'y' -> {
                     if (cellSelector.getSelectedCell().txt() == null) infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                     else copy();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                     evaluationFinished = true;
-                }
-                case 'b' -> {
-                    System.out.println(recordedCell.size());evaluationFinished = true;
                 }
                 case 'p' -> {
                     if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
@@ -250,7 +247,7 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'a', 'i' -> {
-                    newCell();
+                    reinitialiseCell();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     cellSelector.readCell(camera.picture.data());
                     currMode = Mode.INSERT;

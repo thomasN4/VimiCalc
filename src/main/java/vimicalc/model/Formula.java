@@ -14,7 +14,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for ( ; s.charAt(i) != ':'; i++)
+        for ( ; s.charAt(i) != ':'; i++)//change to ; for usage
             firstCoords.append(s.charAt(i));
         lastCoords = s.substring(i+1);
 
