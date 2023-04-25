@@ -6,6 +6,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static vimicalc.utils.Conversions.isNumber;
+import static vimicalc.utils.Conversions.toAlpha;
 
 public class Cell {
     private final int xCoord;
@@ -101,12 +102,22 @@ public class Cell {
 
     @Override
     public String toString() {
-        return "Cell[" +
-               "xCoord=" + xCoord + ", " +
-               "yCoord=" + yCoord + ", " +
-               "txt=" + txt + ", " +
-               "formula=" + formula + ", " +
-               "value=" + value + ']';
+        String mergeDelimiterCoords;
+        try {
+            mergeDelimiterCoords = toAlpha(mergeDelimiter.xCoord) + mergeDelimiter.yCoord;
+        } catch (Exception ignored) {
+            mergeDelimiterCoords = "null";
+        }
+        return "Cell{" +
+               "xCoord=" + xCoord +
+               ", yCoord=" + yCoord +
+//               ", txt='" + txt + '\'' +
+//               ", formula=" + formula +
+//               ", value=" + value +
+//               ", format=" + format +
+               ", mergeDelimiter=" + mergeDelimiterCoords +
+               ", mergeStart=" + mergeStart +
+               '}';
     }
 
     public void setTxt(String txt) {

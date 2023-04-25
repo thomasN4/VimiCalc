@@ -67,12 +67,15 @@ public class Controller implements Initializable {
     */
 
     private static void maybeGoToMergeStart(Cell prevCell) {
+        System.out.println("===maybeGoToMergeStart===");
+        System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().isMergeStart()) {
+            System.out.println("Going to mergeStart...");
             Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
                  prevMergeDel = prevCell.getMergeDelimiter();
             if (prevMergeDel == null || prevMergeDel != currMergeStart) {
-                System.out.println("Going to mergeStart...");
+//                System.out.println("Going to mergeStart...");
                 goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
             }
         }
