@@ -70,7 +70,7 @@ public class Controller implements Initializable {
 
     public static boolean goingToMergeStart = false;
     private static void maybeGoToMergeStart(Cell prevCell) {
-        System.out.println("====maybeGoToMergeStart====");
+        System.out.println("===maybeGoToMergeStart===");
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().isMergeStart() &&
