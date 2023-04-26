@@ -131,6 +131,10 @@ public class Cell {
         this.value = value;
     }
 
+    public DecimalFormat getFormat() {
+        return format;
+    }
+
     public Cell getMergeDelimiter() {
         return mergeDelimiter;
     }
