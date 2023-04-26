@@ -92,7 +92,6 @@ public class Controller implements Initializable {
             cellSelector.updateXCoord(-1);
             cellSelector.readCell(camera.picture.data());
         } else {
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             cellSelector.readCell(camera.picture.data());
             return;
         }
@@ -177,7 +176,6 @@ public class Controller implements Initializable {
             cellSelector.updateYCoord(-1);
             cellSelector.readCell(camera.picture.data());
         } else {
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
             cellSelector.readCell(camera.picture.data());
             return;
         }
@@ -331,23 +329,24 @@ public class Controller implements Initializable {
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         updateVisualState();
     }
+
     protected static void paste() {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
         if (copiedCell.get(cCounter - 1).value() != 0 && copiedCell.get(cCounter - 1).txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    copiedCell.get(cCounter - 1).value()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                copiedCell.get(cCounter - 1).value()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.get(cCounter - 1).value() + "");
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord(),
+                cellSelector.getSelectedCell().txt()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.get(cCounter - 1).txt());
@@ -360,6 +359,7 @@ public class Controller implements Initializable {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
     }
+
     protected static void reinitialiseCell() {  //improve for later use maybe, or delete
         if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
@@ -390,7 +390,7 @@ public class Controller implements Initializable {
         }
 
         System.out.println("     sC.x: "+cellSelector.getX()     +", yCoord: "+cellSelector.getY());
-//        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
+        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
         System.out.println(" cam.absX: "+camera.getAbsX()        +", cam.absY: "+camera.getAbsY());
         System.out.println("    Cells: "+sheet.getCells());
         System.out.println("Selected cell: " + cellSelector.getSelectedCell());
