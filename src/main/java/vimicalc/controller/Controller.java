@@ -72,12 +72,12 @@ public class Controller implements Initializable {
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().isMergeStart()) {
             System.out.println("Going to mergeStart...");
-            Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter(),
-                 prevMergeDel = prevCell.getMergeDelimiter();
-            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
+            Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
+//                 prevMergeDel = prevCell.getMergeDelimiter();
+//            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
 //                System.out.println("Going to mergeStart...");
-                goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
-            }
+            goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
+//            }
         }
     }
     protected static void moveLeft() {
