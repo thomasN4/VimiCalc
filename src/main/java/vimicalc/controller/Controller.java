@@ -362,7 +362,7 @@ public class Controller implements Initializable {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
     }
-    protected static void reinitialiseCell() {//improve for later use maybe, or delete
+    protected static void reinitialiseCell() {  //improve for later use maybe, or delete
         if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -392,9 +392,10 @@ public class Controller implements Initializable {
         }
 
         System.out.println("     sC.x: "+cellSelector.getX()     +", yCoord: "+cellSelector.getY());
-        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
+//        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
         System.out.println(" cam.absX: "+camera.getAbsX()        +", cam.absY: "+camera.getAbsY());
         System.out.println("    Cells: "+sheet.getCells());
+        System.out.println("Selected cell: " + cellSelector.getSelectedCell());
         System.out.println("========================================");
 
         if (currMode == Mode.NORMAL) {
@@ -557,6 +558,7 @@ public class Controller implements Initializable {
                     } while (cellSelector.getSelectedCell().getMergeDelimiter() != null);
                     selectedCoords = new ArrayList<>();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    cellSelector.readCell(camera.picture.data());
                     currMode = Mode.NORMAL;
                     moveLeft();
                 }

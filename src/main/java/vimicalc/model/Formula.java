@@ -4,12 +4,12 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 public class Formula extends Interpretable {
-    public Formula(String txt, int sCX, int sCY) {
-        super(txt, sCX, sCY);
+    public Formula(String txt, int xC, int yC) {
+        super(txt, xC, yC);
     }
 
     protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) {
-        sheet.addDependent(sCX, sCY);
+        sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -34,7 +34,7 @@ public class Formula extends Interpretable {
                             mat[I][J] = 0;
                         else
                             mat[I][J] = c.value();
-                        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+                        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
                     }
                 });
             }
@@ -44,7 +44,7 @@ public class Formula extends Interpretable {
     }
 
     protected Lexeme[] createVectorFromArea(@NotNull String coords, @NotNull Sheet sheet) {
-        sheet.addDependent(sCX, sCY);
+        sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -69,7 +69,7 @@ public class Formula extends Interpretable {
                     vectorLong[i++] = new Lexeme("I");
                 else
                     vectorLong[i++] = new Lexeme(c.value());
-                sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+                sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
             }
 
         Lexeme[] vector = new Lexeme[i];
@@ -243,8 +243,8 @@ public class Formula extends Interpretable {
     @Contract("_, _ -> new")
     private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
         Cell c = sheet.findCell(coords);
-        sheet.addDependent(sCX, sCY);
-        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(sCX, sCY));
+        sheet.addDependent(xC, yC);
+        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
 
         if (c.txt() == null)
             return new Lexeme("I");
@@ -295,8 +295,8 @@ public class Formula extends Interpretable {
                 if (i == 0 && j == 0)
                     continue;
                 sheet.addCell(new Cell(
-                    sCX + j,
-                    sCY + i,
+                    xC + j,
+                    yC + i,
                     for1Pos(mat1.getRow(i), mat2.getCol(j))
                 ));
             }

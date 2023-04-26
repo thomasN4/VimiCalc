@@ -5,14 +5,14 @@ import org.jetbrains.annotations.NotNull;
 import static vimicalc.utils.Conversions.isNumber;
 
 abstract class Interpretable {
-    protected int sCX;  // Coordonnée x de la cellule associée
-    protected int sCY;
+    protected int xC;  // Coordonnée x de la cellule associée
+    protected int yC;
     protected String txt;
 
-    protected Interpretable(String txt, int sCX, int sCY) {
+    protected Interpretable(String txt, int xC, int yC) {
         this.txt = txt;
-        this.sCX = sCX;
-        this.sCY = sCY;
+        this.xC = xC;
+        this.yC = yC;
     }
 
     protected Lexeme[] lexer(@NotNull String txt) {

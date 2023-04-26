@@ -11,8 +11,8 @@ public class Command extends Interpretable {
     private static Camera camera; private static GraphicsContext gc;
     private static Color c;
 
-    public Command(String txt, int sCX, int sCY) {
-        super(txt, sCX, sCY);
+    public Command(String txt, int xC, int yC) {
+        super(txt, xC, yC);
     }
     private static boolean commandExists = true;
     public void readFile(Sheet sheet, Lexeme[] command) {
@@ -37,11 +37,11 @@ public class Command extends Interpretable {
         switch (command[0].getFunc()) {
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPicMetadata().generate(
-                new int[]{sCX, (int) command[1].getVal()},
+                new int[]{xC, (int) command[1].getVal()},
                 true
             );
             case "resRow" -> sheet.getPicMetadata().generate(
-                new int[]{sCY, (int) command[1].getVal()},
+                new int[]{yC, (int) command[1].getVal()},
                 false
             );
             case "w" -> writeFile(sheet, command);
