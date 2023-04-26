@@ -745,7 +745,7 @@ public class Controller implements Initializable {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 } else {
                     removeList();
-                    cellSelector.getSelectedCell().setNewTxt(
+                    cellSelector.getSelectedCell().correctTxt(
                         cellSelector.getSelectedCell().txt()
                     );
                     sheet.addCell(cellSelector.getSelectedCell().copy());
@@ -792,7 +792,7 @@ public class Controller implements Initializable {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 else {
                     removeList();
-                    cellSelector.getSelectedCell().setNewFormula(
+                    cellSelector.getSelectedCell().setFormulaResult(
                         cellSelector.getSelectedCell().formula().interpret(sheet),
                         cellSelector.getSelectedCell().formula()
                     );

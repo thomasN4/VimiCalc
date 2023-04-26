@@ -124,7 +124,7 @@ public class Cell {
         this.txt = txt;
     }
 
-    public void setNewTxt(String txt) {
+    public void correctTxt(String txt) {
         try {
             value = Integer.parseInt(txt);
             if (this.txt == null) this.txt = txt;
@@ -143,7 +143,7 @@ public class Cell {
         this.formula = formula;
     }
 
-    public void setNewFormula(double result, Formula formula) {
+    public void setFormulaResult(double result, Formula formula) {
         if (result - (int) result != 0)
             txt = format.format(result);
         else
