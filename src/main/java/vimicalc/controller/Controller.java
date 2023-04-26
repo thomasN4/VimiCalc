@@ -36,7 +36,9 @@ public class Controller implements Initializable {
     private Canvas canvas;
     protected static final LinkedList<Cell> recordedCell = new LinkedList<>();
     private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
-    protected static Cell copiedCell;
+    protected static final HashMap<Integer, Cell> copiedCell = new HashMap<>();
+    protected static final LinkedList<Boolean> vCounter = new LinkedList<>();
+    protected static int cCounter = 0;
     protected static int dCounter = 1;
     private static int fCounter = 1;
     protected static Camera camera;
@@ -319,55 +321,31 @@ public class Controller implements Initializable {
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         updateVisualState();
     }
-
-    protected static void copy() {
-        if (cellSelector.getSelectedCell().formula() != null) {
-            copiedCell = new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().value(),
-                cellSelector.getSelectedCell().formula()
-            );
-        }
-        else if (cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
-            copiedCell = new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().value()
-            );
-        } else {
-            copiedCell = new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
-            );
-        }
-    }
     protected static void paste() {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-        if (copiedCell.value() != 0 && copiedCell.txt().matches(".*\\d.*")) {
+        if (copiedCell.get(cCounter - 1).value() != 0 && copiedCell.get(cCounter - 1).txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                copiedCell.value()
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    copiedCell.get(cCounter - 1).value()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(copiedCell.value() + "");
+            cellSelector.getSelectedCell().setTxt(copiedCell.get(cCounter - 1).value() + "");
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
+                    cellSelector.getXCoord(),
+                    cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().txt()
             ));
             sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(copiedCell.txt());
+            cellSelector.getSelectedCell().setTxt(copiedCell.get(cCounter - 1).txt());
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
-        if (copiedCell.formula() != null) {
-            infoBar.setInfobarTxt(copiedCell.formula().getTxt());
-            cellSelector.getSelectedCell().setFormula(copiedCell.formula());
+        if (copiedCell.get(cCounter - 1).formula() != null) {
+            infoBar.setInfobarTxt(copiedCell.get(cCounter - 1).formula().getTxt());
+            cellSelector.getSelectedCell().setFormula(copiedCell.get(cCounter - 1).formula());
         }
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
@@ -517,6 +495,13 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case D -> {
                 selectedCoords.forEach(coord -> sheet.deleteCell(coord[0], coord[1]));
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.ready();
+                cellSelector.readCell(camera.picture.data());
+            }
+            case Y -> {
+                selectedCoords.forEach(coord -> copiedCell.put(cCounter++ ,cellSelector.getSelectedCell().copy()));
+                for (int i = 0; i < selectedCoords.size(); i++) vCounter.add(true);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
