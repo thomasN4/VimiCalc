@@ -108,7 +108,7 @@ public class KeyCommand {
     public void evaluate(@NotNull String expr) {
         if (expr.equals("") || isNumber(""+expr.charAt(expr.length()-1))) return;
         boolean evaluationFinished = false;
-        int[] fstFIandM = parseFIndexAndMult(0, expr);  // 1er item: indexe de la fonction, 2e item: coefficient
+        int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1: indexe de la fonction, item 2: multiplicateur
 
         if (fstFIandM[0] >= expr.length())
             return;
