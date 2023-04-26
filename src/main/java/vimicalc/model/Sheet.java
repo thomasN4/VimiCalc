@@ -89,9 +89,11 @@ public class Sheet {
         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
                 Cell c = findCell(i, j);
-                if (c != mergeStart)
+                System.out.println("i = " + i + ", j = " + j);
+                System.out.println("Unmerging: " + c);
+                if (!c.isMergeStart())
                     c.mergeWith(null);
-                addCell(c);
+                simplyAddCell(c);
             }
         }
         mergeStart.mergeWith(null);
@@ -138,6 +140,10 @@ public class Sheet {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
         checkForDependents(cell.xCoord(), cell.yCoord());
+    }
+    public void simplyAddCell(Cell cell) {
+        cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
+        cells.add(cell);
     }
 
     public void checkForDependents(int xCoord, int yCoord) {
