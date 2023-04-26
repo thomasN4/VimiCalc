@@ -71,7 +71,8 @@ public class Controller implements Initializable {
         System.out.println("====maybeGoToMergeStart====");
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
-            !cellSelector.getSelectedCell().isMergeStart()) {
+            !cellSelector.getSelectedCell().isMergeStart() &&
+            !goingToMergeStart) {
             System.out.println("Going to mergeStart...");
             Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
 //                 prevMergeDel = prevCell.getMergeDelimiter();
