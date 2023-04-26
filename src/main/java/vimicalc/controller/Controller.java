@@ -91,6 +91,10 @@ public class Controller implements Initializable {
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
             cellSelector.readCell(camera.picture.data());
+        } else {
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            cellSelector.readCell(camera.picture.data());
+            return;
         }
         if (cellSelector.getX() != cellSelector.getW()) {
             cellSelector.updateX(-cellSelector.getW());
@@ -172,6 +176,10 @@ public class Controller implements Initializable {
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
             cellSelector.readCell(camera.picture.data());
+        } else {
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            cellSelector.readCell(camera.picture.data());
+            return;
         }
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
