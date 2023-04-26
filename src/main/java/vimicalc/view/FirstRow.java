@@ -4,7 +4,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.model.Metadata;
 
 import static vimicalc.utils.Conversions.toAlpha;
 

@@ -2,6 +2,7 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
+import vimicalc.view.Metadata;
 
 import java.io.*;
 import java.util.ArrayList;

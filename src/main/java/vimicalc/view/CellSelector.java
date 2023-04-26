@@ -6,7 +6,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
-import vimicalc.model.Metadata;
 
 import java.util.ArrayList;
 
