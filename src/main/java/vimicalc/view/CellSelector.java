@@ -46,7 +46,7 @@ public class CellSelector extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.fillText(selectedCell.txt()
             , x + (float) w/2
-            , y + (float) w/2
+            , y + (float) h/2
             , w);
     }
     @Override
