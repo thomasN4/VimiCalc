@@ -69,7 +69,7 @@ public class Controller implements Initializable {
     */
 
     public static boolean goingToMergeStart = false;
-    private static void maybeGoToMergeStart(Cell prevCell) {
+    private static void maybeGoToMergeStart(/*Cell prevCell*/) {
         System.out.println("===maybeGoToMergeStart===");
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
@@ -87,7 +87,7 @@ public class Controller implements Initializable {
         }
     }
     protected static void moveLeft() {
-        Cell prevCell = cellSelector.getSelectedCell().copy();
+//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
             cellSelector.readCell(camera.picture.data());
@@ -124,17 +124,18 @@ public class Controller implements Initializable {
         } else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
-        maybeGoToMergeStart(prevCell);
+        maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveDown() {
         int prevH;
         if (!cellSelector.getSelectedCell().isMergeStart())
             prevH = cellSelector.getH();
         else prevH = cellSelector.getMergedH();
-        Cell prevCell = cellSelector.getSelectedCell().copy();
-        if (prevCell.isMergeStart())
+//        Cell prevCell = cellSelector.getSelectedCell().copy();
+        if (cellSelector.getSelectedCell().isMergeStart())
             cellSelector.updateYCoord(
-                prevCell.getMergeDelimiter().yCoord() - prevCell.yCoord()
+                cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
+                cellSelector.getSelectedCell().yCoord()
             );
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
@@ -164,10 +165,10 @@ public class Controller implements Initializable {
         } else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
-        maybeGoToMergeStart(prevCell);
+        maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveUp() {
-        Cell prevCell = cellSelector.getSelectedCell().copy();
+//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
             cellSelector.readCell(camera.picture.data());
@@ -203,17 +204,18 @@ public class Controller implements Initializable {
         } else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
-        maybeGoToMergeStart(prevCell);
+        maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveRight() {
         int prevW;
         if (!cellSelector.getSelectedCell().isMergeStart())
             prevW = cellSelector.getW();
         else prevW = cellSelector.getMergedW();
-        Cell prevCell = cellSelector.getSelectedCell().copy();
-        if (prevCell.isMergeStart())
+//        Cell prevCell = cellSelector.getSelectedCell().copy();
+        if (cellSelector.getSelectedCell().isMergeStart())
             cellSelector.updateXCoord(
-                prevCell.getMergeDelimiter().xCoord() - prevCell.xCoord()
+                cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
+                cellSelector.getSelectedCell().xCoord()
             );
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
@@ -243,7 +245,7 @@ public class Controller implements Initializable {
         } else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
-        maybeGoToMergeStart(prevCell);
+        maybeGoToMergeStart(/*prevCell*/);
     }
 
     protected static void undo() {
