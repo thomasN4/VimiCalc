@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class CellSelector extends Visible {
 
-    private int xCoord, yCoord, mergeCorrectedW, mergeCorrectedH;
+    private int xCoord, yCoord, mergedW, mergedH;
     private Cell selectedCell;
     private final Metadata picMetadata;
 
@@ -46,10 +46,15 @@ public class CellSelector extends Visible {
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
-        gc.fillText(selectedCell.txt()
-            , x + (float) w/2
-            , y + (float) h/2
-            , w);
+        if (!selectedCell.isMergeStart())
+            gc.fillText(selectedCell.txt()
+                , x + (float) w/2
+                , y + (float) h/2
+                , w);
+        else gc.fillText(selectedCell.txt()
+                  , x + (float) mergedW/2
+                  , y + (float) mergedH/2
+                  , mergedW);
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
@@ -79,9 +84,9 @@ public class CellSelector extends Visible {
                 selectedCell = c.copy();
                 if (c.isMergeStart()) {
                     Cell mergeEnd = c.getMergeDelimiter();
-                    mergeCorrectedW = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
+                    mergedW = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
                         picMetadata.getCellAbsXs()[xCoord];
-                    mergeCorrectedH = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
+                    mergedH = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
                         picMetadata.getCellAbsYs()[yCoord];
                 }
                 setDimensions();
