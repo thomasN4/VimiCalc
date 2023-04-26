@@ -43,12 +43,16 @@ public class Sheet {
         deleteCell(coordsInt[0], coordsInt[1]);
     }
     public void deleteCell(int xCoord, int yCoord) {
+        System.out.println("Deleting a cell...");
         Cell c = findCell(xCoord, yCoord);
         if (c.isMergeStart()) {
             Cell mergeEnd = c.getMergeDelimiter();
             c = new Cell(xCoord, yCoord);
             c.setMergeStart(true);
             c.mergeWith(mergeEnd);
+            int finalCxC = c.xCoord(), finalCyC = c.yCoord();
+            cells.removeIf(b -> b.xCoord() == finalCxC && b.yCoord() == finalCyC);
+            cells.add(c);
         }
         else cells.remove(c);
         checkForDependents(xCoord, yCoord);
