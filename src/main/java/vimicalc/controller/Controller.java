@@ -792,12 +792,10 @@ public class Controller implements Initializable {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 else {
                     removeList();
-                    cellSelector.setSelectedCell(new Cell(
-                        cellSelector.getXCoord(),
-                        cellSelector.getYCoord(),
+                    cellSelector.getSelectedCell().setNewFormula(
                         cellSelector.getSelectedCell().formula().interpret(sheet),
                         cellSelector.getSelectedCell().formula()
-                    ));
+                    );
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     sheet.addCell(cellSelector.getSelectedCell());
                 }

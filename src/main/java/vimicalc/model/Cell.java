@@ -142,6 +142,18 @@ public class Cell {
     public void setFormula(Formula formula) {
         this.formula = formula;
     }
+
+    public void setNewFormula(double result, Formula formula) {
+        if (result - (int) result != 0)
+            txt = format.format(result);
+        else
+            txt = String.valueOf((int) result);
+        value = result;
+        if (isNumber(formula.getTxt()))
+            this.formula = null;
+        else this.formula = formula;
+    }
+
     public void setValue(double value) {
         this.value = value;
     }
