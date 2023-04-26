@@ -122,9 +122,11 @@ public class Controller implements Initializable {
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() == 0.0) {
             infoBar.setInfobarTxt("I");
-        } else if (cellSelector.getSelectedCell().formula() != null) {
+        }
+        else if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-        } else if (cellSelector.getSelectedCell().value() != 0.0) {
+        }
+        else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
         maybeGoToMergeStart(/*prevCell*/);
@@ -163,9 +165,11 @@ public class Controller implements Initializable {
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() == 0.0) {
             infoBar.setInfobarTxt("I");
-        } else if (cellSelector.getSelectedCell().formula() != null) {
+        }
+        else if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-        } else if (cellSelector.getSelectedCell().value() != 0.0) {
+        }
+        else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
         maybeGoToMergeStart(/*prevCell*/);
@@ -205,9 +209,11 @@ public class Controller implements Initializable {
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() == 0.0) {
             infoBar.setInfobarTxt("I");
-        } else if (cellSelector.getSelectedCell().formula() != null) {
+        }
+        else if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-        } else if (cellSelector.getSelectedCell().value() != 0.0) {
+        }
+        else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
         maybeGoToMergeStart(/*prevCell*/);
@@ -246,9 +252,11 @@ public class Controller implements Initializable {
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() == 0.0) {
             infoBar.setInfobarTxt("I");
-        } else if (cellSelector.getSelectedCell().formula() != null) {
+        }
+        else if (cellSelector.getSelectedCell().formula() != null) {
             infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-        } else if (cellSelector.getSelectedCell().value() != 0.0) {
+        }
+        else if (cellSelector.getSelectedCell().value() != 0.0) {
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         }
         maybeGoToMergeStart(/*prevCell*/);
