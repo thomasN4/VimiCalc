@@ -40,21 +40,27 @@ public class CellSelector extends Visible {
         this.selectedCell = selectedCell;
     }
 
-    @Override
-    public void draw(@NotNull GraphicsContext gc) {
-        super.draw(gc);
+    private void drawTxt(GraphicsContext gc) {
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
-        if (!selectedCell.isMergeStart())
-            gc.fillText(selectedCell.txt()
-                , x + (float) w/2
-                , y + (float) h/2
-                , w);
-        else gc.fillText(selectedCell.txt()
-                  , x + (float) mergedW/2
-                  , y + (float) mergedH/2
-                  , mergedW);
+        gc.fillText(selectedCell.txt()
+            , x + (float) w/2
+            , y + (float) w/2
+            , w);
+    }
+    @Override
+    public void draw(@NotNull GraphicsContext gc) {
+        if (!selectedCell.isMergeStart()) {
+            super.draw(gc);
+            if (selectedCell.txt() != null) drawTxt(gc);
+        }
+        else {
+            int prevW = w, prevH = h;
+            w = mergedW; h = mergedH;
+            if (selectedCell.txt() != null) drawTxt(gc);
+            w = prevW; h = prevH;
+        }
     }
 
     public void draw(GraphicsContext gc, String insertedChar) {
