@@ -12,8 +12,7 @@ import java.util.ArrayList;
 
 public class CellSelector extends Visible {
 
-    private int xCoord;
-    private int yCoord;
+    private int xCoord, yCoord, mergeCorrectedW, mergeCorrectedH;
     private Cell selectedCell;
     private final Metadata picMetadata;
 
@@ -80,13 +79,12 @@ public class CellSelector extends Visible {
                 selectedCell = c.copy();
                 if (c.isMergeStart()) {
                     Cell mergeEnd = c.getMergeDelimiter();
-                    w = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
+                    mergeCorrectedW = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
                         picMetadata.getCellAbsXs()[xCoord];
-                    h = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
+                    mergeCorrectedH = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
                         picMetadata.getCellAbsYs()[yCoord];
                 }
-                else
-                    setDimensions();
+                setDimensions();
                 if (c.txt() != null) {
                     try {
                         if (c.value() - (int) c.value() != 0)
