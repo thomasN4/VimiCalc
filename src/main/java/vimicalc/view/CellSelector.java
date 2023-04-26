@@ -87,10 +87,11 @@ public class CellSelector extends Visible {
                 }
                 else
                     setDimensions();
-                if (selectedCell.txt() != null) {
+                if (c.txt() != null) {
                     try {
-                        selectedCell.setTxt(String.valueOf(value));
-                    }
+                        if (c.value() - (int) c.value() != 0)
+                            c.setTxt(String.valueOf(c.value()));
+                    } catch (Exception ignored) {}
                 }
                 return;
             }
