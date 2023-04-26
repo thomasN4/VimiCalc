@@ -68,6 +68,15 @@ public class CellSelector extends Visible {
         selectedCell.setTxt(selectedCell.txt() + insertedChar);
         this.draw(gc);
     }
+
+    public int getMergedW() {
+        return mergedW;
+    }
+
+    public int getMergedH() {
+        return mergedH;
+    }
+
     public void updateX(int x_mov) {
         x += x_mov;
     }

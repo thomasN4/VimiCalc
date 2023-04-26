@@ -125,7 +125,10 @@ public class Controller implements Initializable {
         maybeGoToMergeStart(prevCell);
     }
     protected static void moveDown() {
-        int prevH = cellSelector.getH();
+        int prevH;
+        if (!cellSelector.getSelectedCell().isMergeStart())
+            prevH = cellSelector.getH();
+        else prevH = cellSelector.getMergedH();
         Cell prevCell = cellSelector.getSelectedCell().copy();
         if (prevCell.isMergeStart())
             cellSelector.updateYCoord(
@@ -201,7 +204,10 @@ public class Controller implements Initializable {
         maybeGoToMergeStart(prevCell);
     }
     protected static void moveRight() {
-        int prevW = cellSelector.getW();
+        int prevW;
+        if (!cellSelector.getSelectedCell().isMergeStart())
+            prevW = cellSelector.getW();
+        else prevW = cellSelector.getMergedW();
         Cell prevCell = cellSelector.getSelectedCell().copy();
         if (prevCell.isMergeStart())
             cellSelector.updateXCoord(
