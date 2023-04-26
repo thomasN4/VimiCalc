@@ -47,7 +47,7 @@ public class Picture extends Visible {
     public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCoords, int absX, int absY) {
         visibleCells = new ArrayList<>();
         super.draw(gc);
-        metadata.generate(absX, absY);
+        metadata.generate(absX, absY, -1, -1);
 
         for (Cell c : sheet.getCells()) {
             if (c.xCoord() >= metadata.getFirstXC() &&
