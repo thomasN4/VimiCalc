@@ -85,11 +85,13 @@ public class Sheet {
             unmergeCells(c.getMergeDelimiter(), c.getMergeDelimiter().getMergeDelimiter());
     }
     private void unmergeCells(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
+        System.out.println("Unmerging cells...");
         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
                 Cell c = findCell(i, j);
                 if (c != mergeStart)
                     c.mergeWith(null);
+                addCell(c);
             }
         }
         mergeStart.mergeWith(null);

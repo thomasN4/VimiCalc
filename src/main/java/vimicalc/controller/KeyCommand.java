@@ -220,6 +220,9 @@ public class KeyCommand {
                 }
                 case 'm' -> {
                     sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    cellSelector.readCell(camera.picture.data());
                     evaluationFinished = true;
                 }
                 case 'u' -> {
