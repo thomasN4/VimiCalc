@@ -24,12 +24,12 @@ public class Metadata {
         this.DCH = DCH;
     }
 
-    private int xEdge(int cAbsX, int xC) {
+    private int xOuterEdge(int cAbsX, int xC) {
         return cAbsX + picW + 2*DCW +
                ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
                ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1));
     }
-    private int yEdge(int cAbsY, int yC) {
+    private int yOuterEdge(int cAbsY, int yC) {
         return cAbsY + picH + 2*DCH +
                ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
                ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1));
@@ -56,7 +56,7 @@ public class Metadata {
                 lastXCFound = true;
             }
             xC++;
-        } while (currAbsX <= xEdge(cAbsX, xC));
+        } while (currAbsX <= xOuterEdge(cAbsX, xC));
         cellAbsXsLong[xC] = currAbsX;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
@@ -75,7 +75,7 @@ public class Metadata {
                 lastYCFound = true;
             }
             yC++;
-        } while (currAbsY <= yEdge(cAbsY, yC));
+        } while (currAbsY <= yOuterEdge(cAbsY, yC));
         cellAbsYsLong[yC] = currAbsY;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
