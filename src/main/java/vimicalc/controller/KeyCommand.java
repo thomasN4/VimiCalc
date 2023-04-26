@@ -244,19 +244,31 @@ public class KeyCommand {
                         if (arg1 == 'y' || arg1 == 'd') {
                             if (cellSelector.getSelectedCell().txt() == null)
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
-                            else copy();
+                            else {
+                                copiedCell.put(cCounter++, cellSelector.getSelectedCell().copy());
+                                vCounter.add(false);
+                            }
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
                             evaluationFinished = true;
+                            System.out.println(cCounter);
                         }
                     }
                 }
                 case 'p' -> {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
                         if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
-                        else paste();
+                        else {
+                            /*if (vCounter.getLast()) {//non functional
+                                int selectedCells = vCounter.size();
+                                while(vCounter.get(selectedCells)) {
+                                    paste();
+                                    selectedCells--;
+                                }
+                            } else */paste();
+                        }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
