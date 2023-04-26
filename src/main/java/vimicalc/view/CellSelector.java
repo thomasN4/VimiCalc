@@ -90,7 +90,7 @@ public class CellSelector extends Visible {
                 if (c.txt() != null) {
                     try {
                         if (c.value() - (int) c.value() != 0)
-                            c.setTxt(String.valueOf(c.value()));
+                            selectedCell.setTxt(String.valueOf(c.value()));
                     } catch (Exception ignored) {}
                 }
                 return;
