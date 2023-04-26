@@ -79,16 +79,12 @@ public class Sheet {
     }
 
     public void unmergeCells(@NotNull Cell c) {
-        if (c.isMergeStart()) {
-            unmergeCellsSubOp(c, c.getMergeDelimiter());
-            cells.removeIf(Cell::isEmpty);
-        }
-        else if (c.getMergeDelimiter() != null) {
-            unmergeCellsSubOp(c.getMergeDelimiter(), c.getMergeDelimiter().getMergeDelimiter());
-            cells.removeIf(Cell::isEmpty);
-        }
+        if (c.isMergeStart())
+            unmergeCells(c, c.getMergeDelimiter());
+        else if (c.getMergeDelimiter() != null)
+            unmergeCells(c.getMergeDelimiter(), c.getMergeDelimiter().getMergeDelimiter());
     }
-    private void unmergeCellsSubOp(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
+    private void unmergeCells(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
                 Cell c = findCell(i, j);
@@ -98,6 +94,7 @@ public class Sheet {
         }
         mergeStart.mergeWith(null);
         mergeStart.setMergeStart(false);
+        cells.removeIf(Cell::isEmpty);
     }
 
     public Dependency findDependency(int x, int y) {
