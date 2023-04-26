@@ -77,6 +77,12 @@ public class Sheet {
         }
         return new Cell(xCoord, yCoord);
     }
+    public Cell simplyFindCell(int xCoord, int yCoord) {
+        for (Cell c : getCells())
+            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
+                return c;
+        return new Cell(xCoord, yCoord);
+    }
 
     public void unmergeCells(@NotNull Cell c) {
         if (c.isMergeStart())
@@ -86,9 +92,10 @@ public class Sheet {
     }
     private void unmergeCells(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
         System.out.println("Unmerging cells...");
+        Cell c;
         for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
             for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
-                Cell c = findCell(i, j);
+                c = simplyFindCell(i, j);
                 System.out.println("i = " + i + ", j = " + j);
                 System.out.println("Unmerging: " + c);
                 if (!c.isMergeStart())
