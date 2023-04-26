@@ -207,7 +207,7 @@ public class KeyCommand {
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         else {
-                            recordedCell.add(cellSelector.getSelectedCell());
+                            recordedCell.add(cellSelector.getSelectedCell().copy());
                             sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
@@ -253,9 +253,6 @@ public class KeyCommand {
                         }
                     }
                 }
-                case 'b' -> {
-                    System.out.println(recordedCell.size());evaluationFinished = true;
-                }
                 case 'p' -> {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
                         if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
@@ -267,7 +264,7 @@ public class KeyCommand {
                     }
                 }
                 case 'a', 'i' -> {
-                    newCell();
+                    reinitialiseCell();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     cellSelector.readCell(camera.picture.data());
                     currMode = Mode.INSERT;

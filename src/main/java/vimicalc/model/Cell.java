@@ -127,6 +127,9 @@ public class Cell {
     public void setFormula(Formula formula) {
         this.formula = formula;
     }
+    public void setValue(double value) {
+        this.value = value;
+    }
 
     public Cell getMergeDelimiter() {
         return mergeDelimiter;
