@@ -46,9 +46,9 @@ public class Metadata {
                 lastXCFound = true;
             }
             xC++;
-        } while (currAbsX <= cAbsX + picW + DCW +
-                 ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC))/* +
-                 ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1))*/);
+        } while (currAbsX <= cAbsX + picW + 2*DCW +
+                 ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
+                 ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1)));
         cellAbsXsLong[xC] = currAbsX;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
@@ -67,9 +67,9 @@ public class Metadata {
                 lastYCFound = true;
             }
             yC++;
-        } while (currAbsY <= cAbsY + picH + DCH +
-                 ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC))/* +
-                 ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1))*/);
+        } while (currAbsY <= cAbsY + picH + 2*DCH +
+                 ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
+                 ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1)));
         cellAbsYsLong[yC] = currAbsY;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
