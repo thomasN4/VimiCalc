@@ -66,6 +66,7 @@ public class Controller implements Initializable {
     }
     */
 
+    public static boolean goingToMergeStart = false;
     private static void maybeGoToMergeStart(Cell prevCell) {
         System.out.println("====maybeGoToMergeStart====");
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
@@ -76,7 +77,9 @@ public class Controller implements Initializable {
 //                 prevMergeDel = prevCell.getMergeDelimiter();
 //            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
 //                System.out.println("Going to mergeStart...");
+            goingToMergeStart = true;
             goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
+            goingToMergeStart = false;
 //            }
         }
     }
