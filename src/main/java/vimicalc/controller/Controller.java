@@ -95,7 +95,7 @@ public class Controller implements Initializable {
             cellSelector.readCell(camera.picture.data());
             return;
         }
-        if (cellSelector.getX() != cellSelector.getW()) {
+        if (cellSelector.getX() != DEFAULT_CELL_W) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < DEFAULT_CELL_W) {
                 while (cellSelector.getX() != DEFAULT_CELL_W) {
@@ -183,7 +183,7 @@ public class Controller implements Initializable {
             cellSelector.readCell(camera.picture.data());
             return;
         }
-        if (cellSelector.getY() != cellSelector.getH()) {
+        if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < DEFAULT_CELL_H) {
                 while (cellSelector.getY() != DEFAULT_CELL_H) {
