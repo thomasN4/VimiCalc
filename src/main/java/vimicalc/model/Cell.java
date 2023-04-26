@@ -124,6 +124,21 @@ public class Cell {
         this.txt = txt;
     }
 
+    public void setNewTxt(String txt) {
+        try {
+            value = Integer.parseInt(txt);
+            if (this.txt == null) this.txt = txt;
+        } catch (Exception ignored) {
+            try {
+                value = Double.parseDouble(txt);
+                if (txt.contains("."))
+                    this.txt = format.format(value);
+            } catch (Exception ignored1) {
+                if (this.txt == null) this.txt = txt;
+            }
+        }
+    }
+
     public void setFormula(Formula formula) {
         this.formula = formula;
     }

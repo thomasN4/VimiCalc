@@ -745,24 +745,10 @@ public class Controller implements Initializable {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 } else {
                     removeList();
-                    try {
-                        cellSelector.getSelectedCell().setValue(Integer.parseInt(
-                            cellSelector.getSelectedCell().txt()
-                        ));
-                    } catch (Exception ignored) {
-                        try {
-                            cellSelector.getSelectedCell().setValue(Double.parseDouble(
-                                cellSelector.getSelectedCell().txt()
-                            ));
-                            if (cellSelector.getSelectedCell().txt().contains("."))
-                                cellSelector.getSelectedCell().setTxt(
-                                    cellSelector.getSelectedCell().getFormat().format(
-                                        cellSelector.getSelectedCell().txt()
-                                    )
-                                );
-                        } catch (Exception ignored1) {}
-                    }
-                    sheet.addCell(cellSelector.getSelectedCell());
+                    cellSelector.getSelectedCell().setNewTxt(
+                        cellSelector.getSelectedCell().txt()
+                    );
+                    sheet.addCell(cellSelector.getSelectedCell().copy());
                 }
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 recordedCell.add(cellSelector.getSelectedCell().copy());
