@@ -246,14 +246,12 @@ public class KeyCommand {
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                             else {
                                 copiedCell.put(cCounter++, cellSelector.getSelectedCell().copy());
-                                vCounter.add(false);
                             }
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
                             evaluationFinished = true;
-                            System.out.println(cCounter);
                         }
                     }
                 }
@@ -261,13 +259,32 @@ public class KeyCommand {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
                         if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                         else {
-                            /*if (vCounter.getLast()) {//non functional
-                                int selectedCells = vCounter.size();
-                                while(vCounter.get(selectedCells)) {
-                                    paste();
-                                    selectedCells--;
+                            if (visSize != 0) {
+                                int tempCounter = 1;
+                                while(visSize != 0) {
+                                    paste(cCounter - visSize);
+                                    /*int xCoord = cellSelector.getXCoord() +
+                                            (copiedCell.get(cCounter - tempCounter).xCoord() -
+                                                    copiedCell.get(cCounter - (tempCounter * visSize)).xCoord());
+                                    int yCoord = cellSelector.getYCoord() +
+                                            (copiedCell.get(cCounter - tempCounter).yCoord() -
+                                                    copiedCell.get(cCounter - (tempCounter * visSize)).yCoord());
+                                    goTo(xCoord, yCoord);
+                                    tempCounter++;
+                                    visSize--;*/
+                                    if (copiedCell.get(cCounter - tempCounter).xCoord() <
+                                            copiedCell.get(cCounter - 2).xCoord()) moveLeft();
+                                    else if (copiedCell.get(cCounter - tempCounter).xCoord() >
+                                            copiedCell.get(cCounter - 2).xCoord()) moveRight();
+                                    else if (copiedCell.get(cCounter - tempCounter).yCoord()<
+                                            copiedCell.get(cCounter - 2).yCoord()) moveUp();
+                                    else if (copiedCell.get(cCounter - tempCounter).yCoord() >
+                                            copiedCell.get(cCounter - 2).yCoord()) moveDown();;
+                                    tempCounter++;
+                                    visSize--;
                                 }
-                            } else */paste();
+                                visSize = tempCounter - 1;
+                            } else paste(cCounter - 1);
                         }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
