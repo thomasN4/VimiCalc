@@ -183,10 +183,10 @@ public class Controller implements Initializable {
             cellSelector.readCell(camera.picture.data());
             return;
         }
-        if (cellSelector.getY() != DEFAULT_CELL_H) {
+        if (cellSelector.getY() != cellSelector.getH()) {
             cellSelector.updateY(-cellSelector.getH());
-            if (cellSelector.getY() < cellSelector.getH()) {
-                while (cellSelector.getY() != cellSelector.getH()) {
+            if (cellSelector.getY() < DEFAULT_CELL_H) {
+                while (cellSelector.getY() != DEFAULT_CELL_H) {
                     cellSelector.updateY(1);
                     camera.updateAbsY(-1);
                 }
@@ -483,6 +483,8 @@ public class Controller implements Initializable {
                     moveUp();
                 command.interpret(sheet);
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.ready();
+                cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                 /*if (!command.commandExists()) {
