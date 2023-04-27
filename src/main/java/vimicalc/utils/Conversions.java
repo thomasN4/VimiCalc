@@ -90,7 +90,7 @@ public class Conversions {
         if (pos == relC.length()-1)
             return absC;
         else return relToAbsCoords(
-                relC.substring(pos),
+                relC.substring(pos+1),
                 (absX == 0) ? xRef : absX,
                 (absY == 0) ? yRef : absY
             );
