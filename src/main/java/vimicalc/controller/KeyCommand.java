@@ -15,7 +15,7 @@ import static vimicalc.utils.Conversions.isNumber;
 public class KeyCommand {
     // Les fonctions F sont celles qui sont répétables sur des plages de cellules
     private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
-    private final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
+    public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
     private final HashMap<Character, LinkedList<KeyEvent>> macros;
     private String expr;
     public static LinkedList<KeyEvent> currMacro;
@@ -282,7 +282,7 @@ public class KeyCommand {
                                     else if (copiedCell.get(cCounter - tempCounter).yCoord()<
                                             copiedCell.get(cCounter - 2).yCoord()) moveUp();
                                     else if (copiedCell.get(cCounter - tempCounter).yCoord() >
-                                            copiedCell.get(cCounter - 2).yCoord()) moveDown();;
+                                            copiedCell.get(cCounter - 2).yCoord()) moveDown();
                                     tempCounter++;
                                     visSize--;
                                 }

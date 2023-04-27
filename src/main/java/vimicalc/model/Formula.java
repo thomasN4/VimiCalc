@@ -3,6 +3,8 @@ package vimicalc.model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import static vimicalc.utils.Conversions.isNumber;
+
 public class Formula extends Interpretable {
     public Formula(String txt, int xC, int yC) {
         super(txt, xC, yC);
@@ -14,7 +16,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for ( ; s.charAt(i) != ':'; i++)//change to ; for usage
+        for ( ; s.charAt(i) != ':' && s.charAt(i) != ';'; i++)
             firstCoords.append(s.charAt(i));
         lastCoords = s.substring(i+1);
 
@@ -49,7 +51,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for (; coords.charAt(i) != ':' || coords.charAt(i) != ';'; i++)
+        for ( ; coords.charAt(i) != ':' || coords.charAt(i) != ';'; i++)
             firstCoords.append(coords.charAt(i));
         lastCoords = coords.substring(i+1);
 
@@ -213,8 +215,15 @@ public class Formula extends Interpretable {
                             System.out.println("Not enough args.");
                     }
                     default -> {
-                        if (func.contains(":") || func.contains("\\")) continue;
-                        args[i] = cellToLexeme(func, sheet);
+                        if (func.contains(":") || func.contains("\\")) {
+                            continue;
+                        }
+                        else if (Character.isAlphabetic(func.charAt(0)) &&
+                                 isNumber(""+func.charAt(func.length()-1)))
+                            args[i] = cellToLexeme(func, sheet);
+                        else {
+
+                        }
                     }
                 }
                 if (reduction != 0) {
