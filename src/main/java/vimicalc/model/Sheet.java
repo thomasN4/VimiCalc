@@ -40,7 +40,7 @@ public class Sheet {
         return value;
     }
     public void deleteCell(@NotNull String coords) {
-        int[] coordsInt = coordsStrToInt(coords);
+        int[] coordsInt = coordsStrToInts(coords);
         deleteCell(coordsInt[0], coordsInt[1]);
     }
     public void deleteCell(int xCoord, int yCoord) {
@@ -63,7 +63,7 @@ public class Sheet {
     }
 
     public Cell findCell(@NotNull String coords) {
-        int[] coordsInt = coordsStrToInt(coords);
+        int[] coordsInt = coordsStrToInts(coords);
         return findCell(coordsInt[0], coordsInt[1]);
     }
     public Cell findCell(int xCoord, int yCoord) {

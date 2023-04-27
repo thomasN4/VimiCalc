@@ -4,8 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import static vimicalc.controller.KeyCommand.Mfuncs;
-import static vimicalc.utils.Conversions.isNumber;
-import static vimicalc.utils.Conversions.relToAbsCoords;
+import static vimicalc.utils.Conversions.*;
 
 public class Formula extends Interpretable {
     public Formula(String txt, int xC, int yC) {
@@ -221,7 +220,10 @@ public class Formula extends Interpretable {
                             continue;
                         if (isNumber(""+func.charAt(0)) &&
                             Mfuncs.contains(func.charAt(func.length()-1)))
-                            args[i] = cellToLexeme(relToAbsCoords(func), sheet);
+                            args[i] = cellToLexeme(
+                                          relToAbsCoords(func, xC, yC),
+                                          sheet
+                                      );
                         else args[i] = cellToLexeme(func, sheet);
                     }
                 }

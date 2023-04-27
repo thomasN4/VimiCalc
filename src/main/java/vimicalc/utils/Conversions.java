@@ -31,7 +31,7 @@ public class Conversions {
         return b;
     }
 
-    public static int[] coordsStrToInt(@NotNull String coords) {
+    public static int[] coordsStrToInts(@NotNull String coords) {
         StringBuilder coordX = new StringBuilder(),
                 coordY = new StringBuilder();
 
@@ -53,9 +53,37 @@ public class Conversions {
         return new int[]{xCoord, yCoord};
     }
 
-    public static String relToAbsCoords(String relC) {
-        String absC = "";
+    public static String coordsIntsToStr(int xC, int yC) {
+        return toAlpha(xC-1) + yC;
+    }
 
+    public static String relToAbsCoords(String relC, int xRef, int yRef) {
+        String absC = "";
+        int absX, absY, deltaX = 0, deltaY = 0, pos = 0;
+        if (isNumber(""+relC.charAt(0))) {
+            StringBuilder deltaXStr = new StringBuilder();
+            do {
+                deltaXStr.append(relC.charAt(pos++));
+            } while (isNumber(""+relC.charAt(pos)));
+        } else {
+            deltaX = 1;
+        }
+        if (pos == relC.length()-1) {
+            switch (relC.charAt(pos)) {
+                case 'h' -> {
+                    absX = xRef + deltaX;
+                    absC = toAlpha(absX-1) + yRef;
+                }
+                case 'j' -> {
+                    absY = yRef + deltaY;
+                    absC = toAlpha(xRef-1) + absY;
+                }
+            }
+        }
+        else {
+            for (int i = 0; i < relC.length(); i++) {
+            }
+        }
         return absC;
     }
 }
