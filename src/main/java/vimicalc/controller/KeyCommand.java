@@ -46,11 +46,11 @@ public class KeyCommand {
             case INSERT -> c = 'i';
             case DELETE -> c = 'd';
             case EQUALS -> {
-                cellSelector.setSelectedCell(new Cell(
-                    cellSelector.getXCoord(),
-                    cellSelector.getYCoord(),
-                    cellSelector.getSelectedCell().txt()
-                ));
+//                cellSelector.setSelectedCell(new Cell(
+//                    cellSelector.getXCoord(),
+//                    cellSelector.getYCoord(),
+//                    cellSelector.getSelectedCell().txt()
+//                ));
                 recordedCell.add(cellSelector.getSelectedCell().copy());
                 currMode = Mode.FORMULA;
                 if (cellSelector.getSelectedCell().formula() == null)
