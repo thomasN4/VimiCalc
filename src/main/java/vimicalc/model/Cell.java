@@ -138,7 +138,6 @@ public class Cell {
             }
         }
     }
-
     public void setFormula(Formula formula) {
         this.formula = formula;
     }
@@ -152,10 +151,6 @@ public class Cell {
         if (isNumber(formula.getTxt()))
             this.formula = null;
         else this.formula = formula;
-    }
-
-    public void setValue(double value) {
-        this.value = value;
     }
 
     public DecimalFormat getFormat() {
