@@ -72,7 +72,7 @@ public class Conversions {
         if (pos == relC.length()-1) {
             switch (relC.charAt(pos)) {
                 case 'h' -> {
-                    absX = xRef + deltaX;
+                    absX = xRef - deltaX;
                     absC = toAlpha(absX-1) + yRef;
                 }
                 case 'j' -> {
@@ -84,7 +84,7 @@ public class Conversions {
                     absC = toAlpha(xRef-1) + absY;
                 }
                 case 'l' -> {
-                    absX = xRef - deltaX;
+                    absX = xRef + deltaX;
                     absC = toAlpha(absX-1) + yRef;
                 }
             }
