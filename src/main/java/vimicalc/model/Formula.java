@@ -216,7 +216,7 @@ public class Formula extends Interpretable {
                             System.out.println("Not enough args.");
                     }
                     default -> {
-                        if (func.contains(":") || func.contains("\\"))
+                        if (func.contains(":") || func.contains("\\") || func.contains(";"))
                             continue;
                         if (isNumber(""+func.charAt(0)) &&
                             Mfuncs.contains(func.charAt(func.length()-1)))
