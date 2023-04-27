@@ -60,7 +60,7 @@ public class Conversions {
     public static String relToAbsCoords(String relC, int xRef, int yRef) {
         String absC = "";
         StringBuilder deltaStr = new StringBuilder();
-        int absX, absY, deltaX = 1, deltaY = 1, pos = 0;
+        int absX = 0, absY = 0, deltaX = 1, deltaY = 1, pos = 0;
         if (isNumber(""+relC.charAt(0))) {
             do {
                 deltaStr.append(relC.charAt(pos++));
@@ -69,30 +69,30 @@ public class Conversions {
                 deltaX = Integer.parseInt(deltaStr.toString());
             else deltaY = Integer.parseInt(deltaStr.toString());
         }
-        if (pos == relC.length()-1) {
-            switch (relC.charAt(pos)) {
-                case 'h' -> {
-                    absX = xRef - deltaX;
-                    absC = toAlpha(absX-1) + yRef;
-                }
-                case 'j' -> {
-                    absY = yRef + deltaY;
-                    absC = toAlpha(xRef-1) + absY;
-                }
-                case 'k' -> {
-                    absY = yRef - deltaY;
-                    absC = toAlpha(xRef-1) + absY;
-                }
-                case 'l' -> {
-                    absX = xRef + deltaX;
-                    absC = toAlpha(absX-1) + yRef;
-                }
+        switch (Character.toLowerCase(relC.charAt(pos))) {
+            case 'h' -> {
+                absX = xRef - deltaX;
+                absC = toAlpha(absX-1) + yRef;
+            }
+            case 'j' -> {
+                absY = yRef + deltaY;
+                absC = toAlpha(xRef-1) + absY;
+            }
+            case 'k' -> {
+                absY = yRef - deltaY;
+                absC = toAlpha(xRef-1) + absY;
+            }
+            case 'l' -> {
+                absX = xRef + deltaX;
+                absC = toAlpha(absX-1) + yRef;
             }
         }
-//        else {
-//            for (int i = 0; i < relC.length(); i++) {
-//            }
-//        }
-        return absC;
+        if (pos == relC.length()-1)
+            return absC;
+        else return relToAbsCoords(
+                relC.substring(pos),
+                (absX == 0) ? xRef : absX,
+                (absY == 0) ? yRef : absY
+            );
     }
 }
