@@ -53,20 +53,21 @@ public class Conversions {
         return new int[]{xCoord, yCoord};
     }
 
-    public static String coordsIntsToStr(int xC, int yC) {
-        return toAlpha(xC-1) + yC;
-    }
+//    public static String coordsIntsToStr(int xC, int yC) {
+//        return toAlpha(xC-1) + yC;
+//    }
 
     public static String relToAbsCoords(String relC, int xRef, int yRef) {
         String absC = "";
-        int absX, absY, deltaX = 0, deltaY = 0, pos = 0;
+        StringBuilder deltaStr = new StringBuilder();
+        int absX, absY, deltaX = 1, deltaY = 1, pos = 0;
         if (isNumber(""+relC.charAt(0))) {
-            StringBuilder deltaXStr = new StringBuilder();
             do {
-                deltaXStr.append(relC.charAt(pos++));
+                deltaStr.append(relC.charAt(pos++));
             } while (isNumber(""+relC.charAt(pos)));
-        } else {
-            deltaX = 1;
+            if (relC.charAt(pos) == 'h' || relC.charAt(pos) == 'l')
+                deltaX = Integer.parseInt(deltaStr.toString());
+            else deltaY = Integer.parseInt(deltaStr.toString());
         }
         if (pos == relC.length()-1) {
             switch (relC.charAt(pos)) {
@@ -78,12 +79,20 @@ public class Conversions {
                     absY = yRef + deltaY;
                     absC = toAlpha(xRef-1) + absY;
                 }
+                case 'k' -> {
+                    absY = yRef - deltaY;
+                    absC = toAlpha(xRef-1) + absY;
+                }
+                case 'l' -> {
+                    absX = xRef - deltaX;
+                    absC = toAlpha(absX-1) + yRef;
+                }
             }
         }
-        else {
-            for (int i = 0; i < relC.length(); i++) {
-            }
-        }
+//        else {
+//            for (int i = 0; i < relC.length(); i++) {
+//            }
+//        }
         return absC;
     }
 }
