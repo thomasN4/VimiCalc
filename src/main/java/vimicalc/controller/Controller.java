@@ -350,7 +350,15 @@ public class Controller implements Initializable {
         }
         if (copiedCell.get(index).formula() != null) {
             infoBar.setInfobarTxt(copiedCell.get(index).formula().getTxt());
-            cellSelector.getSelectedCell().setFormula(copiedCell.get(index).formula());
+            Formula f = new Formula(
+                copiedCell.get(index).formula().getTxt(),
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord()
+            );
+            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            cellSelector.getSelectedCell().formula().interpret(sheet);
+//            sheet.checkForDependents(cellSelector.getXCoord(),
+//                cellSelector.getYCoord());
         }
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();

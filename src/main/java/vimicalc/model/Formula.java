@@ -218,7 +218,8 @@ public class Formula extends Interpretable {
                     default -> {
                         if (func.contains(":") || func.contains("\\") || func.contains(";"))
                             continue;
-                        if ((isNumber(""+func.charAt(0)) || Mfuncs.contains(func.charAt(0))) &&
+                        if ((isNumber(""+func.charAt(0)) ||
+                                Mfuncs.contains(Character.toLowerCase(func.charAt(0)))) &&
                             Mfuncs.contains(func.charAt(func.length()-1)))
                             args[i] = cellToLexeme(
                                           relToAbsCoords(func, xC, yC),
