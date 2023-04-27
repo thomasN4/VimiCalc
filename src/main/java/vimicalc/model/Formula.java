@@ -220,7 +220,7 @@ public class Formula extends Interpretable {
                         if (func.contains(":") || func.contains("\\"))
                             continue;
                         if (isNumber(""+func.charAt(0)) &&
-                                 Mfuncs.contains(func.charAt(func.length()-1)))
+                            Mfuncs.contains(func.charAt(func.length()-1)))
                             args[i] = cellToLexeme(relToAbsCoords(func), sheet);
                         else args[i] = cellToLexeme(func, sheet);
                     }
