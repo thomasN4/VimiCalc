@@ -57,7 +57,7 @@ public class Conversions {
 //        return toAlpha(xC-1) + yC;
 //    }
 
-    public static String relToAbsCoords(String relC, int xRef, int yRef) {
+    public static String relToAbsCoords(@NotNull String relC, int xRef, int yRef) {
         String absC = "";
         StringBuilder deltaStr = new StringBuilder();
         int absX = 0, absY = 0, deltaX = 1, deltaY = 1, pos = 0;
