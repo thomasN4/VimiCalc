@@ -3,7 +3,9 @@ package vimicalc.model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import static vimicalc.controller.KeyCommand.Mfuncs;
 import static vimicalc.utils.Conversions.isNumber;
+import static vimicalc.utils.Conversions.relToAbsCoords;
 
 public class Formula extends Interpretable {
     public Formula(String txt, int xC, int yC) {
@@ -215,15 +217,12 @@ public class Formula extends Interpretable {
                             System.out.println("Not enough args.");
                     }
                     default -> {
-                        if (func.contains(":") || func.contains("\\")) {
+                        if (func.contains(":") || func.contains("\\"))
                             continue;
-                        }
-                        else if (Character.isAlphabetic(func.charAt(0)) &&
-                                 isNumber(""+func.charAt(func.length()-1)))
-                            args[i] = cellToLexeme(func, sheet);
-                        else {
-
-                        }
+                        if (isNumber(""+func.charAt(0)) &&
+                                 Mfuncs.contains(func.charAt(func.length()-1)))
+                            args[i] = cellToLexeme(relToAbsCoords(func), sheet);
+                        else args[i] = cellToLexeme(func, sheet);
                     }
                 }
                 if (reduction != 0) {

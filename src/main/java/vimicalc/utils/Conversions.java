@@ -52,4 +52,10 @@ public class Conversions {
 
         return new int[]{xCoord, yCoord};
     }
+
+    public static String relToAbsCoords(String relC) {
+        String absC = "";
+
+        return absC;
+    }
 }
