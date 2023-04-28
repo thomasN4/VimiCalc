@@ -464,6 +464,7 @@ public class Controller implements Initializable {
                     goTo(c.xCoord(), c.yCoord());
                     recordedCell.add(c.copy());
                     System.out.println(recordedCell.getLast());
+                    command.commandExists = true;
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
@@ -481,9 +482,10 @@ public class Controller implements Initializable {
                 cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                /*if (!command.commandExists()) {
+                if (!command.commandExists()) {
                     infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
-                }*/
+                }
+                System.out.println(recordedCell.size());
             }
             case BACK_SPACE -> {
                 if (command.getTxt().equals("")) {
@@ -824,6 +826,7 @@ public class Controller implements Initializable {
                 camera.ready();
                 currMode = Mode.NORMAL;
                 cellSelector.readCell(camera.picture.data());
+                if (cellSelector.getSelectedCell().txt() == null) recordedCell.removeLast();
             }
             case BACK_SPACE -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {
