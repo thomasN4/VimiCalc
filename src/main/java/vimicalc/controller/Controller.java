@@ -36,9 +36,7 @@ public class Controller implements Initializable {
     private Canvas canvas;
     protected static final LinkedList<Cell> recordedCell = new LinkedList<>();
     private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
-    protected static final HashMap<Integer, Cell> copiedCell = new HashMap<>();
-    protected static int visSize = 0;
-    protected static int cCounter = 0;
+    protected static ArrayList<Cell> copiedCell = new ArrayList<>();
     protected static int dCounter = 1;
     private static int fCounter = 1;
     protected static Camera camera;
@@ -516,11 +514,11 @@ public class Controller implements Initializable {
                 cellSelector.readCell(camera.picture.data());
             }
             case Y -> {
+                copiedCell.clear();
                 selectedCoords.forEach(coord -> {
                     goTo(coord[0], coord[1]);
-                    copiedCell.put(cCounter++ ,cellSelector.getSelectedCell().copy());
+                    copiedCell.add(cellSelector.getSelectedCell().copy());
                 });
-                visSize = selectedCoords.size();
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());

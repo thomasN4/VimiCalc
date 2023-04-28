@@ -248,7 +248,8 @@ public class KeyCommand {
                             if (cellSelector.getSelectedCell().txt() == null)
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                             else {
-                                copiedCell.put(cCounter++, cellSelector.getSelectedCell().copy());
+                                copiedCell.clear();
+                                copiedCell.add(cellSelector.getSelectedCell().copy());
                             }
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
@@ -262,32 +263,15 @@ public class KeyCommand {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
                         if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                         else {
-                            if (visSize != 0) {
-                                int tempCounter = 1;
-                                while(visSize != 0) {
-                                    paste(cCounter - visSize);
-                                    /*int xCoord = cellSelector.getXCoord() +
-                                            (copiedCell.get(cCounter - tempCounter).xCoord() -
-                                                    copiedCell.get(cCounter - (tempCounter * visSize)).xCoord());
-                                    int yCoord = cellSelector.getYCoord() +
-                                            (copiedCell.get(cCounter - tempCounter).yCoord() -
-                                                    copiedCell.get(cCounter - (tempCounter * visSize)).yCoord());
-                                    goTo(xCoord, yCoord);
-                                    tempCounter++;
-                                    visSize--;*/
-                                    if (copiedCell.get(cCounter - tempCounter).xCoord() <
-                                            copiedCell.get(cCounter - 2).xCoord()) moveLeft();
-                                    else if (copiedCell.get(cCounter - tempCounter).xCoord() >
-                                            copiedCell.get(cCounter - 2).xCoord()) moveRight();
-                                    else if (copiedCell.get(cCounter - tempCounter).yCoord()<
-                                            copiedCell.get(cCounter - 2).yCoord()) moveUp();
-                                    else if (copiedCell.get(cCounter - tempCounter).yCoord() >
-                                            copiedCell.get(cCounter - 2).yCoord()) moveDown();
-                                    tempCounter++;
-                                    visSize--;
+                            if (copiedCell.size() == 1) paste(0);
+                            else {
+                                for (int j = copiedCell.size() - 1; j > 0; j--) {
+                                    paste(j);
+                                    goTo(cellSelector.getXCoord() - (copiedCell.get(j).xCoord() - copiedCell.get(j - 1).xCoord()),
+                                            cellSelector.getYCoord() - (copiedCell.get(j).yCoord() - copiedCell.get(j - 1).yCoord()));
                                 }
-                                visSize = tempCounter - 1;
-                            } else paste(cCounter - 1);
+                                paste(0);
+                            }
                         }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
