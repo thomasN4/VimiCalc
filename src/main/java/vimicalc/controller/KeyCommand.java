@@ -61,12 +61,6 @@ public class KeyCommand {
                 infoBar.setCommandTxt(command.getTxt());
                 expr = ""; return;
             }
-            case C -> {
-                if (event.isControlDown()) {
-                    expr = "";
-                    return;
-                }
-            }
             case O -> {
                 if (event.isControlDown())
                     goTo(prevXCPos, prevYCPos);
