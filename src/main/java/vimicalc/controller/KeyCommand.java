@@ -10,6 +10,7 @@ import java.util.*;
 import static vimicalc.controller.Controller.*;
 import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
+import static vimicalc.view.InfoBar.keyStroke;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
@@ -46,14 +47,17 @@ public class KeyCommand {
             case INSERT -> c = 'i';
             case DELETE -> c = 'd';
             case EQUALS -> {
-                recordedCell.add(cellSelector.getSelectedCell().copy());
-                currMode = Mode.FORMULA;
-                if (cellSelector.getSelectedCell().formula() == null)
-                    cellSelector.getSelectedCell().setFormula(
-                        new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
-                    );
-                infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
-                expr = ""; return;
+                if (!event.isShiftDown()) {
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    currMode = Mode.FORMULA;
+                    if (cellSelector.getSelectedCell().formula() == null)
+                        cellSelector.getSelectedCell().setFormula(
+                                new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                        );
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                    expr = "";
+                    return;
+                }
             }
             case SEMICOLON -> {
                 currMode = Mode.COMMAND;
@@ -65,10 +69,17 @@ public class KeyCommand {
                 if (event.isControlDown())
                     goTo(prevXCPos, prevYCPos);
             }
+            case C -> {
+                if (event.isControlDown()) {
+                    expr = "";
+                    keyStroke = "";
+                    return;
+                }
+            }
         }
 
         if (c != 0) expr += c;
-        vimicalc.view.InfoBar.keyStroke = expr;
+        keyStroke = expr;
         evaluate(expr);
     }
 
@@ -176,6 +187,7 @@ public class KeyCommand {
                     }
                 }
                 case '<' -> {
+                    System.out.println("Entering conditional keyCommand...");
                     if (expr.length() > 5 && lastChar == '}' && expr.substring(0, expr.length()-1).contains("}")) {
                         StringBuilder cond = new StringBuilder(),
                                       thenBlock = new StringBuilder(),
