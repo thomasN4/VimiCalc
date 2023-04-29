@@ -2,13 +2,13 @@ package vimicalc.controller;
 
 import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.model.Cell;
 import vimicalc.model.Command;
 import vimicalc.model.Formula;
 
 import java.util.*;
 
 import static vimicalc.controller.Controller.*;
+import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
@@ -46,11 +46,6 @@ public class KeyCommand {
             case INSERT -> c = 'i';
             case DELETE -> c = 'd';
             case EQUALS -> {
-//                cellSelector.setSelectedCell(new Cell(
-//                    cellSelector.getXCoord(),
-//                    cellSelector.getYCoord(),
-//                    cellSelector.getSelectedCell().txt()
-//                ));
                 recordedCell.add(cellSelector.getSelectedCell().copy());
                 currMode = Mode.FORMULA;
                 if (cellSelector.getSelectedCell().formula() == null)
@@ -106,7 +101,9 @@ public class KeyCommand {
     }
 
     public void evaluate(@NotNull String expr) {
-        if (expr.equals("") || isNumber(""+expr.charAt(expr.length()-1))) return;
+        if (expr.equals("")) return;
+        char lastChar = expr.charAt(expr.length()-1);
+        if (isNumber(""+lastChar)) return;
         boolean evaluationFinished = false;
         int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1: indexe de la fonction, item 2: multiplicateur
 
@@ -200,6 +197,14 @@ public class KeyCommand {
                 case 'l' -> {
                     moveRight();
                     evaluationFinished = true;
+                }
+                case 'g' -> {
+                    if (expr.length() > 3 &&
+                        !isNumber(""+lastChar)) {
+                        int[] coords = coordsStrToInts(expr.substring(1, expr.length()-1));
+                        goTo(coords[0], coords[1]);
+                        evaluationFinished = true;
+                    }
                 }
                 case 'd' -> {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'd') {
