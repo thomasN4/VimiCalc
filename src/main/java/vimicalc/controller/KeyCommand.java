@@ -188,18 +188,18 @@ public class KeyCommand {
                 }
                 case '<' -> {
                     System.out.println("Entering conditional keyCommand...");
-                    if (expr.length() > 5 && lastChar == '}' && expr.substring(0, expr.length()-1).contains("}")) {
+                    if (expr.length() > 5 && lastChar == '}') {
                         StringBuilder cond = new StringBuilder(),
                                       thenBlock = new StringBuilder(),
                                       elseBlock = new StringBuilder();
                         int pos = 1;
                         for ( ; expr.charAt(pos) != '{'; ++pos)
                             cond.append(expr.charAt(pos));
-                        for (++pos; expr.charAt(pos) != '}'; ++pos)
+                        for (++pos; expr.charAt(pos) != '}' && expr.charAt(pos) != '{'; ++pos)
                             thenBlock.append(expr.charAt(pos));
                         if ((new Formula(cond.toString(), 0, 0)).interpret(sheet) % 2 == 1)
                             evaluate(thenBlock.toString());
-                        else {
+                        else if (expr.charAt(pos) == '{') {
                             for (pos += 2; expr.charAt(pos) != '}'; ++pos)
                                 elseBlock.append(expr.charAt(pos));
                             evaluate(elseBlock.toString());
