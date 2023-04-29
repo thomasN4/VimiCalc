@@ -185,10 +185,9 @@ public class KeyCommand {
                             cond.append(expr.charAt(pos));
                         for (++pos; expr.charAt(pos) != '}'; ++pos)
                             thenBlock.append(expr.charAt(pos));
-                        Formula f = new Formula(cond.toString(), 0, 0);
-                        if (f.interpret(sheet) % 2 == 1) {
+                        if ((new Formula(cond.toString(), 0, 0)).interpret(sheet) % 2 == 1)
                             evaluate(thenBlock.toString());
-                        } else {
+                        else {
                             for (pos += 2; expr.charAt(pos) != '}'; ++pos)
                                 elseBlock.append(expr.charAt(pos));
                             evaluate(elseBlock.toString());
