@@ -117,31 +117,28 @@ public class KeyCommand {
 
     public void evaluate(@NotNull String expr) {
         if (expr.equals("")) return;
-        char lastChar = expr.charAt(expr.length()-1);
-        if (isNumber(""+lastChar)) return;
-        boolean evaluationFinished = false;
+        char lastChar = expr.charAt(expr.length() - 1);
+        if (isNumber("" + lastChar)) return;
         int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1: indexe de la fonction, item 2: multiplicateur
 
-        if (fstFIandM[0] >= expr.length())
-            return;
+        if (fstFIandM[0] >= expr.length()) return;
         char fstFunc = expr.charAt(fstFIandM[0]);
 
-        if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length()-1))) {
+        if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length() - 1))) {
             System.out.println("Executing one of *these* KeyCommand functions...");
             ArrayList<String> tempMacro = new ArrayList<>();
-            tempMacro.add(fstFunc+""+fstFunc);
+            tempMacro.add(fstFunc + "" + fstFunc);
 
-            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0]+1, expr);
+            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0] + 1, expr);
             char sndFunc = expr.charAt(sndFIandM[0]);
-            if (sndFIandM[0] == expr.length()-1) {
+            if (sndFIandM[0] == expr.length() - 1) {
                 for (int i = 1; i <= sndFIandM[1]; i++) {
-                    tempMacro.add(""+sndFunc);
-                    tempMacro.add(fstFunc+""+fstFunc);
+                    tempMacro.add("" + sndFunc);
+                    tempMacro.add(fstFunc + "" + fstFunc);
                 }
-            }
-            else {
-                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0]+1, expr);
-                char trdFunc = expr.charAt(expr.length()-1);
+            } else {
+                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0] + 1, expr);
+                char trdFunc = expr.charAt(expr.length() - 1);
                 fstFIandM[1] *= trdFIandM[1];
                 sndFunc = Character.toLowerCase(sndFunc);
                 char invSndFunc = 0;
@@ -152,17 +149,17 @@ public class KeyCommand {
                     case 'l' -> invSndFunc = 'h';
                 }
                 for (int i = 1; i <= sndFIandM[1]; i++) {
-                    tempMacro.add(""+sndFunc);
-                    tempMacro.add(fstFunc+""+fstFunc);
+                    tempMacro.add("" + sndFunc);
+                    tempMacro.add(fstFunc + "" + fstFunc);
                 }
-                tempMacro.add(""+trdFunc);
-                tempMacro.add(sndFIandM[1]+""+ invSndFunc);
+                tempMacro.add("" + trdFunc);
+                tempMacro.add(sndFIandM[1] + "" + invSndFunc);
             }
 
             System.out.println("Special macro: " + tempMacro);
             for (int i = 0; i < fstFIandM[1]; i++) {
                 for (int j = 0; j < tempMacro.size(); j++) {
-                    if (i == fstFIandM[1]-1 && j == tempMacro.size()-1) {
+                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - 1) {
                         this.expr = "";
                         return;
                     } else evaluate(tempMacro.get(j));
@@ -174,15 +171,15 @@ public class KeyCommand {
             switch (fstFunc) {
                 case '$' -> {
                     if (expr.length() > 3 &&
-                        isNumber(""+expr.charAt(expr.length()-2)) &&
-                        !isNumber(""+lastChar)) {
+                            isNumber("" + expr.charAt(expr.length() - 2)) &&
+                            !isNumber("" + lastChar)) {
                         try {
                             evaluate("" +
-                                     (int) sheet.findCell(expr.substring(1, expr.length()-1)).value() +
-                                     lastChar);
-                            evaluationFinished = true;
+                                    (int) sheet.findCell(expr.substring(1, expr.length() - 1)).value() +
+                                    lastChar);
+                            this.expr = "";
                         } catch (Exception ignored) {
-                            evaluationFinished = true;
+                            this.expr = "";
                         }
                     }
                 }
@@ -190,10 +187,10 @@ public class KeyCommand {
                     System.out.println("Entering conditional keyCommand...");
                     if (expr.length() > 5 && lastChar == '}') {
                         StringBuilder cond = new StringBuilder(),
-                                      thenBlock = new StringBuilder(),
-                                      elseBlock = new StringBuilder();
+                                thenBlock = new StringBuilder(),
+                                elseBlock = new StringBuilder();
                         int pos = 1;
-                        for ( ; expr.charAt(pos) != '{'; ++pos)
+                        for (; expr.charAt(pos) != '{'; ++pos)
                             cond.append(expr.charAt(pos));
                         for (++pos; expr.charAt(pos) != '}' && expr.charAt(pos) != '{'; ++pos)
                             thenBlock.append(expr.charAt(pos));
@@ -204,60 +201,59 @@ public class KeyCommand {
                                 elseBlock.append(expr.charAt(pos));
                             evaluate(elseBlock.toString());
                         }
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case 'q' -> {
-                    if (!recordingMacro && expr.length()-1 > fstFIandM[0]) {
-                        char arg = expr.charAt(fstFIandM[0]+1);
+                    if (!recordingMacro && expr.length() - 1 > fstFIandM[0]) {
+                        char arg = expr.charAt(fstFIandM[0] + 1);
                         infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
                         currMacro = new LinkedList<>();
-                        macros.put(expr.charAt(fstFIandM[0]+1), currMacro);
+                        macros.put(expr.charAt(fstFIandM[0] + 1), currMacro);
                         recordingMacro = true;
-                        evaluationFinished = true;
-                    }
-                    else if (recordingMacro) {
+                        this.expr = "";
+                    } else if (recordingMacro) {
                         infoBar.setInfobarTxt("Macro recorded");
                         currMacro.removeLast();
                         System.out.println("Recorded macro: " + macroStr(currMacro));
                         recordingMacro = false;
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case '@' -> {
-                    if (expr.length() > fstFIandM[0]+1) {
-                        char arg = expr.charAt(fstFIandM[0]+1);
+                    if (expr.length() > fstFIandM[0] + 1) {
+                        char arg = expr.charAt(fstFIandM[0] + 1);
                         this.expr = "";
                         runMacro(arg);
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case 'h' -> {
                     moveLeft();
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'j' -> {
                     moveDown();
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'k' -> {
                     moveUp();
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'l' -> {
                     moveRight();
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'g' -> {
                     if (expr.length() > 3 &&
-                        !isNumber(""+lastChar)) {
-                        int[] coords = coordsStrToInts(expr.substring(1, expr.length()-1));
+                            !isNumber("" + lastChar)) {
+                        int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goTo(coords[0], coords[1]);
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case 'd' -> {
-                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'd') {
+                    if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'd') {
                         System.out.println("Trying to delete a cell's content...");
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
@@ -270,7 +266,7 @@ public class KeyCommand {
                             recordedCell.add(cellSelector.getSelectedCell().copy());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                         }
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case 'm' -> {
@@ -278,7 +274,7 @@ public class KeyCommand {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'u' -> {
                     if (!recordedCell.isEmpty() && !(dCounter >= recordedCell.size())) undo();
@@ -286,7 +282,7 @@ public class KeyCommand {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'r' -> {
                     if (!recordedCell.isEmpty() && !(dCounter <= 1)) redo();
@@ -294,11 +290,11 @@ public class KeyCommand {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'y' -> {
                     if (expr.length() > 1) {
-                        char arg1 = expr.charAt(fstFIandM[0]+1);
+                        char arg1 = expr.charAt(fstFIandM[0] + 1);
                         if (arg1 == 'y' || arg1 == 'd') {
                             if (cellSelector.getSelectedCell().txt() == null)
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
@@ -310,12 +306,12 @@ public class KeyCommand {
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
-                            evaluationFinished = true;
+                            this.expr = "";
                         }
                     }
                 }
                 case 'p' -> {
-                    if (expr.length() > 1 && expr.charAt(fstFIandM[0]+1) == 'p') {
+                    if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'p') {
                         if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                         else {
                             if (copiedCell.size() == 1) paste(0);
@@ -331,7 +327,7 @@ public class KeyCommand {
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
-                        evaluationFinished = true;
+                        this.expr = "";
                     }
                 }
                 case 'a', 'i' -> {
@@ -342,31 +338,29 @@ public class KeyCommand {
                     if (cellSelector.getSelectedCell().txt() == null)
                         cellSelector.getSelectedCell().setTxt("");
                     cellSelector.draw(gc);
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'v' -> {
                     currMode = Mode.VISUAL;
                     selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
-                    evaluationFinished = true;
+                    this.expr = "";
                 }
                 case 'Z' -> {
                     if (expr.length() > 1) {
-                        char arg = expr.charAt(fstFIandM[0]+1);
+                        char arg = expr.charAt(fstFIandM[0] + 1);
                         if (arg == 'Q')
                             command = new Command("q", 0, 0);
                         else if (arg == 'Z')
                             command = new Command("wq", 0, 0);
                         else {
-                            this.expr = ""; return;
+                            this.expr = "";
+                            return;
                         }
                         command.interpret(sheet);
                     }
                 }
-                default -> evaluationFinished = true;
+                default -> this.expr = "";
             }
         }
-
-        if (evaluationFinished)
-            this.expr = "";
     }
 }
