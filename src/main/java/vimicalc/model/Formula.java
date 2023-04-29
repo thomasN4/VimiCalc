@@ -21,6 +21,13 @@ public class Formula extends Interpretable {
             firstCoords.append(s.charAt(i));
         lastCoords = s.substring(i+1);
 
+        if (Mfuncs.contains(firstCoords.charAt(firstCoords.length()-1))) {
+            firstCoords = new StringBuilder(relToAbsCoords(firstCoords.toString(), xC, yC));
+        }
+        if (Mfuncs.contains(lastCoords.charAt(lastCoords.length()-1))) {
+            lastCoords = relToAbsCoords(lastCoords, xC, yC);
+        }
+
         int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
         int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
@@ -46,15 +53,22 @@ public class Formula extends Interpretable {
         return mat;
     }
 
-    protected Lexeme[] createVectorFromArea(@NotNull String coords, @NotNull Sheet sheet) {
+    protected Lexeme[] createVectorFromArea(@NotNull String coordsArea, @NotNull Sheet sheet) {
         sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
         int i = 0;
-        for ( ; coords.charAt(i) != ':' || coords.charAt(i) != ';'; i++)
-            firstCoords.append(coords.charAt(i));
-        lastCoords = coords.substring(i+1);
+        for (; coordsArea.charAt(i) != ':' || coordsArea.charAt(i) != ';'; i++)
+            firstCoords.append(coordsArea.charAt(i));
+        lastCoords = coordsArea.substring(i+1);
+
+        if (Mfuncs.contains(firstCoords.charAt(firstCoords.length()-1))) {
+            firstCoords = new StringBuilder(relToAbsCoords(firstCoords.toString(), xC, yC));
+        }
+        if (Mfuncs.contains(lastCoords.charAt(lastCoords.length()-1))) {
+            lastCoords = relToAbsCoords(lastCoords, xC, yC);
+        }
 
         int firstCoordX = sheet.findCell(firstCoords.toString()).xCoord();
         int firstCoordY = sheet.findCell(firstCoords.toString()).yCoord();
