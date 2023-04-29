@@ -200,7 +200,7 @@ public class KeyCommand {
                         if ((new Formula(cond.toString(), 0, 0)).interpret(sheet) != 0)
                             evaluate(thenBlock.toString());
                         else if (expr.charAt(pos) == '{') {
-                            for (pos += 2; expr.charAt(pos) != '}'; ++pos)
+                            for (pos += 1; expr.charAt(pos) != '}'; ++pos)
                                 elseBlock.append(expr.charAt(pos));
                             evaluate(elseBlock.toString());
                         }
