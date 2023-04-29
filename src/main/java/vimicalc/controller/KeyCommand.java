@@ -166,13 +166,34 @@ public class KeyCommand {
                         isNumber(""+expr.charAt(expr.length()-2)) &&
                         !isNumber(""+lastChar)) {
                         try {
-                            this.expr = "" +
-                                        (int) sheet.findCell(expr.substring(1, expr.length()-1)).value() +
-                                        lastChar;
-                            evaluate(this.expr);
+                            evaluate("" +
+                                     (int) sheet.findCell(expr.substring(1, expr.length()-1)).value() +
+                                     lastChar);
+                            evaluationFinished = true;
                         } catch (Exception ignored) {
                             evaluationFinished = true;
                         }
+                    }
+                }
+                case '<' -> {
+                    if (expr.length() > 5 && lastChar == '}' && expr.substring(0, expr.length()-1).contains("}")) {
+                        StringBuilder cond = new StringBuilder(),
+                                      thenBlock = new StringBuilder(),
+                                      elseBlock = new StringBuilder();
+                        int pos = 1;
+                        for ( ; expr.charAt(pos) != '{'; ++pos)
+                            cond.append(expr.charAt(pos));
+                        for (++pos; expr.charAt(pos) != '}'; ++pos)
+                            thenBlock.append(expr.charAt(pos));
+                        Formula f = new Formula(cond.toString(), 0, 0);
+                        if (f.interpret(sheet) % 2 == 1) {
+                            evaluate(thenBlock.toString());
+                        } else {
+                            for (pos += 2; expr.charAt(pos) != '}'; ++pos)
+                                elseBlock.append(expr.charAt(pos));
+                            evaluate(elseBlock.toString());
+                        }
+                        evaluationFinished = true;
                     }
                 }
                 case 'q' -> {
