@@ -164,12 +164,14 @@ public class KeyCommand {
         for (int i = 0; i < fstFIandM[1]; i++) {
             switch (fstFunc) {
                 case '$' -> {
-                    if (isNumber(""+expr.charAt(expr.length()-2)) &&
+                    if (expr.length() > 3 &&
+                        isNumber(""+expr.charAt(expr.length()-2)) &&
                         !isNumber(""+lastChar)) {
                         try {
                             this.expr = "" +
                                         (int) sheet.findCell(expr.substring(1, expr.length()-1)).value() +
                                         lastChar;
+                            evaluate(this.expr);
                         } catch (Exception ignored) {
                             evaluationFinished = true;
                         }
