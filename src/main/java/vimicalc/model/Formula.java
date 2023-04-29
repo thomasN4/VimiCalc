@@ -226,8 +226,17 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(1);
                             if (y.isFunction()) y.setVal(1);
                             reduced = new Lexeme(x.getVal() / y.getVal());
-                        } else
-                            System.out.println("Not enough args.");
+                        } else System.out.println("Not enough args.");
+                    }
+                    case "mod" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(1);
+                            if (y.isFunction()) y.setVal(1);
+                            reduced = new Lexeme(x.getVal() % y.getVal());
+                        } else System.out.println("Not enough args.");
                     }
                     default -> {
                         if (func.contains(":") || func.contains("\\") || func.contains(";"))
