@@ -67,6 +67,10 @@ public class KeyCommand {
                     return;
                 }
             }
+            case O -> {
+                if (event.isControlDown())
+                    goTo(prevXCPos, prevYCPos);
+            }
         }
 
         if (c != 0) expr += c;

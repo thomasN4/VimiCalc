@@ -311,7 +311,10 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
     }
 
+    public static int prevXCPos, prevYCPos;
     protected static void goTo(int xCoord, int yCoord) {
+        prevXCPos = cellSelector.getXCoord();
+        prevYCPos = cellSelector.getYCoord();
         while (xCoord - cellSelector.getXCoord() > 0)
             moveRight();
         while (xCoord - cellSelector.getXCoord() < 0)
@@ -920,6 +923,8 @@ public class Controller implements Initializable {
         keyCommand = new KeyCommand();
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         selectedCoords = new ArrayList<>();
+        prevXCPos = cellSelector.getXCoord();
+        prevYCPos = cellSelector.getYCoord();
 
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
