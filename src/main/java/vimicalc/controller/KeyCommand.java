@@ -61,6 +61,12 @@ public class KeyCommand {
                 infoBar.setCommandTxt(command.getTxt());
                 expr = ""; return;
             }
+            case C -> {
+                if (event.isControlDown()) {
+                    expr = "";
+                    return;
+                }
+            }
         }
 
         if (c != 0) expr += c;
@@ -157,6 +163,18 @@ public class KeyCommand {
 
         for (int i = 0; i < fstFIandM[1]; i++) {
             switch (fstFunc) {
+                case '$' -> {
+                    if (isNumber(""+expr.charAt(expr.length()-2)) &&
+                        !isNumber(""+lastChar)) {
+                        try {
+                            this.expr = "" +
+                                        (int) sheet.findCell(expr.substring(1, expr.length()-1)).value() +
+                                        lastChar;
+                        } catch (Exception ignored) {
+                            evaluationFinished = true;
+                        }
+                    }
+                }
                 case 'q' -> {
                     if (!recordingMacro && expr.length()-1 > fstFIandM[0]) {
                         char arg = expr.charAt(fstFIandM[0]+1);
