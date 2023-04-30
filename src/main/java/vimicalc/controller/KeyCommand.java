@@ -44,19 +44,6 @@ public class KeyCommand {
             }
             case INSERT -> c = 'i';
             case DELETE -> c = 'd';
-            case EQUALS -> {
-                if (!event.isShiftDown()) {
-                    recordedCell.add(cellSelector.getSelectedCell().copy());
-                    currMode = Mode.FORMULA;
-                    if (cellSelector.getSelectedCell().formula() == null)
-                        cellSelector.getSelectedCell().setFormula(
-                                new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
-                        );
-                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
-                    expr = "";
-                    return;
-                }
-            }
             case SEMICOLON -> {
                 currMode = Mode.COMMAND;
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
@@ -167,6 +154,16 @@ public class KeyCommand {
 
         for (int i = 0; i < fstFIandM[1]; i++) {
             switch (fstFunc) {
+                case '=' -> {
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    currMode = Mode.FORMULA;
+                    if (cellSelector.getSelectedCell().formula() == null)
+                        cellSelector.getSelectedCell().setFormula(
+                                new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                        );
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                    this.expr = "";
+                }
                 case '$' -> {
                     if (expr.length() > 3 &&
                             isNumber("" + expr.charAt(expr.length() - 2)) &&
@@ -244,7 +241,7 @@ public class KeyCommand {
                 }
                 case 'g' -> {
                     if (expr.length() > 3 &&
-                            !isNumber("" + lastChar)) {
+                        !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goTo(coords[0], coords[1]);
                         this.expr = ""+lastChar;
