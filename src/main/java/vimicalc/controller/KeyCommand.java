@@ -245,6 +245,7 @@ public class KeyCommand {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goTo(coords[0], coords[1]);
                         this.expr = ""+lastChar;
+                        evaluate(this.expr);
                     }
                 }
                 case 'd' -> {
