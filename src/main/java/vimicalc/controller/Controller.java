@@ -766,7 +766,7 @@ public class Controller implements Initializable {
                     } else {
                         removeList();
                         cellSelector.getSelectedCell().correctTxt(
-                                cellSelector.getSelectedCell().txt()
+                            cellSelector.getSelectedCell().txt()
                         );
                         sheet.addCell(cellSelector.getSelectedCell().copy());
                     }

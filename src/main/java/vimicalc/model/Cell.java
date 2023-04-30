@@ -149,9 +149,6 @@ public class Cell implements Serializable {
         else
             txt = String.valueOf((int) result);
         value = result;
-        if (isNumber(formula.getTxt()))
-            this.formula = null;
-        else this.formula = formula;
     }
 
     public DecimalFormat getFormat() {
