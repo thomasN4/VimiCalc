@@ -917,10 +917,10 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         macros = new HashMap<>();
-        reset();
+        reset(new HashMap<>(), new HashMap<>());
     }
 
-    public static void reset() {
+    public static void reset(HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         camera = new Camera(
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
@@ -928,13 +928,17 @@ public class Controller implements Initializable {
             CANVAS_H-3*DEFAULT_CELL_H-4,
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
-            DEFAULT_CELL_H
-        );
-        cellSelector = new CellSelector(
-            2*DEFAULT_CELL_W,
-            2*DEFAULT_CELL_H,
-            DEFAULT_CELL_W,
             DEFAULT_CELL_H,
+            xOffsets,
+            yOffsets
+        );
+        selectedCoords = new ArrayList<>();
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+        cellSelector = new CellSelector(
+            camera.picture.metadata().getCellAbsXs()[2],
+            camera.picture.metadata().getCellAbsYs()[2],
+            camera.picture.metadata().getCellAbsXs()[2] - camera.picture.metadata().getCellAbsYs()[1],
+            camera.picture.metadata().getCellAbsYs()[2] - camera.picture.metadata().getCellAbsYs()[1],
             Color.DARKGRAY,
             camera.picture.metadata()
         );
@@ -979,11 +983,9 @@ public class Controller implements Initializable {
         currMode = Mode.NORMAL;
         keyCommand = new KeyCommand();
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-        selectedCoords = new ArrayList<>();
         prevXCPos = cellSelector.getXCoord();
         prevYCPos = cellSelector.getYCoord();
 
-        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         coordsCell.draw(gc);

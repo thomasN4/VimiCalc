@@ -10,11 +10,12 @@ public class Metadata {
     private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
 
-    public Metadata(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH) {
+    public Metadata(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
+                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         this.camAbsX = camAbsX;
         this.camAbsY = camAbsY;
-        this.xOffsets = new HashMap<>();
-        this.yOffsets = new HashMap<>();
+        this.xOffsets = xOffsets;
+        this.yOffsets = yOffsets;
         this.picW = picW;
         this.picH = picH;
         this.DCW = DCW;

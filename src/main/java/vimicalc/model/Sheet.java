@@ -249,9 +249,9 @@ public class Sheet {
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
 
-        Controller.reset();
-        if (newXOffsets != null) picMetadata.setxOffsets(newXOffsets);
-        if (newYOffsets != null) picMetadata.setyOffsets(newYOffsets);
+        newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
+        newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
+        Controller.reset(newXOffsets, newYOffsets);
         iStream.close();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());

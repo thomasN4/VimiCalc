@@ -19,11 +19,12 @@ public class Picture extends Visible {
 
     private final Metadata metadata;
 
-    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY) {
+    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
+                   HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         super(x, y, w, h, c);
         this.DCW = DCW;
         this.DCH = DCH;
-        metadata = new Metadata(camAbsX, camAbsY, w, h, DCW, DCH);
+        metadata = new Metadata(camAbsX, camAbsY, w, h, DCW, DCH, xOffsets, yOffsets);
     }
 
     public ArrayList<Cell> data() {
