@@ -69,12 +69,12 @@ public class Controller implements Initializable {
 
     public static boolean goingToMergeStart = false;
     private static void maybeGoToMergeStart(/*Cell prevCell*/) {
-        System.out.println("====maybeGoToMergeStart====");
+//        System.out.println("====maybeGoToMergeStart====");
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().isMergeStart() &&
             !goingToMergeStart) {
-            System.out.println("Going to mergeStart...");
+//            System.out.println("Going to mergeStart...");
             Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
 //                 prevMergeDel = prevCell.getMergeDelimiter();
 //            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
@@ -308,6 +308,7 @@ public class Controller implements Initializable {
                     recordedCell.get(listIndex).value())
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
         } else {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -315,9 +316,10 @@ public class Controller implements Initializable {
                 cellSelector.getSelectedCell().txt()
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
         }
         sheet.addCell(cellSelector.getSelectedCell());
-        cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
     }
 
     public static int prevXCPos, prevYCPos;

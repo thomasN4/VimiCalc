@@ -105,12 +105,6 @@ public class CellSelector extends Visible {
                         picMetadata.getCellAbsYs()[yCoord];
                 }
                 setDimensions();
-                if (c.txt() != null) {
-                    try {
-                        if (c.value() - Math.floor(c.value()) != 0)
-                            selectedCell.setTxt(String.valueOf(c.value()));
-                    } catch (Exception ignored) {}
-                }
                 return;
             }
         }

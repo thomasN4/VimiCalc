@@ -144,8 +144,14 @@ public class Cell implements Serializable {
     }
 
     public void setFormulaResult(double result, Formula formula) {
-        if (result - ((int) result) != 0.0) txt = format.format(result);
-        else txt = "" + (int) result;
+        if (result - ((int) result) != 0.0) {
+            System.out.println("Formula result isn't an int");
+            txt = format.format(result);
+        }
+        else {
+            System.out.println("Formula result is an int");
+            txt = "" + (int) result;
+        }
         value = result;
         this.formula = formula;
     }
