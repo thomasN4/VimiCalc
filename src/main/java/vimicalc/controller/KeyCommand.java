@@ -315,7 +315,7 @@ public class KeyCommand {
                                 for (int j = copiedCell.size() - 1; j > 0; j--) {
                                     paste(j);
                                     goTo(cellSelector.getXCoord() - (copiedCell.get(j).xCoord() - copiedCell.get(j - 1).xCoord()),
-                                            cellSelector.getYCoord() - (copiedCell.get(j).yCoord() - copiedCell.get(j - 1).yCoord()));
+                                         cellSelector.getYCoord() - (copiedCell.get(j).yCoord() - copiedCell.get(j - 1).yCoord()));
                                 }
                                 paste(0);
                             }

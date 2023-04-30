@@ -771,6 +771,7 @@ public class Controller implements Initializable {
                         sheet.addCell(cellSelector.getSelectedCell().copy());
                     }
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     currMode = Mode.NORMAL;
                 }
