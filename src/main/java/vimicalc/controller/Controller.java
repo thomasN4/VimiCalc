@@ -755,9 +755,55 @@ public class Controller implements Initializable {
     private static void textInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
-                cellSelector.readCell(camera.picture.data());
-                currMode = Mode.NORMAL;
-                recordedCell.removeLast();
+                if (event.isShiftDown()) {
+                    cellSelector.readCell(camera.picture.data());
+                    currMode = Mode.NORMAL;
+                    recordedCell.removeLast();
+                }
+                else {
+                    if (cellSelector.getSelectedCell().txt() == null) {
+                        infoBar.setInfobarTxt("CELL IS EMPTY");
+                    } else {
+                        removeList();
+                        cellSelector.getSelectedCell().correctTxt(
+                                cellSelector.getSelectedCell().txt()
+                        );
+                        sheet.addCell(cellSelector.getSelectedCell().copy());
+                    }
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    currMode = Mode.NORMAL;
+                }
+            }
+            case H, J, K, L -> {
+                if (event.isAltDown()) {
+                    if (cellSelector.getSelectedCell().txt() == null) {
+                        infoBar.setInfobarTxt("CELL IS EMPTY");
+                    } else {
+                        removeList();
+                        cellSelector.getSelectedCell().correctTxt(
+                                cellSelector.getSelectedCell().txt()
+                        );
+                        sheet.addCell(cellSelector.getSelectedCell().copy());
+                    }
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    switch (event.getCode()) {
+                        case H -> moveLeft();
+                        case J -> moveDown();
+                        case K -> moveUp();
+                        case L -> moveRight();
+                    }
+                    reinitialiseCell();
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    cellSelector.readCell(camera.picture.data());
+                    if (cellSelector.getSelectedCell().txt() == null)
+                        cellSelector.getSelectedCell().setTxt("");
+                    cellSelector.draw(gc);
+                } else {
+                    cellSelector.draw(gc, event.getText());
+                    infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                }
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
                 if (cellSelector.getSelectedCell().txt() == null) {
@@ -805,6 +851,51 @@ public class Controller implements Initializable {
                 currMode = Mode.NORMAL;
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 recordedCell.removeLast();
+            }
+            case H, J, K, L -> {
+                if (event.isAltDown()) {
+                    if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
+                        infoBar.setInfobarTxt("CELL IS EMPTY");
+                    else {
+                        removeList();
+                        cellSelector.getSelectedCell().setFormulaResult(
+                            cellSelector.getSelectedCell().formula().interpret(sheet),
+                            cellSelector.getSelectedCell().formula()
+                        );
+                        recordedCell.add(cellSelector.getSelectedCell().copy());
+                        sheet.addCell(cellSelector.getSelectedCell());
+                    }
+                    if (recordedCell.getLast().formula() != null) {
+                        recordedFormula.add(cellSelector.getSelectedCell().formula());
+                        infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
+                        if (cellSelector.getSelectedCell().value() == 0.0) {
+                            infoBar.setInfobarTxt("I");
+                        }
+                    }
+                    else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    if (cellSelector.getSelectedCell().txt() == null) recordedCell.removeLast();
+                    switch (event.getCode()) {
+                        case H -> moveLeft();
+                        case J -> moveDown();
+                        case K -> moveUp();
+                        case L -> moveRight();
+                    }
+                    recordedCell.add(cellSelector.getSelectedCell().copy());
+                    currMode = Mode.FORMULA;
+                    if (cellSelector.getSelectedCell().formula() == null)
+                        cellSelector.getSelectedCell().setFormula(
+                            new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                        );
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                } else {
+                    cellSelector.getSelectedCell().formula().setTxt(
+                        cellSelector.getSelectedCell().formula().getTxt() +
+                            event.getText()
+                    );
+                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                }
             }
             case ENTER -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
