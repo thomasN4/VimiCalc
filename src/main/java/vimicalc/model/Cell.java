@@ -10,8 +10,8 @@ import static vimicalc.utils.Conversions.isNumber;
 import static vimicalc.utils.Conversions.toAlpha;
 
 public class Cell implements Serializable {
-    private final int xCoord;
-    private final int yCoord;
+    private int xCoord;
+    private int yCoord;
     private String txt;
     private Formula formula;
     private Double value;
@@ -123,6 +123,14 @@ public class Cell implements Serializable {
 
     public void setTxt(String txt) {
         this.txt = txt;
+    }
+
+    public void setXCoord(int xCoord) {
+        this.xCoord = xCoord;
+    }
+
+    public void setYCoord(int yCoord) {
+        this.yCoord = yCoord;
     }
 
     public void correctTxt(String txt) {

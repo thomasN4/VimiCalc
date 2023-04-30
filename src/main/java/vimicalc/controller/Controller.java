@@ -316,6 +316,7 @@ public class Controller implements Initializable {
     }
 
     protected static void paste(int index) {
+        System.out.println("Pasting cell " + clipboard.get(index));
         recordedCell.add(cellSelector.getSelectedCell().copy());
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
         if (clipboard.get(index).formula() != null) {
@@ -327,6 +328,8 @@ public class Controller implements Initializable {
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
             cellSelector.getSelectedCell().formula().interpret(sheet);
         } else cellSelector.setSelectedCell(clipboard.get(index).copy());
+        cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
+        cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
         writeToInfobar();
 //        else if (clipboard.get(index).value() != null) {
 //            cellSelector.setSelectedCell(clipboard.get(index).copy());
