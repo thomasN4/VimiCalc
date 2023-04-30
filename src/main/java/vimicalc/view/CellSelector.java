@@ -18,8 +18,8 @@ public class CellSelector extends Visible {
     public CellSelector(int x, int y, int w, int h, Color c, Metadata picMetadata) {
         super(x, y, w, h, c);
         this.picMetadata = picMetadata;
-        xCoord = x/w;
-        yCoord = y/h;
+        xCoord = 2;
+        yCoord = 2;
         selectedCell = new Cell(xCoord, yCoord);
     }
 

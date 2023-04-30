@@ -41,7 +41,7 @@ public class Metadata {
 
         do {
             xOffset = (xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC);
-            if (!firstXCFound && currAbsX > xInnerEdge + xOffset) {
+            if (!firstXCFound && currAbsX > xInnerEdge) {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
