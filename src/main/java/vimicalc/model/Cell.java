@@ -52,7 +52,7 @@ public class Cell implements Serializable {
         this.value = value;
         int valInt = (int) value;
         if (valInt - value == 0.0)
-            txt = String.valueOf(valInt);
+            txt = ""+valInt;
         else
             txt = format.format(value);
     }
@@ -144,10 +144,8 @@ public class Cell implements Serializable {
     }
 
     public void setFormulaResult(double result, Formula formula) {
-        if (result - ((int) result) != 0.0)
-            txt = format.format(result);
-        else
-            txt = String.valueOf((int) result);
+        if (result - ((int) result) != 0.0) txt = format.format(result);
+        else txt = "" + (int) result;
         value = result;
         this.formula = formula;
     }
