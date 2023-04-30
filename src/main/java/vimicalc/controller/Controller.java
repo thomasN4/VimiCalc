@@ -807,7 +807,6 @@ public class Controller implements Initializable {
                             cellSelector.getSelectedCell().txt().length() - 1)
                     );
                     cellSelector.draw(gc);
-                    infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 }
             }
             default -> cellSelector.draw(gc, event.getText());
