@@ -1,0 +1,7 @@
+a: gI2 i0[ESC] yy l p2l i1[ALT+L] 0[ENTER] h gA99=0_0_+[ENTER][CTRL+O] gB99=3_0_+[ENTER][CTRL+O] gC99[write the formula below][ENTER][CTRL+O]
+
+C99: (=(kh k * kl *) (kh k 1 + 2 mod * kl 1 + 2 mod *) + (kh k * kl * 1 + 2 mod) + 1 + 2 mod)
+
+b: <A99_B99_-{j $A99l ga99=_1_+[ENTER][CTRL+O]{gC99 yy [CTRL+O] pp h}
+
+c: @a $A1@b
