@@ -355,7 +355,6 @@ public class Controller implements Initializable {
                 cellSelector.getYCoord(),
                 copiedCell.get(index).value()
             ));
-            sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.get(index).value() + "");
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
@@ -364,10 +363,10 @@ public class Controller implements Initializable {
                 cellSelector.getYCoord(),
                 cellSelector.getSelectedCell().txt()
             ));
-            sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(copiedCell.get(index).txt());
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
+        sheet.addCell(cellSelector.getSelectedCell());
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
     }
