@@ -314,13 +314,8 @@ class Dependency implements Serializable {
     void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
         if (c.formula() != null) {
-            sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
-            sheet.getCells().add(new Cell(
-                xCoord,
-                yCoord,
-                c.formula().interpret(sheet),
-                c.formula()
-            ));
+            c.setFormulaResult(c.formula().interpret(sheet), c.formula());
+            sheet.simplyAddCell(c);
         }
         else if (c.txt() == null) {
             sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
