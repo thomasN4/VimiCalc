@@ -869,9 +869,7 @@ public class Controller implements Initializable {
             CANVAS_H-3*DEFAULT_CELL_H-4,
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            new HashMap<>(),
-            new HashMap<>()
+            DEFAULT_CELL_H
         );
         cellSelector = new CellSelector(
             2*DEFAULT_CELL_W,

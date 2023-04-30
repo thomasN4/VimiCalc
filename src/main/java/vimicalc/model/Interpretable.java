@@ -2,9 +2,11 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 import static vimicalc.utils.Conversions.isNumber;
 
-abstract class Interpretable {
+abstract class Interpretable implements Serializable {
     protected int xC;  // Coordonnée x de la cellule associée
     protected int yC;
     protected String txt;

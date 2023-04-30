@@ -2,13 +2,14 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static vimicalc.utils.Conversions.isNumber;
 import static vimicalc.utils.Conversions.toAlpha;
 
-public class Cell {
+public class Cell implements Serializable {
     private final int xCoord;
     private final int yCoord;
     private String txt;

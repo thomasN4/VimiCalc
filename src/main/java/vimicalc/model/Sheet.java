@@ -1,20 +1,20 @@
 package vimicalc.model;
 
+import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
 import vimicalc.view.Metadata;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
+import static vimicalc.controller.KeyCommand.macros;
 import static vimicalc.utils.Conversions.*;
 
 public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
-    private final ArrayList<Dependency> dependencies;
+    private ArrayList<Dependency> dependencies;
     private Metadata picMetadata;
 
     public Sheet() {
@@ -191,60 +191,108 @@ public class Sheet {
 
     public void writeFile(@NotNull String path) throws IOException {
         if (!path.endsWith(".wss")) path += ".wss";
-        BufferedWriter fW = new BufferedWriter(new FileWriter(path));
-        fW.write("xCoord,yCoord,data,formula,merge_delimiter,is_merge_head\n");
-        fW.flush();
-        cells.forEach(c -> {
-            try {
-                String data, mergeStatus, isMergeHead, frmlTxt = "null";
-                if (c.value() != 0) data = String.valueOf(c.value());
-                else data = c.txt();
-                if (c.formula() != null) frmlTxt = c.formula().getTxt();
-                if (c.getMergeDelimiter() == null)
-                    mergeStatus = "unmerged";
-                else
-                    mergeStatus = toAlpha(c.getMergeDelimiter().xCoord()) +
-                                  c.getMergeDelimiter().yCoord();
-                if (c.isMergeStart())
-                    isMergeHead = "true";
-                else isMergeHead = "false";
-                fW.write(
-                   toAlpha(c.xCoord()) + "," +
-                    c.yCoord() + "," +
-                    data + "," +
-                    frmlTxt + "," +
-                    mergeStatus + "," +
-                    isMergeHead  + "\n"
-                );
-                fW.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        fW.write("*****\n");
-        fW.flush();
+        System.out.println("Saving file " + path + "...");
+//        BufferedWriter fW = new BufferedWriter(new FileWriter(path));
+//        fW.write("xCoord,yCoord,data,formula,merge_delimiter,is_merge_head\n");
+//        fW.flush();
+//        cells.forEach(c -> {
+//            try {
+//                String data, mergeStatus, isMergeHead, frmlTxt = "null";
+//                if (c.value() != 0) data = String.valueOf(c.value());
+//                else data = c.txt();
+//                if (c.formula() != null) frmlTxt = c.formula().getTxt();
+//                if (c.getMergeDelimiter() == null)
+//                    mergeStatus = "unmerged";
+//                else
+//                    mergeStatus = toAlpha(c.getMergeDelimiter().xCoord()) +
+//                                  c.getMergeDelimiter().yCoord();
+//                if (c.isMergeStart())
+//                    isMergeHead = "true";
+//                else isMergeHead = "false";
+//                fW.write(
+//                   toAlpha(c.xCoord()) + "," +
+//                    c.yCoord() + "," +
+//                    data + "," +
+//                    frmlTxt + "," +
+//                    mergeStatus + "," +
+//                    isMergeHead  + "\n"
+//                );
+//                fW.flush();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//        fW.write("*****\n");
+//        fW.flush();
+//
+//        for (HashMap.Entry<Integer, Integer> set : picMetadata.getxOffsets().entrySet()) {
+//            int key = set.getKey(), value = set.getValue();
+//            fW.write(key + ", " + value + "\n");
+//            fW.flush();
+//        }
+//
+//        fW.write("*****\n");
+//        fW.flush();
+//        for (HashMap.Entry<Integer, Integer> set : picMetadata.getyOffsets().entrySet()) {
+//            int key = set.getKey(), value = set.getValue();
+//            fW.write(key + ", " + value + "\n");
+//            fW.flush();
+//        }
+//
+//        fW.write("*****\n");
+//        fW.flush();
 
-        for (HashMap.Entry<Integer, Integer> set : picMetadata.getxOffsets().entrySet()) {
-            int key = set.getKey(), value = set.getValue();
-            fW.write(key + ", " + value + "\n");
-            fW.flush();
-        }
-        fW.write("*****\n");
-        fW.flush();
-        for (HashMap.Entry<Integer, Integer> set : picMetadata.getyOffsets().entrySet()) {
-            int key = set.getKey(), value = set.getValue();
-            fW.write(key + ", " + value + "\n");
-            fW.flush();
+        ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(path));
+
+        try {
+//            for (Cell c : cells) {
+//                oStream.writeObject(c);
+//                oStream.flush();
+//            }
+//
+//            for (HashMap.Entry<Integer, Integer> set : picMetadata.getxOffsets().entrySet()) {
+//                oStream.writeObject(set);
+//                oStream.flush();
+//            }
+//            for (HashMap.Entry<Integer, Integer> set : picMetadata.getyOffsets().entrySet()) {
+//                oStream.writeObject(set);
+//                oStream.flush();
+//            }
+//
+//            for (HashMap.Entry<Character, LinkedList<KeyEvent>> set : macros.entrySet()) {
+//                oStream.writeChar(set.getKey());
+//                oStream.flush();
+//                for (KeyEvent k : set.getValue()) {
+//                    oStream.writeObject(k);
+//                    oStream.flush();
+//                }
+//            }
+            oStream.writeUTF("\n====Cells====\n"); oStream.flush();
+            oStream.writeObject(cells); oStream.flush();
+
+            oStream.writeUTF("\n\n====Dependencies====\n"); oStream.flush();
+            oStream.writeObject(dependencies); oStream.flush();
+
+            oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
+            oStream.writeObject(picMetadata.getxOffsets()); oStream.flush();
+
+            oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
+            oStream.writeObject(picMetadata.getyOffsets()); oStream.flush();
+
+            oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
+            oStream.writeObject(macros); oStream.flush();
+        } catch (Exception e) {
+            System.out.println("Error while saving file: " + Arrays.toString(e.getStackTrace()));
         }
 
-        fW.close();
+        oStream.close();
+//        fW.close();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());
     }
 
     public void readFile(String path) throws Exception {
-        cells = new ArrayList<>();
-        BufferedReader fR = new BufferedReader(new FileReader(path));
+//        BufferedReader fR = new BufferedReader(new FileReader(path));
         if (!path.endsWith(".wss")) {
             /* On va devoir afficher cela dans le infobar, de manière optimale.
              * Je suggère d'avoir une variable statique pour le texte d'infobar, au lieu
@@ -252,112 +300,137 @@ public class Sheet {
             String errorMessage = "File is not of .wss format";
             throw new Exception(errorMessage);
         }
+        ObjectInputStream iStream = new ObjectInputStream(new FileInputStream(path));
 
-        int b, prevB = 0;
-        char c = '\0';
-        String[] cellItems = new String[6];
-        for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
-        byte pos = 0;
-
-        while (c != '\n') {
-            c = (char) fR.read();
+//        int b, prevB = 0;
+//        char c = '\0';
+//        String[] cellItems = new String[6];
+//        for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
+//        byte pos = 0;
+//
+//        while (c != '\n') {
+//            c = (char) fR.read();
+//        }
+//
+//        while (true) {
+//            b = fR.read();
+//            if (b == '*' && prevB == '\n') break;
+//            else c = (char) b;
+//
+//            if (c == ',') pos++;
+//            else if (c == '\n') {
+//                System.out.println("Cell items: " + Arrays.toString(cellItems));
+//                pos = 0;
+//                int xCoord = fromAlpha(cellItems[0]);
+//                int yCoord = Integer.parseInt(cellItems[1]);
+//                Formula f = new Formula(cellItems[3], xCoord, yCoord);
+//                Cell cell;
+//                if (!cellItems[3].equals("null"))
+//                    cell = new Cell(
+//                        xCoord,
+//                        yCoord,
+//                        f.interpret(this),
+//                        f
+//                    );
+//                else cell = new Cell(
+//                    xCoord,
+//                    yCoord,
+//                    cellItems[2]
+//                );
+//                if (!cellItems[4].equals("unmerged"))
+//                    cell.mergeWith(findCell(cellItems[4]));
+//                if (cellItems[5].equals("true"))
+//                    cell.setMergeStart(true);
+//                addCell(cell.copy());
+//                cellItems = new String[6];
+//                for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
+//            } else cellItems[pos] += c;
+//            prevB = b;
+//        }
+//        while (b == '*') b = fR.read();
+//
+//        StringBuilder xC = new StringBuilder(),
+//                      yC = new StringBuilder(),
+//                      xOffset = new StringBuilder(),
+//                      yOffset = new StringBuilder();
+//        boolean readingXC = true, readingYC = true;
+//        picMetadata.getxOffsets().clear();
+//        picMetadata.getyOffsets().clear();
+//
+//        while (true) {
+//            b = fR.read();
+//            if (b == '*' && prevB == '\n') break;
+//            if (b == ',')
+//                readingXC = false;
+//
+//            if (readingXC)
+//                xC.append(b);
+//            else
+//                xOffset.append(b);
+//
+//            if (b == '\n') {
+//                picMetadata.getxOffsets().put(Integer.parseInt(xC.toString()),
+//                                              Integer.parseInt(xOffset.toString()));
+//                xC = new StringBuilder();
+//                xOffset = new StringBuilder();
+//                readingXC = true;
+//            }
+//            prevB = b;
+//        }
+//        while (b == '*') b = fR.read();
+//
+//        while (true) {
+//            b = fR.read();
+//            if (b == -1) break;
+//            if (b == ',')
+//                readingYC = false;
+//
+//            if (readingYC)
+//                yC.append(b);
+//            else
+//                yOffset.append(b);
+//
+//            if (b == '\n') {
+//                picMetadata.getyOffsets().put(Integer.parseInt(yC.toString()),
+//                                              Integer.parseInt(yOffset.toString()));
+//                yC = new StringBuilder();
+//                yOffset = new StringBuilder();
+//                readingYC = true;
+//            }
+//        }
+//
+//        fR.close();
+        HashMap<Integer, Integer> newXOffsets = null;
+        HashMap<Integer, Integer> newYOffsets = null;
+        try {
+            iStream.readUTF();
+            cells = null;
+            cells = (ArrayList<Cell>) iStream.readObject();
+            iStream.readUTF();
+            dependencies = null;
+            dependencies = (ArrayList<Dependency>) iStream.readObject();
+            iStream.readUTF();
+            newXOffsets = (HashMap<Integer, Integer>) iStream.readObject();
+            iStream.readUTF();
+            newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
+            iStream.readUTF();
+            macros = null;
+            macros = (HashMap<Character, LinkedList<KeyEvent>>) iStream.readObject();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(Arrays.toString(e.getStackTrace()));
         }
 
-        while (true) {
-            b = fR.read();
-            if (b == '*' && prevB == '\n') break;
-            else c = (char) b;
-
-            if (c == ',') pos++;
-            else if (c == '\n') {
-                System.out.println("Cell items: " + Arrays.toString(cellItems));
-                pos = 0;
-                int xCoord = fromAlpha(cellItems[0]);
-                int yCoord = Integer.parseInt(cellItems[1]);
-                Formula f = new Formula(cellItems[3], xCoord, yCoord);
-                Cell cell;
-                if (!cellItems[3].equals("null"))
-                    cell = new Cell(
-                        xCoord,
-                        yCoord,
-                        f.interpret(this),
-                        f
-                    );
-                else cell = new Cell(
-                    xCoord,
-                    yCoord,
-                    cellItems[2]
-                );
-                if (!cellItems[4].equals("unmerged"))
-                    cell.mergeWith(findCell(cellItems[4]));
-                if (cellItems[5].equals("true"))
-                    cell.setMergeStart(true);
-                addCell(cell.copy());
-                cellItems = new String[6];
-                for (byte i = 0; i < cellItems.length; i++) cellItems[i] = "";
-            } else cellItems[pos] += c;
-            prevB = b;
-        }
-        while (b == '*') b = fR.read();
-
-        StringBuilder xC = new StringBuilder(),
-                      yC = new StringBuilder(),
-                      xOffset = new StringBuilder(),
-                      yOffset = new StringBuilder();
-        boolean readingXC = true, readingYC = true;
-        picMetadata.getxOffsets().clear();
-        picMetadata.getyOffsets().clear();
-
-        while (true) {
-            b = fR.read();
-            if (b == '*' && prevB == '\n') break;
-            if (b == ',')
-                readingXC = false;
-
-            if (readingXC)
-                xC.append(b);
-            else
-                xOffset.append(b);
-
-            if (b == '\n') {
-                picMetadata.getxOffsets().put(Integer.parseInt(xC.toString()),
-                                              Integer.parseInt(xOffset.toString()));
-                xC = new StringBuilder();
-                xOffset = new StringBuilder();
-                readingXC = true;
-            }
-            prevB = b;
-        }
-        while (b == '*') b = fR.read();
-
-        while (true) {
-            b = fR.read();
-            if (b == -1) break;
-            if (b == ',')
-                readingYC = false;
-
-            if (readingYC)
-                yC.append(b);
-            else
-                yOffset.append(b);
-
-            if (b == '\n') {
-                picMetadata.getyOffsets().put(Integer.parseInt(yC.toString()),
-                                              Integer.parseInt(yOffset.toString()));
-                yC = new StringBuilder();
-                yOffset = new StringBuilder();
-                readingYC = true;
-            }
-        }
-
-        fR.close();
         Controller.reset();
+        if (newXOffsets != null) picMetadata.setxOffsets(newXOffsets);
+        if (newYOffsets != null) picMetadata.setyOffsets(newYOffsets);
+        iStream.close();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());
     }
 }
 
-class Dependency {
+class Dependency implements Serializable {
     final int xCoord, yCoord;
     boolean toBeEvaluated;
     final ArrayList<Dependency> dependents;

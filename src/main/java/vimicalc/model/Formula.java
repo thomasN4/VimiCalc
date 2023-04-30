@@ -3,6 +3,8 @@ package vimicalc.model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 import static vimicalc.controller.KeyCommand.Mfuncs;
 import static vimicalc.utils.Conversions.*;
 

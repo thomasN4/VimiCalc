@@ -6,18 +6,15 @@ import java.util.HashMap;
 public class Metadata {
     private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC;
     private final int picW, picH, DCW, DCH;
-    private final HashMap<Integer, Integer> xOffsets;
-    private final HashMap<Integer, Integer> yOffsets;
+    private HashMap<Integer, Integer> xOffsets;
+    private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
 
-    public Metadata(int camAbsX, int camAbsY,
-                    HashMap<Integer, Integer> xOffsets,
-                    HashMap<Integer, Integer> yOffsets,
-                    int picW, int picH, int DCW, int DCH) {
+    public Metadata(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH) {
         this.camAbsX = camAbsX;
         this.camAbsY = camAbsY;
-        this.xOffsets = xOffsets;
-        this.yOffsets = yOffsets;
+        this.xOffsets = new HashMap<>();
+        this.yOffsets = new HashMap<>();
         this.picW = picW;
         this.picH = picH;
         this.DCW = DCW;
@@ -143,5 +140,13 @@ public class Metadata {
 
     public HashMap<Integer, Integer> getyOffsets() {
         return yOffsets;
+    }
+
+    public void setxOffsets(HashMap<Integer, Integer> xOffsets) {
+        this.xOffsets = xOffsets;
+    }
+
+    public void setyOffsets(HashMap<Integer, Integer> yOffsets) {
+        this.yOffsets = yOffsets;
     }
 }

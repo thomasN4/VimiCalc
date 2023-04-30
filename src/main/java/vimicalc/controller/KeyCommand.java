@@ -17,7 +17,7 @@ public class KeyCommand {
     // Les fonctions F sont celles qui sont répétables sur des plages de cellules
     private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
-    private final HashMap<Character, LinkedList<KeyEvent>> macros;
+    public static HashMap<Character, LinkedList<KeyEvent>> macros;
     private String expr;
     public static LinkedList<KeyEvent> currMacro;
     public static boolean recordingMacro;
