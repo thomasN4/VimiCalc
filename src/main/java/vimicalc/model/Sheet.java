@@ -8,7 +8,7 @@ import vimicalc.view.Metadata;
 import java.io.*;
 import java.util.*;
 
-import static vimicalc.controller.KeyCommand.macros;
+import static vimicalc.controller.Controller.macros;
 import static vimicalc.utils.Conversions.*;
 
 public class Sheet {
@@ -291,7 +291,7 @@ public class Sheet {
         Controller.statusBar.setFilename(file.getName());
     }
 
-    public void readFile(String path) throws Exception {
+    public void readFile(@NotNull String path) throws Exception {
 //        BufferedReader fR = new BufferedReader(new FileReader(path));
         if (!path.endsWith(".wss")) {
             /* On va devoir afficher cela dans le infobar, de manière optimale.

@@ -51,6 +51,7 @@ public class Controller implements Initializable {
     public static StatusBar statusBar;
     public static KeyCommand keyCommand;
     public static Mode currMode;
+    public static HashMap<Character, LinkedList<KeyEvent>> macros;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
     public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
@@ -858,6 +859,7 @@ public class Controller implements Initializable {
         sheet = new Sheet();
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
+        macros = new HashMap<>();
         reset();
     }
 
