@@ -6,6 +6,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 public class InfoBar extends Visible {
 
     public static String keyStroke;
@@ -33,10 +35,7 @@ public class InfoBar extends Visible {
     }
 
     public void setInfobarTxt(String infobarTxt) {
-        if (infobarTxt != null)
-            this.infobarTxt = "(=" + infobarTxt + ")";
-        else
-            this.infobarTxt = "(=I)";
+        this.infobarTxt = Objects.requireNonNullElse(infobarTxt, "(=I)");
     }
 
     public String getInfobarTxt() { return infobarTxt; }

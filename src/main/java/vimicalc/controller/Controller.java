@@ -91,9 +91,11 @@ public class Controller implements Initializable {
             cellSelector.updateXCoord(-1);
             cellSelector.readCell(camera.picture.data());
         } else {
+            infoBar.setInfobarTxt("CAN'T GO LEFT");
             cellSelector.readCell(camera.picture.data());
             return;
         }
+        writeToInfobar();
         if (cellSelector.getX() != DEFAULT_CELL_W) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < DEFAULT_CELL_W) {
@@ -118,7 +120,6 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveDown() {
@@ -134,6 +135,7 @@ public class Controller implements Initializable {
             );
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
+        writeToInfobar();
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -152,7 +154,6 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveUp() {
@@ -161,9 +162,11 @@ public class Controller implements Initializable {
             cellSelector.updateYCoord(-1);
             cellSelector.readCell(camera.picture.data());
         } else {
+            infoBar.setInfobarTxt("CAN'T GO UP");
             cellSelector.readCell(camera.picture.data());
             return;
         }
+        writeToInfobar();
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < DEFAULT_CELL_H) {
@@ -187,7 +190,6 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveRight() {
@@ -227,9 +229,9 @@ public class Controller implements Initializable {
 
     protected static void writeToInfobar() {
         if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
+            infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().formula().getTxt()+")");
         else if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt(""+cellSelector.getSelectedCell().value());
+            infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().value()+")");
         else
             infoBar.setInfobarTxt(null);
     }
@@ -331,19 +333,6 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
         cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
         writeToInfobar();
-//        else if (clipboard.get(index).value() != null) {
-//            cellSelector.setSelectedCell(clipboard.get(index).copy());
-//            cellSelector.getSelectedCell().setTxt(clipboard.get(index).value() + "");
-//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-//        } else {
-//            cellSelector.setSelectedCell(new Cell(
-//                cellSelector.getXCoord(),
-//                cellSelector.getYCoord(),
-//                cellSelector.getSelectedCell().txt()
-//            ));
-//            cellSelector.getSelectedCell().setTxt(clipboard.get(index).txt());
-//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-//        }
         sheet.addCell(cellSelector.getSelectedCell());
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
