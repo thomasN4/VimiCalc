@@ -16,22 +16,29 @@ public class InfoBar extends Visible {
         super(x, y, w, h, c);
         keyStroke = "";
     }
-    public boolean isEnteringCommandInVISUAL() { return enteringCommandInVISUAL; }
+    public boolean isEnteringCommandInVISUAL() {
+        return enteringCommandInVISUAL;
+    }
 
     public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
         this.enteringCommandInVISUAL = enteringCommandInVISUAL;
     }
 
-    public void setCommandTxt(String infobarTxt) { this.infobarTxt = ":" + infobarTxt; }
+    public void setCommandTxt(String infobarTxt) {
+        this.infobarTxt = ":" + infobarTxt;
+    }
 
-    public void setEnteringFormula(String infobarTxt) { this.infobarTxt = "% " + infobarTxt.replace(".0" , ""); }
+    public void setEnteringFormula(String infobarTxt) {
+        this.infobarTxt = "% " + infobarTxt.replace(".0" , "");
+    }
 
     public void setInfobarTxt(String infobarTxt) {
         if (infobarTxt != null)
-            this.infobarTxt = "(" + infobarTxt + ")";
+            this.infobarTxt = "(=" + infobarTxt + ")";
         else
-            this.infobarTxt = "(I)";
+            this.infobarTxt = "(=I)";
     }
+
     public String getInfobarTxt() { return infobarTxt; }
 
     @Override

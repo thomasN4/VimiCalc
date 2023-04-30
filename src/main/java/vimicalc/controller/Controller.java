@@ -913,9 +913,6 @@ public class Controller implements Initializable {
                 if (recordedCell.getLast().formula() != null) {
                     recordedFormula.add(cellSelector.getSelectedCell().formula());
                     infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-                    if (cellSelector.getSelectedCell().value() == 0.0) {
-                        infoBar.setInfobarTxt("I");
-                    }
                 }
                 else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
