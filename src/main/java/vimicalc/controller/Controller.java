@@ -36,9 +36,9 @@ public class Controller implements Initializable {
     private Canvas canvas;
     protected static final LinkedList<Cell> recordedCell = new LinkedList<>();
     private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
-    protected static ArrayList<Cell> copiedCell = new ArrayList<>();
+    protected static ArrayList<Cell> clipboard = new ArrayList<>();
     protected static int dCounter = 1;
-    private static int fCounter = 1;
+    private static final int fCounter = 1;
     protected static Camera camera;
     protected static Command command;
     protected static CoordsCell coordsCell;
@@ -118,12 +118,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        else if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        else
-            infoBar.setInfobarTxt(null);
+        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveDown() {
@@ -157,12 +152,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        else if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        else
-            infoBar.setInfobarTxt(null);
+        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveUp() {
@@ -197,12 +187,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        else if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        else
-            infoBar.setInfobarTxt(null);
+        writeToInfobar();
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveRight() {
@@ -236,20 +221,17 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-//        infoBar.setInfobarTxt("I");
-//        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
-//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-//        }
-//        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
-//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-//        }
+        writeToInfobar();
+        maybeGoToMergeStart(/*prevCell*/);
+    }
+
+    protected static void writeToInfobar() {
         if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
         else if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+            infoBar.setInfobarTxt(""+cellSelector.getSelectedCell().value());
         else
             infoBar.setInfobarTxt(null);
-        maybeGoToMergeStart(/*prevCell*/);
     }
 
     protected static void undo() {
@@ -258,7 +240,6 @@ public class Controller implements Initializable {
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
         if (recordedCell.get(listIndex).txt() == null) {
             sheet.deleteCell(coordsCell.getCoords());
-            infoBar.setInfobarTxt("I");
         } else if (recordedCell.get(listIndex).txt().matches(".*\\d.*")) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -268,7 +249,6 @@ public class Controller implements Initializable {
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
         } else {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -277,12 +257,11 @@ public class Controller implements Initializable {
             ));
             sheet.addCell(cellSelector.getSelectedCell());
             cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
         if (recordedCell.get(listIndex).formula() != null) {
-            infoBar.setInfobarTxt(recordedFormula.get(formulaListIndex).getTxt());
             cellSelector.getSelectedCell().setFormula(recordedFormula.get(formulaListIndex));
         }
+        writeToInfobar();
         dCounter = dCounter + 2;
     }
     protected static void redo() {
@@ -292,7 +271,6 @@ public class Controller implements Initializable {
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
         if (recordedCell.get(listIndex).formula() != null) {
             System.out.println("Redoing cell with formula...");
-            infoBar.setInfobarTxt(recordedFormula.get(formulaListIndex).getTxt());
             Formula f = new Formula(
                 recordedFormula.get(formulaListIndex).getTxt(),
                 cellSelector.getXCoord(),
@@ -307,7 +285,6 @@ public class Controller implements Initializable {
                 sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
                     recordedCell.get(listIndex).value())
             ));
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
             cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
         } else {
             cellSelector.setSelectedCell(new Cell(
@@ -315,9 +292,9 @@ public class Controller implements Initializable {
                 cellSelector.getYCoord(),
                 cellSelector.getSelectedCell().txt()
             ));
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
         }
+        writeToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
     }
@@ -341,33 +318,29 @@ public class Controller implements Initializable {
     protected static void paste(int index) {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-        if (copiedCell.get(index).formula() != null) {
-            infoBar.setInfobarTxt(copiedCell.get(index).formula().getTxt());
+        if (clipboard.get(index).formula() != null) {
             Formula f = new Formula(
-                copiedCell.get(index).formula().getTxt(),
+                clipboard.get(index).formula().getTxt(),
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord()
             );
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
             cellSelector.getSelectedCell().formula().interpret(sheet);
-        }
-        else if (copiedCell.get(index).value() != null) {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                copiedCell.get(index).value()
-            ));
-            cellSelector.getSelectedCell().setTxt(copiedCell.get(index).value() + "");
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-        } else {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
-            ));
-            cellSelector.getSelectedCell().setTxt(copiedCell.get(index).txt());
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        }
+        } else cellSelector.setSelectedCell(clipboard.get(index).copy());
+        writeToInfobar();
+//        else if (clipboard.get(index).value() != null) {
+//            cellSelector.setSelectedCell(clipboard.get(index).copy());
+//            cellSelector.getSelectedCell().setTxt(clipboard.get(index).value() + "");
+//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+//        } else {
+//            cellSelector.setSelectedCell(new Cell(
+//                cellSelector.getXCoord(),
+//                cellSelector.getYCoord(),
+//                cellSelector.getSelectedCell().txt()
+//            ));
+//            cellSelector.getSelectedCell().setTxt(clipboard.get(index).txt());
+//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+//        }
         sheet.addCell(cellSelector.getSelectedCell());
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
@@ -527,10 +500,10 @@ public class Controller implements Initializable {
                 cellSelector.readCell(camera.picture.data());
             }
             case Y -> {
-                copiedCell.clear();
+                clipboard.clear();
                 selectedCoords.forEach(coord -> {
                     goTo(coord[0], coord[1]);
-                    copiedCell.add(cellSelector.getSelectedCell().copy());
+                    clipboard.add(cellSelector.getSelectedCell().copy());
                 });
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
@@ -845,10 +818,7 @@ public class Controller implements Initializable {
                     infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 }
             }
-            default -> {
-                cellSelector.draw(gc, event.getText());
-                infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-            }
+            default -> cellSelector.draw(gc, event.getText());
         }
     }
 

@@ -296,8 +296,8 @@ public class KeyCommand {
                             if (cellSelector.getSelectedCell().txt() == null)
                                 infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
                             else {
-                                copiedCell.clear();
-                                copiedCell.add(cellSelector.getSelectedCell().copy());
+                                clipboard.clear();
+                                clipboard.add(cellSelector.getSelectedCell().copy());
                             }
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
@@ -309,14 +309,14 @@ public class KeyCommand {
                 }
                 case 'p' -> {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'p') {
-                        if (copiedCell == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
+                        if (clipboard == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                         else {
-                            if (copiedCell.size() == 1) paste(0);
+                            if (clipboard.size() == 1) paste(0);
                             else {
-                                for (int j = copiedCell.size() - 1; j > 0; j--) {
+                                for (int j = clipboard.size() - 1; j > 0; j--) {
                                     paste(j);
-                                    goTo(cellSelector.getXCoord() - (copiedCell.get(j).xCoord() - copiedCell.get(j - 1).xCoord()),
-                                         cellSelector.getYCoord() - (copiedCell.get(j).yCoord() - copiedCell.get(j - 1).yCoord()));
+                                    goTo(cellSelector.getXCoord() - (clipboard.get(j).xCoord() - clipboard.get(j - 1).xCoord()),
+                                         cellSelector.getYCoord() - (clipboard.get(j).yCoord() - clipboard.get(j - 1).yCoord()));
                                 }
                                 paste(0);
                             }
