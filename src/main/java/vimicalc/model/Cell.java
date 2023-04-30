@@ -14,7 +14,7 @@ public class Cell implements Serializable {
     private final int yCoord;
     private String txt;
     private Formula formula;
-    private double value;
+    private Double value;
     private final DecimalFormat format;  // final, pour l'instant
     private Cell mergeDelimiter;
     private boolean mergeStart;
@@ -33,7 +33,7 @@ public class Cell implements Serializable {
     public Cell(int xCoord, int yCoord, String txt) {
         this(xCoord, yCoord);
         try {
-            value = Integer.parseInt(txt);
+            value = (double) Integer.parseInt(txt);
             this.txt = txt;
         } catch (Exception ignored) {
             try {
@@ -81,7 +81,7 @@ public class Cell implements Serializable {
         return formula;
     }
 
-    public double value() {
+    public Double value() {
         return value;
     }
 
@@ -91,9 +91,9 @@ public class Cell implements Serializable {
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Cell) obj;
         return this.xCoord == that.xCoord &&
-                this.yCoord == that.yCoord &&
-                Objects.equals(this.txt, that.txt) &&
-                Objects.equals(this.formula, that.formula);
+               this.yCoord == that.yCoord &&
+               Objects.equals(this.txt, that.txt) &&
+               Objects.equals(this.formula, that.formula);
     }
 
     @Override
@@ -112,10 +112,10 @@ public class Cell implements Serializable {
         return "Cell{" +
                "xCoord=" + xCoord +
                ", yCoord=" + yCoord +
-//               ", txt='" + txt + '\'' +
-//               ", formula=" + formula +
-//               ", value=" + value +
-//               ", format=" + format +
+               ", txt='" + txt + '\'' +
+               ", formula=" + formula +
+               ", value=" + value +
+               ", format=" + format +
                ", mergeDelimiter=" + mergeDelimiterCoords +
                ", mergeStart=" + mergeStart +
                '}';
@@ -127,7 +127,7 @@ public class Cell implements Serializable {
 
     public void correctTxt(String txt) {
         try {
-            value = Integer.parseInt(txt);
+            value = (double) Integer.parseInt(txt);
             if (this.txt == null) this.txt = txt;
         } catch (Exception ignored) {
             try {
@@ -150,10 +150,6 @@ public class Cell implements Serializable {
             txt = String.valueOf((int) result);
         value = result;
         this.formula = formula;
-    }
-
-    public DecimalFormat getFormat() {
-        return format;
     }
 
     public Cell getMergeDelimiter() {

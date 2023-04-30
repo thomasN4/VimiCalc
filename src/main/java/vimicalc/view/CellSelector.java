@@ -107,7 +107,7 @@ public class CellSelector extends Visible {
                 setDimensions();
                 if (c.txt() != null) {
                     try {
-                        if (c.value() - (int) c.value() != 0)
+                        if (c.value() - Math.floor(c.value()) != 0)
                             selectedCell.setTxt(String.valueOf(c.value()));
                     } catch (Exception ignored) {}
                 }

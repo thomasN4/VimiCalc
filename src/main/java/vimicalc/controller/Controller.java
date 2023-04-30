@@ -118,13 +118,12 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        infoBar.setInfobarTxt("I");
-        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-        }
-        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
+        if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        }
+        else if (cellSelector.getSelectedCell().value() != null)
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        else
+            infoBar.setInfobarTxt(null);
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveDown() {
@@ -158,13 +157,12 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        infoBar.setInfobarTxt("I");
-        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-        }
-        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
+        if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        }
+        else if (cellSelector.getSelectedCell().value() != null)
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        else
+            infoBar.setInfobarTxt(null);
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveUp() {
@@ -199,13 +197,12 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        infoBar.setInfobarTxt("I");
-        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-        }
-        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
+        if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        }
+        else if (cellSelector.getSelectedCell().value() != null)
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        else
+            infoBar.setInfobarTxt(null);
         maybeGoToMergeStart(/*prevCell*/);
     }
     protected static void moveRight() {
@@ -239,13 +236,19 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        infoBar.setInfobarTxt("I");
-        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
-            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
-        }
-        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
+//        infoBar.setInfobarTxt("I");
+//        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().formula() == null) {
+//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
+//        }
+//        else if (cellSelector.getSelectedCell().formula() != null && cellSelector.getSelectedCell().value() != 0.0) {
+//            infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
+//        }
+        if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().formula().getTxt());
-        }
+        else if (cellSelector.getSelectedCell().value() != null)
+            infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+        else
+            infoBar.setInfobarTxt(null);
         maybeGoToMergeStart(/*prevCell*/);
     }
 
@@ -287,8 +290,17 @@ public class Controller implements Initializable {
         int listIndex = recordedCell.size() - dCounter;
         int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
-        if (recordedCell.get(listIndex).value() != 0.0 &&
-                recordedCell.get(listIndex).txt().matches(".*\\d.*")) {
+        if (recordedCell.get(listIndex).formula() != null) {
+            System.out.println("Redoing cell with formula...");
+            infoBar.setInfobarTxt(recordedFormula.get(formulaListIndex).getTxt());
+            Formula f = new Formula(
+                recordedFormula.get(formulaListIndex).getTxt(),
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord()
+            );
+            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+        }
+        else if (recordedCell.get(listIndex).value() != null) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord(),
@@ -303,10 +315,6 @@ public class Controller implements Initializable {
                 cellSelector.getSelectedCell().txt()
             ));
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        }
-        if (recordedCell.get(listIndex).formula() != null) {
-            infoBar.setInfobarTxt(recordedFormula.get(formulaListIndex).getTxt());
-            cellSelector.getSelectedCell().setFormula(recordedFormula.get(formulaListIndex));
         }
         sheet.addCell(cellSelector.getSelectedCell());
         cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
@@ -331,7 +339,17 @@ public class Controller implements Initializable {
     protected static void paste(int index) {
         recordedCell.add(cellSelector.getSelectedCell().copy());
         sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-        if (copiedCell.get(index).value() != 0 && copiedCell.get(index).txt().matches(".*\\d.*")) {
+        if (copiedCell.get(index).formula() != null) {
+            infoBar.setInfobarTxt(copiedCell.get(index).formula().getTxt());
+            Formula f = new Formula(
+                copiedCell.get(index).formula().getTxt(),
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord()
+            );
+            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            cellSelector.getSelectedCell().formula().interpret(sheet);
+        }
+        else if (copiedCell.get(index).value() != null) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord(),
@@ -350,24 +368,12 @@ public class Controller implements Initializable {
             cellSelector.getSelectedCell().setTxt(copiedCell.get(index).txt());
             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         }
-        if (copiedCell.get(index).formula() != null) {
-            infoBar.setInfobarTxt(copiedCell.get(index).formula().getTxt());
-            Formula f = new Formula(
-                copiedCell.get(index).formula().getTxt(),
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord()
-            );
-            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-            cellSelector.getSelectedCell().formula().interpret(sheet);
-//            sheet.checkForDependents(cellSelector.getXCoord(),
-//                cellSelector.getYCoord());
-        }
         recordedCell.add(cellSelector.getSelectedCell().copy());
         removeList();
     }
 
     protected static void reinitialiseCell() {  //improve for later use maybe, or delete
-        if (cellSelector.getSelectedCell().value() != 0.0 && cellSelector.getSelectedCell().txt().matches(".*\\d.*")) {
+        if (cellSelector.getSelectedCell().value() != null) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord(),

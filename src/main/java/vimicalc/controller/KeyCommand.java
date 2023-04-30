@@ -170,7 +170,7 @@ public class KeyCommand {
                             !isNumber("" + lastChar)) {
                         try {
                             evaluate("" +
-                                    (int) sheet.findCell(expr.substring(1, expr.length() - 1)).value() +
+                                    (int) Math.floor(sheet.findCell(expr.substring(1, expr.length() - 1)).value()) +
                                     lastChar);
                             this.expr = "";
                         } catch (Exception ignored) {
