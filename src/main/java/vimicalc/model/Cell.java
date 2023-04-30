@@ -51,7 +51,7 @@ public class Cell implements Serializable {
         this(xCoord, yCoord);
         this.value = value;
         int valInt = (int) value;
-        if (valInt - value == 0)
+        if (valInt - value == 0.0)
             txt = String.valueOf(valInt);
         else
             txt = format.format(value);
@@ -113,7 +113,7 @@ public class Cell implements Serializable {
                "xCoord=" + xCoord +
                ", yCoord=" + yCoord +
                ", txt='" + txt + '\'' +
-               ", formula=" + formula +
+               ", formula=" + ((formula == null) ? "null" : formula.getTxt()) +
                ", value=" + value +
                ", format=" + format +
                ", mergeDelimiter=" + mergeDelimiterCoords +
@@ -144,7 +144,7 @@ public class Cell implements Serializable {
     }
 
     public void setFormulaResult(double result, Formula formula) {
-        if (result - (int) result != 0)
+        if (result - ((int) result) != 0.0)
             txt = format.format(result);
         else
             txt = String.valueOf((int) result);

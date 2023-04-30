@@ -157,9 +157,10 @@ public class KeyCommand {
                 case '=' -> {
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     currMode = Mode.FORMULA;
+                    cellSelector.readCell(camera.picture.data());
                     if (cellSelector.getSelectedCell().formula() == null)
                         cellSelector.getSelectedCell().setFormula(
-                                new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                            new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
                         );
                     infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
                     this.expr = "";
