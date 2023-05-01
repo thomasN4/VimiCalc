@@ -124,7 +124,7 @@ public class KeyCommand {
             } else {
                 int[] trdFIandM = parseFIndexAndMult(sndFIandM[0] + 1, expr);
                 char trdFunc = expr.charAt(expr.length() - 1);
-                fstFIandM[1] *= trdFIandM[1];
+                fstFIandM[1] *= trdFIandM[1] + 1;
                 sndFunc = Character.toLowerCase(sndFunc);
                 char invSndFunc = 0;
                 switch (sndFunc) {
@@ -144,7 +144,7 @@ public class KeyCommand {
             System.out.println("Special macro: " + tempMacro);
             for (int i = 0; i < fstFIandM[1]; i++) {
                 for (int j = 0; j < tempMacro.size(); j++) {
-                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - 1) {
+                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - 2) {
                         this.expr = "";
                         return;
                     } else evaluate(tempMacro.get(j));
