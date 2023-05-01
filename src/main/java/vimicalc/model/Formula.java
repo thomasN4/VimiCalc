@@ -3,7 +3,7 @@ package vimicalc.model;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
+import java.util.Arrays;
 
 import static vimicalc.controller.KeyCommand.Mfuncs;
 import static vimicalc.utils.Conversions.*;
@@ -35,22 +35,20 @@ public class Formula extends Interpretable {
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
         double[][] mat = new double[lastCoordY - firstCoordY + 1][lastCoordX - firstCoordX + 1];
+        System.out.println("Creating matrix...");
 
-        for (i = 0; i <= lastCoordY - firstCoordY; i++) {
-            final int I = i;
-            for (int j = 0; j <= lastCoordX - firstCoordX; j++) {
-                final int J = j;
-                sheet.getCells().forEach(c -> {
-                    if (c.xCoord() == firstCoordX + J && c.yCoord() == firstCoordY + I) {
-                        if (c.txt() == null)
-                            mat[I][J] = 0;
-                        else
-                            mat[I][J] = c.value();
-                        sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
-                    }
-                });
+        for (i = 0; i <= lastCoordY - firstCoordY; ++i) {
+            for (int j = 0; j <= lastCoordX - firstCoordX; ++j) {
+                int foundXC = j + firstCoordX, foundYC = i + firstCoordY;
+                Cell c = sheet.findCell(foundXC, foundYC);
+                if (c.txt() == null)
+                    mat[i][j] = 0;
+                else
+                    mat[i][j] = c.value();
+                sheet.addDepended(foundXC, foundYC, sheet.findDependency(xC, yC));
             }
         }
+        System.out.println("Matrix to be evaluated: " + Arrays.deepToString(mat));
 
         return mat;
     }
@@ -60,10 +58,10 @@ public class Formula extends Interpretable {
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
-        int i = 0;
-        for (; coordsArea.charAt(i) != ':' && coordsArea.charAt(i) != ';'; i++)
-            firstCoords.append(coordsArea.charAt(i));
-        lastCoords = coordsArea.substring(i+1);
+        int k = 0;
+        for (; coordsArea.charAt(k) != ':' && coordsArea.charAt(k) != ';'; k++)
+            firstCoords.append(coordsArea.charAt(k));
+        lastCoords = coordsArea.substring(k +1);
 
         if (Mfuncs.contains(firstCoords.charAt(firstCoords.length()-1))) {
             firstCoords = new StringBuilder(relToAbsCoords(firstCoords.toString(), xC, yC));
@@ -80,19 +78,20 @@ public class Formula extends Interpretable {
             (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
         ];
 
-        i = 0;
-        for (Cell c : sheet.getCells())
-            if (c.xCoord() >= firstCoordX && c.xCoord() <= lastCoordX &&
-                c.yCoord() >= firstCoordY && c.yCoord() <= lastCoordY) {
+        k = 0;
+        for (int i = firstCoordY; i <= lastCoordY; ++i) {
+            for (int j = firstCoordX; j <= lastCoordX; ++j) {
+                Cell c = sheet.findCell(j, i);
                 if (c.txt() == null)
-                    vectorLong[i++] = new Lexeme("I");
+                    vectorLong[k++] = new Lexeme("I");
                 else
-                    vectorLong[i++] = new Lexeme(c.value());
-                sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
+                    vectorLong[k++] = new Lexeme(c.value());
+                sheet.addDepended(j, i, sheet.findDependency(xC, yC));
             }
+        }
 
-        Lexeme[] vector = new Lexeme[i];
-        System.arraycopy(vectorLong, 0, vector, 0, i);
+        Lexeme[] vector = new Lexeme[k];
+        System.arraycopy(vectorLong, 0, vector, 0, k);
 
         return vector;
     }
