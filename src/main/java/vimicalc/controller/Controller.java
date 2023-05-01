@@ -351,7 +351,7 @@ public class Controller implements Initializable {
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         recordedCell.add(cellSelector.getSelectedCell().copy());
-        removeList();
+        trimRecordedCells();
     }
 
     protected static void reinitialiseCell() {  //improve for later use maybe, or delete
@@ -729,7 +729,7 @@ public class Controller implements Initializable {
             selectedCoords.removeIf(c -> c[1] == row);
     }
 
-    protected static void removeList() {
+    protected static void trimRecordedCells() {
         if (dCounter != 1) {
             int removalCounter = recordedCell.size() - (recordedCell.size() - dCounter) - 1;
             for (int i = 0; i < removalCounter; i++) {
@@ -752,7 +752,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().txt() == null) {
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     } else {
-                        removeList();
+                        trimRecordedCells();
                         cellSelector.getSelectedCell().correctTxt(
                             cellSelector.getSelectedCell().txt()
                         );
@@ -769,7 +769,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().txt() == null) {
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     } else {
-                        removeList();
+                        trimRecordedCells();
                         cellSelector.getSelectedCell().correctTxt(
                                 cellSelector.getSelectedCell().txt()
                         );
@@ -798,7 +798,7 @@ public class Controller implements Initializable {
                 if (cellSelector.getSelectedCell().txt() == null) {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 } else {
-                    removeList();
+                    trimRecordedCells();
                     cellSelector.getSelectedCell().correctTxt(
                         cellSelector.getSelectedCell().txt()
                     );
@@ -842,7 +842,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     else {
-                        removeList();
+                        trimRecordedCells();
                         cellSelector.getSelectedCell().setFormulaResult(
                             cellSelector.getSelectedCell().formula().interpret(sheet),
                             cellSelector.getSelectedCell().formula()
@@ -886,7 +886,7 @@ public class Controller implements Initializable {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 else {
-                    removeList();
+                    trimRecordedCells();
                     cellSelector.getSelectedCell().setFormulaResult(
                         cellSelector.getSelectedCell().formula().interpret(sheet),
                         cellSelector.getSelectedCell().formula()
