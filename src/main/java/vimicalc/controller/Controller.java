@@ -255,11 +255,10 @@ public class Controller implements Initializable {
         recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
         sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
-        cellSelector.setSelectedCell(substitute);
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        }
+        } else cellSelector.setSelectedCell(substitute);
 
         cellContentToIbar();
         sheet.addCell(cellSelector.getSelectedCell());
@@ -275,11 +274,10 @@ public class Controller implements Initializable {
         recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
         sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
-        cellSelector.setSelectedCell(substitute);
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        }
+        } else cellSelector.setSelectedCell(substitute);
 
         cellContentToIbar();
         sheet.addCell(cellSelector.getSelectedCell());
