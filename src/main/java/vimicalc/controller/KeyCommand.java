@@ -78,10 +78,13 @@ public class KeyCommand {
 
     private void runMacro(char macroName) {
         try {
+            boolean aMacroIsInFactBeingRecorded = recordingMacro;
+            if (aMacroIsInFactBeingRecorded) recordingMacro = false;
             System.out.println("Trying to run a macro...");
             KeyEvent[] macro = macros.get(macroName).toArray(new KeyEvent[0]);
             System.out.println("The macro: " + macroStr(macros.get(macroName)));
             for (KeyEvent event : macro) onKeyPressed(event);
+            if (aMacroIsInFactBeingRecorded) recordingMacro = true;
             System.out.println("Macro execution finished");
         } catch (Exception e) {
             infoBar.setInfobarTxt("Macro '" + macroName + "' doesn't exist.");
