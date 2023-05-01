@@ -240,30 +240,43 @@ public class Controller implements Initializable {
         int listIndex = recordedCell.size() - 1 - dCounter;
         int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
-        if (recordedCell.get(listIndex).txt() == null) {
-            sheet.deleteCell(coordsCell.getCoords());
-        } else if (recordedCell.get(listIndex).txt().matches(".*\\d.*")) {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                    recordedCell.get(listIndex).value())
-            ));
-            sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
-        } else {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
-            ));
-            sheet.addCell(cellSelector.getSelectedCell());
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
-        }
+//        if (recordedCell.get(listIndex).txt() == null) {
+//            sheet.deleteCell(coordsCell.getCoords());
+//        } else if (recordedCell.get(listIndex).value() != null) {
+//            cellSelector.setSelectedCell(new Cell(
+//                cellSelector.getXCoord(),
+//                cellSelector.getYCoord(),
+//                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
+//                    recordedCell.get(listIndex).value())
+//            ));
+//            sheet.addCell(cellSelector.getSelectedCell());
+//            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+//        } else {
+//            cellSelector.setSelectedCell(new Cell(
+//                cellSelector.getXCoord(),
+//                cellSelector.getYCoord(),
+//                cellSelector.getSelectedCell().txt()
+//            ));
+//            sheet.addCell(cellSelector.getSelectedCell());
+//            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+//        }
+//        if (recordedCell.get(listIndex).formula() != null) {
+//            cellSelector.getSelectedCell().setFormula(recordedFormula.get(formulaListIndex));
+//        }
         if (recordedCell.get(listIndex).formula() != null) {
-            cellSelector.getSelectedCell().setFormula(recordedFormula.get(formulaListIndex));
+            System.out.println("Redoing cell with formula...");
+            Formula f = new Formula(
+                recordedFormula.get(formulaListIndex).getTxt(),
+                cellSelector.getXCoord(),
+                cellSelector.getYCoord()
+            );
+            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+        }
+        else {
+            cellSelector.setSelectedCell(recordedCell.get(listIndex));
         }
         cellContentToInfobar();
+        sheet.addCell(cellSelector.getSelectedCell());
         dCounter = dCounter + 2;
     }
     protected static void redo() {
@@ -280,22 +293,25 @@ public class Controller implements Initializable {
             );
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
         }
-        else if (recordedCell.get(listIndex).value() != null) {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                    recordedCell.get(listIndex).value())
-            ));
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
-        } else {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
-            ));
-            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+        else {
+            cellSelector.setSelectedCell(recordedCell.get(listIndex));
         }
+//        else if (recordedCell.get(listIndex).value() != null) {
+//            cellSelector.setSelectedCell(new Cell(
+//                cellSelector.getXCoord(),
+//                cellSelector.getYCoord(),
+//                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
+//                    recordedCell.get(listIndex).value())
+//            ));
+//            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+//        } else {
+//            cellSelector.setSelectedCell(new Cell(
+//                cellSelector.getXCoord(),
+//                cellSelector.getYCoord(),
+//                cellSelector.getSelectedCell().txt()
+//            ));
+//            cellSelector.getSelectedCell().setTxt(recordedCell.get(listIndex).txt());
+//        }
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
