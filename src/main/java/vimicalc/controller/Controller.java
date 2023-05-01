@@ -34,9 +34,9 @@ public class Controller implements Initializable {
     protected static GraphicsContext gc;
     @FXML
     private Canvas canvas;
-    protected static final LinkedList<Cell> recordedCellStates = new LinkedList<>();
-    protected static int undoCounter = 0;
-    protected static ArrayList<Cell> clipboard = new ArrayList<>();
+    protected static LinkedList<Cell> recordedCellStates;
+    protected static int undoCounter;
+    protected static ArrayList<Cell> clipboard;
     protected static Camera camera;
     protected static Command command;
     protected static CoordsCell coordsCell;
@@ -250,12 +250,9 @@ public class Controller implements Initializable {
         recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()));
 
         if (substitute.formula() != null) {
-            System.out.println("Redoing cell with formula...");
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        } else {
-            cellSelector.setSelectedCell(substitute);
-        }
+        } else cellSelector.setSelectedCell(substitute);
 
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
@@ -274,9 +271,7 @@ public class Controller implements Initializable {
             System.out.println("Redoing cell with formula...");
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        } else {
-            cellSelector.setSelectedCell(substitute);
-        }
+        } else cellSelector.setSelectedCell(substitute);
 
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
@@ -939,6 +934,9 @@ public class Controller implements Initializable {
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         prevXCPos = cellSelector.getXCoord();
         prevYCPos = cellSelector.getYCoord();
+        recordedCellStates = new LinkedList<>();
+        undoCounter = 0;
+        clipboard = new ArrayList<>();
 
         camera.ready();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
