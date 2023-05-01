@@ -725,7 +725,7 @@ public class Controller implements Initializable {
 
     protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
         if (cellSelector.getSelectedCell().value() != null &&
-            !cellSelector.getSelectedCell().txt().endsWith(".0"))
+            !(""+cellSelector.getSelectedCell().value()).endsWith(".0"))
             cellSelector.getSelectedCell().setTxt(""+cellSelector.getSelectedCell().value());
         if (cellSelector.getSelectedCell().txt() == null)
             cellSelector.getSelectedCell().setTxt("");
