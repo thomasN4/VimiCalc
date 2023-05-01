@@ -172,12 +172,12 @@ public class KeyCommand {
                             isNumber("" + expr.charAt(expr.length() - 2)) &&
                             !isNumber("" + lastChar)) {
                         try {
+                            this.expr = ""+lastChar;
                             evaluate(
                                 "" +
                                 (int) Math.floor(sheet.findCell(expr.substring(1, expr.length() - 1)).value()) +
                                 lastChar
                             );
-                            this.expr = "";
                         } catch (Exception ignored) {
                             this.expr = "";
                         }
