@@ -328,12 +328,9 @@ public class KeyCommand {
                     }
                 }
                 case 'a', 'i' -> {
-                    reinitialiseCell();
+                    setSCTxtForTextInput();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
-                    cellSelector.readCell(camera.picture.data());
                     currMode = Mode.INSERT;
-                    if (cellSelector.getSelectedCell().txt() == null)
-                        cellSelector.getSelectedCell().setTxt("");
                     cellSelector.draw(gc);
                     this.expr = "";
                 }

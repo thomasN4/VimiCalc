@@ -354,7 +354,7 @@ public class Controller implements Initializable {
         trimRecordedCells();
     }
 
-    protected static void reinitialiseCell() {  //improve for later use maybe, or delete
+    protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
         if (cellSelector.getSelectedCell().value() != null) {
             cellSelector.setSelectedCell(new Cell(
                 cellSelector.getXCoord(),
@@ -368,7 +368,8 @@ public class Controller implements Initializable {
                 cellSelector.getSelectedCell().txt()
             ));
         }
-        sheet.addCell(cellSelector.getSelectedCell());
+        if (cellSelector.getSelectedCell().txt() == null)
+            cellSelector.getSelectedCell().setTxt("");
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
@@ -783,11 +784,9 @@ public class Controller implements Initializable {
                         case K -> moveUp();
                         case L -> moveRight();
                     }
-                    reinitialiseCell();
+                    setSCTxtForTextInput();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
                     cellSelector.readCell(camera.picture.data());
-                    if (cellSelector.getSelectedCell().txt() == null)
-                        cellSelector.getSelectedCell().setTxt("");
                     cellSelector.draw(gc);
                 } else {
                     cellSelector.draw(gc, event.getText());
