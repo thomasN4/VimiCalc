@@ -61,7 +61,7 @@ public class Formula extends Interpretable {
         String lastCoords;
 
         int i = 0;
-        for (; coordsArea.charAt(i) != ':' || coordsArea.charAt(i) != ';'; i++)
+        for (; coordsArea.charAt(i) != ':' && coordsArea.charAt(i) != ';'; i++)
             firstCoords.append(coordsArea.charAt(i));
         lastCoords = coordsArea.substring(i+1);
 
