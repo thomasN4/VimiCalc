@@ -836,7 +836,6 @@ public class Controller implements Initializable {
                             cellSelector.getSelectedCell().formula().interpret(sheet),
                             cellSelector.getSelectedCell().formula()
                         );
-                        recordedCellStates.add(cellSelector.getSelectedCell().copy());
                         sheet.addCell(cellSelector.getSelectedCell());
                     }
 //                    if (recordedCellStates.getLast().formula() != null) {
@@ -881,7 +880,6 @@ public class Controller implements Initializable {
                         cellSelector.getSelectedCell().formula().interpret(sheet),
                         cellSelector.getSelectedCell().formula()
                     );
-                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     sheet.addCell(cellSelector.getSelectedCell());
                 }
 //                if (recordedCellStates.getLast().formula() != null) {
