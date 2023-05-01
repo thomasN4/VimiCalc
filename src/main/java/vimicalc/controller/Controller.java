@@ -252,12 +252,14 @@ public class Controller implements Initializable {
 
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()));
+        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
+        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
+        cellSelector.setSelectedCell(substitute);
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        } else cellSelector.setSelectedCell(substitute);
+        }
 
         cellContentToIbar();
         sheet.addCell(cellSelector.getSelectedCell());
@@ -270,13 +272,14 @@ public class Controller implements Initializable {
 
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()));
+        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
+        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
+        cellSelector.setSelectedCell(substitute);
         if (substitute.formula() != null) {
-            System.out.println("Redoing cell with formula...");
             Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-        } else cellSelector.setSelectedCell(substitute);
+        }
 
         cellContentToIbar();
         sheet.addCell(cellSelector.getSelectedCell());
