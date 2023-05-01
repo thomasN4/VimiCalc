@@ -37,7 +37,7 @@ public class Controller implements Initializable {
     protected static final LinkedList<Cell> recordedCells = new LinkedList<>();
 //    private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
     protected static ArrayList<Cell> clipboard = new ArrayList<>();
-    protected static int dCounter = 1;
+    protected static int undoCounter = 1;
 //    private static int fCounter = 1;
     protected static Camera camera;
     protected static Command command;
@@ -237,7 +237,7 @@ public class Controller implements Initializable {
     }
 
     protected static void undo() {
-        int listIndex = recordedCells.size() - 1 - dCounter;
+        int listIndex = recordedCells.size() - 1 - undoCounter;
 //        int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCells.get(listIndex).xCoord(), recordedCells.get(listIndex).yCoord());
 //        if (recordedCells.get(listIndex).txt() == null) {
@@ -277,11 +277,12 @@ public class Controller implements Initializable {
         }
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
-        dCounter = dCounter + 2;
+        sheet.getCells().forEach(Cell::isEmpty);
+        undoCounter = undoCounter + 2;
     }
     protected static void redo() {
-        dCounter = dCounter - 2;
-        int listIndex = recordedCells.size() - dCounter;
+        undoCounter = undoCounter - 2;
+        int listIndex = recordedCells.size() - undoCounter;
 //        int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCells.get(listIndex).xCoord(), recordedCells.get(listIndex).yCoord());
         if (recordedCells.get(listIndex).formula() != null) {
@@ -314,6 +315,7 @@ public class Controller implements Initializable {
 //        }
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
+        sheet.getCells().forEach(Cell::isEmpty);
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
     }
 
@@ -351,7 +353,7 @@ public class Controller implements Initializable {
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         recordedCells.add(cellSelector.getSelectedCell().copy());
-        trimRecordedCells();
+//        removeUlteriorCellStates();
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
@@ -712,14 +714,14 @@ public class Controller implements Initializable {
             selectedCoords.removeIf(c -> c[1] == row);
     }
 
-    protected static void trimRecordedCells() {
-        if (dCounter != 1) {
-            int removalCounter = recordedCells.size() - (recordedCells.size() - dCounter) - 1;
+    protected static void removeUlteriorCellStates() {
+        if (undoCounter != 1) {
+            int removalCounter = recordedCells.size() - (recordedCells.size() - undoCounter) - 1;
             for (int i = 0; i < removalCounter; i++) {
                 recordedCells.removeLast();
                 System.out.println(recordedCells.size());
             }
-            dCounter = 1;
+            undoCounter = 1;
         }
     }
 
@@ -742,7 +744,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().txt() == null) {
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     } else {
-                        trimRecordedCells();
+                        removeUlteriorCellStates();
                         cellSelector.getSelectedCell().correctTxt(
                             cellSelector.getSelectedCell().txt()
                         );
@@ -759,7 +761,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().txt() == null) {
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     } else {
-                        trimRecordedCells();
+                        removeUlteriorCellStates();
                         cellSelector.getSelectedCell().correctTxt(
                             cellSelector.getSelectedCell().txt()
                         );
@@ -786,7 +788,7 @@ public class Controller implements Initializable {
                 if (cellSelector.getSelectedCell().txt() == null) {
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 } else {
-                    trimRecordedCells();
+                    removeUlteriorCellStates();
                     cellSelector.getSelectedCell().correctTxt(
                         cellSelector.getSelectedCell().txt()
                     );
@@ -830,7 +832,7 @@ public class Controller implements Initializable {
                     if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
                         infoBar.setInfobarTxt("CELL IS EMPTY");
                     else {
-                        trimRecordedCells();
+                        removeUlteriorCellStates();
                         cellSelector.getSelectedCell().setFormulaResult(
                             cellSelector.getSelectedCell().formula().interpret(sheet),
                             cellSelector.getSelectedCell().formula()
@@ -875,7 +877,7 @@ public class Controller implements Initializable {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
                     infoBar.setInfobarTxt("CELL IS EMPTY");
                 else {
-                    trimRecordedCells();
+                    removeUlteriorCellStates();
                     cellSelector.getSelectedCell().setFormulaResult(
                         cellSelector.getSelectedCell().formula().interpret(sheet),
                         cellSelector.getSelectedCell().formula()

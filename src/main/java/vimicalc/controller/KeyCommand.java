@@ -170,9 +170,11 @@ public class KeyCommand {
                             isNumber("" + expr.charAt(expr.length() - 2)) &&
                             !isNumber("" + lastChar)) {
                         try {
-                            evaluate("" +
-                                    (int) Math.floor(sheet.findCell(expr.substring(1, expr.length() - 1)).value()) +
-                                    lastChar);
+                            evaluate(
+                                "" +
+                                (int) Math.floor(sheet.findCell(expr.substring(1, expr.length() - 1)).value()) +
+                                lastChar
+                            );
                             this.expr = "";
                         } catch (Exception ignored) {
                             this.expr = "";
@@ -274,7 +276,7 @@ public class KeyCommand {
                     this.expr = "";
                 }
                 case 'u' -> {
-                    if (!recordedCells.isEmpty() && !(dCounter >= recordedCells.size())) undo();
+                    if (!recordedCells.isEmpty() && !(undoCounter >= recordedCells.size())) undo();
                     else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -282,7 +284,7 @@ public class KeyCommand {
                     this.expr = "";
                 }
                 case 'r' -> {
-                    if (!recordedCells.isEmpty() && !(dCounter <= 1)) redo();
+                    if (!recordedCells.isEmpty() && !(undoCounter <= 1)) redo();
                     else infoBar.setInfobarTxt("CAN'T REDO RIGHT NOW");
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
