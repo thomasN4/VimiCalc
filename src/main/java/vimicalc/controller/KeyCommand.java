@@ -265,7 +265,7 @@ public class KeyCommand {
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-                            removeUltCStates();
+                            if (undoCounter != 0) removeUltCStates();
                         }
                         this.expr = "";
                     }
