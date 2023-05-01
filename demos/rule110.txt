@@ -1,7 +1,11 @@
-a: gS1 i0[ESC] yy l pl l i1[TAB] pp h gA24=0_0_+[ALT+L]=3_0_+[ALT+L]=[write the formula below][ENTER][CTRL+O]
+a: gT1 i0[ESC] yy l pp l i1[TAB] p22j gV2 gA24=0_0_+[ALT+L]=2_0_+[ALT+L]=[write the formula below][ENTER]yy[CTRL+O]
 
-C99: (=(kh k * kl *) (kh k 1 + 2 mod * kl 1 + 2 mod *) + (kh k * kl * 1 + 2 mod) + 1 + 2 mod)
+C24: (=(kh k * kl *) (kh k 1 + 2 mod * kl 1 + 2 mod *) + (kh k * kl * 1 + 2 mod) + 1 + 2 mod)
 
-b: <A99_B99_-{i0[ALT+H] 0[ENTER] 2l $A99l ga99=_1_+[ENTER][CTRL+O]]{gC99 yy [CTRL+O] pp h}
+b: <B24_A24_-{@d{@c}
 
-c: @a $A1@b
+c: i0[ALT+H] 0[ENTER] 2l $B24l gB24=_1_+[ENTER] h dd =0_0_+[ENTER][CTRL+O]
+
+d: pp gA24=_1_+[ENTER][CTRL+O] h
+
+e: @a $D24@b
