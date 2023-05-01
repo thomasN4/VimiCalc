@@ -234,6 +234,13 @@ public class Controller implements Initializable {
             infoBar.setInfobarTxt(null);
     }
 
+    protected static void removeUlteriorCellStates() {
+        while (undoCounter != 0) {
+            recordedCellStates.removeLast();
+            undoCounter--;
+        }
+    }
+
     protected static void undo() {
         int listIndex = recordedCellStates.size() - 1 - undoCounter;
         undoCounter++;
@@ -682,13 +689,6 @@ public class Controller implements Initializable {
             selectedCoords.removeIf(c -> c[0] == col);
         else
             selectedCoords.removeIf(c -> c[1] == row);
-    }
-
-    protected static void removeUlteriorCellStates() {
-        while (undoCounter != 0) {
-            recordedCellStates.removeLast();
-            undoCounter--;
-        }
     }
 
     protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
