@@ -244,44 +244,26 @@ public class Controller implements Initializable {
             infoBar.setInfobarTxt("Already at earliest change.");
             return;
         }
-        goTo(recordedCellStates.get(listIndex).xCoord(), recordedCellStates.get(listIndex).yCoord());
-//        if (recordedCellStates.get(listIndex).txt() == null) {
-//            sheet.deleteCell(coordsCell.getCoords());
-//        } else if (recordedCellStates.get(listIndex).value() != null) {
-//            cellSelector.setSelectedCell(new Cell(
-//                cellSelector.getXCoord(),
-//                cellSelector.getYCoord(),
-//                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-//                    recordedCellStates.get(listIndex).value())
-//            ));
-//            sheet.addCell(cellSelector.getSelectedCell());
-//            cellSelector.getSelectedCell().setTxt(recordedCellStates.get(listIndex).txt());
-//        } else {
-//            cellSelector.setSelectedCell(new Cell(
-//                cellSelector.getXCoord(),
-//                cellSelector.getYCoord(),
-//                cellSelector.getSelectedCell().txt()
-//            ));
-//            sheet.addCell(cellSelector.getSelectedCell());
-//            cellSelector.getSelectedCell().setTxt(recordedCellStates.get(listIndex).txt());
-//        }
-//        if (recordedCellStates.get(listIndex).formula() != null) {
-//            cellSelector.getSelectedCell().setFormula(recordedFormula.get(formulaListIndex));
-//        }
-        if (recordedCellStates.get(listIndex).formula() != null) {
+
+        Cell substitute = recordedCellStates.get(listIndex).copy();
+        goTo(substitute.xCoord(), substitute.yCoord());
+        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()));
+
+        if (substitute.formula() != null) {
             System.out.println("Redoing cell with formula...");
-            Formula f = recordedCellStates.get(listIndex).formula();
+            Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+        } else {
+            cellSelector.setSelectedCell(substitute);
         }
-        else {
-            cellSelector.setSelectedCell(recordedCellStates.get(listIndex));
-        }
+
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
     }
+
     protected static void redo() {
         int listIndex = recordedCellStates.size() - undoCounter;
         undoCounter--;
@@ -290,32 +272,19 @@ public class Controller implements Initializable {
             infoBar.setInfobarTxt("Already at latest change.");
             return;
         }
-//        int formulaListIndex = recordedFormula.size() - fCounter;
-        goTo(recordedCellStates.get(listIndex).xCoord(), recordedCellStates.get(listIndex).yCoord());
-        if (recordedCellStates.get(listIndex).formula() != null) {
+
+        Cell substitute = recordedCellStates.get(listIndex).copy();
+        goTo(substitute.xCoord(), substitute.yCoord());
+        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()));
+
+        if (substitute.formula() != null) {
             System.out.println("Redoing cell with formula...");
-            Formula f = recordedCellStates.get(listIndex).formula();
+            Formula f = substitute.formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+        } else {
+            cellSelector.setSelectedCell(substitute);
         }
-        else {
-            cellSelector.setSelectedCell(recordedCellStates.get(listIndex));
-        }
-//        else if (recordedCellStates.get(listIndex).value() != null) {
-//            cellSelector.setSelectedCell(new Cell(
-//                cellSelector.getXCoord(),
-//                cellSelector.getYCoord(),
-//                sheet.redoCell(cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-//                    recordedCellStates.get(listIndex).value())
-//            ));
-//            cellSelector.getSelectedCell().setTxt(recordedCellStates.get(listIndex).txt());
-//        } else {
-//            cellSelector.setSelectedCell(new Cell(
-//                cellSelector.getXCoord(),
-//                cellSelector.getYCoord(),
-//                cellSelector.getSelectedCell().txt()
-//            ));
-//            cellSelector.getSelectedCell().setTxt(recordedCellStates.get(listIndex).txt());
-//        }
+
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
