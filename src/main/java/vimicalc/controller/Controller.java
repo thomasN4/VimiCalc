@@ -773,8 +773,8 @@ public class Controller implements Initializable {
                         case K -> moveUp();
                         case L -> moveRight();
                     }
-                    setSCTxtForTextInput();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
+                    setSCTxtForTextInput();
                     cellSelector.readCell(camera.picture.data());
                     cellSelector.draw(gc);
                 } else {
