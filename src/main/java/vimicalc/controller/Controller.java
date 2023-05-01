@@ -35,10 +35,8 @@ public class Controller implements Initializable {
     @FXML
     private Canvas canvas;
     protected static final LinkedList<Cell> recordedCellStates = new LinkedList<>();
-//    private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
-    protected static ArrayList<Cell> clipboard = new ArrayList<>();
     protected static int undoCounter = 0;
-//    private static int fCounter = 1;
+    protected static ArrayList<Cell> clipboard = new ArrayList<>();
     protected static Camera camera;
     protected static Command command;
     protected static CoordsCell coordsCell;
@@ -687,13 +685,9 @@ public class Controller implements Initializable {
     }
 
     protected static void removeUlteriorCellStates() {
-        if (undoCounter != 1) {
-            int removalCounter = recordedCellStates.size() - (recordedCellStates.size() - undoCounter) - 1;
-            for (int i = 0; i < removalCounter; i++) {
-                recordedCellStates.removeLast();
-                System.out.println(recordedCellStates.size());
-            }
-            undoCounter = 1;
+        while (undoCounter != 0) {
+            recordedCellStates.removeLast();
+            undoCounter--;
         }
     }
 
