@@ -27,9 +27,9 @@ public class Controller implements Initializable {
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
     private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
 
-    //CD
-//    private static int MOUSE_X;
-//    private static int MOUSE_Y;
+    /*CD
+    private static int MOUSE_X;
+    private static int MOUSE_Y;*/
 
     protected static GraphicsContext gc;
     @FXML
@@ -782,14 +782,6 @@ public class Controller implements Initializable {
                         );
                         sheet.addCell(cellSelector.getSelectedCell());
                     }
-//                    if (recordedCellStates.getLast().formula() != null) {
-//                        recordedFormula.add(cellSelector.getSelectedCell().formula());
-//                        infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-//                        if (cellSelector.getSelectedCell().value() == 0.0) {
-//                            infoBar.setInfobarTxt("I");
-//                        }
-//                    }
-//                    else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                     cellContentToInfobar();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -826,11 +818,6 @@ public class Controller implements Initializable {
                     );
                     sheet.addCell(cellSelector.getSelectedCell());
                 }
-//                if (recordedCellStates.getLast().formula() != null) {
-//                    recordedFormula.add(cellSelector.getSelectedCell().formula());
-//                    infoBar.setInfobarTxt(recordedFormula.getLast().getTxt());
-//                }
-//                else infoBar.setInfobarTxt(cellSelector.getSelectedCell().value() + "");
                 cellContentToInfobar();
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
