@@ -238,7 +238,12 @@ public class Controller implements Initializable {
 
     protected static void undo() {
         int listIndex = recordedCellStates.size() - 1 - undoCounter;
-//        int formulaListIndex = recordedFormula.size() - fCounter;
+        undoCounter++;
+        if (undoCounter > recordedCellStates.size()) {
+            undoCounter = recordedCellStates.size() - 1;
+            infoBar.setInfobarTxt("Already at earliest change.");
+            return;
+        }
         goTo(recordedCellStates.get(listIndex).xCoord(), recordedCellStates.get(listIndex).yCoord());
 //        if (recordedCellStates.get(listIndex).txt() == null) {
 //            sheet.deleteCell(coordsCell.getCoords());
@@ -265,11 +270,7 @@ public class Controller implements Initializable {
 //        }
         if (recordedCellStates.get(listIndex).formula() != null) {
             System.out.println("Redoing cell with formula...");
-            Formula f = new Formula(
-                recordedCellStates.get(listIndex).formula().getTxt(),
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord()
-            );
+            Formula f = recordedCellStates.get(listIndex).formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
         }
         else {
@@ -280,20 +281,20 @@ public class Controller implements Initializable {
         sheet.getCells().forEach(Cell::isEmpty);
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
-        undoCounter++;
     }
     protected static void redo() {
         int listIndex = recordedCellStates.size() - undoCounter;
-        if (listIndex < 0 || listIndex >= recordedCellStates.size())
+        undoCounter--;
+        if (undoCounter > 0) {
+            undoCounter = 0;
+            infoBar.setInfobarTxt("Already at latest change.");
+            return;
+        }
 //        int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCellStates.get(listIndex).xCoord(), recordedCellStates.get(listIndex).yCoord());
         if (recordedCellStates.get(listIndex).formula() != null) {
             System.out.println("Redoing cell with formula...");
-            Formula f = new Formula(
-                recordedCellStates.get(listIndex).formula().getTxt(),
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord()
-            );
+            Formula f = recordedCellStates.get(listIndex).formula();
             cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
         }
         else {
@@ -320,7 +321,6 @@ public class Controller implements Initializable {
         sheet.getCells().forEach(Cell::isEmpty);
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         camera.ready();
-        undoCounter--;
     }
 
     public static int prevXCPos, prevYCPos;
@@ -356,8 +356,7 @@ public class Controller implements Initializable {
         cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
-        recordedCellStates.add(cellSelector.getSelectedCell().copy());
-//        removeUlteriorCellStates();
+        removeUlteriorCellStates();
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
@@ -756,7 +755,6 @@ public class Controller implements Initializable {
                     }
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
-                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     currMode = Mode.NORMAL;
                 }
             }
@@ -772,7 +770,6 @@ public class Controller implements Initializable {
                         sheet.addCell(cellSelector.getSelectedCell().copy());
                     }
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     switch (event.getCode()) {
                         case H -> moveLeft();
                         case J -> moveDown();
@@ -781,7 +778,6 @@ public class Controller implements Initializable {
                     }
                     recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     setSCTxtForTextInput();
-                    cellSelector.readCell(camera.picture.data());
                     cellSelector.draw(gc);
                 } else {
                     cellSelector.draw(gc, event.getText());
@@ -799,7 +795,6 @@ public class Controller implements Initializable {
                     sheet.addCell(cellSelector.getSelectedCell().copy());
                 }
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                recordedCellStates.add(cellSelector.getSelectedCell().copy());
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
