@@ -235,9 +235,14 @@ public class Controller implements Initializable {
     }
 
     protected static void removeUlteriorCellStates() {
-        while (undoCounter != 0) {
+        if (undoCounter != 0) {
+            Cell last = recordedCellStates.getLast().copy();
             recordedCellStates.removeLast();
-            undoCounter--;
+            while (undoCounter != 0) {
+                recordedCellStates.removeLast();
+                undoCounter--;
+            }
+            recordedCellStates.add(last);
         }
     }
 
