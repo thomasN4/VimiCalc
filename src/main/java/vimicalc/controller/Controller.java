@@ -38,7 +38,7 @@ public class Controller implements Initializable {
     private static final LinkedList<Formula> recordedFormula = new LinkedList<>();
     protected static ArrayList<Cell> clipboard = new ArrayList<>();
     protected static int dCounter = 1;
-    private static final int fCounter = 1;
+//    private static int fCounter = 1;
     protected static Camera camera;
     protected static Command command;
     protected static CoordsCell coordsCell;
@@ -238,7 +238,7 @@ public class Controller implements Initializable {
 
     protected static void undo() {
         int listIndex = recordedCell.size() - 1 - dCounter;
-        int formulaListIndex = recordedFormula.size() - fCounter;
+//        int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
 //        if (recordedCell.get(listIndex).txt() == null) {
 //            sheet.deleteCell(coordsCell.getCoords());
@@ -266,7 +266,7 @@ public class Controller implements Initializable {
         if (recordedCell.get(listIndex).formula() != null) {
             System.out.println("Redoing cell with formula...");
             Formula f = new Formula(
-                recordedFormula.get(formulaListIndex).getTxt(),
+                recordedCell.get(listIndex).formula().getTxt(),
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord()
             );
@@ -282,12 +282,12 @@ public class Controller implements Initializable {
     protected static void redo() {
         dCounter = dCounter - 2;
         int listIndex = recordedCell.size() - dCounter;
-        int formulaListIndex = recordedFormula.size() - fCounter;
+//        int formulaListIndex = recordedFormula.size() - fCounter;
         goTo(recordedCell.get(listIndex).xCoord(), recordedCell.get(listIndex).yCoord());
         if (recordedCell.get(listIndex).formula() != null) {
             System.out.println("Redoing cell with formula...");
             Formula f = new Formula(
-                recordedFormula.get(formulaListIndex).getTxt(),
+                recordedCell.get(listIndex).formula().getTxt(),
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord()
             );
