@@ -155,7 +155,7 @@ public class KeyCommand {
         for (int i = 0; i < fstFIandM[1]; i++) {
             switch (fstFunc) {
                 case '=' -> {
-                    recordedCells.add(cellSelector.getSelectedCell().copy());
+                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     currMode = Mode.FORMULA;
                     cellSelector.readCell(camera.picture.data());
                     if (cellSelector.getSelectedCell().formula() == null)
@@ -257,12 +257,12 @@ public class KeyCommand {
                         if (cellSelector.getSelectedCell().txt() == null)
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                         else {
-                            recordedCells.add(cellSelector.getSelectedCell().copy());
+                            recordedCellStates.add(cellSelector.getSelectedCell().copy());
                             sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
-                            recordedCells.add(cellSelector.getSelectedCell().copy());
+                            recordedCellStates.add(cellSelector.getSelectedCell().copy());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                         }
                         this.expr = "";
@@ -276,7 +276,7 @@ public class KeyCommand {
                     this.expr = "";
                 }
                 case 'u' -> {
-                    if (!recordedCells.isEmpty() && !(undoCounter >= recordedCells.size())) undo();
+                    if (!recordedCellStates.isEmpty() && !(undoCounter >= recordedCellStates.size())) undo();
                     else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -284,7 +284,7 @@ public class KeyCommand {
                     this.expr = "";
                 }
                 case 'r' -> {
-                    if (!recordedCells.isEmpty() && !(undoCounter <= 1)) redo();
+                    if (!recordedCellStates.isEmpty() && !(undoCounter <= 1)) redo();
                     else infoBar.setInfobarTxt("CAN'T REDO RIGHT NOW");
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
@@ -330,7 +330,7 @@ public class KeyCommand {
                     }
                 }
                 case 'a', 'i' -> {
-                    recordedCells.add(cellSelector.getSelectedCell().copy());
+                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     setSCTxtForTextInput();
                     currMode = Mode.INSERT;
                     cellSelector.draw(gc);
