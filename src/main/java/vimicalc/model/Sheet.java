@@ -243,6 +243,7 @@ public class Sheet {
         newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
         newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
         Controller.reset(newXOffsets, newYOffsets);
+        if (macros == null) macros = new HashMap<>();
         iStream.close();
         file = new File(path);
         Controller.statusBar.setFilename(file.getName());
