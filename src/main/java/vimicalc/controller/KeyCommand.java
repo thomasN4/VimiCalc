@@ -262,7 +262,6 @@ public class KeyCommand {
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
-                            recordedCellStates.add(cellSelector.getSelectedCell().copy());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                         }
                         this.expr = "";
