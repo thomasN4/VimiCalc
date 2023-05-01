@@ -354,24 +354,6 @@ public class Controller implements Initializable {
         trimRecordedCells();
     }
 
-    protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
-        if (cellSelector.getSelectedCell().value() != null) {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().value()
-            ));
-        } else {
-            cellSelector.setSelectedCell(new Cell(
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord(),
-                cellSelector.getSelectedCell().txt()
-            ));
-        }
-        if (cellSelector.getSelectedCell().txt() == null)
-            cellSelector.getSelectedCell().setTxt("");
-    }
-
     public static void onKeyPressed(@NotNull KeyEvent event) {
         if (recordingMacro) currMacro.add(event);
         if (currMode == Mode.NORMAL) keyCommand.addChar(event);
@@ -741,6 +723,13 @@ public class Controller implements Initializable {
         }
     }
 
+    protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
+        if (cellSelector.getSelectedCell().value() != null &&
+            !cellSelector.getSelectedCell().txt().endsWith(".0"))
+            cellSelector.getSelectedCell().setTxt(""+cellSelector.getSelectedCell().value());
+        if (cellSelector.getSelectedCell().txt() == null)
+            cellSelector.getSelectedCell().setTxt("");
+    }
     private static void textInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {

@@ -328,8 +328,8 @@ public class KeyCommand {
                     }
                 }
                 case 'a', 'i' -> {
-                    setSCTxtForTextInput();
                     recordedCell.add(cellSelector.getSelectedCell().copy());
+                    setSCTxtForTextInput();
                     currMode = Mode.INSERT;
                     cellSelector.draw(gc);
                     this.expr = "";
