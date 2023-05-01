@@ -289,10 +289,8 @@ public class Controller implements Initializable {
         sheet.getCells().forEach(Cell::isEmpty);
     }
 
-    public static int prevXCPos, prevYCPos;
+    public static int staticPrevXC, staticPrevYC;
     protected static void goTo(int xCoord, int yCoord) {
-        prevXCPos = cellSelector.getXCoord();
-        prevYCPos = cellSelector.getYCoord();
         while (xCoord - cellSelector.getXCoord() > 0)
             moveRight();
         while (xCoord - cellSelector.getXCoord() < 0)
@@ -303,6 +301,11 @@ public class Controller implements Initializable {
             moveUp();
         coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         updateVisualState();
+    }
+    protected static void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
+        staticPrevXC = prevXC;
+        staticPrevYC = prevYC;
+        goTo(xCoord, yCoord);
     }
 
     protected static void paste(int index) {
@@ -406,10 +409,7 @@ public class Controller implements Initializable {
                         f
                     );
                     sheet.addCell(c);
-//                    recordedFormula.add(f);
                     goTo(c.xCoord(), c.yCoord());
-                    recordedCellStates.add(c.copy());
-                    System.out.println(recordedCellStates.getLast());
                     command.commandExists = true;
                 }
                 currMode = Mode.NORMAL;
@@ -930,8 +930,8 @@ public class Controller implements Initializable {
         currMode = Mode.NORMAL;
         keyCommand = new KeyCommand();
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-        prevXCPos = cellSelector.getXCoord();
-        prevYCPos = cellSelector.getYCoord();
+        staticPrevXC = cellSelector.getXCoord();
+        staticPrevYC = cellSelector.getYCoord();
         recordedCellStates = new LinkedList<>();
         undoneCellStates = new LinkedList<>();
         undoCounter = 0;

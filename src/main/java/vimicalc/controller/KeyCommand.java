@@ -52,7 +52,7 @@ public class KeyCommand {
             }
             case O -> {
                 if (event.isControlDown())
-                    goTo(prevXCPos, prevYCPos);
+                    goTo(staticPrevXC, staticPrevYC);
             }
             case C -> {
                 if (event.isControlDown()) {
@@ -248,7 +248,7 @@ public class KeyCommand {
                     if (expr.length() > 3 &&
                         !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
-                        goTo(coords[0], coords[1]);
+                        goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
                         this.expr = ""+lastChar;
                         evaluate(this.expr);
                     }
