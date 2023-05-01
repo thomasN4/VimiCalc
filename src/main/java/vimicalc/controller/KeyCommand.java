@@ -112,6 +112,7 @@ public class KeyCommand {
         if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length() - 1))) {
             System.out.println("Executing one of *these* KeyCommand functions...");
             ArrayList<String> tempMacro = new ArrayList<>();
+            int ignore = 0;
             tempMacro.add(fstFunc + "" + fstFunc);
 
             int[] sndFIandM = parseFIndexAndMult(fstFIandM[0] + 1, expr);
@@ -139,12 +140,13 @@ public class KeyCommand {
                 }
                 tempMacro.add("" + trdFunc);
                 tempMacro.add(sndFIandM[1] + "" + invSndFunc);
+                ignore = 2;
             }
 
             System.out.println("Special macro: " + tempMacro);
             for (int i = 0; i < fstFIandM[1]; i++) {
                 for (int j = 0; j < tempMacro.size(); j++) {
-                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - 2) {
+                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - ignore) {
                         this.expr = "";
                         return;
                     } else evaluate(tempMacro.get(j));
