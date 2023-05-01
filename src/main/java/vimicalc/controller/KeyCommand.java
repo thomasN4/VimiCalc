@@ -265,6 +265,7 @@ public class KeyCommand {
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
+                            removeUltCStates();
                         }
                         this.expr = "";
                     }
@@ -285,6 +286,8 @@ public class KeyCommand {
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
+                    System.out.println("Recorded cell states: ");
+                    recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
                     this.expr = "";
                 }
                 case 'r' -> {
@@ -296,6 +299,8 @@ public class KeyCommand {
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
+                    System.out.println("Recorded cell states: ");
+                    recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
                     this.expr = "";
                 }
                 case 'y' -> {

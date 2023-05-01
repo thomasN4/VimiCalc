@@ -244,6 +244,8 @@ public class Controller implements Initializable {
             }
             recordedCellStates.add(last);
         }
+        System.out.println("Recorded cell states: ");
+        recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
     }
 
     protected static void undo() {
