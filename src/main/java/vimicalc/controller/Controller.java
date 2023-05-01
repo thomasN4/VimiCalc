@@ -244,11 +244,6 @@ public class Controller implements Initializable {
     protected static void undo() {
         int listIndex = recordedCellStates.size() - 1 - undoCounter;
         undoCounter++;
-        if (undoCounter > recordedCellStates.size()) {
-            undoCounter = recordedCellStates.size() - 1;
-            infoBar.setInfobarTxt("Already at earliest change.");
-            return;
-        }
 
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
@@ -265,18 +260,11 @@ public class Controller implements Initializable {
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
-        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-        camera.ready();
     }
 
     protected static void redo() {
         int listIndex = recordedCellStates.size() - undoCounter;
         undoCounter--;
-        if (undoCounter > 0) {
-            undoCounter = 0;
-            infoBar.setInfobarTxt("Already at latest change.");
-            return;
-        }
 
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
@@ -293,8 +281,6 @@ public class Controller implements Initializable {
         cellContentToInfobar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
-        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-        camera.ready();
     }
 
     public static int prevXCPos, prevYCPos;

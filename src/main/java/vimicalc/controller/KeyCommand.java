@@ -276,19 +276,25 @@ public class KeyCommand {
                     this.expr = "";
                 }
                 case 'u' -> {
-                    if (!recordedCellStates.isEmpty() && !(undoCounter >= recordedCellStates.size())) undo();
-                    else infoBar.setInfobarTxt("CAN'T UNDO RIGHT NOW");
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    cellSelector.readCell(camera.picture.data());
+                    if (undoCounter >= recordedCellStates.size())
+                        infoBar.setInfobarTxt("Already at earliest change.");
+                    else {
+                        undo();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                    }
                     this.expr = "";
                 }
                 case 'r' -> {
-                    if (!recordedCellStates.isEmpty() && !(undoCounter <= 1)) redo();
-                    else infoBar.setInfobarTxt("CAN'T REDO RIGHT NOW");
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    cellSelector.readCell(camera.picture.data());
+                    if (undoCounter == 0 || recordedCellStates.size() == 0)
+                        infoBar.setInfobarTxt("Already at latest change.");
+                    else {
+                        redo();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        cellSelector.readCell(camera.picture.data());
+                    }
                     this.expr = "";
                 }
                 case 'y' -> {
