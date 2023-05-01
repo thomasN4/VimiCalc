@@ -34,15 +34,6 @@ public class Sheet {
         return cells;
     }
 
-    public double redoCell(int xCoord, int yCoord, double value) {
-        Cell c = findCell(xCoord, yCoord);
-        c = new Cell(xCoord, yCoord, value);
-        return value;
-    }
-    public void deleteCell(@NotNull String coords) {
-        int[] coordsInt = coordsStrToInts(coords);
-        deleteCell(coordsInt[0], coordsInt[1]);
-    }
     public void deleteCell(int xCoord, int yCoord) {
         System.out.println("Deleting a cell...");
         Cell c = findCell(xCoord, yCoord);
