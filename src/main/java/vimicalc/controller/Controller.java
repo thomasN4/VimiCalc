@@ -35,6 +35,7 @@ public class Controller implements Initializable {
     @FXML
     private Canvas canvas;
     protected static LinkedList<Cell> recordedCellStates;
+    protected static LinkedList<Cell> undoneCellStates;
     protected static int undoCounter;
     protected static ArrayList<Cell> clipboard;
     protected static Camera camera;
@@ -242,6 +243,8 @@ public class Controller implements Initializable {
             undoCounter--;
         }
         recordedCellStates.add(last);
+        undoneCellStates = new LinkedList<>();
+
         System.out.println("Recorded cell states: ");
         recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
     }
@@ -253,6 +256,7 @@ public class Controller implements Initializable {
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
         recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
+        undoneCellStates.add(substitute);
         sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
         if (substitute.formula() != null) {
@@ -271,7 +275,8 @@ public class Controller implements Initializable {
 
         Cell substitute = recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
+        recordedCellStates.set(listIndex, undoneCellStates.getLast().copy());
+        undoneCellStates.removeLast();
         sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
         if (substitute.formula() != null) {
@@ -928,6 +933,7 @@ public class Controller implements Initializable {
         prevXCPos = cellSelector.getXCoord();
         prevYCPos = cellSelector.getYCoord();
         recordedCellStates = new LinkedList<>();
+        undoneCellStates = new LinkedList<>();
         undoCounter = 0;
         clipboard = new ArrayList<>();
 
