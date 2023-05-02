@@ -51,9 +51,9 @@ public class Sheet {
     }
 
     public void deleteDependency(int xCoord, int yCoord) {
-        checkForDependents(xCoord, yCoord);
         Dependency d = findDependency(xCoord, yCoord);
         if (d != null) {
+            System.out.println("Dependency found");
             d.setDependeds(new ArrayList<>());
             if (d.getDependents().size() == 0) {
                 System.out.println("Removing dependency at: " + coordsIntsToStr(d.getxCoord(), d.getyCoord()));
