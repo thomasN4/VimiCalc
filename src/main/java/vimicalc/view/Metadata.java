@@ -34,7 +34,7 @@ public class Metadata {
     }
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
-        int[] cellAbsXsLong = new int[picW+DCW], cellAbsYsLong = new int[picH+DCH];
+        int[] cellAbsXsLong = new int[65536], cellAbsYsLong = new int[65536];
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;

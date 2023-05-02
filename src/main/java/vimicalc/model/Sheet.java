@@ -156,19 +156,19 @@ public class Sheet {
     }
 
     public void evalDependency(Dependency d) {
-        evalDependencies(d);
+        evalDependents(d);
         cells.removeIf(Cell::isEmpty);
         System.out.println("All of the dependencies (result):");
 //        dependencies.forEach(e -> System.out.println(e.log()));
     }
-    private void evalDependencies(@NotNull Dependency d) {
+    private void evalDependents(@NotNull Dependency d) {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated();
         System.out.println(d.log());
         if (d.isReadyToBeEvaluated())
             d.evaluate(this);
         for (Dependency e : d.getDependents())
-            evalDependencies(e);
+            evalDependents(e);
     }
 
     public void writeFile() throws IOException {
