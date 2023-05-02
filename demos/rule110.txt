@@ -1,4 +1,4 @@
-a: gT1 i0[ESC] yy l pp l i1[TAB] p22j gV2 gA24=0_0_+[ALT+L]=2_0_+[ALT+L]=[write the formula below][ENTER]yy[CTRL+O]
+a: gT1 i0[ESC] yy l pp l i1[TAB] p20j gV2 gA24=0_0_+[ALT+L]=2_0_+[ALT+L]=[write the below formula][ENTER] yy [CTRL+O]
 
 C24: (=(kh k * kl *) (kh k 1 + 2 mod * kl 1 + 2 mod *) + (kh k * kl * 1 + 2 mod) + 1 + 2 mod)
 
@@ -9,3 +9,5 @@ c: i0[ALT+H] 0[ENTER] 2l $B24l gB24=_1_+[ENTER] h dd =0_0_+[ENTER][CTRL+O]
 d: pp gA24=_1_+[ENTER][CTRL+O] h
 
 e: @a $D24@b
+
+r: :resCol -69 l
