@@ -58,7 +58,7 @@ public class Sheet {
             if (d.getDependents().size() == 0) {
                 System.out.println("Removing dependency at: " + coordsIntsToStr(d.getxCoord(), d.getyCoord()));
                 dependencies.remove(d);
-            } else checkForDependents(d.getxCoord(), d.getyCoord());
+            } else evalDependency(d);
         }
     }
 
@@ -146,36 +146,22 @@ public class Sheet {
     public void addCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        checkForDependents(cell.xCoord(), cell.yCoord());
+        Dependency d = findDependency(cell.xCoord(), cell.yCoord());
+        if (d != null && d.getDependents().size() != 0)
+            evalDependency(d);
     }
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
     }
 
-    public void checkForDependents(int xCoord, int yCoord) {
-        System.out.println("Checking for dependents...");
-        boolean needsEvaluating = false;
-        for (Dependency d : dependencies) {
-            if (d.getxCoord() == xCoord && d.getyCoord() == yCoord &&
-                d.getDependents().size() != 0) {
-                dependencies.forEach(e -> System.out.println(e.log()));
-                evalDependencies(d);
-                needsEvaluating = true;
-                break;
-            }
-        }
-
-        if (needsEvaluating) {
-            cells.removeIf(Cell::isEmpty);
-            System.out.println("All of the dependencies (result):");
-            dependencies.forEach(d -> System.out.println(d.log()));
-        }
-        else
-            System.out.println("No evaluations done.");
+    public void evalDependency(Dependency d) {
+        evalDependencies(d);
+        cells.removeIf(Cell::isEmpty);
+        System.out.println("All of the dependencies (result):");
+//        dependencies.forEach(e -> System.out.println(e.log()));
     }
-
-    public void evalDependencies(@NotNull Dependency d) {
+    private void evalDependencies(@NotNull Dependency d) {
         System.out.println("Evaluating dependencies...");
         d.setToBeEvaluated();
         System.out.println(d.log());
