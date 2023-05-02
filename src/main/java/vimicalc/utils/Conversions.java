@@ -53,7 +53,9 @@ public class Conversions {
         return new int[]{xCoord, yCoord};
     }
 
-/*    public static String coordsIntsToStr(int xC, int yC) {return toAlpha(xC-1) + yC;}*/
+    public static String coordsIntsToStr(int xC, int yC) {
+        return toAlpha(xC-1) + yC;
+    }
 
     public static String relToAbsCoords(@NotNull String relC, int xRef, int yRef) {
         String absC = "";

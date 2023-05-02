@@ -257,9 +257,10 @@ public class KeyCommand {
                 case 'd' -> {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'd') {
                         System.out.println("Trying to delete a cell's content...");
-                        if (cellSelector.getSelectedCell().txt() == null)
+                        if (cellSelector.getSelectedCell().txt() == null) {
                             infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
-                        else {
+                            sheet.deleteDependency(cellSelector.getXCoord(), cellSelector.getYCoord());
+                        } else {
                             recordedCellStates.add(cellSelector.getSelectedCell().copy());
                             sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
                             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
