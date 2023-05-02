@@ -58,7 +58,7 @@ public class Sheet {
             if (d.getDependents().size() == 0) {
                 System.out.println("Removing dependency at: " + coordsIntsToStr(d.getxCoord(), d.getyCoord()));
                 dependencies.remove(d);
-            }
+            } else checkForDependents(d.getxCoord(), d.getyCoord());
         }
     }
 
