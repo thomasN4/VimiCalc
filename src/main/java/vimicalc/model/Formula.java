@@ -13,8 +13,8 @@ public class Formula extends Interpretable {
         super(txt, xC, yC);
     }
 
-    protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) {
-        sheet.addDependency(xC, yC);
+    protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) throws Exception {
+        sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -53,8 +53,8 @@ public class Formula extends Interpretable {
         return mat;
     }
 
-    protected Lexeme[] createVectorFromArea(@NotNull String coordsArea, @NotNull Sheet sheet) {
-        sheet.addDependency(xC, yC);
+    protected Lexeme[] createVectorFromArea(@NotNull String coordsArea, @NotNull Sheet sheet) throws Exception {
+        sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
         String lastCoords;
 
@@ -126,7 +126,7 @@ public class Formula extends Interpretable {
         return q;
     }
 
-    private double tableArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) {
+    private double tableArithmetic(@NotNull String arg0, @NotNull Lexeme arg1, Sheet sheet) throws Exception {
         Lexeme[] vector = createVectorFromArea(arg1.getFunc(), sheet);
         return switch (arg0) {
             case "sum" -> sum(vector);
@@ -136,7 +136,7 @@ public class Formula extends Interpretable {
         };
     }
 
-    private Lexeme negative(@NotNull String arg, Sheet sheet) {
+    private Lexeme negative(@NotNull String arg, Sheet sheet) throws Exception {
         return (interpret(
             new Lexeme[]{
                 new Lexeme(-1),
@@ -147,7 +147,7 @@ public class Formula extends Interpretable {
         ))[0];
     }
 
-    public Lexeme[] interpret(Lexeme[] args, Sheet sheet) {
+    public Lexeme[] interpret(Lexeme[] args, Sheet sheet) throws Exception {
         byte reduction;
         Lexeme reduced;
 
@@ -168,23 +168,13 @@ public class Formula extends Interpretable {
                     }
                     case "det" -> {
                         reduction = 1;
-                        try {
-                            reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                            reduced = new Lexeme(0);
-                        }
+                        reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
                     }
                     case "matMult" -> {
                         reduction = 2;
-                        try {
-                            reduced = new Lexeme(matMult(
-                                args[i-2].getFunc(), args[i-1].getFunc(), sheet
-                            ));
-                        } catch (Exception e) {
-                            System.out.println(e.getMessage());
-                            reduced = new Lexeme(0);
-                        }
+                        reduced = new Lexeme(matMult(
+                            args[i-2].getFunc(), args[i-1].getFunc(), sheet
+                        ));
                     }
                     case "+" -> {
                         if (i > 1) {
@@ -277,9 +267,9 @@ public class Formula extends Interpretable {
     }
 
     @Contract("_, _ -> new")
-    private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) {
+    private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) throws Exception {
         Cell c = sheet.findCell(coords);
-        sheet.addDependency(xC, yC);
+        sheet.addDependent(xC, yC);
         sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
 
         if (c.txt() == null)

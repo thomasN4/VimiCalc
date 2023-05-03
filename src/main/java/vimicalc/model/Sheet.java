@@ -115,28 +115,40 @@ public class Sheet {
         return null;
     }
 
-    public void addDependency(int xCoord, int yCoord) {
+    public void addDependent(int xCoord, int yCoord) {
         if (findDependency(xCoord, yCoord) == null)
             dependencies.add(new Dependency(xCoord, yCoord));
     }
 
-    private void checkForDependencyCycle(Dependency d) {
-        ;
+    private void checkForDependencyCycle(Dependency a, Dependency b) throws Exception {
+        System.out.println("Checking for dependency cycles...");
+        for (Dependency c : a.getDependeds()) {
+            if (c.getxCoord() == b.getxCoord() && c.getyCoord() == b.getyCoord()) {
+                dependencies.remove(b);
+                dependencies.removeIf(d -> d.getDependeds().size() == 0 && d.getDependents().size() == 0);
+                throw new Exception("Dependency cycle detected");
+            } else checkForDependencyCycle(c, b);
+        }
     }
 
-    public void addDepended(int xCoord, int yCoord, Dependency dependent) {
+    public void addDepended(int xCoord, int yCoord, Dependency dependent) throws Exception {
         Dependency depended = findDependency(xCoord, yCoord);
-        checkForDependencyCycle(depended);
         if (depended == null) {
+            System.out.println("Depended not found");
             depended = new Dependency(xCoord, yCoord);
             depended.getDependents().add(dependent);
             dependent.getDependeds().add(depended);
             dependencies.add(depended);
         }
         else if (!dependedAlreadyAdded(dependent, depended)) {
+            System.out.println("Adding depended...");
             depended.getDependents().add(dependent);
             dependent.getDependeds().add(depended);
+            checkForDependencyCycle(depended, depended);
             dependencies.add(depended);
+        }
+        else {
+            System.out.println("Depended found but already added");
         }
     }
     public boolean dependedAlreadyAdded(@NotNull Dependency dependent, Dependency depended) {
@@ -306,7 +318,12 @@ class Dependency implements Serializable {
     void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
         if (c.formula() != null) {
-            c.setFormulaResult(c.formula().interpret(sheet), c.formula());
+            try {
+                c.setFormulaResult(c.formula().interpret(sheet), c.formula());
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("Something went very wrong.");
+            }
             sheet.simplyAddCell(c);
         }
         else if (c.txt() == null) {

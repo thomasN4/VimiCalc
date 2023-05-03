@@ -261,7 +261,12 @@ public class Controller implements Initializable {
 
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
-            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            try {
+                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("Something went very wrong.");
+            }
         } else cellSelector.setSelectedCell(substitute);
 
         cellContentToIbar();
@@ -281,7 +286,12 @@ public class Controller implements Initializable {
 
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
-            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            try {
+                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("Something went very wrong.");
+            }
         } else cellSelector.setSelectedCell(substitute);
 
         cellContentToIbar();
@@ -310,17 +320,25 @@ public class Controller implements Initializable {
 
     protected static void paste(int index) {
         System.out.println("Pasting cell " + clipboard.get(index));
-        recordedCellStates.add(cellSelector.getSelectedCell().copy());
-        sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
         if (clipboard.get(index).formula() != null) {
             Formula f = new Formula(
                 clipboard.get(index).formula().getTxt(),
                 cellSelector.getXCoord(),
                 cellSelector.getYCoord()
             );
-            cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-            cellSelector.getSelectedCell().formula().interpret(sheet);
-        } else cellSelector.setSelectedCell(clipboard.get(index).copy());
+            try {
+                recordedCellStates.add(cellSelector.getSelectedCell().copy());
+                sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
+                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+            } catch (Exception e) {
+                infoBar.setInfobarTxt(e.getMessage());
+                return;
+            }
+        } else {
+            recordedCellStates.add(cellSelector.getSelectedCell().copy());
+            sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
+            cellSelector.setSelectedCell(clipboard.get(index).copy());
+        }
         cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
         cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
         cellContentToIbar();
@@ -384,33 +402,37 @@ public class Controller implements Initializable {
             }
             case ENTER -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
-                    selectedCoords = new ArrayList<>();
-                    infoBar.setEnteringCommandInVISUAL(false);
+                    try {
+                        selectedCoords = new ArrayList<>();
+                        infoBar.setEnteringCommandInVISUAL(false);
 
-                    StringBuilder destinationCoord = new StringBuilder();
-                    int i;
-                    for (i = command.getTxt().length() - 1; i > 0; i--) {
-                        if (command.getTxt().charAt(i) == ' ') break;
-                        destinationCoord.append(command.getTxt().charAt(i));
+                        StringBuilder destinationCoord = new StringBuilder();
+                        int i;
+                        for (i = command.getTxt().length() - 1; i > 0; i--) {
+                            if (command.getTxt().charAt(i) == ' ') break;
+                            destinationCoord.append(command.getTxt().charAt(i));
+                        }
+                        destinationCoord.reverse();
+
+                        Cell c = sheet.findCell(destinationCoord.toString());
+                        recordedCellStates.add(c.copy());
+                        Formula f = new Formula(
+                                coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
+                                c.xCoord(),
+                                c.yCoord()
+                        );
+                        c = new Cell(
+                                c.xCoord(),
+                                c.yCoord(),
+                                f.interpret(sheet),
+                                f
+                        );
+                        sheet.addCell(c);
+                        goTo(c.xCoord(), c.yCoord());
+                        command.commandExists = true;
+                    } catch (Exception e) {
+                        infoBar.setInfobarTxt(e.getMessage());
                     }
-                    destinationCoord.reverse();
-
-                    Cell c = sheet.findCell(destinationCoord.toString());
-                    recordedCellStates.add(c.copy());
-                    Formula f = new Formula(
-                        coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
-                        c.xCoord(),
-                        c.yCoord()
-                    );
-                    c = new Cell(
-                        c.xCoord(),
-                        c.yCoord(),
-                        f.interpret(sheet),
-                        f
-                    );
-                    sheet.addCell(c);
-                    goTo(c.xCoord(), c.yCoord());
-                    command.commandExists = true;
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
@@ -422,7 +444,11 @@ public class Controller implements Initializable {
                     moveDown();
                 else
                     moveUp();
-                command.interpret(sheet);
+                try {
+                    command.interpret(sheet);
+                } catch (Exception e) {
+                    infoBar.setInfobarTxt(e.getMessage());
+                }
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
@@ -783,33 +809,37 @@ public class Controller implements Initializable {
             }
             case H, J, K, L -> {
                 if (event.isAltDown()) {
-                    if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
-                        infoBar.setInfobarTxt("CELL IS EMPTY");
-                    else {
-                        if (undoCounter != 0) removeUltCStates();
-                        cellSelector.getSelectedCell().setFormulaResult(
-                            cellSelector.getSelectedCell().formula().interpret(sheet),
-                            cellSelector.getSelectedCell().formula()
-                        );
-                        sheet.addCell(cellSelector.getSelectedCell());
+                    try {
+                        if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
+                            infoBar.setInfobarTxt("CELL IS EMPTY");
+                        else {
+                            if (undoCounter != 0) removeUltCStates();
+                            cellSelector.getSelectedCell().setFormulaResult(
+                                    cellSelector.getSelectedCell().formula().interpret(sheet),
+                                    cellSelector.getSelectedCell().formula()
+                            );
+                            sheet.addCell(cellSelector.getSelectedCell());
+                        }
+                        cellContentToIbar();
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
+                        switch (event.getCode()) {
+                            case H -> moveLeft();
+                            case J -> moveDown();
+                            case K -> moveUp();
+                            case L -> moveRight();
+                        }
+                        recordedCellStates.add(cellSelector.getSelectedCell().copy());
+                        currMode = Mode.FORMULA;
+                        if (cellSelector.getSelectedCell().formula() == null)
+                            cellSelector.getSelectedCell().setFormula(
+                                    new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
+                            );
+                        infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
+                    } catch (Exception e) {
+                        infoBar.setInfobarTxt(e.getMessage());
                     }
-                    cellContentToIbar();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    camera.ready();
-                    if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
-                    switch (event.getCode()) {
-                        case H -> moveLeft();
-                        case J -> moveDown();
-                        case K -> moveUp();
-                        case L -> moveRight();
-                    }
-                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
-                    currMode = Mode.FORMULA;
-                    if (cellSelector.getSelectedCell().formula() == null)
-                        cellSelector.getSelectedCell().setFormula(
-                            new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
-                        );
-                    infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
                 } else {
                     cellSelector.getSelectedCell().formula().setTxt(
                         cellSelector.getSelectedCell().formula().getTxt() +
@@ -819,22 +849,26 @@ public class Controller implements Initializable {
                 }
             }
             case ENTER -> {
-                if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
-                    infoBar.setInfobarTxt("CELL IS EMPTY");
-                else {
-                    if (undoCounter != 0) removeUltCStates();
-                    cellSelector.getSelectedCell().setFormulaResult(
-                        cellSelector.getSelectedCell().formula().interpret(sheet),
-                        cellSelector.getSelectedCell().formula()
-                    );
-                    sheet.addCell(cellSelector.getSelectedCell());
+                try {
+                    if (cellSelector.getSelectedCell().formula().getTxt().isEmpty())
+                        infoBar.setInfobarTxt("CELL IS EMPTY");
+                    else {
+                        if (undoCounter != 0) removeUltCStates();
+                        cellSelector.getSelectedCell().setFormulaResult(
+                                cellSelector.getSelectedCell().formula().interpret(sheet),
+                                cellSelector.getSelectedCell().formula()
+                        );
+                        sheet.addCell(cellSelector.getSelectedCell());
+                    }
+                    cellContentToIbar();
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.ready();
+                    currMode = Mode.NORMAL;
+                    cellSelector.readCell(camera.picture.data());
+                    if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
+                } catch (Exception e) {
+                    infoBar.setInfobarTxt(e.getMessage());
                 }
-                cellContentToIbar();
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                camera.ready();
-                currMode = Mode.NORMAL;
-                cellSelector.readCell(camera.picture.data());
-                if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
             }
             case BACK_SPACE -> {
                 if (cellSelector.getSelectedCell().formula().getTxt().isEmpty()) {

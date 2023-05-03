@@ -186,23 +186,27 @@ public class KeyCommand {
                 }
                 case '<' -> {
                     System.out.println("Entering conditional keyCommand...");
-                    if (expr.length() > 5 && lastChar == '}') {
-                        StringBuilder cond = new StringBuilder(),
-                                thenBlock = new StringBuilder(),
-                                elseBlock = new StringBuilder();
-                        int pos = 1;
-                        for (; expr.charAt(pos) != '{'; ++pos)
-                            cond.append(expr.charAt(pos));
-                        for (++pos; expr.charAt(pos) != '}' && expr.charAt(pos) != '{'; ++pos)
-                            thenBlock.append(expr.charAt(pos));
-                        if ((new Formula(cond.toString(), 0, 0)).interpret(sheet) != 0)
-                            evaluate(thenBlock.toString());
-                        else if (expr.charAt(pos) == '{') {
-                            for (++pos; expr.charAt(pos) != '}'; ++pos)
-                                elseBlock.append(expr.charAt(pos));
-                            evaluate(elseBlock.toString());
+                    try {
+                        if (expr.length() > 5 && lastChar == '}') {
+                            StringBuilder cond = new StringBuilder(),
+                                    thenBlock = new StringBuilder(),
+                                    elseBlock = new StringBuilder();
+                            int pos = 1;
+                            for (; expr.charAt(pos) != '{'; ++pos)
+                                cond.append(expr.charAt(pos));
+                            for (++pos; expr.charAt(pos) != '}' && expr.charAt(pos) != '{'; ++pos)
+                                thenBlock.append(expr.charAt(pos));
+                            if ((new Formula(cond.toString(), 0, 0)).interpret(sheet) != 0)
+                                evaluate(thenBlock.toString());
+                            else if (expr.charAt(pos) == '{') {
+                                for (++pos; expr.charAt(pos) != '}'; ++pos)
+                                    elseBlock.append(expr.charAt(pos));
+                                evaluate(elseBlock.toString());
+                            }
+                            this.expr = "";
                         }
-                        this.expr = "";
+                    } catch (Exception e) {
+                        infoBar.setInfobarTxt(e.getMessage());
                     }
                 }
                 case 'q' -> {
@@ -367,7 +371,11 @@ public class KeyCommand {
                             this.expr = "";
                             return;
                         }
-                        command.interpret(sheet);
+                        try {
+                            command.interpret(sheet);
+                        } catch (Exception e) {
+                            infoBar.setInfobarTxt(e.getMessage());
+                        }
                     }
                 }
                 default -> this.expr = "";
