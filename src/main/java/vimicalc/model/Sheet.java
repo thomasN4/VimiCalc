@@ -115,13 +115,18 @@ public class Sheet {
         return null;
     }
 
-    public void addDependent(int xCoord, int yCoord) {
+    public void addDependency(int xCoord, int yCoord) {
         if (findDependency(xCoord, yCoord) == null)
             dependencies.add(new Dependency(xCoord, yCoord));
     }
 
+    private void checkForDependencyCycle(Dependency d) {
+        ;
+    }
+
     public void addDepended(int xCoord, int yCoord, Dependency dependent) {
         Dependency depended = findDependency(xCoord, yCoord);
+        checkForDependencyCycle(depended);
         if (depended == null) {
             depended = new Dependency(xCoord, yCoord);
             depended.getDependents().add(dependent);
