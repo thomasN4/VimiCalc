@@ -49,11 +49,11 @@ abstract class Interpretable implements Serializable {
         this.txt = txt;
     }
 
-    public double interpret(Sheet sheet) {
+    public double interpret(Sheet sheet) throws Exception {
         return interpret(lexer(txt), sheet)[0].getVal();
     }
 
-    public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet);
+    public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet) throws Exception;
 }
 
 class Lexeme {

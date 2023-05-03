@@ -28,7 +28,7 @@ public class FirstCol extends Visible {
             gc.fillText(""+yC
                 , (float) w/2
                 , picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y + (float) cellHeight/2
-                , cellHeight);
+                , w);
         }
     }
 }
