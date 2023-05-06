@@ -214,6 +214,7 @@ public class KeyCommand {
                         }
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
+                        evaluationFinished = true;
                     }
                 }
                 case 'q' -> {
