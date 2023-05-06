@@ -120,8 +120,7 @@ public class Sheet {
             dependencies.add(new Dependency(xCoord, yCoord));
     }
 
-    private void checkForDependencyCycle(Dependency a, Dependency b, Dependency dependent) throws Exception {
-        System.out.println("Checking for dependency cycles...");
+    private void checkForDependencyCycle(@NotNull Dependency a, Dependency b, Dependency dependent) throws Exception {
         for (Dependency c : a.getDependeds()) {
             if (c.getxCoord() == b.getxCoord() && c.getyCoord() == b.getyCoord()) {
                 dependencies.remove(dependent);
@@ -143,6 +142,7 @@ public class Sheet {
             System.out.println("Adding depended...");
             depended.getDependents().add(dependent);
             dependent.getDependeds().add(depended);
+            System.out.println("Checking for dependency cycles...");
             checkForDependencyCycle(depended, depended, dependent);
             dependencies.add(depended);
         } else System.out.println("Depended found but already added");
