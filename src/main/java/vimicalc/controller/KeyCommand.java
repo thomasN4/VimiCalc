@@ -112,7 +112,8 @@ public class KeyCommand {
     public void evaluate(@NotNull String expr) {
         boolean evaluationFinished = false;
         if (expr.equals("")) return;
-        char lastChar = expr.charAt(expr.length() - 1);
+        char lastChar = expr.charAt(expr.length() - 1), beforeLastChar = 0;
+        if (expr.length() > 1) beforeLastChar = expr.charAt(expr.length() - 2);
         if (isNumber("" + lastChar)) return;
         int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1: indexe de la fonction, item 2: multiplicateur
 
@@ -179,7 +180,7 @@ public class KeyCommand {
                 }
                 case '$' -> {
                     if (expr.length() > 3 &&
-                            isNumber("" + expr.charAt(expr.length() - 2)) &&
+                            isNumber(""+beforeLastChar) &&
                             !isNumber("" + lastChar)) {
                         try {
                             this.expr = "" +
@@ -261,8 +262,7 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'g' -> {
-                    if (expr.length() > 3 &&
-                        !isNumber("" + lastChar)) {
+                    if (expr.length() > 3 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
                         cellContentToIBar();
