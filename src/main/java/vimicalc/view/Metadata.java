@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class Metadata {
-    private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC;
+    private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
     private final int picW, picH, DCW, DCH;
     private final HashMap<Integer, Integer> xOffsets;
     private final HashMap<Integer, Integer> yOffsets;
@@ -21,13 +21,19 @@ public class Metadata {
         this.picH = picH;
         this.DCW = DCW;
         this.DCH = DCH;
+        maxXC = 0;
+        maxYC = 0;
     }
 
     private int xOuterEdge(int xInnerEdge, int xC) {
-        return xInnerEdge + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC));
+        return Math.max(maxXC, xInnerEdge + picW + 2 * DCW +
+               ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
+               ((xOffsets.get(xC + 1) == null) ? 0 : xOffsets.get(xC + 1)));
     }
     private int yOuterEdge(int yInnerEdge, int yC) {
-        return yInnerEdge + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC));
+        return Math.max(maxYC, yInnerEdge + picH + 2 * DCH +
+               ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
+               ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1)));
     }
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
@@ -141,5 +147,21 @@ public class Metadata {
 
     public HashMap<Integer, Integer> getyOffsets() {
         return yOffsets;
+    }
+
+    public int getMaxXC() {
+        return maxXC;
+    }
+
+    public int getMaxYC() {
+        return maxYC;
+    }
+
+    public void setMaxXC(int maxXC) {
+        this.maxXC = maxXC;
+    }
+
+    public void setMaxYC(int maxYC) {
+        this.maxYC = maxYC;
     }
 }

@@ -157,8 +157,7 @@ public class Sheet {
     }
 
     public void addCell(Cell cell) {
-        cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
-        cells.add(cell);
+        simplyAddCell(cell);
         Dependency d = findDependency(cell.xCoord(), cell.yCoord());
         if (d != null && d.getDependents().size() != 0)
             evalDependency(d);
@@ -166,6 +165,8 @@ public class Sheet {
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
+        if (cell.xCoord() > picMetadata.getMaxXC()) picMetadata.setMaxXC(cell.xCoord());
+        if (cell.yCoord() > picMetadata.getMaxYC()) picMetadata.setMaxYC(cell.yCoord());
     }
 
     public void evalDependency(Dependency d) {
