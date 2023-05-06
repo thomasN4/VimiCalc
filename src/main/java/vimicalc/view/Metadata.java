@@ -32,12 +32,12 @@ public class Metadata {
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
         ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
+        cellAbsXsLong.add(0); cellAbsYsLong.add(0);
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;
         int xOffset, yOffset;
 
-        cellAbsXsLong.add(0); cellAbsYsLong.add(0);
         do {
             xOffset = (xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC);
             if (!firstXCFound && currAbsX > xInnerEdge) {
