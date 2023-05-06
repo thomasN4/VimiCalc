@@ -1,5 +1,6 @@
 package vimicalc.view;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -30,19 +31,20 @@ public class Metadata {
     }
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
-        int[] cellAbsXsLong = new int[512], cellAbsYsLong = new int[512];
+        ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;
         int xOffset, yOffset;
 
+        cellAbsXsLong.add(0); cellAbsYsLong.add(0);
         do {
             xOffset = (xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC);
             if (!firstXCFound && currAbsX > xInnerEdge) {
                 firstXC = xC - 1;
                 firstXCFound = true;
             }
-            cellAbsXsLong[xC] = currAbsX;
+            cellAbsXsLong.add(currAbsX);
             currAbsX += DCW + xOffset;
             if (currAbsX > xInnerEdge + picW && !lastXCFound) {
                 System.out.println(currAbsX + " " + xInnerEdge + " " + picW + " " + DCW);
@@ -51,7 +53,7 @@ public class Metadata {
             }
             xC++;
         } while (!lastXCFound || currAbsX <= xOuterEdge(xInnerEdge, lastXC));
-        cellAbsXsLong[xC] = currAbsX;
+        cellAbsXsLong.add(currAbsX);
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
 
@@ -61,7 +63,7 @@ public class Metadata {
                 firstYC = yC - 1;
                 firstYCFound = true;
             }
-            cellAbsYsLong[yC] = currAbsY;
+            cellAbsYsLong.add(currAbsY);
             currAbsY += DCH + yOffset;
             if (currAbsY > yInnerEdge + picH && !lastYCFound) {
                 System.out.println(currAbsY + " " + yInnerEdge + " " + picH + " " + DCH);
@@ -70,14 +72,16 @@ public class Metadata {
             }
             yC++;
         } while (!lastYCFound || currAbsY <= yOuterEdge(yInnerEdge, lastYC));
-        cellAbsYsLong[yC] = currAbsY;
+        cellAbsYsLong.add(currAbsY);
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
 
         cellAbsXs = new int[xC];
-        System.arraycopy(cellAbsXsLong, 0, cellAbsXs, 0, xC);
+        for (int i = 0; i < xC; i++)
+            cellAbsXs[i] = cellAbsXsLong.get(i);
         cellAbsYs = new int[yC];
-        System.arraycopy(cellAbsYsLong, 0, cellAbsYs, 0, yC);
+        for (int i = 0; i < yC; i++)
+            cellAbsYs[i] = cellAbsYsLong.get(i);
 
         System.out.println("CellAbsXs: {");
         System.out.println("\t" + Arrays.toString(cellAbsXs));
