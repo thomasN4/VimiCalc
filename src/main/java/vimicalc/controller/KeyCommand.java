@@ -382,6 +382,7 @@ public class KeyCommand {
                     }
                 }
                 case '.' -> {
+                    keyStroke = prevExpr;
                     evaluate(prevExpr);
                     this.expr = "";
                 }
