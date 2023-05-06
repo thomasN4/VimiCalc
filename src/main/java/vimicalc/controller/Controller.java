@@ -617,6 +617,13 @@ public class Controller implements Initializable {
                 System.out.println("maxYC: " + maxYC);
                 System.out.println("minYC: " + minYC);
 
+                if (maxXC > camera.picture.metadata().getMaxXC() ||
+                    maxYC > camera.picture.metadata().getMaxYC()) {
+                    if (maxXC > camera.picture.metadata().getMaxXC()) camera.picture.metadata().setMaxXC(maxXC);
+                    if (maxYC > camera.picture.metadata().getMaxYC()) camera.picture.metadata().setMaxYC(maxYC);
+                    camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
+                }
+
                 switch (event.getCode()) {
                     case H, LEFT, BACK_SPACE -> moveLeft();
                     case J, DOWN, ENTER -> moveDown();
