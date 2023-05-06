@@ -26,14 +26,14 @@ public class Metadata {
     }
 
     private int xOuterEdge(int xInnerEdge, int xC) {
-        return Math.max(maxXC, xInnerEdge + picW + 2 * DCW +
+        return xInnerEdge + picW + 2 * DCW +
                ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
-               ((xOffsets.get(xC + 1) == null) ? 0 : xOffsets.get(xC + 1)));
+               ((xOffsets.get(xC + 1) == null) ? 0 : xOffsets.get(xC + 1));
     }
     private int yOuterEdge(int yInnerEdge, int yC) {
-        return Math.max(maxYC, yInnerEdge + picH + 2 * DCH +
+        return yInnerEdge + picH + 2 * DCH +
                ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
-               ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1)));
+               ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1));
     }
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
@@ -58,7 +58,7 @@ public class Metadata {
                 lastXCFound = true;
             }
             xC++;
-        } while (!lastXCFound || currAbsX <= xOuterEdge(xInnerEdge, lastXC));
+        } while (!lastXCFound || currAbsX <= xOuterEdge(xInnerEdge, lastXC) || xC <= maxXC + 2);
         cellAbsXsLong.add(currAbsX);
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
@@ -77,7 +77,7 @@ public class Metadata {
                 lastYCFound = true;
             }
             yC++;
-        } while (!lastYCFound || currAbsY <= yOuterEdge(yInnerEdge, lastYC));
+        } while (!lastYCFound || currAbsY <= yOuterEdge(yInnerEdge, lastYC) || yC <= maxYC + 2);
         cellAbsYsLong.add(currAbsY);
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
