@@ -10,7 +10,7 @@ import java.util.*;
 import static vimicalc.controller.Controller.*;
 import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
-import static vimicalc.view.InfoBar.keyStrokes;
+import static vimicalc.view.InfoBar.iBarExpr;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
@@ -20,13 +20,13 @@ public class KeyCommand {
     private String expr;
     private String prevExpr;
     public static LinkedList<KeyEvent> currMacro;
-    public static boolean recordingMacro, canChangeKeyStrokes;
+    public static boolean recordingMacro, canChangeIBarExpr;
 
     public KeyCommand() {
         expr = "";
         prevExpr = "";
         recordingMacro = false;
-        canChangeKeyStrokes = true;
+        canChangeIBarExpr = true;
     }
 
     public void addChar(@NotNull KeyEvent event) {
@@ -60,15 +60,15 @@ public class KeyCommand {
             case C -> {
                 if (event.isControlDown()) {
                     expr = "";
-                    keyStrokes = "";
+                    iBarExpr = "";
                     return;
                 }
             }
         }
 
         if (c != 0) expr += c;
-        if (canChangeKeyStrokes) {
-            keyStrokes = expr;
+        if (canChangeIBarExpr) {
+            iBarExpr = expr;
             infoBar.draw(gc);
         }
         evaluate(expr);
@@ -236,9 +236,9 @@ public class KeyCommand {
                     if (expr.length() > fstFIandM[0] + 1) {
                         char arg = expr.charAt(fstFIandM[0] + 1);
                         this.expr = "";
-                        canChangeKeyStrokes = false;
+                        canChangeIBarExpr = false;
                         runMacro(arg);
-                        canChangeKeyStrokes = true;
+                        canChangeIBarExpr = true;
                         prevExpr = expr;
                         this.expr = "";
                     }
@@ -389,7 +389,7 @@ public class KeyCommand {
                     }
                 }
                 case '.' -> {
-                    keyStrokes = prevExpr;
+                    iBarExpr = prevExpr;
                     evaluate(prevExpr);
                     this.expr = "";
                 }

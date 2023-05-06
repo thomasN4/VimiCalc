@@ -10,13 +10,13 @@ import java.util.Objects;
 
 public class InfoBar extends Visible {
 
-    public static String keyStrokes;
+    public static String iBarExpr;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        keyStrokes = "";
+        iBarExpr = "";
     }
     public boolean isEnteringCommandInVISUAL() {
         return enteringCommandInVISUAL;
@@ -38,15 +38,13 @@ public class InfoBar extends Visible {
         this.infobarTxt = Objects.requireNonNullElse(infobarTxt, "(=I)");
     }
 
-    public String getInfobarTxt() { return infobarTxt; }
-
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.BASELINE);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(keyStrokes, x + w - 4, y + 16);
+        gc.fillText(iBarExpr, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
         gc.fillText(infobarTxt,2, y + 16);
     }
