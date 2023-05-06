@@ -563,12 +563,10 @@ public class Controller implements Initializable {
                         }
                     }
 
-                    do {
-                        moveRight();
-                    } while (cellSelector.getSelectedCell().getMergeDelimiter() != mergeStart);
                     selectedCoords = new ArrayList<>();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     cellSelector.readCell(camera.picture.data());
+                    cellSelector.draw(gc);
                     currMode = Mode.NORMAL;
                     moveLeft();
                 }
