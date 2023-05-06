@@ -568,7 +568,6 @@ public class Controller implements Initializable {
                     cellSelector.readCell(camera.picture.data());
                     cellSelector.draw(gc);
                     currMode = Mode.NORMAL;
-                    moveLeft();
                 }
             }
             case ESCAPE -> {
