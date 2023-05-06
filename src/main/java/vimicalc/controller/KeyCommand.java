@@ -18,11 +18,13 @@ public class KeyCommand {
     private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
     private String expr;
+    private String prevExpr;
     public static LinkedList<KeyEvent> currMacro;
     public static boolean recordingMacro;
 
     public KeyCommand() {
         expr = "";
+        prevExpr = "";
         recordingMacro = false;
     }
 
@@ -104,6 +106,7 @@ public class KeyCommand {
     }
 
     public void evaluate(@NotNull String expr) {
+        boolean evaluationFinished = false;
         if (expr.equals("")) return;
         char lastChar = expr.charAt(expr.length() - 1);
         if (isNumber("" + lastChar)) return;
@@ -168,7 +171,7 @@ public class KeyCommand {
                             new Formula("", cellSelector.getXCoord(), cellSelector.getYCoord())
                         );
                     infoBar.setEnteringFormula(cellSelector.getSelectedCell().formula().getTxt());
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case '$' -> {
                     if (expr.length() > 3 &&
@@ -180,7 +183,7 @@ public class KeyCommand {
                                 lastChar;
                             evaluate(this.expr);
                         } catch (Exception ignored) {
-                            this.expr = "";
+                            evaluationFinished = true;
                         }
                     }
                 }
@@ -203,7 +206,7 @@ public class KeyCommand {
                                     elseBlock.append(expr.charAt(pos));
                                 evaluate(elseBlock.toString());
                             }
-                            this.expr = "";
+                            evaluationFinished = true;
                         }
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
@@ -216,13 +219,13 @@ public class KeyCommand {
                         currMacro = new LinkedList<>();
                         macros.put(expr.charAt(fstFIandM[0] + 1), currMacro);
                         recordingMacro = true;
-                        this.expr = "";
+                        evaluationFinished = true;
                     } else if (recordingMacro) {
                         infoBar.setInfobarTxt("Macro recorded");
                         currMacro.removeLast();
                         System.out.println("Recorded macro: " + macroStr(currMacro));
                         recordingMacro = false;
-                        this.expr = "";
+                        evaluationFinished = true;
                     }
                 }
                 case '@' -> {
@@ -230,24 +233,24 @@ public class KeyCommand {
                         char arg = expr.charAt(fstFIandM[0] + 1);
                         this.expr = "";
                         runMacro(arg);
-                        this.expr = "";
+                        evaluationFinished = true;
                     }
                 }
                 case 'h' -> {
                     moveLeft();
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'j' -> {
                     moveDown();
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'k' -> {
                     moveUp();
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'l' -> {
                     moveRight();
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'g' -> {
                     if (expr.length() > 3 &&
@@ -274,7 +277,7 @@ public class KeyCommand {
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                             if (undoCounter != 0) removeUltCStates();
                         }
-                        this.expr = "";
+                        evaluationFinished = true;
                     }
                 }
                 case 'm' -> {
@@ -282,7 +285,7 @@ public class KeyCommand {
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'u' -> {
                     if (undoCounter >= recordedCellStates.size())
@@ -295,7 +298,7 @@ public class KeyCommand {
                     }
                     System.out.println("Recorded cell states: ");
                     recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'r' -> {
                     if (undoCounter == 0 || recordedCellStates.size() == 0)
@@ -308,7 +311,7 @@ public class KeyCommand {
                     }
                     System.out.println("Recorded cell states: ");
                     recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'y' -> {
                     if (expr.length() > 1) {
@@ -324,7 +327,7 @@ public class KeyCommand {
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
-                            this.expr = "";
+                            evaluationFinished = true;
                         }
                     }
                 }
@@ -345,7 +348,7 @@ public class KeyCommand {
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
-                        this.expr = "";
+                        evaluationFinished = true;
                     }
                 }
                 case 'a', 'i' -> {
@@ -353,12 +356,12 @@ public class KeyCommand {
                     setSCTxtForTextInput();
                     currMode = Mode.INSERT;
                     cellSelector.draw(gc);
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'v' -> {
                     currMode = Mode.VISUAL;
                     selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
-                    this.expr = "";
+                    evaluationFinished = true;
                 }
                 case 'Z' -> {
                     if (expr.length() > 1) {
@@ -378,8 +381,17 @@ public class KeyCommand {
                         }
                     }
                 }
-                default -> this.expr = "";
+                case '.' -> {
+                    evaluate(prevExpr);
+                    this.expr = "";
+                }
+                default -> evaluationFinished = true;
             }
+        }
+
+        if (evaluationFinished) {
+            prevExpr = expr;
+            this.expr = "";
         }
     }
 }
