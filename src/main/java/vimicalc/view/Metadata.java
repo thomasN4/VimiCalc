@@ -22,19 +22,15 @@ public class Metadata {
         this.DCH = DCH;
     }
 
-    private int xOuterEdge(int cAbsX, int xC) {
-        return cAbsX + picW + 2*DCW +
-               ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
-               ((xOffsets.get(xC+1) == null) ? 0 : xOffsets.get(xC+1));
+    private int xOuterEdge(int xInnerEdge, int xC) {
+        return xInnerEdge + picW + DCW + ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC));
     }
-    private int yOuterEdge(int cAbsY, int yC) {
-        return cAbsY + picH + 2*DCH +
-               ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
-               ((yOffsets.get(yC+1) == null) ? 0 : yOffsets.get(yC+1));
+    private int yOuterEdge(int yInnerEdge, int yC) {
+        return yInnerEdge + picH + DCH + ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC));
     }
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
-        int[] cellAbsXsLong = new int[65536], cellAbsYsLong = new int[65536];
+        int[] cellAbsXsLong = new int[512], cellAbsYsLong = new int[512];
         int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;
@@ -48,13 +44,13 @@ public class Metadata {
             }
             cellAbsXsLong[xC] = currAbsX;
             currAbsX += DCW + xOffset;
-            if (currAbsX >= xInnerEdge + picW && !lastXCFound) {
+            if (currAbsX > xInnerEdge + picW && !lastXCFound) {
                 System.out.println(currAbsX + " " + xInnerEdge + " " + picW + " " + DCW);
                 lastXC = xC;
                 lastXCFound = true;
             }
             xC++;
-        } while (currAbsX <= xOuterEdge(xInnerEdge, xC));
+        } while (!lastXCFound || currAbsX <= xOuterEdge(xInnerEdge, lastXC));
         cellAbsXsLong[xC] = currAbsX;
         System.out.println("firstXC = " + firstXC);
         System.out.println("lastXC = " + lastXC);
@@ -67,13 +63,13 @@ public class Metadata {
             }
             cellAbsYsLong[yC] = currAbsY;
             currAbsY += DCH + yOffset;
-            if (currAbsY >= yInnerEdge + picH && !lastYCFound) {
+            if (currAbsY > yInnerEdge + picH && !lastYCFound) {
                 System.out.println(currAbsY + " " + yInnerEdge + " " + picH + " " + DCH);
                 lastYC = yC;
                 lastYCFound = true;
             }
             yC++;
-        } while (currAbsY <= yOuterEdge(yInnerEdge, yC));
+        } while (!lastYCFound || currAbsY <= yOuterEdge(yInnerEdge, lastYC));
         cellAbsYsLong[yC] = currAbsY;
         System.out.println("firstYC = " + firstYC);
         System.out.println("lastYC = " + lastYC);
@@ -90,8 +86,13 @@ public class Metadata {
         System.out.println("\t" + Arrays.toString(cellAbsYs));
         System.out.println('}');
 
-        this.camAbsX = xInnerEdge;
-        this.camAbsY = yInnerEdge;
+        camAbsX = xInnerEdge;
+        camAbsY = yInnerEdge;
+//        int xOuterEdge = camAbsX + picW, yOuterEdge = camAbsY + picH,
+//            totalXOffsetInnerEdge = 0, totalYOffsetInnerEdge = 0, totalXOffsetOuterEdge = 0, totalYOffsetOuterEdge = 0;
+//
+//        for (HashMap.Entry<Integer, Integer> set : xOffsets.entrySet())
+//            if (set.getKey() < camAbsX) totalXOffsetInnerEdge += set.getValue();
     }
 
     // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}

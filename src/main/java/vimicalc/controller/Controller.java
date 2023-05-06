@@ -102,6 +102,7 @@ public class Controller implements Initializable {
                     cellSelector.updateX(1);
                     camera.updateAbsX(-1);
                 }
+                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 firstRow.draw(gc);
             }
@@ -113,8 +114,9 @@ public class Controller implements Initializable {
                 while (camera.getAbsX() != DEFAULT_CELL_W)
                     camera.updateAbsX(1);
             }
-            firstRow.draw(gc);
+            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            firstRow.draw(gc);
             cellSelector.readCell(camera.picture.data());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
@@ -142,14 +144,16 @@ public class Controller implements Initializable {
                     cellSelector.updateY(-1);
                     camera.updateAbsY(1);
                 }
-                firstCol.draw(gc);
+                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                firstCol.draw(gc);
             }
         }
         else {
             camera.updateAbsY(prevH);
-            firstCol.draw(gc);
+            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            firstCol.draw(gc);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -173,8 +177,9 @@ public class Controller implements Initializable {
                     cellSelector.updateY(1);
                     camera.updateAbsY(-1);
                 }
-                firstCol.draw(gc);
+                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                firstCol.draw(gc);
             }
         }
         else {
@@ -184,8 +189,9 @@ public class Controller implements Initializable {
                 while (camera.getAbsY() != DEFAULT_CELL_H)
                     camera.updateAbsY(1);
             }
-            firstCol.draw(gc);
+            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            firstCol.draw(gc);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -211,14 +217,16 @@ public class Controller implements Initializable {
                     cellSelector.updateX(-1);
                     camera.updateAbsX(1);
                 }
-                firstRow.draw(gc);
+                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                firstRow.draw(gc);
             }
         }
         else {
             camera.updateAbsX(prevW);
-            firstRow.draw(gc);
+            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
             camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            firstRow.draw(gc);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -914,6 +922,7 @@ public class Controller implements Initializable {
             yOffsets
         );
         selectedCoords = new ArrayList<>();
+        camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
         cellSelector = new CellSelector(
             camera.picture.metadata().getCellAbsXs()[2],
