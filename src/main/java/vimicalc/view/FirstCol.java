@@ -22,8 +22,6 @@ public class FirstCol extends Visible {
         gc.setTextBaseline(VPos.CENTER);
         int cellHeight;
         for (int yC = picMetadata.getFirstYC(); yC <= picMetadata.getLastYC(); yC++) {
-//            System.out.println("FirstCol currCellAbsY: " +
-//                (picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y));
             cellHeight = picMetadata.getCellAbsYs()[yC+1] - picMetadata.getCellAbsYs()[yC];
             gc.fillText(""+yC
                 , (float) w/2

@@ -92,11 +92,6 @@ public class Metadata {
 
         camAbsX = xInnerEdge;
         camAbsY = yInnerEdge;
-//        int xOuterEdge = camAbsX + picW, yOuterEdge = camAbsY + picH,
-//            totalXOffsetInnerEdge = 0, totalYOffsetInnerEdge = 0, totalXOffsetOuterEdge = 0, totalYOffsetOuterEdge = 0;
-//
-//        for (HashMap.Entry<Integer, Integer> set : xOffsets.entrySet())
-//            if (set.getKey() < camAbsX) totalXOffsetInnerEdge += set.getValue();
     }
 
     // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}

@@ -22,8 +22,6 @@ public class FirstRow extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         int cellWidth;
         for (int xC = picMetadata.getFirstXC(); xC <= picMetadata.getLastXC(); xC++) {
-//            System.out.println("FirstRow currCellAbsX: " +
-//                (picMetadata.getCellAbsXs()[xC] - picMetadata.getCamAbsX() + x));
             cellWidth = picMetadata.getCellAbsXs()[xC+1] - picMetadata.getCellAbsXs()[xC];
             gc.fillText(toAlpha(xC-1)
                 , picMetadata.getCellAbsXs()[xC] - picMetadata.getCamAbsX() + x + (float) cellWidth/2

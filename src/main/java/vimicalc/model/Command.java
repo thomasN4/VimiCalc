@@ -1,16 +1,8 @@
 package vimicalc.model;
 
 import javafx.application.Platform;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import vimicalc.view.Camera;
-import vimicalc.view.CellSelector;
 
 public class Command extends Interpretable {
-    private static CellSelector cellSelector;
-    private static Camera camera; private static GraphicsContext gc;
-    private static Color c;
-
     public Command(String txt, int xC, int yC) {
         super(txt, xC, yC);
     }
@@ -50,10 +42,6 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            case "c" -> cellSelector = new CellSelector(
-                cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                cellSelector.getW(), cellSelector.getH(), Color.RED, camera.picture.metadata()
-            );
             default -> {
                 commandExists = false;
                 System.out.println("Command \"" + command[0] + "\" doesn't exist.");
