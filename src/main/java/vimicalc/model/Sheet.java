@@ -165,8 +165,11 @@ public class Sheet {
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        if (cell.xCoord() > picMetadata.getMaxXC()) picMetadata.setMaxXC(cell.xCoord());
-        if (cell.yCoord() > picMetadata.getMaxYC()) picMetadata.setMaxYC(cell.yCoord());
+        if (cell.xCoord() > picMetadata.getMaxXC() || cell.yCoord() > picMetadata.getMaxYC()) {
+            if (cell.xCoord() > picMetadata.getMaxYC()) picMetadata.setMaxXC(cell.xCoord());
+            if (cell.yCoord() > picMetadata.getMaxYC()) picMetadata.setMaxYC(cell.yCoord());
+            picMetadata.generate(picMetadata.getCamAbsX(), picMetadata.getCamAbsY());
+        }
     }
 
     public void evalDependency(Dependency d) {
