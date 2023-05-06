@@ -264,7 +264,7 @@ public class KeyCommand {
                         !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
-                        cellContentToIbar();
+                        cellContentToIBar();
                         this.expr = ""+lastChar;
                         evaluate(this.expr);
                     }

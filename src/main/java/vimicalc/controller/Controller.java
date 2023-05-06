@@ -67,25 +67,18 @@ public class Controller implements Initializable {
     */
 
     public static boolean goingToMergeStart = false;
-    private static void maybeGoToMergeStart(/*Cell prevCell*/) {
-//        System.out.println("====maybeGoToMergeStart====");
+    private static void maybeGoToMergeStart() {
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
             !cellSelector.getSelectedCell().isMergeStart() &&
             !goingToMergeStart) {
-//            System.out.println("Going to mergeStart...");
             Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
-//                 prevMergeDel = prevCell.getMergeDelimiter();
-//            if (prevMergeDel == null || prevMergeDel != currMergeStart) {
-//                System.out.println("Going to mergeStart...");
             goingToMergeStart = true;
             goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
             goingToMergeStart = false;
-//            }
         }
     }
     protected static void moveLeft() {
-//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
             cellSelector.readCell(camera.picture.data());
@@ -94,7 +87,7 @@ public class Controller implements Initializable {
             cellSelector.readCell(camera.picture.data());
             return;
         }
-        cellContentToIbar();
+        cellContentToIBar();
         if (cellSelector.getX() != DEFAULT_CELL_W) {
             cellSelector.updateX(-cellSelector.getW());
             if (cellSelector.getX() < DEFAULT_CELL_W) {
@@ -121,14 +114,13 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart(/*prevCell*/);
+        maybeGoToMergeStart();
     }
     protected static void moveDown() {
         int prevH;
         if (!cellSelector.getSelectedCell().isMergeStart())
             prevH = cellSelector.getH();
         else prevH = cellSelector.getMergedH();
-//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getSelectedCell().isMergeStart())
             cellSelector.updateYCoord(
                 cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
@@ -136,7 +128,7 @@ public class Controller implements Initializable {
             );
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
-        cellContentToIbar();
+        cellContentToIBar();
         if (cellSelector.getY() != camera.picture.getH()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
@@ -157,10 +149,9 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart(/*prevCell*/);
+        maybeGoToMergeStart();
     }
     protected static void moveUp() {
-//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
             cellSelector.readCell(camera.picture.data());
@@ -169,7 +160,7 @@ public class Controller implements Initializable {
             cellSelector.readCell(camera.picture.data());
             return;
         }
-        cellContentToIbar();
+        cellContentToIBar();
         if (cellSelector.getY() != DEFAULT_CELL_H) {
             cellSelector.updateY(-cellSelector.getH());
             if (cellSelector.getY() < DEFAULT_CELL_H) {
@@ -195,14 +186,13 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart(/*prevCell*/);
+        maybeGoToMergeStart();
     }
     protected static void moveRight() {
         int prevW;
         if (!cellSelector.getSelectedCell().isMergeStart())
             prevW = cellSelector.getW();
         else prevW = cellSelector.getMergedW();
-//        Cell prevCell = cellSelector.getSelectedCell().copy();
         if (cellSelector.getSelectedCell().isMergeStart())
             cellSelector.updateXCoord(
                 cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
@@ -230,11 +220,11 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        cellContentToIbar();
-        maybeGoToMergeStart(/*prevCell*/);
+        cellContentToIBar();
+        maybeGoToMergeStart();
     }
 
-    protected static void cellContentToIbar() {
+    protected static void cellContentToIBar() {
         if (cellSelector.getSelectedCell().formula() != null)
             infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().formula().getTxt()+")");
         else if (cellSelector.getSelectedCell().value() != null)
@@ -277,7 +267,7 @@ public class Controller implements Initializable {
             }
         } else cellSelector.setSelectedCell(substitute);
 
-        cellContentToIbar();
+        cellContentToIBar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
     }
@@ -302,7 +292,7 @@ public class Controller implements Initializable {
             }
         } else cellSelector.setSelectedCell(substitute);
 
-        cellContentToIbar();
+        cellContentToIBar();
         sheet.addCell(cellSelector.getSelectedCell());
         sheet.getCells().forEach(Cell::isEmpty);
     }
@@ -349,7 +339,7 @@ public class Controller implements Initializable {
         }
         cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
         cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
-        cellContentToIbar();
+        cellContentToIBar();
         sheet.addCell(cellSelector.getSelectedCell());
         if (undoCounter != 0) removeUltCStates();
     }
@@ -362,7 +352,10 @@ public class Controller implements Initializable {
                 case COMMAND -> commandInput(event);
                 case FORMULA -> formulaInput(event);
                 case INSERT -> textInput(event);
-                case VISUAL -> visualSelection(event);
+                case VISUAL -> {
+                    goingToMergeStart = true;
+                    visualSelection(event);
+                }
             }
         }
 
@@ -534,7 +527,7 @@ public class Controller implements Initializable {
                 if (!mergedCsInside) {
                     System.out.println("Merging cells...");
                     int maxXC = Integer.MIN_VALUE, minXC = Integer.MAX_VALUE,
-                            maxYC = Integer.MIN_VALUE, minYC = Integer.MAX_VALUE;
+                        maxYC = Integer.MIN_VALUE, minYC = Integer.MAX_VALUE;
                     for (int[] c : selectedCoords) {
                         if (c[0] > maxXC) maxXC = c[0];
                         if (c[0] < minXC) minXC = c[0];
@@ -566,11 +559,13 @@ public class Controller implements Initializable {
                     selectedCoords = new ArrayList<>();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     cellSelector.readCell(camera.picture.data());
-                    cellSelector.draw(gc);
+                    goingToMergeStart = false;
+                    maybeGoToMergeStart();
                     currMode = Mode.NORMAL;
                 }
             }
             case ESCAPE -> {
+                goingToMergeStart = false;
                 currMode = Mode.NORMAL;
                 selectedCoords = new ArrayList<>();
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -579,6 +574,7 @@ public class Controller implements Initializable {
                 cellSelector.draw(gc);
             }
             case SEMICOLON -> {
+                goingToMergeStart = false;
                 infoBar.setEnteringCommandInVISUAL(true);
                 infoBar.setCommandTxt(command.getTxt());
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
@@ -847,7 +843,7 @@ public class Controller implements Initializable {
                             );
                             sheet.addCell(cellSelector.getSelectedCell());
                         }
-                        cellContentToIbar();
+                        cellContentToIBar();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
@@ -887,7 +883,7 @@ public class Controller implements Initializable {
                         );
                         sheet.addCell(cellSelector.getSelectedCell());
                     }
-                    cellContentToIbar();
+                    cellContentToIBar();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     currMode = Mode.NORMAL;
