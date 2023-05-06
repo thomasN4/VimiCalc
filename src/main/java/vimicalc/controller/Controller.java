@@ -483,12 +483,25 @@ public class Controller implements Initializable {
             infoBar.setCommandTxt(command.getTxt());
     }
 
+    public static String multiplierForVISUAL = "";
     private static void visualSelection(@NotNull KeyEvent event) {
+        if (!multiplierForVISUAL.equals("") && (
+                event.getText().equals("h") ||
+                event.getText().equals("j") ||
+                event.getText().equals("k") ||
+                event.getText().equals("l"))) {
+            int multiplier = Integer.parseInt(multiplierForVISUAL);
+            multiplierForVISUAL = "";
+            for (int i = 1; i < multiplier; ++i)
+                onKeyPressed(event);
+        }
         if (infoBar.isEnteringCommandInVISUAL()) {
             commandInput(event);
             return;
         }
         switch (event.getCode()) {
+            case DIGIT0, DIGIT1, DIGIT2, DIGIT3, DIGIT4, DIGIT5, DIGIT6, DIGIT7, DIGIT8, DIGIT9 ->
+                multiplierForVISUAL += event.getText();
             case D -> {
                 selectedCoords.forEach(coord -> sheet.deleteCell(coord[0], coord[1]));
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
