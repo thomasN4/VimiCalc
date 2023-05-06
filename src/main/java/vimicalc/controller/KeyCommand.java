@@ -15,7 +15,7 @@ import static vimicalc.view.InfoBar.iBarExpr;
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
     // Les fonctions F sont celles qui sont répétables sur des plages de cellules
-    private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'y', 'p'));
+    private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', /*'y',*/ 'p'));
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
     private String expr;
     private String prevExpr;
