@@ -10,13 +10,13 @@ import java.util.Objects;
 
 public class InfoBar extends Visible {
 
-    public static String keyStroke;
+    public static String keyStrokes;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
-        keyStroke = "";
+        keyStrokes = "";
     }
     public boolean isEnteringCommandInVISUAL() {
         return enteringCommandInVISUAL;
@@ -46,7 +46,7 @@ public class InfoBar extends Visible {
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.BASELINE);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(keyStroke, x + w - 4, y + 16);
+        gc.fillText(keyStrokes, x + w - 4, y + 16);
         gc.setTextAlign(TextAlignment.LEFT);
         gc.fillText(infobarTxt,2, y + 16);
     }

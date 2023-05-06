@@ -10,7 +10,7 @@ import java.util.*;
 import static vimicalc.controller.Controller.*;
 import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
-import static vimicalc.view.InfoBar.keyStroke;
+import static vimicalc.view.InfoBar.keyStrokes;
 
 /* Les combos de keys qu'on peut entrer en mode NORMAL */
 public class KeyCommand {
@@ -20,12 +20,13 @@ public class KeyCommand {
     private String expr;
     private String prevExpr;
     public static LinkedList<KeyEvent> currMacro;
-    public static boolean recordingMacro;
+    public static boolean recordingMacro, canChangeKeyStrokes;
 
     public KeyCommand() {
         expr = "";
         prevExpr = "";
         recordingMacro = false;
+        canChangeKeyStrokes = true;
     }
 
     public void addChar(@NotNull KeyEvent event) {
@@ -59,18 +60,21 @@ public class KeyCommand {
             case C -> {
                 if (event.isControlDown()) {
                     expr = "";
-                    keyStroke = "";
+                    keyStrokes = "";
                     return;
                 }
             }
         }
 
         if (c != 0) expr += c;
-        keyStroke = expr;
+        if (canChangeKeyStrokes) {
+            keyStrokes = expr;
+            infoBar.draw(gc);
+        }
         evaluate(expr);
     }
 
-    private String macroStr(LinkedList<KeyEvent> macro) {
+    private @NotNull String macroStr(@NotNull LinkedList<KeyEvent> macro) {
         StringBuilder str = new StringBuilder();
         for (KeyEvent event : macro) {
             str.append(event.getText());
@@ -232,8 +236,11 @@ public class KeyCommand {
                     if (expr.length() > fstFIandM[0] + 1) {
                         char arg = expr.charAt(fstFIandM[0] + 1);
                         this.expr = "";
+                        canChangeKeyStrokes = false;
                         runMacro(arg);
-                        evaluationFinished = true;
+                        canChangeKeyStrokes = true;
+                        prevExpr = expr;
+                        this.expr = "";
                     }
                 }
                 case 'h' -> {
@@ -382,7 +389,7 @@ public class KeyCommand {
                     }
                 }
                 case '.' -> {
-                    keyStroke = prevExpr;
+                    keyStrokes = prevExpr;
                     evaluate(prevExpr);
                     this.expr = "";
                 }
