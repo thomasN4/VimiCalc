@@ -36,6 +36,7 @@ public class Command extends Interpretable {
                 new int[]{yC, (int) command[1].getVal()},
                 false
             );
+            case "purgeDep" -> sheet.purgeDependencies();
             case "w" -> writeFile(sheet, command);
             case "wq" -> {
                 writeFile(sheet, command);

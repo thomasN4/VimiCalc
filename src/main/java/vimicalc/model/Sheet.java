@@ -34,6 +34,10 @@ public class Sheet {
         return cells;
     }
 
+    public void purgeDependencies() {
+        dependencies = new ArrayList<>();
+    }
+
     public void deleteCell(int xCoord, int yCoord) {
         System.out.println("Deleting a cell...");
         Cell c = findCell(xCoord, yCoord);
