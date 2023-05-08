@@ -1,6 +1,9 @@
 package vimicalc.model;
 
 import javafx.application.Platform;
+import vimicalc.controller.Mode;
+
+import static vimicalc.controller.Controller.*;
 
 public class Command extends Interpretable {
     public Command(String txt, int xC, int yC) {
@@ -27,6 +30,11 @@ public class Command extends Interpretable {
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
         commandExists = true;
         switch (command[0].getFunc()) {
+            case "help" -> {
+                helpMenu.draw(gc);
+                helpMenu.drawText();
+                currMode = Mode.HELP;
+            }
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPicMetadata().generate(
                 new int[]{xC, (int) command[1].getVal()},

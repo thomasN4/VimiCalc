@@ -4,7 +4,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
-abstract class Visible {
+public abstract class Visible {
     protected int x;
     protected int y;
     protected int w;

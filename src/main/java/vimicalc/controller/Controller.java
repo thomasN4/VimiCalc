@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ResourceBundle;
 
+import static javafx.scene.input.KeyCode.ESCAPE;
 import static vimicalc.controller.KeyCommand.currMacro;
 import static vimicalc.controller.KeyCommand.recordingMacro;
 
@@ -31,7 +32,7 @@ public class Controller implements Initializable {
     private static int MOUSE_X;
     private static int MOUSE_Y;*/
 
-    protected static GraphicsContext gc;
+    public static GraphicsContext gc;
     @FXML
     private Canvas canvas;
     protected static LinkedList<Cell> recordedCellStates;
@@ -43,6 +44,7 @@ public class Controller implements Initializable {
     protected static CoordsCell coordsCell;
     private static FirstCol firstCol;
     private static FirstRow firstRow;
+    public static HelpMenu helpMenu;
     protected static InfoBar infoBar;
     protected static CellSelector cellSelector;
     protected static ArrayList<int[]> selectedCoords;
@@ -351,6 +353,16 @@ public class Controller implements Initializable {
             switch (currMode) {
                 case COMMAND -> commandInput(event);
                 case FORMULA -> formulaInput(event);
+                case HELP -> {
+                    helpMenu.naviguate(event);
+                    if (event.getCode() == ESCAPE) {
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.ready();
+                        updateVisualState();
+                        cellSelector.readCell(camera.picture.data());
+                        cellSelector.draw(gc);
+                    }
+                }
                 case INSERT -> textInput(event);
                 case VISUAL -> {
                     goingToMergeStart = true;
@@ -927,6 +939,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         macros = new HashMap<>();
+        helpMenu = new HelpMenu(gc);
         reset(new HashMap<>(), new HashMap<>());
     }
 
