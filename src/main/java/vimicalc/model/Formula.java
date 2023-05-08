@@ -1,5 +1,6 @@
 package vimicalc.model;
 
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +13,7 @@ public class Formula extends Interpretable {
     public Formula(String txt, int xC, int yC) {
         super(txt, xC, yC);
     }
+    private Color color;
 
     protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) throws Exception {
         sheet.addDependent(xC, yC);
@@ -75,8 +77,8 @@ public class Formula extends Interpretable {
         int lastCoordX = sheet.findCell(lastCoords).xCoord();
         int lastCoordY = sheet.findCell(lastCoords).yCoord();
         Lexeme[] vectorLong = new Lexeme[
-            (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
-        ];
+                (lastCoordX - firstCoordX + 1) * (lastCoordY - firstCoordY + 1)
+                ];
 
         k = 0;
         for (int i = firstCoordY; i <= lastCoordY; ++i) {
@@ -138,12 +140,12 @@ public class Formula extends Interpretable {
 
     private Lexeme negative(@NotNull String arg, Sheet sheet) throws Exception {
         return (interpret(
-            new Lexeme[]{
-                new Lexeme(-1),
-                new Lexeme(arg.substring(1)),
-                new Lexeme("*")
-            },
-            sheet
+                new Lexeme[]{
+                        new Lexeme(-1),
+                        new Lexeme(arg.substring(1)),
+                        new Lexeme("*")
+                },
+                sheet
         ))[0];
     }
 
@@ -173,7 +175,7 @@ public class Formula extends Interpretable {
                     case "matMult" -> {
                         reduction = 2;
                         reduced = new Lexeme(matMult(
-                            args[i-2].getFunc(), args[i-1].getFunc(), sheet
+                                args[i-2].getFunc(), args[i-1].getFunc(), sheet, color
                         ));
                     }
                     case "+" -> {
@@ -234,11 +236,11 @@ public class Formula extends Interpretable {
                             continue;
                         if ((isNumber(""+func.charAt(0)) ||
                                 Mfuncs.contains(Character.toLowerCase(func.charAt(0)))) &&
-                            Mfuncs.contains(func.charAt(func.length()-1)))
+                                Mfuncs.contains(func.charAt(func.length()-1)))
                             args[i] = cellToLexeme(
-                                          relToAbsCoords(func, xC, yC),
-                                          sheet
-                                      );
+                                    relToAbsCoords(func, xC, yC),
+                                    sheet
+                            );
                         else args[i] = cellToLexeme(func, sheet);
                     }
                 }
@@ -247,10 +249,10 @@ public class Formula extends Interpretable {
                     System.arraycopy(args, 0, newArgs, 0, i-reduction);
                     newArgs[i-reduction] = reduced;
                     System.arraycopy(args
-                        , i+1
-                        , newArgs
-                        , i-reduction+1
-                        , args.length-i-1);
+                            , i+1
+                            , newArgs
+                            , i-reduction+1
+                            , args.length-i-1);
                     args = new Lexeme[newArgs.length];
                     System.arraycopy(newArgs, 0, args, 0, args.length);
                     i -= reduction;
@@ -280,7 +282,7 @@ public class Formula extends Interpretable {
 
     private double determinant(String coords, Sheet sheet) throws Exception {
         return determinant(
-            createMatrixFromArea(coords, sheet)
+                createMatrixFromArea(coords, sheet)
         );
     }
     private double determinant(double[][] imat) throws Exception {
@@ -308,8 +310,8 @@ public class Formula extends Interpretable {
         }
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
-    
-    public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
+
+    public double matMult(String coords1, String coords2, Sheet sheet, Color color) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
 
@@ -321,9 +323,10 @@ public class Formula extends Interpretable {
                 if (i == 0 && j == 0)
                     continue;
                 sheet.addCell(new Cell(
-                    xC + j,
-                    yC + i,
-                    for1Pos(mat1.getRow(i), mat2.getCol(j))
+                        xC + j,
+                        yC + i,
+                        for1Pos(mat1.getRow(i), mat2.getCol(j)),
+                        color
                 ));
             }
         }

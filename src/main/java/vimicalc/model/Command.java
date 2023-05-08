@@ -7,14 +7,11 @@ import vimicalc.view.Camera;
 import vimicalc.view.CellSelector;
 
 public class Command extends Interpretable {
-    private static CellSelector cellSelector;
-    private static Camera camera; private static GraphicsContext gc;
-    private static Color c;
-
     public Command(String txt, int xC, int yC) {
         super(txt, xC, yC);
     }
-    public boolean commandExists = true;
+    public static boolean commandExists = true;
+    public static boolean coloring = false;
     public void readFile(Sheet sheet, Lexeme[] command) {
         try {
             sheet.readFile(command[1].getFunc());
@@ -50,10 +47,7 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            case "c" -> cellSelector = new CellSelector(
-                cellSelector.getSelectedCell().xCoord(), cellSelector.getSelectedCell().yCoord(),
-                cellSelector.getW(), cellSelector.getH(), Color.RED, camera.picture.metadata()
-            );
+            case "c" -> coloring = true;
             default -> {
                 commandExists = false;
                 System.out.println("Command \"" + command[0] + "\" doesn't exist.");

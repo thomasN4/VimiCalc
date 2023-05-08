@@ -51,6 +51,7 @@ public class Controller implements Initializable {
     public static KeyCommand keyCommand;
     public static Mode currMode;
     public static HashMap<Character, LinkedList<KeyEvent>> macros;
+    private static Color color;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
     public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
@@ -102,7 +103,7 @@ public class Controller implements Initializable {
                     cellSelector.updateX(1);
                     camera.updateAbsX(-1);
                 }
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 firstRow.draw(gc);
             }
         }
@@ -114,7 +115,7 @@ public class Controller implements Initializable {
                     camera.updateAbsX(1);
             }
             firstRow.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
             cellSelector.readCell(camera.picture.data());
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
@@ -143,13 +144,13 @@ public class Controller implements Initializable {
                     camera.updateAbsY(1);
                 }
                 firstCol.draw(gc);
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
             }
         }
         else {
             camera.updateAbsY(prevH);
             firstCol.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -174,7 +175,7 @@ public class Controller implements Initializable {
                     camera.updateAbsY(-1);
                 }
                 firstCol.draw(gc);
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
             }
         }
         else {
@@ -185,7 +186,7 @@ public class Controller implements Initializable {
                     camera.updateAbsY(1);
             }
             firstCol.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -212,13 +213,13 @@ public class Controller implements Initializable {
                     camera.updateAbsX(1);
                 }
                 firstRow.draw(gc);
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
             }
         }
         else {
             camera.updateAbsX(prevW);
             firstRow.draw(gc);
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
@@ -372,7 +373,7 @@ public class Controller implements Initializable {
         else if (currMode == Mode.VISUAL) {
             System.out.println("Selected coords = {");
             selectedCoords.forEach(c -> {
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 System.out.println('\t' + Arrays.toString(c));
             });
             camera.ready();
@@ -425,7 +426,8 @@ public class Controller implements Initializable {
                                 c.xCoord(),
                                 c.yCoord(),
                                 f.interpret(sheet),
-                                f
+                                f,
+                                color
                         );
                         sheet.addCell(c);
                         goTo(c.xCoord(), c.yCoord());
@@ -449,7 +451,13 @@ public class Controller implements Initializable {
                 } catch (Exception e) {
                     infoBar.setInfobarTxt(e.getMessage());
                 }
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                if (command.coloring) {
+                    if (sheet.findCell(cellSelector.getXCoord(), cellSelector.getYCoord()) == null) {
+                        sheet.addCell(cellSelector.getSelectedCell());
+                    }
+                    color = Color.web(command.getTxt().substring(2));
+                }
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
@@ -483,7 +491,7 @@ public class Controller implements Initializable {
         switch (event.getCode()) {
             case D -> {
                 selectedCoords.forEach(coord -> sheet.deleteCell(coord[0], coord[1]));
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
             }
@@ -493,7 +501,7 @@ public class Controller implements Initializable {
                     goTo(coord[0], coord[1]);
                     clipboard.add(cellSelector.getSelectedCell().copy());
                 });
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
             }
@@ -544,7 +552,7 @@ public class Controller implements Initializable {
                         moveRight();
                     } while (cellSelector.getSelectedCell().getMergeDelimiter() != null);
                     selectedCoords = new ArrayList<>();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                     cellSelector.readCell(camera.picture.data());
                     currMode = Mode.NORMAL;
                     moveLeft();
@@ -553,7 +561,7 @@ public class Controller implements Initializable {
             case ESCAPE -> {
                 currMode = Mode.NORMAL;
                 selectedCoords = new ArrayList<>();
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
                 cellSelector.draw(gc);
@@ -734,7 +742,7 @@ public class Controller implements Initializable {
                         );
                         sheet.addCell(cellSelector.getSelectedCell().copy());
                     }
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                     camera.ready();
                     currMode = Mode.NORMAL;
                 }
@@ -750,7 +758,7 @@ public class Controller implements Initializable {
                         );
                         sheet.addCell(cellSelector.getSelectedCell().copy());
                     }
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                     switch (event.getCode()) {
                         case H -> moveLeft();
                         case J -> moveDown();
@@ -775,7 +783,7 @@ public class Controller implements Initializable {
                     );
                     sheet.addCell(cellSelector.getSelectedCell().copy());
                 }
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                 switch (event.getCode()) {
                     case LEFT -> moveLeft();
                     case DOWN, ENTER -> moveDown();
@@ -821,7 +829,7 @@ public class Controller implements Initializable {
                             sheet.addCell(cellSelector.getSelectedCell());
                         }
                         cellContentToIbar();
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                         camera.ready();
                         if (cellSelector.getSelectedCell().txt() == null) recordedCellStates.removeLast();
                         switch (event.getCode()) {
@@ -861,7 +869,7 @@ public class Controller implements Initializable {
                         sheet.addCell(cellSelector.getSelectedCell());
                     }
                     cellContentToIbar();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
                     camera.ready();
                     currMode = Mode.NORMAL;
                     cellSelector.readCell(camera.picture.data());
@@ -914,7 +922,7 @@ public class Controller implements Initializable {
             yOffsets
         );
         selectedCoords = new ArrayList<>();
-        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), color);
         cellSelector = new CellSelector(
             camera.picture.metadata().getCellAbsXs()[2],
             camera.picture.metadata().getCellAbsYs()[2],

@@ -16,9 +16,7 @@ public class Picture extends Visible {
     private final int DCH;
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
-
     private final Metadata metadata;
-
     public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         super(x, y, w, h, c);
@@ -43,7 +41,7 @@ public class Picture extends Visible {
         isntReady = false;
     }
 
-    public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCoords, int absX, int absY) {
+    public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCoords, int absX, int absY, Color color) {
         visibleCells = new ArrayList<>();
         super.draw(gc);
         metadata.generate(absX, absY);
@@ -58,14 +56,16 @@ public class Picture extends Visible {
         }
 
         gc.setFill(Color.DARKGRAY);
-        selectedCoords.forEach(c ->
-            gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - absX + DCW,
-                metadata.getCellAbsYs()[c[1]] - absY + DCH,
-                metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
-                metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
-            )
-        );
+        selectedCoords.forEach(c ->  gc.fillRect(
+                    metadata.getCellAbsXs()[c[0]] - absX + DCW,
+                    metadata.getCellAbsYs()[c[1]] - absY + DCH,
+                    metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
+                    metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
+            ));
+
+        gc.setFill(color);
+        gc.fillRect(metadata.getCamAbsX() - absX + DCW, metadata.getCamAbsY() - absY + DCH,
+                metadata.getCamAbsX(), metadata.getCamAbsY());
 
         drawVCells(gc, absX, absY);
         isntReady = true;

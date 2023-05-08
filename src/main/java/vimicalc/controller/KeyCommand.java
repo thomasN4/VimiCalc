@@ -1,6 +1,7 @@
 package vimicalc.controller;
 
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Command;
 import vimicalc.model.Formula;
@@ -268,7 +269,7 @@ public class KeyCommand {
                         } else {
                             recordedCellStates.add(cellSelector.getSelectedCell().copy());
                             sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
@@ -279,7 +280,7 @@ public class KeyCommand {
                 }
                 case 'm' -> {
                     sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());
                     this.expr = "";
@@ -289,7 +290,7 @@ public class KeyCommand {
                         infoBar.setInfobarTxt("Already at earliest change.");
                     else {
                         undo();
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
@@ -302,7 +303,7 @@ public class KeyCommand {
                         infoBar.setInfobarTxt("Already at latest change.");
                     else {
                         redo();
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                     }
@@ -320,7 +321,7 @@ public class KeyCommand {
                                 clipboard.clear();
                                 clipboard.add(cellSelector.getSelectedCell().copy());
                             }
-                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
@@ -342,7 +343,7 @@ public class KeyCommand {
                                 paste(0);
                             }
                         }
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY(), cellSelector.getSelectedCell().color);
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
                         this.expr = "";

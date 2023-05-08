@@ -1,6 +1,9 @@
 package vimicalc.model;
 
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
+import vimicalc.view.CellSelector;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
@@ -18,9 +21,11 @@ public class Cell implements Serializable {
     private final DecimalFormat format;  // final, pour l'instant
     private Cell mergeDelimiter;
     private boolean mergeStart;
+    public Color color;
 
-    public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
+    public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula, Color color) {
         this(xCoord, yCoord);
+        this.color = color;
         value = result;
         txt = String.valueOf(result);
         if (txt.contains("."))
@@ -30,11 +35,12 @@ public class Cell implements Serializable {
         else this.formula = formula;
     }
 
-    public Cell(int xCoord, int yCoord, String txt) {
+    public Cell(int xCoord, int yCoord, String txt, Color color) {
         this(xCoord, yCoord);
         try {
             value = (double) Integer.parseInt(txt);
             this.txt = txt;
+            this.color = color;
         } catch (Exception ignored) {
             try {
                 value = Double.parseDouble(txt);
@@ -47,9 +53,10 @@ public class Cell implements Serializable {
         }
     }
 
-    public Cell(int xCoord, int yCoord, double value) {
+    public Cell(int xCoord, int yCoord, double value, Color color) {
         this(xCoord, yCoord);
         this.value = value;
+        this.color = color;
         int valInt = (int) value;
         if (valInt - value == 0.0)
             txt = ""+valInt;
@@ -191,25 +198,31 @@ public class Cell implements Serializable {
                 xCoord,
                 yCoord,
                 value,
-                new Formula(formula.getTxt(), xCoord, yCoord)
+                new Formula(formula.getTxt(), xCoord, yCoord),
+                color
             );
         }
         else if (isNumber(txt)) {
             c = new Cell(
                 xCoord,
                 yCoord,
-                value
+                value,
+                color
             );
         }
         else {
             c = new Cell(
                 xCoord,
                 yCoord,
-                txt
+                txt,
+                color
             );
         }
         c.setMergeStart(mergeStart);
         c.mergeWith(mergeDelimiter);
         return c;
+    }
+    public void setColor(Color color) {
+        this.color = color;
     }
 }
