@@ -5,9 +5,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
+import vimicalc.controller.Mode;
 import vimicalc.model.Cell;
 
 import java.util.ArrayList;
+
+import static vimicalc.controller.Controller.currMode;
 
 public class CellSelector extends Visible {
 
@@ -50,7 +53,7 @@ public class CellSelector extends Visible {
     }
     @Override
     public void draw(@NotNull GraphicsContext gc) {
-        if (!selectedCell.isMergeStart()) {
+        if (!selectedCell.isMergeStart() || currMode == Mode.VISUAL) {
             super.draw(gc);
             if (selectedCell.txt() != null) drawTxt(gc);
         }
@@ -97,7 +100,7 @@ public class CellSelector extends Visible {
         for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 selectedCell = c.copy();
-                if (c.isMergeStart()) {
+                if (c.isMergeStart() && currMode != Mode.VISUAL) {
                     Cell mergeEnd = c.getMergeDelimiter();
                     mergedW = picPositions.getCellAbsXs()[mergeEnd.xCoord()+1] -
                         picPositions.getCellAbsXs()[xCoord];

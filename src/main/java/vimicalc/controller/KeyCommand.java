@@ -368,6 +368,7 @@ public class KeyCommand {
                 }
                 case 'v' -> {
                     currMode = Mode.VISUAL;
+                    cellSelector.readCell(camera.picture.data());
                     selectedCoords.add(new int[]{cellSelector.getXCoord(), cellSelector.getYCoord()});
                     evaluationFinished = true;
                 }

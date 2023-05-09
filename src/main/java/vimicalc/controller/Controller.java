@@ -586,10 +586,10 @@ public class Controller implements Initializable {
 
                     selectedCoords = new ArrayList<>();
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                    currMode = Mode.NORMAL;
                     cellSelector.readCell(camera.picture.data());
                     goingToMergeStart = false;
                     maybeGoToMergeStart();
-                    currMode = Mode.NORMAL;
                 }
             }
             case ESCAPE -> {
@@ -872,8 +872,8 @@ public class Controller implements Initializable {
                         else {
                             if (undoCounter != 0) removeUltCStates();
                             cellSelector.getSelectedCell().setFormulaResult(
-                                    cellSelector.getSelectedCell().formula().interpret(sheet),
-                                    cellSelector.getSelectedCell().formula()
+                                cellSelector.getSelectedCell().formula().interpret(sheet),
+                                cellSelector.getSelectedCell().formula()
                             );
                             sheet.addCell(cellSelector.getSelectedCell());
                         }
@@ -912,8 +912,8 @@ public class Controller implements Initializable {
                     else {
                         if (undoCounter != 0) removeUltCStates();
                         cellSelector.getSelectedCell().setFormulaResult(
-                                cellSelector.getSelectedCell().formula().interpret(sheet),
-                                cellSelector.getSelectedCell().formula()
+                            cellSelector.getSelectedCell().formula().interpret(sheet),
+                            cellSelector.getSelectedCell().formula()
                         );
                         sheet.addCell(cellSelector.getSelectedCell());
                     }
