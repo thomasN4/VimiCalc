@@ -358,7 +358,7 @@ public class Controller implements Initializable {
                     updateVisualState();
                     cellSelector.readCell(camera.picture.data());
                     cellSelector.draw(gc);
-                    helpMenu.naviguate(event);
+                    helpMenu.navigate(event);
                     infoBar.setInfobarTxt(helpMenu.percentage());
                     infoBar.draw(gc);
                     if (event.getCode() == ESCAPE) {

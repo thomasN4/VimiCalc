@@ -50,7 +50,7 @@ public class HelpMenu extends Visible {
         position = 0;
     }
 
-    public void naviguate(@NotNull KeyEvent event) {
+    public void navigate(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case J -> {
                 System.out.println("Scrolling down...");
