@@ -400,7 +400,7 @@ public class Controller implements Initializable {
             camera.ready();
             System.out.println('}');
         }
-        else if (currMode != Mode.HELP) updateVisualState();
+        if (currMode != Mode.HELP) updateVisualState();
     }
 
     protected static void updateVisualState() {
