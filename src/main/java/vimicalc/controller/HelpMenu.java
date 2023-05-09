@@ -34,7 +34,14 @@ public class HelpMenu extends Visible {
         "\t you would have to press 'ENTER' instead.",
         "\n",
         "\t-VISUAL mode allows you to select several cells and do things to them.",
-        "\t Things such as merging cells by pressing 'm', or copying them by pressing 'y'",
+        "\t Things such as merging cells by pressing 'm', or copying them by pressing 'y',",
+        "\t and applying formulas while appending the destination coordinate at the end (eg 'A3:B4 det AX8').",
+        "\n",
+        "\t-COMMAND mode is for entering certain uh commands. Examples:",
+        "\t resCol [offset from default width in pixels], w [file path] for saving a file, and of course,",
+        "\t q for quitting",
+        "\n",
+        "For more info, there is only the source code in the meantime."
     };
 
     public HelpMenu(GraphicsContext gc) {
@@ -73,8 +80,7 @@ public class HelpMenu extends Visible {
         gc.setTextBaseline(VPos.TOP);
         gc.setTextAlign(TextAlignment.LEFT);
         StringBuilder txt = new StringBuilder();
-        for (int i = position; i < text.length; i++)
-            txt.append(text[i]).append('\n');
+        for (int i = position; i < text.length; i++) txt.append(text[i]).append('\n');
         gc.fillText(txt.toString(), x+10, y+10);
     }
 }

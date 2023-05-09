@@ -34,7 +34,7 @@ public class Command extends Interpretable {
                 helpMenu.drawText();
                 currMode = Mode.HELP;
                 infoBar.setInfobarTxt(
-                    (int)(((float)helpMenu.getPosition()/helpMenu.getText().length) * 100) + "%"
+                    (int)((float)((helpMenu.getPosition()+1.0)/helpMenu.getText().length) * 100.0) + "%"
                 );
                 infoBar.draw(gc);
             }
