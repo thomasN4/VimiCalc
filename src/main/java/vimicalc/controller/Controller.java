@@ -45,7 +45,7 @@ public class Controller implements Initializable {
     private static FirstCol firstCol;
     private static FirstRow firstRow;
     public static HelpMenu helpMenu;
-    protected static InfoBar infoBar;
+    public static InfoBar infoBar;
     protected static CellSelector cellSelector;
     protected static ArrayList<int[]> selectedCoords;
     protected static Sheet sheet;
@@ -354,13 +354,22 @@ public class Controller implements Initializable {
                 case COMMAND -> commandInput(event);
                 case FORMULA -> formulaInput(event);
                 case HELP -> {
+                    camera.ready();
+                    camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
+                    updateVisualState();
+                    cellSelector.readCell(camera.picture.data());
+                    cellSelector.draw(gc);
                     helpMenu.naviguate(event);
+                    infoBar.setInfobarTxt(
+                        (int)(((float)helpMenu.getPosition()/helpMenu.getText().length) * 100) + "%"
+                    );
                     if (event.getCode() == ESCAPE) {
-                        camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
-                        updateVisualState();
+                        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
                         cellSelector.readCell(camera.picture.data());
                         cellSelector.draw(gc);
+                        cellContentToIBar();
+                        updateVisualState();
                     }
                 }
                 case INSERT -> textInput(event);
@@ -391,7 +400,7 @@ public class Controller implements Initializable {
             camera.ready();
             System.out.println('}');
         }
-        updateVisualState();
+        else if (currMode != Mode.HELP) updateVisualState();
     }
 
     protected static void updateVisualState() {
@@ -414,6 +423,14 @@ public class Controller implements Initializable {
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
+                if (command.getTxt().equals("h") ||
+                    command.getTxt().equals("help") ||
+                    command.getTxt().equals("?")) {
+                    try {
+                        command.interpret(sheet);
+                    } catch (Exception ignored) {}
+                    return;
+                }
                 if (infoBar.isEnteringCommandInVISUAL()) {
                     try {
                         selectedCoords = new ArrayList<>();
@@ -484,7 +501,7 @@ public class Controller implements Initializable {
                 infoBar.setCommandTxt(command.getTxt() + event.getText());
             }
         }
-        if(currMode != Mode.NORMAL)
+        if(currMode == Mode.COMMAND || currMode == Mode.VISUAL)
             infoBar.setCommandTxt(command.getTxt());
     }
 

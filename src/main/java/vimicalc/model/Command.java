@@ -30,10 +30,13 @@ public class Command extends Interpretable {
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
         commandExists = true;
         switch (command[0].getFunc()) {
-            case "help" -> {
-                helpMenu.draw(gc);
+            case "h", "help", "?" -> {
                 helpMenu.drawText();
                 currMode = Mode.HELP;
+                infoBar.setInfobarTxt(
+                    (int)(((float)helpMenu.getPosition()/helpMenu.getText().length) * 100) + "%"
+                );
+                infoBar.draw(gc);
             }
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPicMetadata().generate(
