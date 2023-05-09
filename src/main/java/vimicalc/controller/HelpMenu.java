@@ -51,7 +51,7 @@ public class HelpMenu extends Visible {
         "\t and everything will be recorded until you press 'q' again. To replay it, just type @[the letter].",
         "\t You could also prefix with a multiplier or stick them inside a conditional KeyCommand.",
         "\n",
-        "\t Conditional KeyCommands: basically '<[formula]{[then]{[else]}'. You can omit the else part.",
+        "\t-Conditional KeyCommands: basically '<[formula]{[then]{[else]}'. You can omit the else part.",
         "\t If the formula doesn't evaluate to 0, the KeyCommand in the 'then' part is executed.",
         "\t Some examples would be helpful: '<C3 2 mod{d5J6l}', '<6 5j2k 3 mod{@a{@b}'",
         "\n",
@@ -92,7 +92,7 @@ public class HelpMenu extends Visible {
         gc.setTextBaseline(VPos.TOP);
         gc.setTextAlign(TextAlignment.LEFT);
         StringBuilder txt = new StringBuilder();
-        for (int i = position; i < position + 24; i++) {
+        for (int i = position; i < position + 20; i++) {
             if (i < text.length)
                 txt.append(text[i]).append('\n');
             else break;
