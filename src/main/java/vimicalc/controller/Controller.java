@@ -354,15 +354,13 @@ public class Controller implements Initializable {
                 case COMMAND -> commandInput(event);
                 case FORMULA -> formulaInput(event);
                 case HELP -> {
-                    camera.ready();
                     camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
                     updateVisualState();
                     cellSelector.readCell(camera.picture.data());
                     cellSelector.draw(gc);
                     helpMenu.naviguate(event);
-                    infoBar.setInfobarTxt(
-                        (int)(((float)helpMenu.getPosition()/helpMenu.getText().length) * 100) + "%"
-                    );
+                    infoBar.setInfobarTxt(helpMenu.percentage());
+                    infoBar.draw(gc);
                     if (event.getCode() == ESCAPE) {
                         camera.ready();
                         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
@@ -429,6 +427,7 @@ public class Controller implements Initializable {
                     try {
                         command.interpret(sheet);
                     } catch (Exception ignored) {}
+                    onKeyPressed(event);
                     return;
                 }
                 if (infoBar.isEnteringCommandInVISUAL()) {

@@ -53,10 +53,12 @@ public class HelpMenu extends Visible {
     public void naviguate(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case J -> {
-                if (position < text.length) position++;
+                System.out.println("Scrolling down...");
+                if (position < text.length) position += 1;
             }
             case K -> {
-                if (position > 0) position--;
+                System.out.println("Scrolling up...");
+                if (position > 0) position -= 1;
             }
             case ESCAPE -> {
                 position = 0;
@@ -66,12 +68,8 @@ public class HelpMenu extends Visible {
         drawText();
     }
 
-    public int getPosition() {
-        return position;
-    }
-
-    public String[] getText() {
-        return text;
+    public String percentage() {
+        return (int) (100.0 * position / text.length) + "%";
     }
 
     public void drawText() {
@@ -80,7 +78,11 @@ public class HelpMenu extends Visible {
         gc.setTextBaseline(VPos.TOP);
         gc.setTextAlign(TextAlignment.LEFT);
         StringBuilder txt = new StringBuilder();
-        for (int i = position; i < text.length; i++) txt.append(text[i]).append('\n');
+        for (int i = position; i < position + 24; i++) {
+            if (i < text.length)
+                txt.append(text[i]).append('\n');
+            else break;
+        }
         gc.fillText(txt.toString(), x+10, y+10);
     }
 }

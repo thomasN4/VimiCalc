@@ -31,12 +31,9 @@ public class Command extends Interpretable {
         commandExists = true;
         switch (command[0].getFunc()) {
             case "h", "help", "?" -> {
-                helpMenu.drawText();
-                currMode = Mode.HELP;
-                infoBar.setInfobarTxt(
-                    (int)((float)((helpMenu.getPosition()+1.0)/helpMenu.getText().length) * 100.0) + "%"
-                );
+                infoBar.setInfobarTxt(helpMenu.percentage());
                 infoBar.draw(gc);
+                currMode = Mode.HELP;
             }
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPicMetadata().generate(
