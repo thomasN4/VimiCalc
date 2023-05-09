@@ -39,11 +39,11 @@ public class HelpMenu extends Visible {
     public void naviguate(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case J -> {
-                position--;
+                if (position < text.length) position++;
                 drawText();
             }
             case K -> {
-                position++;
+                if (position > 0) position--;
                 drawText();
             }
             case ESCAPE -> {
