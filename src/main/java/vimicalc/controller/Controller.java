@@ -116,18 +116,19 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart();
+        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
     protected static void moveDown() {
         int prevH;
-        if (!cellSelector.getSelectedCell().isMergeStart())
+        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
             prevH = cellSelector.getH();
-        else prevH = cellSelector.getMergedH();
-        if (cellSelector.getSelectedCell().isMergeStart())
+        else {
+            prevH = cellSelector.getMergedH();
             cellSelector.updateYCoord(
                 cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
                 cellSelector.getSelectedCell().yCoord()
             );
+        }
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
         cellContentToIBar();
@@ -151,7 +152,7 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart();
+        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
     protected static void moveUp() {
         if (cellSelector.getYCoord() != 1) {
@@ -188,18 +189,19 @@ public class Controller implements Initializable {
         }
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
-        maybeGoToMergeStart();
+        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
     protected static void moveRight() {
         int prevW;
-        if (!cellSelector.getSelectedCell().isMergeStart())
+        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
             prevW = cellSelector.getW();
-        else prevW = cellSelector.getMergedW();
-        if (cellSelector.getSelectedCell().isMergeStart())
+        else {
+            prevW = cellSelector.getMergedW();
             cellSelector.updateXCoord(
                 cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
                 cellSelector.getSelectedCell().xCoord()
             );
+        }
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
         if (cellSelector.getX() != camera.picture.getW()) {
