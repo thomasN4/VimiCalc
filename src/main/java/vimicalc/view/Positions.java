@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class Metadata {
+public class Positions {
     private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
     private final int picW, picH, DCW, DCH;
     private final HashMap<Integer, Integer> xOffsets;
     private final HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
 
-    public Metadata(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
-                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
+    public Positions(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
+                     HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         this.camAbsX = camAbsX;
         this.camAbsY = camAbsY;
         this.xOffsets = xOffsets;

@@ -8,11 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import static vimicalc.utils.Conversions.toAlpha;
 
 public class FirstRow extends Visible {
-    Metadata picMetadata;
+    Positions picPositions;
 
-    public FirstRow(int x, int y, int w, int h, Color c, Metadata picMetadata) {
+    public FirstRow(int x, int y, int w, int h, Color c, Positions picPositions) {
         super(x, y, w, h, c);
-        this.picMetadata = picMetadata;
+        this.picPositions = picPositions;
     }
 
     @Override
@@ -21,10 +21,10 @@ public class FirstRow extends Visible {
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
         int cellWidth;
-        for (int xC = picMetadata.getFirstXC(); xC <= picMetadata.getLastXC(); xC++) {
-            cellWidth = picMetadata.getCellAbsXs()[xC+1] - picMetadata.getCellAbsXs()[xC];
+        for (int xC = picPositions.getFirstXC(); xC <= picPositions.getLastXC(); xC++) {
+            cellWidth = picPositions.getCellAbsXs()[xC+1] - picPositions.getCellAbsXs()[xC];
             gc.fillText(toAlpha(xC-1)
-                , picMetadata.getCellAbsXs()[xC] - picMetadata.getCamAbsX() + x + (float) cellWidth/2
+                , picPositions.getCellAbsXs()[xC] - picPositions.getCamAbsX() + x + (float) cellWidth/2
                 , (float) h/2
                 , cellWidth);
         }

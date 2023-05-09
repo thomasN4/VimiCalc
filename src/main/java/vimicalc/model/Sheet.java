@@ -3,7 +3,7 @@ package vimicalc.model;
 import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
-import vimicalc.view.Metadata;
+import vimicalc.view.Positions;
 
 import java.io.*;
 import java.util.*;
@@ -15,19 +15,19 @@ public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
     private ArrayList<Dependency> dependencies;
-    private Metadata picMetadata;
+    private Positions picPositions;
 
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
 
-    public Metadata getPicMetadata() {
-        return picMetadata;
+    public Positions getPicMetadata() {
+        return picPositions;
     }
 
-    public void setPicMetadata(Metadata picMetadata) {
-        this.picMetadata = picMetadata;
+    public void setPicMetadata(Positions picPositions) {
+        this.picPositions = picPositions;
     }
 
     public ArrayList<Cell> getCells() {
@@ -169,10 +169,10 @@ public class Sheet {
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        if (cell.xCoord() > picMetadata.getMaxXC() || cell.yCoord() > picMetadata.getMaxYC()) {
-            if (cell.xCoord() > picMetadata.getMaxYC()) picMetadata.setMaxXC(cell.xCoord());
-            if (cell.yCoord() > picMetadata.getMaxYC()) picMetadata.setMaxYC(cell.yCoord());
-            picMetadata.generate(picMetadata.getCamAbsX(), picMetadata.getCamAbsY());
+        if (cell.xCoord() > picPositions.getMaxXC() || cell.yCoord() > picPositions.getMaxYC()) {
+            if (cell.xCoord() > picPositions.getMaxYC()) picPositions.setMaxXC(cell.xCoord());
+            if (cell.yCoord() > picPositions.getMaxYC()) picPositions.setMaxYC(cell.yCoord());
+            picPositions.generate(picPositions.getCamAbsX(), picPositions.getCamAbsY());
         }
     }
 
@@ -209,10 +209,10 @@ public class Sheet {
             oStream.writeObject(dependencies); oStream.flush();
 
             oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
-            oStream.writeObject(picMetadata.getxOffsets()); oStream.flush();
+            oStream.writeObject(picPositions.getxOffsets()); oStream.flush();
 
             oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
-            oStream.writeObject(picMetadata.getyOffsets()); oStream.flush();
+            oStream.writeObject(picPositions.getyOffsets()); oStream.flush();
 
             oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
             oStream.writeObject(macros); oStream.flush();

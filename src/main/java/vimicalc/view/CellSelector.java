@@ -13,11 +13,11 @@ public class CellSelector extends Visible {
 
     private int xCoord, yCoord, mergedW, mergedH;
     private Cell selectedCell;
-    private final Metadata picMetadata;
+    private final Positions picPositions;
 
-    public CellSelector(int x, int y, int w, int h, Color c, Metadata picMetadata) {
+    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions) {
         super(x, y, w, h, c);
-        this.picMetadata = picMetadata;
+        this.picPositions = picPositions;
         xCoord = 2;
         yCoord = 2;
         selectedCell = new Cell(xCoord, yCoord);
@@ -99,10 +99,10 @@ public class CellSelector extends Visible {
                 selectedCell = c.copy();
                 if (c.isMergeStart()) {
                     Cell mergeEnd = c.getMergeDelimiter();
-                    mergedW = picMetadata.getCellAbsXs()[mergeEnd.xCoord()+1] -
-                        picMetadata.getCellAbsXs()[xCoord];
-                    mergedH = picMetadata.getCellAbsYs()[mergeEnd.yCoord()+1] -
-                        picMetadata.getCellAbsYs()[yCoord];
+                    mergedW = picPositions.getCellAbsXs()[mergeEnd.xCoord()+1] -
+                        picPositions.getCellAbsXs()[xCoord];
+                    mergedH = picPositions.getCellAbsYs()[mergeEnd.yCoord()+1] -
+                        picPositions.getCellAbsYs()[yCoord];
                 }
                 setDimensions();
                 return;
@@ -113,7 +113,7 @@ public class CellSelector extends Visible {
     }
 
     private void setDimensions() {
-        w = picMetadata.getCellAbsXs()[xCoord+1] - picMetadata.getCellAbsXs()[xCoord];
-        h = picMetadata.getCellAbsYs()[yCoord+1] - picMetadata.getCellAbsYs()[yCoord];
+        w = picPositions.getCellAbsXs()[xCoord+1] - picPositions.getCellAbsXs()[xCoord];
+        h = picPositions.getCellAbsYs()[yCoord+1] - picPositions.getCellAbsYs()[yCoord];
     }
 }

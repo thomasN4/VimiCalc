@@ -17,22 +17,22 @@ public class Picture extends Visible {
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
 
-    private final Metadata metadata;
+    private final Positions positions;
 
     public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         super(x, y, w, h, c);
         this.DCW = DCW;
         this.DCH = DCH;
-        metadata = new Metadata(camAbsX, camAbsY, w, h, DCW, DCH, xOffsets, yOffsets);
+        positions = new Positions(camAbsX, camAbsY, w, h, DCW, DCH, xOffsets, yOffsets);
     }
 
     public ArrayList<Cell> data() {
         return visibleCells;
     }
 
-    public Metadata metadata() {
-        return metadata;
+    public Positions metadata() {
+        return positions;
     }
 
     public void resend(GraphicsContext gc, int absX, int absY) {
@@ -48,10 +48,10 @@ public class Picture extends Visible {
         super.draw(gc);
 
         for (Cell c : sheet.getCells()) {
-            if (c.xCoord() >= metadata.getFirstXC() &&
-                c.xCoord() <= metadata.getLastXC() &&
-                c.yCoord() >= metadata.getFirstYC() &&
-                c.yCoord() <= metadata.getLastYC()) {
+            if (c.xCoord() >= positions.getFirstXC() &&
+                c.xCoord() <= positions.getLastXC() &&
+                c.yCoord() >= positions.getFirstYC() &&
+                c.yCoord() <= positions.getLastYC()) {
                     visibleCells.add(c);
             }
         }
@@ -59,10 +59,10 @@ public class Picture extends Visible {
         gc.setFill(Color.DARKGRAY);
         selectedCoords.forEach(c ->
             gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - absX + DCW,
-                metadata.getCellAbsYs()[c[1]] - absY + DCH,
-                metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
-                metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
+                positions.getCellAbsXs()[c[0]] - absX + DCW,
+                positions.getCellAbsYs()[c[1]] - absY + DCH,
+                positions.getCellAbsXs()[c[0]+1] - positions.getCellAbsXs()[c[0]],
+                positions.getCellAbsYs()[c[1]+1] - positions.getCellAbsYs()[c[1]]
             )
         );
 
@@ -81,19 +81,19 @@ public class Picture extends Visible {
         int cellHeight, cellWidth;
         for (Cell c : visibleCells) {
             if (c.isMergeStart()) {
-                cellHeight = metadata.getCellAbsYs()[c.getMergeDelimiter().yCoord()+1] -
-                             metadata.getCellAbsYs()[c.yCoord()];
-                cellWidth = metadata.getCellAbsXs()[c.getMergeDelimiter().xCoord()+1] -
-                            metadata.getCellAbsXs()[c.xCoord()];
+                cellHeight = positions.getCellAbsYs()[c.getMergeDelimiter().yCoord()+1] -
+                             positions.getCellAbsYs()[c.yCoord()];
+                cellWidth = positions.getCellAbsXs()[c.getMergeDelimiter().xCoord()+1] -
+                            positions.getCellAbsXs()[c.xCoord()];
             }
             else {
-                cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
-                cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
+                cellHeight = positions.getCellAbsYs()[c.yCoord()+1] - positions.getCellAbsYs()[c.yCoord()];
+                cellWidth = positions.getCellAbsXs()[c.xCoord()+1] - positions.getCellAbsXs()[c.xCoord()];
             }
             gc.fillText(
                 c.txt(),
-                metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
-                metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
+                positions.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                positions.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
                 cellWidth
             );
         }

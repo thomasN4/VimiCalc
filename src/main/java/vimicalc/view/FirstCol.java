@@ -7,11 +7,11 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 public class FirstCol extends Visible {
-    Metadata picMetadata;
+    Positions picPositions;
 
-    public FirstCol(int x, int y, int w, int h, Color c, Metadata picMetadata) {
+    public FirstCol(int x, int y, int w, int h, Color c, Positions picPositions) {
         super(x, y, w, h, c);
-        this.picMetadata = picMetadata;
+        this.picPositions = picPositions;
     }
 
     @Override
@@ -21,11 +21,11 @@ public class FirstCol extends Visible {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         int cellHeight;
-        for (int yC = picMetadata.getFirstYC(); yC <= picMetadata.getLastYC(); yC++) {
-            cellHeight = picMetadata.getCellAbsYs()[yC+1] - picMetadata.getCellAbsYs()[yC];
+        for (int yC = picPositions.getFirstYC(); yC <= picPositions.getLastYC(); yC++) {
+            cellHeight = picPositions.getCellAbsYs()[yC+1] - picPositions.getCellAbsYs()[yC];
             gc.fillText(""+yC
                 , (float) w/2
-                , picMetadata.getCellAbsYs()[yC] - picMetadata.getCamAbsY() + y + (float) cellHeight/2
+                , picPositions.getCellAbsYs()[yC] - picPositions.getCamAbsY() + y + (float) cellHeight/2
                 , w);
         }
     }
