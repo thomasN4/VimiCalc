@@ -15,7 +15,8 @@ public class HelpMenu extends Visible {
     private int position;
     private final GraphicsContext gc;
     private final String[] text = {
-        "=====The Basics=====\n",
+        "=====The Basics=====",
+        "\n",
         "Use 'j' and 'k' to scroll up and down the help menu, and 'ESC' to close it.",
         "As you might have guessed, the whole thing works a lot like Vim.",
         "Keys such as 'h', 'j', 'k' and 'l' are for moving around the cells, 'i' is for inserting plain text, etc.",
@@ -30,7 +31,7 @@ public class HelpMenu extends Visible {
         "\t-FORMULA mode is for entering formulas (as in Microsoft Excel). They use Reverse Polish Notation.",
         "\t Examples: 'B2:D3 F7:G9 matMult', '3 5 8 * +', 'kl -3j / 3 mod'",
         "\t That last one used relative coordinates.",
-        "\t 'ESC'ing will just exit this mode and cancel the formula. If you want to save the formula to the cell,",
+        "\t 'ESC'-ing will just exit this mode and cancel the formula. If you want to save the formula to the cell,",
         "\t you would have to press 'ENTER' instead.",
         "\n",
         "\t-VISUAL mode allows you to select several cells and do things to them.",
@@ -40,6 +41,19 @@ public class HelpMenu extends Visible {
         "\t-COMMAND mode is for entering certain uh commands. Examples:",
         "\t resCol [offset from default width in pixels], w [file path] for saving a file, and of course,",
         "\t q for quitting",
+        "\n",
+        "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
+        " NORMAL mode. Here are some more information about them.",
+        "\n",
+        "\t-Multipliers: you just type a number before typing the rest of the command.",
+        "\n",
+        "\t-Macros: You type 'q' and then supply a letter as the name of the macro. You can then just do whatever ",
+        "\t and everything will be recorded until you press 'q' again. To replay it, just type @[the letter].",
+        "\t You could also prefix with a multiplier or stick them inside a conditional KeyCommand.",
+        "\n",
+        "\t Conditional KeyCommands: basically '<[formula]{[then]{[else]}'. You can omit the else part.",
+        "\t If the formula doesn't evaluate to 0, the KeyCommand in the 'then' part is executed.",
+        "\t Some examples would be helpful: '<C3 2 mod{d5J6l}', '<6 5j2k 3 mod{@a{@b}'",
         "\n",
         "For more info, there is only the source code in the meantime."
     };
