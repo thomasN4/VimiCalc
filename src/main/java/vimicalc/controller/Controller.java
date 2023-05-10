@@ -27,7 +27,7 @@ public class Controller implements Initializable {
     private static int CANVAS_H;
     private static final int DEFAULT_CELL_H = 23;
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
-    private static final Color DEFAULT_CELL_C = Color.LIGHTGRAY;
+    private static final Color DEFAULT_CELL_C = Color.WHITE;
 
     /*CD
     private static int MOUSE_X;
@@ -986,7 +986,8 @@ public class Controller implements Initializable {
             camera.picture.metadata().getCellAbsYs()[2],
             camera.picture.metadata().getCellAbsXs()[2] - camera.picture.metadata().getCellAbsYs()[1],
             camera.picture.metadata().getCellAbsYs()[2] - camera.picture.metadata().getCellAbsYs()[1],
-            Color.LIMEGREEN,
+            new Color(0.0, 0.67, 1, 1),
+//            Color.LIMEGREEN,
             camera.picture.metadata()
         );
         coordsInfo = new CoordsInfo(
@@ -998,7 +999,7 @@ public class Controller implements Initializable {
             DEFAULT_CELL_H,
             DEFAULT_CELL_W/2,
             CANVAS_H-3*DEFAULT_CELL_H-4,
-            Color.SILVER,
+            Color.LIGHTBLUE,
             camera.picture.metadata()
         );
         firstRow = new FirstRow(
@@ -1006,7 +1007,7 @@ public class Controller implements Initializable {
             0,
             CANVAS_W-DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
-            Color.SILVER,
+            Color.LIGHTBLUE,
             camera.picture.metadata()
         );
         infoBar = new InfoBar(
@@ -1021,14 +1022,14 @@ public class Controller implements Initializable {
             CANVAS_H-2*DEFAULT_CELL_H-4,
             CANVAS_W,
             DEFAULT_CELL_H+4,
-            Color.FORESTGREEN
+            Color.LIGHTGREEN
         );
         keyStrokeCell = new KeyStrokeCell(
             0,
             0,
             DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
-            Color.FORESTGREEN
+            Color.LIGHTGREEN
         );
 
         currMode = Mode.NORMAL;

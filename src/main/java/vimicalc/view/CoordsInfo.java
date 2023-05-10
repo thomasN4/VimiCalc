@@ -31,7 +31,7 @@ public class CoordsInfo {
     }
 
     public void draw(@NotNull GraphicsContext gc) {
-        gc.setFill(Color.WHITE);
+        gc.setFill(Color.BLUE);
         gc.setTextAlign(TextAlignment.RIGHT);
         gc.setTextBaseline(VPos.TOP);
         gc.fillText(coords, x-4, y+7);

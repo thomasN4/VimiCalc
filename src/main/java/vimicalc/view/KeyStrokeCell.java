@@ -20,7 +20,7 @@ public class KeyStrokeCell extends Visible {
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
-        gc.setFill(Color.WHITE);
+        gc.setFill(Color.BLUE);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         gc.fillText(keyStroke, (float) w/2, (float) h/2, w);

@@ -18,7 +18,7 @@ public class StatusBar extends Visible {
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
-        gc.setFill(Color.WHITE);
+        gc.setFill(Color.BLUE);
         gc.setTextBaseline(VPos.BASELINE);
         gc.setTextAlign(TextAlignment.LEFT);
         gc.fillText(" [" + currMode + "]  [" + filename + ']', 2, y+19);

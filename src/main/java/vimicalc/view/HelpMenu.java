@@ -14,7 +14,7 @@ public class HelpMenu extends Visible {
     private int position;
     private final GraphicsContext gc;
     private final String[] text = {
-        "=====Overview of how WeSpreadSheets works=====",
+        "=====Overview of how WeSpreadSheet works=====",
         "\n",
         "Use 'j' and 'k' to scroll up and down the help menu, and 'ESC' to close it.",
         "As you might have guessed, the whole thing works a lot like Vim.",
