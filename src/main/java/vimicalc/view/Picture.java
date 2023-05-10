@@ -59,7 +59,7 @@ public class Picture extends Visible {
         gc.setFill(Color.DARKGRAY);
         selectedCoords.forEach(c ->
             gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - absX + DCW,
+                metadata.getCellAbsXs()[c[0]] - absX + (float) DCW/2,
                 metadata.getCellAbsYs()[c[1]] - absY + DCH,
                 metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
                 metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
@@ -92,7 +92,7 @@ public class Picture extends Visible {
             }
             gc.fillText(
                 c.txt(),
-                metadata.getCellAbsXs()[c.xCoord()] - absX + DCW + (float) cellWidth/2,
+                metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW/2 + (float) cellWidth/2,
                 metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
                 cellWidth
             );

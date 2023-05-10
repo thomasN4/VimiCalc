@@ -19,8 +19,8 @@ public class KeyCommand {
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
     private String expr;
     private String prevExpr;
-    public static LinkedList<KeyEvent> currMacro;
-    public static boolean recordingMacro, canChangeIBarExpr;
+    protected static LinkedList<KeyEvent> currMacro;
+    protected static boolean recordingMacro, canChangeIBarExpr;
 
     public KeyCommand() {
         expr = "";
@@ -289,7 +289,7 @@ public class KeyCommand {
                     }
                 }
                 case 'm' -> {
-                    sheet.unmergeCells(sheet.findCell(coordsCell.getCoords()));
+                    sheet.unmergeCells(sheet.findCell(coordsInfo.getCoords()));
                     camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                     camera.ready();
                     cellSelector.readCell(camera.picture.data());

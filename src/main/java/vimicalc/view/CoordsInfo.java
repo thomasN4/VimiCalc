@@ -8,12 +8,14 @@ import org.jetbrains.annotations.NotNull;
 
 import static vimicalc.utils.Conversions.toAlpha;
 
-public class CoordsCell extends Visible {
+public class CoordsInfo {
+    int x, y;
 
     private String coords;
 
-    public CoordsCell(int x, int y, int w, int h, Color c) {
-        super(x, y, w, h, c);
+    public CoordsInfo(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
     public void setCoords(int xCoord, int yCoord) {
@@ -28,12 +30,10 @@ public class CoordsCell extends Visible {
         return coords;
     }
 
-    @Override
     public void draw(@NotNull GraphicsContext gc) {
-        super.draw(gc);
         gc.setFill(Color.WHITE);
-        gc.setTextAlign(TextAlignment.CENTER);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.fillText(coords, (float) w/2, (float) h/2, w);
+        gc.setTextAlign(TextAlignment.RIGHT);
+        gc.setTextBaseline(VPos.TOP);
+        gc.fillText(coords, x-4, y+7);
     }
 }

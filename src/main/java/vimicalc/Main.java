@@ -11,6 +11,8 @@ import vimicalc.controller.Controller;
 
 public class Main extends Application {
 
+    public static String arg1 = null;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
@@ -46,6 +48,7 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
+        if (args.length > 1) arg1 = args[1];
         launch(args);
         System.out.println();
     }

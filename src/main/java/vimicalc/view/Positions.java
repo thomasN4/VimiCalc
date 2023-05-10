@@ -39,7 +39,7 @@ public class Positions {
         System.out.println("Generating metadata...");
         ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
         cellAbsXsLong.add(0); cellAbsYsLong.add(0);
-        int currAbsX = DCW, currAbsY = DCH, xC = 1, yC = 1;
+        int currAbsX = DCW/2, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;
         int xOffset, yOffset;

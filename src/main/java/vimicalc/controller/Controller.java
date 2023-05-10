@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 import static javafx.scene.input.KeyCode.ESCAPE;
+import static vimicalc.Main.arg1;
 import static vimicalc.controller.KeyCommand.currMacro;
 import static vimicalc.controller.KeyCommand.recordingMacro;
 
@@ -41,11 +42,12 @@ public class Controller implements Initializable {
     protected static ArrayList<Cell> clipboard;
     protected static Camera camera;
     protected static Command command;
-    protected static CoordsCell coordsCell;
+    protected static CoordsInfo coordsInfo;
     private static FirstCol firstCol;
     private static FirstRow firstRow;
     public static HelpMenu helpMenu;
     public static InfoBar infoBar;
+    public static KeyStrokeCell keyStrokeCell;
     protected static CellSelector cellSelector;
     protected static ArrayList<int[]> selectedCoords;
     protected static Sheet sheet;
@@ -90,10 +92,10 @@ public class Controller implements Initializable {
             return;
         }
         cellContentToIBar();
-        if (cellSelector.getX() != DEFAULT_CELL_W) {
+        if (cellSelector.getX() != firstCol.getW()) {
             cellSelector.updateX(-cellSelector.getW());
-            if (cellSelector.getX() < DEFAULT_CELL_W) {
-                while (cellSelector.getX() != DEFAULT_CELL_W) {
+            if (cellSelector.getX() < firstCol.getW()) {
+                while (cellSelector.getX() != firstCol.getW()) {
                     cellSelector.updateX(1);
                     camera.updateAbsX(-1);
                 }
@@ -104,9 +106,9 @@ public class Controller implements Initializable {
         }
         else {
             camera.updateAbsX(-cellSelector.getW());
-            if (camera.getAbsX() < DEFAULT_CELL_W) {
+            if (camera.getAbsX() < firstCol.getW()) {
                 infoBar.setInfobarTxt("CAN'T GO LEFT");
-                while (camera.getAbsX() != DEFAULT_CELL_W)
+                while (camera.getAbsX() != firstCol.getW())
                     camera.updateAbsX(1);
             }
             camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
@@ -132,7 +134,7 @@ public class Controller implements Initializable {
         cellSelector.updateYCoord(1);
         cellSelector.readCell(camera.picture.data());
         cellContentToIBar();
-        if (cellSelector.getY() != camera.picture.getH()) {
+        if (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
             cellSelector.updateY(prevH);
             if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
                 while (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
@@ -204,7 +206,7 @@ public class Controller implements Initializable {
         }
         cellSelector.updateXCoord(1);
         cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getX() != camera.picture.getW()) {
+        if (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
             cellSelector.updateX(prevW);
             if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
                 while (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
@@ -225,7 +227,7 @@ public class Controller implements Initializable {
         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
         cellSelector.readCell(camera.picture.data());
         cellContentToIBar();
-        maybeGoToMergeStart();
+        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
     protected static void cellContentToIBar() {
@@ -311,7 +313,7 @@ public class Controller implements Initializable {
             moveDown();
         while (yCoord - cellSelector.getYCoord() < 0)
             moveUp();
-        coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         updateVisualState();
     }
     protected static void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
@@ -349,6 +351,7 @@ public class Controller implements Initializable {
     }
 
     public static void onKeyPressed(@NotNull KeyEvent event) {
+        keyStrokeCell.setKeyStroke(event.getCode().toString());
         if (recordingMacro) currMacro.add(event);
         if (currMode == Mode.NORMAL) keyCommand.addChar(event);
         else {
@@ -389,7 +392,7 @@ public class Controller implements Initializable {
 
         if (currMode == Mode.NORMAL) {
             cellSelector.draw(gc);
-            coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+            coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         }
         else if (currMode == Mode.VISUAL) {
             System.out.println("Selected coords = {");
@@ -401,6 +404,7 @@ public class Controller implements Initializable {
             System.out.println('}');
         }
         if (currMode != Mode.HELP) updateVisualState();
+        keyStrokeCell.draw(gc);
     }
 
     protected static void updateVisualState() {
@@ -408,7 +412,7 @@ public class Controller implements Initializable {
         firstRow.draw(gc);
         statusBar.draw(gc);
         infoBar.draw(gc);
-        coordsCell.draw(gc);
+        coordsInfo.draw(gc);
     }
 
     protected static void commandInput(@NotNull KeyEvent event) {
@@ -448,15 +452,15 @@ public class Controller implements Initializable {
                         Cell c = sheet.findCell(destinationCoord.toString());
                         recordedCellStates.add(c.copy());
                         Formula f = new Formula(
-                                coordsCell.getCoords() + ' ' + command.getTxt().substring(0, i),
-                                c.xCoord(),
-                                c.yCoord()
+                            coordsInfo.getCoords() + ' ' + command.getTxt().substring(0, i),
+                            c.xCoord(),
+                            c.yCoord()
                         );
                         c = new Cell(
-                                c.xCoord(),
-                                c.yCoord(),
-                                f.interpret(sheet),
-                                f
+                            c.xCoord(),
+                            c.yCoord(),
+                            f.interpret(sheet),
+                            f
                         );
                         sheet.addCell(c);
                         goTo(c.xCoord(), c.yCoord());
@@ -467,14 +471,10 @@ public class Controller implements Initializable {
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
-                if (cellSelector.getX() == 0)
-                    moveRight();
-                else
-                    moveLeft();
-                if (cellSelector.getY() == 0)
-                    moveDown();
-                else
-                    moveUp();
+                if (cellSelector.getX() == 0) moveRight();
+                else moveLeft();
+                if (cellSelector.getY() == 0) moveDown();
+                else moveUp();
                 try {
                     command.interpret(sheet);
                 } catch (Exception e) {
@@ -485,9 +485,7 @@ public class Controller implements Initializable {
                 cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                if (!command.commandExists()) {
-                    infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
-                }
+                if (!command.commandExists()) infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
                 System.out.println(recordedCellStates.size());
             }
             case BACK_SPACE -> {
@@ -741,7 +739,7 @@ public class Controller implements Initializable {
                 else if (currYC == originalYC && currYC > prevYC)
                     purgeSCs(-1, prevYC);
 
-                coordsCell.setCoords(maxXC, minXC, maxYC, minYC);
+                coordsInfo.setCoords(maxXC, minXC, maxYC, minYC);
             }
         }
     }
@@ -959,13 +957,20 @@ public class Controller implements Initializable {
         macros = new HashMap<>();
         helpMenu = new HelpMenu(gc);
         reset(new HashMap<>(), new HashMap<>());
+        if (arg1 != null) {
+            try {
+                sheet.readFile(arg1);
+            } catch (Exception e) {
+                infoBar.setInfobarTxt(e.getMessage());
+            }
+        }
     }
 
     public static void reset(HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         camera = new Camera(
-            DEFAULT_CELL_W,
+            DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
-            CANVAS_W-DEFAULT_CELL_W,
+            CANVAS_W-DEFAULT_CELL_W/2,
             CANVAS_H-3*DEFAULT_CELL_H-4,
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
@@ -984,25 +989,22 @@ public class Controller implements Initializable {
             Color.DARKGRAY,
             camera.picture.metadata()
         );
-        coordsCell = new CoordsCell(
-            0,
-            0,
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
-            Color.GRAY
+        coordsInfo = new CoordsInfo(
+            CANVAS_W,
+            CANVAS_H-2*DEFAULT_CELL_H-4
         );
         firstCol = new FirstCol(
             0,
             DEFAULT_CELL_H,
-            DEFAULT_CELL_W,
+            DEFAULT_CELL_W/2,
             CANVAS_H-3*DEFAULT_CELL_H-4,
             Color.SILVER,
             camera.picture.metadata()
         );
         firstRow = new FirstRow(
-            DEFAULT_CELL_W,
+            DEFAULT_CELL_W/2,
             0,
-            CANVAS_W-DEFAULT_CELL_W,
+            CANVAS_W-DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
             Color.SILVER,
             camera.picture.metadata()
@@ -1021,6 +1023,13 @@ public class Controller implements Initializable {
             DEFAULT_CELL_H+4,
             Color.GRAY
         );
+        keyStrokeCell = new KeyStrokeCell(
+            0,
+            0,
+            DEFAULT_CELL_W/2,
+            DEFAULT_CELL_H,
+            Color.GRAY
+        );
 
         currMode = Mode.NORMAL;
         keyCommand = new KeyCommand();
@@ -1033,11 +1042,12 @@ public class Controller implements Initializable {
         clipboard = new ArrayList<>();
 
         camera.ready();
-        coordsCell.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-        coordsCell.draw(gc);
+        keyStrokeCell.draw(gc);
         firstCol.draw(gc);
         firstRow.draw(gc);
         statusBar.draw(gc);
+        coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        coordsInfo.draw(gc);
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
