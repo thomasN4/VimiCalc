@@ -37,9 +37,9 @@ public class HelpMenu extends Visible {
         "\t Things such as merging cells by pressing 'm', or copying them by pressing 'y',",
         "\t and applying formulas while appending the destination coordinate at the end (eg 'A3:B4 det AX8').",
         "\n",
-        "\t-COMMAND mode is for entering certain uh commands. Examples:",
-        "\t resCol [offset from default width in pixels], w [file path] for saving a file, and of course,",
-        "\t q for quitting",
+        "\t-COMMAND mode is for entering certain uh commands. Start by typing ':' in NORMAL mode. Examples:",
+        "\t :resCol [offset from default width in pixels], :w [file path] for saving a file, and of course,",
+        "\t :q for quitting",
         "\n",
         "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
         "NORMAL mode. They appear at the bottom right of the window as you type.",
@@ -57,7 +57,7 @@ public class HelpMenu extends Visible {
         "\n",
         "\t-The cancel the writing of a KeyCommand, press Ctrl-C",
         "\n",
-        "For more info, there is only the source code in the meantime."
+        "For more info, there is only the source code for now."
     };
 
     public HelpMenu(GraphicsContext gc) {
