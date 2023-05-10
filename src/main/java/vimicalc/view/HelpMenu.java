@@ -1,4 +1,4 @@
-package vimicalc.controller;
+package vimicalc.view;
 
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
@@ -6,7 +6,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.view.Visible;
 
 import static vimicalc.controller.Controller.currMode;
 import static vimicalc.controller.Mode.NORMAL;
