@@ -55,6 +55,8 @@ public class HelpMenu extends Visible {
         "\t If the formula doesn't evaluate to 0, the KeyCommand in the 'then' part is executed.",
         "\t Some examples would be helpful: '<C3 2 mod{d5J6l}', '<6 5j2k 3 mod{@a{@b}'",
         "\n",
+        "\t-The cancel the writing of a KeyCommand, press Ctrl-C",
+        "\n",
         "For more info, there is only the source code in the meantime."
     };
 
