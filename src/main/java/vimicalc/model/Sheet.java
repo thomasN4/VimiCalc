@@ -233,36 +233,44 @@ public class Sheet {
             String errorMessage = "File is not of .wss format";
             throw new Exception(errorMessage);
         }
-        ObjectInputStream iStream = new ObjectInputStream(new FileInputStream(path));
 
-        HashMap<Integer, Integer> newXOffsets = null;
-        HashMap<Integer, Integer> newYOffsets = null;
         try {
-            iStream.readUTF();
-            cells = null;
-            cells = (ArrayList<Cell>) iStream.readObject();
-            iStream.readUTF();
-            dependencies = null;
-            dependencies = (ArrayList<Dependency>) iStream.readObject();
-            iStream.readUTF();
-            newXOffsets = (HashMap<Integer, Integer>) iStream.readObject();
-            iStream.readUTF();
-            newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
-            iStream.readUTF();
-            macros = null;
-            macros = (HashMap<Character, LinkedList<KeyEvent>>) iStream.readObject();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(Arrays.toString(e.getStackTrace()));
-        }
+            ObjectInputStream iStream = new ObjectInputStream(new FileInputStream(path));
 
-        newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
-        newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
-        Controller.reset(newXOffsets, newYOffsets);
-        if (macros == null) macros = new HashMap<>();
-        iStream.close();
-        file = new File(path);
-        Controller.statusBar.setFilename(file.getName());
+            HashMap<Integer, Integer> newXOffsets = null;
+            HashMap<Integer, Integer> newYOffsets = null;
+            try {
+                iStream.readUTF();
+                cells = null;
+                cells = (ArrayList<Cell>) iStream.readObject();
+                iStream.readUTF();
+                dependencies = null;
+                dependencies = (ArrayList<Dependency>) iStream.readObject();
+                iStream.readUTF();
+                newXOffsets = (HashMap<Integer, Integer>) iStream.readObject();
+                iStream.readUTF();
+                newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
+                iStream.readUTF();
+                macros = null;
+                macros = (HashMap<Character, LinkedList<KeyEvent>>) iStream.readObject();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println(Arrays.toString(e.getStackTrace()));
+            }
+
+            newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
+            newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
+            Controller.reset(newXOffsets, newYOffsets);
+            if (macros == null) macros = new HashMap<>();
+            iStream.close();
+            file = new File(path);
+            Controller.statusBar.setFilename(file.getName());
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            Controller.reset(new HashMap<>(), new HashMap<>());
+            file = new File(path);
+            Controller.statusBar.setFilename(file.getName());
+        }
     }
 }
 

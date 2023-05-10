@@ -960,8 +960,13 @@ public class Controller implements Initializable {
         if (arg1 != null) {
             try {
                 sheet.readFile(arg1);
+                updateVisualState();
             } catch (Exception e) {
-                infoBar.setInfobarTxt(e.getMessage());
+                if (e.getMessage().contains("FileNotFound")) {
+                    infoBar.setInfobarTxt("New file");
+                    updateVisualState();
+                }
+                else infoBar.setInfobarTxt(e.getMessage());
             }
         }
     }
