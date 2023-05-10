@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="VimiCalc:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/VimiCalc_jar</output-path>
+    <root id="archive" name="VimiCalc.jar">
+      <element id="module-output" name="VimiCalc" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/realityforge/org/jetbrains/annotations/org.jetbrains.annotations/1.2.0/org.jetbrains.annotations-1.2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx-swt.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.web.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.base.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.fxml.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.media.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.swing.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.controls.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="/usr/lib/jvm/javafx-sdk-17.0.7/lib/javafx.graphics.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
