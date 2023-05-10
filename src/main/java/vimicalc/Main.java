@@ -9,6 +9,8 @@ import javafx.scene.control.ScrollBar;
 import javafx.stage.Stage;
 import vimicalc.controller.Controller;
 
+import java.util.Arrays;
+
 public class Main extends Application {
 
     public static String arg1 = null;
@@ -48,7 +50,8 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        if (args.length > 1) arg1 = args[1];
+        System.out.println("args: " + Arrays.toString(args));
+        if (args.length > 0) arg1 = args[0];
         launch(args);
         System.out.println();
     }
