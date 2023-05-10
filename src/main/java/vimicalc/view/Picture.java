@@ -56,7 +56,7 @@ public class Picture extends Visible {
             }
         }
 
-        gc.setFill(Color.DARKGRAY);
+        gc.setFill(Color.LIMEGREEN);
         selectedCoords.forEach(c ->
             gc.fillRect(
                 metadata.getCellAbsXs()[c[0]] - absX + (float) DCW/2,

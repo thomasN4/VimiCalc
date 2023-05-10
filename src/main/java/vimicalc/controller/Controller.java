@@ -986,7 +986,7 @@ public class Controller implements Initializable {
             camera.picture.metadata().getCellAbsYs()[2],
             camera.picture.metadata().getCellAbsXs()[2] - camera.picture.metadata().getCellAbsYs()[1],
             camera.picture.metadata().getCellAbsYs()[2] - camera.picture.metadata().getCellAbsYs()[1],
-            Color.DARKGRAY,
+            Color.LIMEGREEN,
             camera.picture.metadata()
         );
         coordsInfo = new CoordsInfo(
@@ -1021,14 +1021,14 @@ public class Controller implements Initializable {
             CANVAS_H-2*DEFAULT_CELL_H-4,
             CANVAS_W,
             DEFAULT_CELL_H+4,
-            Color.GRAY
+            Color.FORESTGREEN
         );
         keyStrokeCell = new KeyStrokeCell(
             0,
             0,
             DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
-            Color.GRAY
+            Color.FORESTGREEN
         );
 
         currMode = Mode.NORMAL;

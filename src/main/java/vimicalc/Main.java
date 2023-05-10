@@ -42,7 +42,7 @@ public class Main extends Application {
         Scene scene = new Scene(root, 800, 600); //CD: Modif (root)
         scene.setOnKeyPressed(Controller::onKeyPressed);
         //scene.setOnMouseClicked(Controller::onMouseClicked); //CD: pour les cliques avec souris
-        primaryStage.setTitle("VimiCalc");
+        primaryStage.setTitle("WeSpreadSheet");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
