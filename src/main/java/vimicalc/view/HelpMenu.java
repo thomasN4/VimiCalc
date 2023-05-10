@@ -61,7 +61,7 @@ public class HelpMenu extends Visible {
     };
 
     public HelpMenu(GraphicsContext gc) {
-        super(30, 30, 720, 480, Color.LIGHTYELLOW);
+        super(30, 30, 740, 480, Color.LIGHTYELLOW);
         this.gc = gc;
         position = 0;
     }
