@@ -43,7 +43,8 @@ public class HelpMenu extends Visible {
         "\t q for quitting",
         "\n",
         "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
-        " NORMAL mode. Here are some more information about them.",
+        "NORMAL mode. They appear at the bottom right of the window as you type.",
+        "Here are some more information about them.",
         "\n",
         "\t-Multipliers: you just type a number before typing the rest of the command.",
         "\n",
@@ -94,7 +95,7 @@ public class HelpMenu extends Visible {
         gc.setTextBaseline(VPos.TOP);
         gc.setTextAlign(TextAlignment.LEFT);
         StringBuilder txt = new StringBuilder();
-        for (int i = position; i < position + 20; i++) {
+        for (int i = position; i < position + 24; i++) {
             if (i < text.length)
                 txt.append(text[i]).append('\n');
             else break;
