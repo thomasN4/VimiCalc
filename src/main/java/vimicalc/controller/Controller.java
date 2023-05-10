@@ -432,7 +432,10 @@ public class Controller implements Initializable {
                     command.getTxt().equals("?")) {
                     try {
                         command.interpret(sheet);
-                    } catch (Exception ignored) {}
+                    } catch (Exception e) {
+                        infoBar.setInfobarTxt(e.getMessage());
+                        infoBar.draw(gc);
+                    }
                     onKeyPressed(event);
                     return;
                 }
@@ -962,9 +965,10 @@ public class Controller implements Initializable {
                 sheet.readFile(arg1);
                 updateVisualState();
             } catch (Exception e) {
-                if (e.getMessage().contains("FileNotFound")) {
-                    infoBar.setInfobarTxt("New file");
+                if (e.getMessage().equals("New file")) {
                     updateVisualState();
+                    infoBar.setInfobarTxt("New file");
+                    infoBar.draw(gc);
                 }
                 else infoBar.setInfobarTxt(e.getMessage());
             }

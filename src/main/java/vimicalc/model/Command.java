@@ -10,24 +10,16 @@ public class Command extends Interpretable {
         super(txt, xC, yC);
     }
     public boolean commandExists = true;
-    public void readFile(Sheet sheet, Lexeme[] command) {
-        try {
-            sheet.readFile(command[1].getFunc());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    public void readFile(Sheet sheet, Lexeme[] command) throws Exception {
+        sheet.readFile(command[1].getFunc());
     }
 
-    public void writeFile(Sheet sheet, Lexeme[] command) {
-        try {
-            if (command.length == 1) sheet.writeFile();
-            else sheet.writeFile(command[1].getFunc());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    public void writeFile(Sheet sheet, Lexeme[] command) throws Exception {
+        if (command.length == 1) sheet.writeFile();
+        else sheet.writeFile(command[1].getFunc());
     }
 
-    public Lexeme[] interpret(Lexeme[] command, Sheet sheet) {
+    public Lexeme[] interpret(Lexeme[] command, Sheet sheet) throws Exception {
         commandExists = true;
         switch (command[0].getFunc()) {
             case "h", "help", "?" -> {

@@ -270,6 +270,7 @@ public class Sheet {
             Controller.reset(new HashMap<>(), new HashMap<>());
             file = new File(path);
             Controller.statusBar.setFilename(file.getName());
+            throw new Exception("New file");
         }
     }
 }
