@@ -262,7 +262,7 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'g' -> {  // Aller vers une coordonnée précise, par exemple, 'gA3'
-                    if (!isNumber(""+lastChar) && !Character.isAlphabetic(lastChar) &&
+                    if (!isNumber(""+lastChar) && !(lastChar > 64 && lastChar < 91) &&
                         !isNumber(""+beforeLastChar))
                         evaluationFinished = true;
                     else if (expr.length() > 2 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
