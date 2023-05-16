@@ -261,8 +261,11 @@ public class KeyCommand {
                     moveRight();
                     evaluationFinished = true;
                 }
-                case 'g' -> {
-                    if (expr.length() > 3 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
+                case 'g' -> {  // Aller vers une coordonnée précise, par exemple, 'gA3'
+                    if (!isNumber(""+lastChar) && !Character.isAlphabetic(lastChar) &&
+                        !isNumber(""+beforeLastChar))
+                        evaluationFinished = true;
+                    else if (expr.length() > 2 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
                         goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
                         cellContentToIBar();

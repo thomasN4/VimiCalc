@@ -21,7 +21,7 @@ public class StatusBar extends Visible {
         gc.setFill(Color.BLUE);
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(" [" + currMode + "]  [" + filename + ']', 2, y + (float)h/2);
+        gc.fillText(" [" + currMode + "]  --" + filename + "--", 2, y + (float)h/2);
     }
 
     public void setFilename(String filename) {
