@@ -38,6 +38,10 @@ public class InfoBar extends Visible {
         this.infobarTxt = Objects.requireNonNullElse(infobarTxt, "(=I)");
     }
 
+    public String getInfobarTxt() {
+        return infobarTxt;
+    }
+
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);

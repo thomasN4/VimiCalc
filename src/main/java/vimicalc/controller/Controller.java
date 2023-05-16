@@ -231,12 +231,17 @@ public class Controller implements Initializable {
     }
 
     protected static void cellContentToIBar() {
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().formula().getTxt()+")");
-        else if (cellSelector.getSelectedCell().value() != null)
+        if (cellSelector.getSelectedCell().value() != null)
             infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().value()+")");
-        else
+        else {
             infoBar.setInfobarTxt(null);
+            return;
+        }
+        if (cellSelector.getSelectedCell().formula() != null)
+            infoBar.setInfobarTxt(
+                infoBar.getInfobarTxt() + " " +
+                "(f:"+cellSelector.getSelectedCell().formula().getTxt()+")"
+            );
     }
 
     protected static void removeUltCStates() {

@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
+import static java.lang.Math.pow;
 import static vimicalc.controller.KeyCommand.Mfuncs;
 import static vimicalc.utils.Conversions.*;
 
@@ -176,6 +177,16 @@ public class Formula extends Interpretable {
                             args[i-2].getFunc(), args[i-1].getFunc(), sheet
                         ));
                     }
+                    case "^" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            Lexeme x = args[i-2];
+                            Lexeme y = args[i-1];
+                            if (x.isFunction()) x.setVal(0);
+                            if (y.isFunction()) y.setVal(0);
+                            reduced = new Lexeme(pow(x.getVal(), y.getVal()));
+                        }
+                    }
                     case "+" -> {
                         if (i > 1) {
                             reduction = 2;
@@ -302,7 +313,7 @@ public class Formula extends Interpretable {
 
             double sum = 0;
             for (int i = 0; i < imat.length; i++) {
-                sum += Math.pow(-1, i) * determinant(omats[i].getItems()) * imat[i][0];
+                sum += pow(-1, i) * determinant(omats[i].getItems()) * imat[i][0];
             }
             return sum;
         }
