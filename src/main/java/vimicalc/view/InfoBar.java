@@ -42,10 +42,10 @@ public class InfoBar extends Visible {
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.BASELINE);
+        gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(iBarExpr, x + w - 4, y + 16);
+        gc.fillText(iBarExpr, x + w - 4, y + (float)h/2);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(infobarTxt,2, y + 16);
+        gc.fillText(infobarTxt,2, y + (float)h/2);
     }
 }

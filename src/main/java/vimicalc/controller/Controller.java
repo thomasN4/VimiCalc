@@ -25,7 +25,7 @@ import static vimicalc.controller.KeyCommand.recordingMacro;
 public class Controller implements Initializable {
     private static int CANVAS_W;
     private static int CANVAS_H;
-    private static final int DEFAULT_CELL_H = 23;
+    private static final int DEFAULT_CELL_H = 24;
     private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
     private static final Color DEFAULT_CELL_C = Color.WHITE;
 
@@ -1001,7 +1001,8 @@ public class Controller implements Initializable {
         );
         coordsInfo = new CoordsInfo(
             CANVAS_W,
-            CANVAS_H-2*DEFAULT_CELL_H-4
+            CANVAS_H-2*DEFAULT_CELL_H-4,
+            DEFAULT_CELL_H + 4
         );
         firstCol = new FirstCol(
             0,

@@ -19,9 +19,9 @@ public class StatusBar extends Visible {
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
         gc.setFill(Color.BLUE);
-        gc.setTextBaseline(VPos.BASELINE);
+        gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(" [" + currMode + "]  [" + filename + ']', 2, y+19);
+        gc.fillText(" [" + currMode + "]  [" + filename + ']', 2, y + (float)h/2);
     }
 
     public void setFilename(String filename) {

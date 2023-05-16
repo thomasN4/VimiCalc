@@ -9,13 +9,14 @@ import org.jetbrains.annotations.NotNull;
 import static vimicalc.utils.Conversions.toAlpha;
 
 public class CoordsInfo {
-    int x, y;
+    int x, y, h;
 
     private String coords;
 
-    public CoordsInfo(int x, int y) {
+    public CoordsInfo(int x, int y, int h) {
         this.x = x;
         this.y = y;
+        this.h = h;
     }
 
     public void setCoords(int xCoord, int yCoord) {
@@ -33,7 +34,7 @@ public class CoordsInfo {
     public void draw(@NotNull GraphicsContext gc) {
         gc.setFill(Color.BLUE);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.setTextBaseline(VPos.TOP);
-        gc.fillText(coords, x-4, y+7);
+        gc.setTextBaseline(VPos.CENTER);
+        gc.fillText(coords, x-4, y + (float)h/2);
     }
 }
