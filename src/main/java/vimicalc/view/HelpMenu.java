@@ -46,7 +46,7 @@ public class HelpMenu extends simpleRect {
         "NORMAL mode. They appear at the bottom right of the window as you type.",
         "Here are some more information about them.",
         "\n",
-        "\t-Multipliers: you just type a number before typing the rest of the command.",
+        "\t-Multipliers: you just type a number before typing the rest of the command, like '5j' or '31@x",
         "\n",
         "\t-Macros: You type 'q' and then supply a letter as the name of the macro. You can then just do whatever ",
         "\t and everything will be recorded until you press 'q' again. To replay it, just type @[the letter].",

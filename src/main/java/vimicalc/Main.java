@@ -39,7 +39,7 @@ public class Main extends Application {
         bar2.setOrientation(Orientation.VERTICAL);
         bar2.setPrefSize(10,600);
 
-        Group root = new Group(fxmlLoader.load(), bar1, bar2); //CD: regroupe le fxml et les scrollbars
+        Group root = new Group(fxmlLoader.load(), bar1, bar2); //CD : regroupe le fxml et les scrollbars
 
         Scene scene = new Scene(root, 900, 600); //CD: Modif (root)
         scene.setOnKeyPressed(Controller::onKeyPressed);
@@ -51,7 +51,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         System.out.println("args: " + Arrays.toString(args));
-        // Si on ouvre l'application à partir du command-line, on peut passer un filepath en argument
+        // Si on ouvre l'application à partir du terminal, on peut passer un filepath en argument
         if (args.length > 0) arg1 = args[0];
         launch(args);
         System.out.println();
