@@ -36,8 +36,8 @@ public class Conversions {
                 coordY = new StringBuilder();
 
         for (int i = 0; i < coords.length(); i++) {
-            if (coords.charAt(i) > 64)
-                coordX.append(coords.charAt(i));
+            if (Character.isAlphabetic(coords.charAt(i)))
+                coordX.append(Character.toUpperCase(coords.charAt(i)));
             else coordY.append(coords.charAt(i));
         }
 

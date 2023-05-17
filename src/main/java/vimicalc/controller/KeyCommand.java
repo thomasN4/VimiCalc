@@ -262,8 +262,8 @@ public class KeyCommand {
                     evaluationFinished = true;
                 }
                 case 'g' -> {  // Aller vers une coordonnée précise, par exemple, 'gA3'
-                    if (!isNumber(""+lastChar) && !(lastChar > 64 && lastChar < 91) &&
-                        !isNumber(""+beforeLastChar))
+                    if (!Character.isAlphabetic(lastChar) &&
+                        !isNumber(""+lastChar) && !isNumber(""+beforeLastChar))
                         evaluationFinished = true;
                     else if (expr.length() > 2 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));

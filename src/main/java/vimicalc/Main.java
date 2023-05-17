@@ -31,7 +31,7 @@ public class Main extends Application {
 
         //CD: Scrollbar Vertical & ses parameters (to-do fix avec camera)
         ScrollBar bar2 = new ScrollBar();
-        bar2.setLayoutX(800);
+        bar2.setLayoutX(900);
         bar2.setLayoutY(0);
         bar2.setMin(0);
         bar2.setMax(100);
