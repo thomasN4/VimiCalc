@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"vimicalc"},{"l":"vimicalc.controller"},{"l":"vimicalc.model"},{"l":"vimicalc.utils"},{"l":"vimicalc.view"}];updateSearchResults();
