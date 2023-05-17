@@ -1,5 +1,6 @@
 package vimicalc.utils;
 
+// Ça ne sert vraiment à rien, et ça ne servira probablement jamais à rien.
 public class CompVar {
     private char chr = 0;
     private String str;

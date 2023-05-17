@@ -35,6 +35,9 @@ public class Positions {
                ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
                ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1));
     }
+
+    // Les positions sont calculées à partir de l'origine, à chaque fois que la caméra bouge.
+    // Ça fonctionne, mais absolute yikes.
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
         ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
