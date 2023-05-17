@@ -20,6 +20,7 @@ public class Sheet {
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
+        file = new File("");
     }
 
     public Positions getPicMetadata() {
@@ -227,9 +228,9 @@ public class Sheet {
 
     public void readFile(@NotNull String path) throws Exception {
         if (!path.endsWith(".wss")) {
-            /* On va devoir afficher cela dans le infobar, de manière optimale.
+            /* On va devoir afficher cela dans l'infobar, de manière optimale.
              * Je suggère d'avoir une variable statique pour le texte d'infobar, au lieu
-             * de rendre tout le infobar static. */
+             * de rendre tout l'infobar static. */
             String errorMessage = "File is not of .wss format";
             throw new Exception(errorMessage);
         }
