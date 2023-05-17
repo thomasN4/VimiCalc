@@ -4,14 +4,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class Visible {
+public abstract class simpleRect {
     protected int x;
     protected int y;
     protected int w;
     protected int h;
     protected Color c;
 
-    public Visible(int x, int y, int w, int h, Color c) {
+    public simpleRect(int x, int y, int w, int h, Color c) {
         this.x = x;
         this.y = y;
         this.w = w;

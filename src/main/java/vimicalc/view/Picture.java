@@ -11,7 +11,7 @@ import vimicalc.model.Sheet;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Picture extends Visible {
+public class Picture extends simpleRect {
     private final int DCW;
     private final int DCH;
     private ArrayList<Cell> visibleCells;

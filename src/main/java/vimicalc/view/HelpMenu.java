@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import static vimicalc.controller.Controller.currMode;
 import static vimicalc.controller.Mode.NORMAL;
 
-public class HelpMenu extends Visible {
+public class HelpMenu extends simpleRect {
     private int position;
     private final GraphicsContext gc;
     private final String[] text = {
@@ -24,6 +24,7 @@ public class HelpMenu extends Visible {
         "\n",
         "\t-NORMAL mode allows you to do all sorts of commands with the letters part of the keyboard,",
         "\t and is the 'usual' mode where most of the editing happens and where you switch to other modes.",
+        "\t When not in this mode, press 'ESC' to return.",
         "\n",
         "\t-INSERT mode is for inserting plain text into a cell. Just type 'a' or 'i' to enter it and 'ESC' to leave",
         "\n",

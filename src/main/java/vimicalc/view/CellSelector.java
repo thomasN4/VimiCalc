@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 import static vimicalc.controller.Controller.currMode;
 
-public class CellSelector extends Visible {
+public class CellSelector extends simpleRect {
 
     private int xCoord, yCoord, mergedW, mergedH;
     private Cell selectedCell;

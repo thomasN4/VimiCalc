@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-public class FirstCol extends Visible {
+public class FirstCol extends simpleRect {
     Positions picPositions;
 
     public FirstCol(int x, int y, int w, int h, Color c, Positions picPositions) {

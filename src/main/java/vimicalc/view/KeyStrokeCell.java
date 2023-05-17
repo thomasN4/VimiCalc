@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-public class KeyStrokeCell extends Visible {
+public class KeyStrokeCell extends simpleRect {
     private String keyStroke;
     public KeyStrokeCell(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);

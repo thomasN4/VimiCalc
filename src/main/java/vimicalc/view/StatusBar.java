@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-public class StatusBar extends Visible {
+public class StatusBar extends simpleRect {
     private String filename;
 
     public StatusBar(int x, int y, int w, int h, Color c) {

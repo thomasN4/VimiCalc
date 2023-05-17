@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class InfoBar extends Visible {
+public class InfoBar extends simpleRect {
 
     public static String iBarExpr;
     private String infobarTxt;

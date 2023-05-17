@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static vimicalc.utils.Conversions.toAlpha;
 
-public class FirstRow extends Visible {
+public class FirstRow extends simpleRect {
     Positions picPositions;
 
     public FirstRow(int x, int y, int w, int h, Color c, Positions picPositions) {
