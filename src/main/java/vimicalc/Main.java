@@ -51,6 +51,7 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         System.out.println("args: " + Arrays.toString(args));
+        // Si on ouvre l'application à partir du command-line, on peut passer un filepath en argument
         if (args.length > 0) arg1 = args[0];
         launch(args);
         System.out.println();
