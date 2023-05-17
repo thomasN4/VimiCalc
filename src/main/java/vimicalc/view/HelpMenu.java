@@ -58,7 +58,7 @@ public class HelpMenu extends simpleRect {
         "\n",
         "\t-The cancel the writing of a KeyCommand, press Ctrl-C",
         "\n",
-        "For more info, there is only the source code for now."
+        "For more info, there is only the source code and the javadoc for now."
     };
 
     public HelpMenu(GraphicsContext gc) {
