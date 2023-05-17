@@ -10,4 +10,4 @@ d: pp gA24=_1_+[ENTER][CTRL+O] h
 
 e: @a $D24@b
 
-r: :resCol -69 l
+r: :resCol -72 l
