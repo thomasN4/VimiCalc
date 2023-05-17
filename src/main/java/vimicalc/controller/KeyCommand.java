@@ -115,7 +115,7 @@ public class KeyCommand {
         char lastChar = expr.charAt(expr.length() - 1), beforeLastChar = 0;
         if (expr.length() > 1) beforeLastChar = expr.charAt(expr.length() - 2);
         if (isNumber("" + lastChar)) return;
-        int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1: indexe de la fonction, item 2: multiplicateur
+        int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1 : indexe de la fonction, item 2 : multiplicateur
 
         if (fstFIandM[0] >= expr.length()) return;
         char fstFunc = expr.charAt(fstFIandM[0]);
