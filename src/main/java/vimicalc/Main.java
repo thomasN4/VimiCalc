@@ -41,7 +41,7 @@ public class Main extends Application {
 
         Group root = new Group(fxmlLoader.load(), bar1, bar2); //CD: regroupe le fxml et les scrollbars
 
-        Scene scene = new Scene(root, 800, 600); //CD: Modif (root)
+        Scene scene = new Scene(root, 900, 600); //CD: Modif (root)
         scene.setOnKeyPressed(Controller::onKeyPressed);
         //scene.setOnMouseClicked(Controller::onMouseClicked); //CD: pour les cliques avec souris
         primaryStage.setTitle("WeSpreadSheet");

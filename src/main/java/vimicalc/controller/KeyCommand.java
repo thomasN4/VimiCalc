@@ -390,6 +390,7 @@ public class KeyCommand {
                             command.interpret(sheet);
                         } catch (Exception e) {
                             infoBar.setInfobarTxt(e.getMessage());
+                            evaluationFinished = true;
                         }
                     }
                 }
