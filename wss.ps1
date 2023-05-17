@@ -1,0 +1,1 @@
+java --module-path "PATH_TO_LIBRARY_(JAVA 17)" --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web -jar PATH_TO_JAR $1
