@@ -220,12 +220,11 @@ public class Sheet {
             oStream.writeObject(macros); oStream.flush();
 
             file = new File(path);
+            Controller.statusBar.setFilename(file.getName());
         } catch (Exception e) {
             System.out.println("Error while saving file: " + Arrays.toString(e.getStackTrace()));
         }
-
         oStream.close();
-        Controller.statusBar.setFilename(file.getName());
     }
 
     public void readFile(@NotNull String path) throws Exception {
