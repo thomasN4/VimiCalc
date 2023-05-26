@@ -825,7 +825,6 @@ public class Controller implements Initializable {
                     cellSelector.draw(gc);
                 } else {
                     cellSelector.draw(gc, event.getText());
-                    infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
                 }
             }
             case LEFT, DOWN, UP, RIGHT, ENTER, TAB -> {
