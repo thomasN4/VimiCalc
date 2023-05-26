@@ -198,6 +198,7 @@ public class Sheet {
     }
 
     public void writeFile(@NotNull String path) throws IOException {
+        if (!path.contains("/.wss")) return;
         if (!path.endsWith(".wss")) path += ".wss";
         System.out.println("Saving file " + path + "...");
         ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(path));
