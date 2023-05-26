@@ -991,9 +991,23 @@ public class Controller implements Initializable {
             xOffsets,
             yOffsets
         );
+
+        int maxXC = Integer.MIN_VALUE, maxYC = Integer.MIN_VALUE;
+        for (Cell c : sheet.getCells()) {
+            if (c.isMergeStart()) {
+                if (c.getMergeDelimiter().xCoord() > maxXC) maxXC = c.getMergeDelimiter().xCoord();
+                if (c.getMergeDelimiter().yCoord() > maxYC) maxYC = c.getMergeDelimiter().yCoord();
+            } else {
+                if (c.xCoord() > maxXC) maxXC = c.xCoord();
+                if (c.yCoord() > maxYC) maxYC = c.yCoord();
+            }
+        }
+        camera.picture.metadata().setMaxXC(maxXC);
+        camera.picture.metadata().setMaxYC(maxYC);
         selectedCoords = new ArrayList<>();
         camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+
         cellSelector = new CellSelector(
             camera.picture.metadata().getCellAbsXs()[2],
             camera.picture.metadata().getCellAbsYs()[2],
