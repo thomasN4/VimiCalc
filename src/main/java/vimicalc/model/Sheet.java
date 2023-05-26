@@ -198,7 +198,7 @@ public class Sheet {
     }
 
     public void writeFile(@NotNull String path) throws IOException {
-        if (!path.contains("/.wss")) return;
+        if (path.isEmpty()) return;
         if (!path.endsWith(".wss")) path += ".wss";
         System.out.println("Saving file " + path + "...");
         ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(path));
@@ -218,12 +218,13 @@ public class Sheet {
 
             oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
             oStream.writeObject(macros); oStream.flush();
+
+            file = new File(path);
         } catch (Exception e) {
             System.out.println("Error while saving file: " + Arrays.toString(e.getStackTrace()));
         }
 
         oStream.close();
-        file = new File(path);
         Controller.statusBar.setFilename(file.getName());
     }
 
