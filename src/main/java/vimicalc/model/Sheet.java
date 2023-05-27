@@ -3,6 +3,7 @@ package vimicalc.model;
 import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Controller;
+import vimicalc.view.Formatting;
 import vimicalc.view.Positions;
 
 import java.io.*;
@@ -16,11 +17,13 @@ public class Sheet {
     private File file;
     private ArrayList<Dependency> dependencies;
     private Positions picPositions;
+    private HashMap<int[], Formatting> cellsFormatting;
 
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
         file = new File("");
+        cellsFormatting = new HashMap<>();
     }
 
     public Positions getPicMetadata() {
@@ -33,6 +36,10 @@ public class Sheet {
 
     public ArrayList<Cell> getCells() {
         return cells;
+    }
+
+    public HashMap<int[], Formatting> getCellsFormatting() {
+        return cellsFormatting;
     }
 
     public void purgeDependencies() {
@@ -218,6 +225,9 @@ public class Sheet {
 
             oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
             oStream.writeObject(macros); oStream.flush();
+
+            oStream.writeUTF("\n\n====Formatting====\n"); oStream.flush();
+            oStream.writeObject(cellsFormatting); oStream.flush();
 
             file = new File(path);
             Controller.statusBar.setFilename(file.getName());

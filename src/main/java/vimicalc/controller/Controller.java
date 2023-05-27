@@ -987,7 +987,8 @@ public class Controller implements Initializable {
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
             xOffsets,
-            yOffsets
+            yOffsets,
+            sheet.getCellsFormatting()
         );
 
         int maxXC = Integer.MIN_VALUE, maxYC = Integer.MIN_VALUE;
