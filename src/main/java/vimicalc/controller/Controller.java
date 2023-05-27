@@ -2,10 +2,13 @@ package vimicalc.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.*;
@@ -25,9 +28,13 @@ import static vimicalc.controller.KeyCommand.recordingMacro;
 public class Controller implements Initializable {
     private static int CANVAS_W;
     private static int CANVAS_H;
-    private static final int DEFAULT_CELL_H = 24;
-    private static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
-    private static final Color DEFAULT_CELL_C = Color.WHITE;
+    public static final int DEFAULT_CELL_H = 24;
+    public static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
+    public static final Color DEFAULT_CELL_C = Color.WHITE;
+    public static final Color DEFAULT_TXT_C = Color.BLACK;
+    public static final VPos DEFAULT_VPOS = VPos.CENTER;
+    public static final TextAlignment DEFAULT_ALIGNMENT = TextAlignment.CENTER;
+    public static Font DEFAULT_FONT;
 
     /*CD
     private static int MOUSE_X;
@@ -956,6 +963,7 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
+        DEFAULT_FONT = gc.getFont();
         sheet = new Sheet();
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();

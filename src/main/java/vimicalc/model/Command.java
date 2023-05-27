@@ -1,7 +1,9 @@
 package vimicalc.model;
 
 import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import vimicalc.controller.Mode;
+import vimicalc.view.Formatting;
 
 import static vimicalc.controller.Controller.*;
 
@@ -43,12 +45,37 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
+            case "cellColor" -> cellColor(command[1].getFunc(), sheet);
             default -> {
                 commandExists = false;
                 System.out.println("Command \"" + command[0] + "\" doesn't exist.");
             }
         }
         return new Lexeme[]{new Lexeme(0)};
+    }
+
+    private void cellColor(String color, Sheet sheet) {
+        Color cC;
+        switch (color) {
+            case "red" -> cC = Color.RED;
+            case "green" -> cC = Color.GREEN;
+            case "blue" -> cC = Color.BLUE;
+            case "lGray" -> cC = Color.LIGHTGRAY;
+            case "gray" -> cC = Color.GRAY;
+            case "dGray" -> cC = Color.DARKGRAY;
+            case "black" -> cC = Color.BLACK;
+            default -> cC = DEFAULT_CELL_C;
+        }
+
+        Formatting f;
+        try {
+            f = sheet.getCellsFormatting().get(new int[]{xC, yC});
+            f.setCellColor(cC);
+        } catch (Exception ignored) {
+            f = new Formatting(cC, DEFAULT_TXT_C, DEFAULT_VPOS, DEFAULT_ALIGNMENT, DEFAULT_FONT, xC, yC);
+        }
+
+        sheet.addCellFormatting(xC, yC, f);
     }
 
     public boolean commandExists() {

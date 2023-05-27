@@ -42,6 +42,10 @@ public class Sheet {
         return cellsFormatting;
     }
 
+    public void addCellFormatting(int xC, int yC, Formatting f) {
+        cellsFormatting.put(new int[]{xC, yC}, f);
+    }
+
     public void purgeDependencies() {
         dependencies = new ArrayList<>();
     }

@@ -12,19 +12,20 @@ public class Formatting {
     VPos vPos;
     TextAlignment alignment;
     Font font;
-    int xC, yC, w, h;
+    int w, h;
 
-    public Formatting(Color cellColor, Color txtColor, VPos vPos, TextAlignment alignment, Font font,
-                      int xC, int yC, int w, int h) {
+    public Formatting(Color cellColor, Color txtColor, VPos vPos, TextAlignment alignment, Font font, int w, int h) {
         this.cellColor = cellColor;
         this.txtColor = txtColor;
         this.vPos = vPos;
         this.alignment = alignment;
         this.font = font;
-        this.xC = xC;
-        this.yC = yC;
         this.w = w;
         this.h = h;
+    }
+
+    public void setCellColor(Color cellColor) {
+        this.cellColor = cellColor;
     }
 
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
