@@ -152,7 +152,7 @@ public class Formula extends Interpretable {
         byte reduction;
         Lexeme reduced;
 
-        for (int i = 0; args.length > 1; i++) {
+        for (int i = 0; args.length > 1 || !args[0].getFunc().equals(""); i++) {
             reduction = 0;
             reduced = null;
             if (args[i].isFunction()) {
@@ -202,10 +202,9 @@ public class Formula extends Interpretable {
                         } else throw new Exception("Not enough args.");
                     }
                     case "exp" -> {
-                        if (i > 0) {
-                            reduction = 1;
-                            reduced = new Lexeme(pow(Math.E, args[i - 1].getVal()));
-                        } else throw new Exception("Not enough args.");
+                        if (i == 0) throw new Exception("Not enough args");
+                        reduction = 1;
+                        reduced = new Lexeme(pow(Math.E, args[i - 1].getVal()));
                     }
                     case "^" -> {
                         if (i > 1) {
@@ -276,9 +275,10 @@ public class Formula extends Interpretable {
                             Mfuncs.contains(func.charAt(func.length()-1)))
                             args[i] = cellToLexeme(
                                           relToAbsCoords(func, xC, yC),
-                                          sheet
+                                          sheet,
+                                          args.length
                                       );
-                        else args[i] = cellToLexeme(func, sheet);
+                        else args[i] = cellToLexeme(func, sheet, args.length);
                     }
                 }
                 if (reduction != 0) {
@@ -302,19 +302,18 @@ public class Formula extends Interpretable {
         else if (args[0].getFunc().charAt(0) == '-')
             return new Lexeme[]{negative(args[0].getFunc(), sheet)};
         else
-            return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet)};
+            return new Lexeme[]{cellToLexeme(args[0].getFunc(), sheet, args.length)};
     }
 
-    @Contract("_, _ -> new")
-    private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet) throws Exception {
+    private @NotNull Lexeme cellToLexeme(String coords, @NotNull Sheet sheet, int argsLength) throws Exception {
         Cell c = sheet.findCell(coords);
         sheet.addDependent(xC, yC);
         sheet.addDepended(c.xCoord(), c.yCoord(), sheet.findDependency(xC, yC));
 
-        if (c.value() == null)
-            return new Lexeme("I");
-        else
-            return new Lexeme(c.value());
+        if (c.value() == null) {
+            if (argsLength > 1) return new Lexeme("I");
+            else return new Lexeme(0);
+        } else return new Lexeme(c.value());
     }
 
     private double determinant(String coords, Sheet sheet) throws Exception {
