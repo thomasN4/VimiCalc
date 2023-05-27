@@ -541,13 +541,11 @@ public class Controller implements Initializable {
             }
             case Y -> {
                 clipboard.clear();
-                selectedCoords.forEach(coord -> {
-                    goTo(coord[0], coord[1]);
-                    clipboard.add(cellSelector.getSelectedCell().copy());
-                });
+                selectedCoords.forEach(coord -> clipboard.add(sheet.findCell(coord[0], coord[1])));
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
+                System.out.println("Yanked coords: " + selectedCoords);
             }
             case M -> {
                 boolean mergedCsInside = false;

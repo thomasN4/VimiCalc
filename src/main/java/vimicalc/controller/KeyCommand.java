@@ -348,12 +348,15 @@ public class KeyCommand {
                         else {
                             if (clipboard.size() == 1) paste(0);
                             else {
-                                for (int j = clipboard.size() - 1; j > 0; j--) {
+                                int xCStart = cellSelector.getXCoord(), yCStart = cellSelector.getYCoord();
+                                for (int j = 0; j < clipboard.size()-1; j++) {
                                     paste(j);
-                                    goTo(cellSelector.getXCoord() - (clipboard.get(j).xCoord() - clipboard.get(j - 1).xCoord()),
-                                         cellSelector.getYCoord() - (clipboard.get(j).yCoord() - clipboard.get(j - 1).yCoord()));
+                                    goTo(
+                                        xCStart + (clipboard.get(j+1).xCoord() - clipboard.get(0).xCoord()),
+                                        yCStart + (clipboard.get(j+1).yCoord() - clipboard.get(0).yCoord())
+                                    );
                                 }
-                                paste(0);
+                                paste(clipboard.size()-1);
                             }
                         }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
