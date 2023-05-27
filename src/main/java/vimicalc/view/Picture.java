@@ -92,12 +92,18 @@ public class Picture extends simpleRect {
                 cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
                 cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
             }
-            gc.fillText(
-                c.txt(),
-                metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW/2 + (float) cellWidth/2,
-                metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight/2,
-                cellWidth
-            );
+            try {
+                cellsFormatting.get(new int[]{c.xCoord(), c.yCoord()}).renderCell(
+                    gc, c.xCoord(), c.yCoord(), cellWidth, cellHeight, c.txt()
+                );
+            } catch (Exception ignored) {
+                gc.fillText(
+                    c.txt(),
+                   metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW / 2 + (float) cellWidth / 2,
+                   metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight / 2,
+                    cellWidth
+                );
+            }
         }
     }
 }

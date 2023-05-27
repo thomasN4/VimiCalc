@@ -27,7 +27,7 @@ public class Formatting {
         this.h = h;
     }
 
-    public void renderCell(@NotNull GraphicsContext gc, int x, int y, String txt) {
+    public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
         gc.setFill(txtColor);
         gc.setTextAlign(alignment);
         gc.setTextBaseline(vPos);
