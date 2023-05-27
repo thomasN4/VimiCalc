@@ -164,28 +164,58 @@ public class Formula extends Interpretable {
                 }
                 switch (func) {
                     case "sum", "prod", "quot" -> {
-                        reduction = 1;
-                        reduced = new Lexeme(tableArithmetic(func, args[i-1], sheet));
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(tableArithmetic(func, args[i - 1], sheet));
+                        } else throw new Exception("Not enough args.");
                     }
                     case "det" -> {
-                        reduction = 1;
-                        reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
+                        } else throw new Exception("Not enough args.");
                     }
-                    case "matMult" -> {
-                        reduction = 2;
-                        reduced = new Lexeme(matMult(
-                            args[i-2].getFunc(), args[i-1].getFunc(), sheet
-                        ));
+                    case "matMul" -> {
+                        if (i > 1) {
+                            reduction = 2;
+                            reduced = new Lexeme(matMult(
+                                    args[i - 2].getFunc(), args[i - 1].getFunc(), sheet
+                            ));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "sin" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.sin(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "cos" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.cos(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "tan" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.tan(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "exp" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(pow(Math.E, args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
                     }
                     case "^" -> {
                         if (i > 1) {
                             reduction = 2;
-                            Lexeme x = args[i-2];
-                            Lexeme y = args[i-1];
+                            Lexeme x = args[i - 2];
+                            Lexeme y = args[i - 1];
                             if (x.isFunction()) x.setVal(0);
                             if (y.isFunction()) y.setVal(0);
                             reduced = new Lexeme(pow(x.getVal(), y.getVal()));
-                        }
+                        } else throw new Exception("Not enough args.");
                     }
                     case "+" -> {
                         if (i > 1) {
@@ -195,8 +225,7 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(0);
                             if (y.isFunction()) y.setVal(0);
                             reduced = new Lexeme(x.getVal() + y.getVal());
-                        } else
-                            System.out.println("Not enough args.");
+                        } else throw new Exception("Not enough args.");
                     }
                     case "-" -> {
                         if (i > 1) {
@@ -206,8 +235,7 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(0);
                             if (y.isFunction()) y.setVal(0);
                             reduced = new Lexeme(x.getVal() - y.getVal());
-                        } else
-                            System.out.println("Not enough args.");
+                        } else throw new Exception("Not enough args.");
                     }
                     case "*" -> {
                         if (i > 1) {
@@ -217,8 +245,7 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(1);
                             if (y.isFunction()) y.setVal(1);
                             reduced = new Lexeme(x.getVal() * y.getVal());
-                        } else
-                            System.out.println("Not enough args.");
+                        } else throw new Exception("Not enough args.");
                     }
                     case "/" -> {
                         if (i > 1) {
@@ -228,7 +255,7 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(1);
                             if (y.isFunction()) y.setVal(1);
                             reduced = new Lexeme(x.getVal() / y.getVal());
-                        } else System.out.println("Not enough args.");
+                        } else throw new Exception("Not enough args.");
                     }
                     case "mod" -> {
                         if (i > 1) {
@@ -238,8 +265,9 @@ public class Formula extends Interpretable {
                             if (x.isFunction()) x.setVal(1);
                             if (y.isFunction()) y.setVal(1);
                             reduced = new Lexeme(x.getVal() % y.getVal());
-                        } else System.out.println("Not enough args.");
+                        } else throw new Exception("Not enough args.");
                     }
+                    case "PI" -> args[i] = new Lexeme(Math.PI);
                     default -> {
                         if (func.contains(":") || func.contains("\\") || func.contains(";"))
                             continue;
