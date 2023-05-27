@@ -22,9 +22,8 @@ public class Cell implements Serializable {
     public Cell(int xCoord, int yCoord, double result, @NotNull Formula formula) {
         this(xCoord, yCoord);
         value = result;
-        txt = String.valueOf(result);
-        if (txt.contains("."))
-            txt = format.format(result);
+        if (result - (int) result == 0) txt = String.valueOf((int) result);
+        else txt = format.format(result);
         if (isNumber(formula.getTxt()))
             this.formula = null;
         else this.formula = formula;

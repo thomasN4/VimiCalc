@@ -166,13 +166,13 @@ public class Formula extends Interpretable {
                     case "sum", "prod", "quot" -> {
                         if (i > 0) {
                             reduction = 1;
-                            reduced = new Lexeme(tableArithmetic(func, args[i - 1], sheet));
+                            reduced = new Lexeme(tableArithmetic(func, args[i-1], sheet));
                         } else throw new Exception("Not enough args.");
                     }
                     case "det" -> {
                         if (i > 0) {
                             reduction = 1;
-                            reduced = new Lexeme(determinant(args[i - 1].getFunc(), sheet));
+                            reduced = new Lexeme(determinant(args[i-1].getFunc(), sheet));
                         } else throw new Exception("Not enough args.");
                     }
                     case "tpose" -> {
@@ -184,7 +184,7 @@ public class Formula extends Interpretable {
                         if (i > 1) {
                             reduction = 2;
                             reduced = new Lexeme(matMul(
-                                args[i - 2].getFunc(), args[i - 1].getFunc(), sheet
+                                args[i-2].getFunc(), args[i-1].getFunc(), sheet
                             ));
                         } else throw new Exception("Not enough args.");
                     }
@@ -194,10 +194,22 @@ public class Formula extends Interpretable {
                             reduced = new Lexeme(Math.sin(args[i - 1].getVal()));
                         } else throw new Exception("Not enough args.");
                     }
+                    case "asin" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.asin(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
                     case "cos" -> {
                         if (i > 0) {
                             reduction = 1;
                             reduced = new Lexeme(Math.cos(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "acos" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.acos(args[i - 1].getVal()));
                         } else throw new Exception("Not enough args.");
                     }
                     case "tan" -> {
@@ -205,6 +217,27 @@ public class Formula extends Interpretable {
                             reduction = 1;
                             reduced = new Lexeme(Math.tan(args[i - 1].getVal()));
                         } else throw new Exception("Not enough args.");
+                    }
+                    case "atan" -> {
+                        if (i > 0) {
+                            reduction = 1;
+                            reduced = new Lexeme(Math.atan(args[i - 1].getVal()));
+                        } else throw new Exception("Not enough args.");
+                    }
+                    case "ln" -> {
+                        if (i == 0) throw new Exception("Not enough args");
+                        reduction = 1;
+                        reduced = new Lexeme(Math.log(args[i-1].getVal()));
+                    }
+                    case "logBase" -> {
+                        if (i < 2) throw new Exception("Not enough args");
+                        reduction = 2;
+                        reduced = new Lexeme(Math.log(args[i-2].getVal()) / Math.log(args[i-1].getVal()));
+                    }
+                    case "log10" -> {
+                        if (i == 0) throw new Exception("Not enough args");
+                        reduction = 1;
+                        reduced = new Lexeme(Math.log10(args[i-1].getVal()));
                     }
                     case "exp" -> {
                         if (i == 0) throw new Exception("Not enough args");
@@ -323,8 +356,8 @@ public class Formula extends Interpretable {
 
     private double transpose(String coords, Sheet sheet) throws Exception {
         Matrix ogMat = new Matrix(createMatrixFromArea(coords, sheet));
-        for (int i = 0; i < ogMat.getHeight(); i++)
-            for (int j = 0; j < ogMat.getWidth(); j++)
+        for (int i = 0; i < ogMat.getHeight(); ++i)
+            for (int j = 0; j < ogMat.getWidth(); ++j)
                 if (i != 0 || j != 0)
                     sheet.addCell(new Cell(
                         xC + i,
