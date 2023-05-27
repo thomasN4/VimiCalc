@@ -29,7 +29,7 @@ public class HelpMenu extends simpleRect {
         "\t-INSERT mode is for inserting plain text into a cell. Just type 'a' or 'i' to enter it and 'ESC' to leave",
         "\n",
         "\t-FORMULA mode is for entering formulas (as in Microsoft Excel). They use Reverse Polish Notation.",
-        "\t Examples: 'B2:D3 F7:G9 matMult', '3 5 8 * +', 'kl -3j / 3 mod'",
+        "\t Examples: 'B2:D3 F7:G9 matMul', '3 5 8 * +', 'kl -3j / 3 mod'",
         "\t That last one used relative coordinates.",
         "\t 'ESC'-ing will just exit this mode and cancel the formula. If you want to save the formula to the cell,",
         "\t you would have to press 'ENTER' instead.",
