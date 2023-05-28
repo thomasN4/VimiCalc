@@ -17,7 +17,7 @@ public class Sheet {
     private File file;
     private ArrayList<Dependency> dependencies;
     private Positions picPositions;
-    private HashMap<int[], Formatting> cellsFormatting;
+    private final HashMap<int[], Formatting> cellsFormatting;
 
     public Sheet() {
         cells = new ArrayList<>();

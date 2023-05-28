@@ -17,7 +17,7 @@ public class Picture extends simpleRect {
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
     private final Positions metadata;
-    private HashMap<int[], Formatting> cellsFormatting;
+    private final HashMap<int[], Formatting> cellsFormatting;
 
     public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets,
