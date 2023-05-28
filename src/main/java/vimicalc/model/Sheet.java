@@ -17,7 +17,7 @@ public class Sheet {
     private File file;
     private ArrayList<Dependency> dependencies;
     private Positions picPositions;
-    private final HashMap<int[], Formatting> cellsFormatting;
+    private final HashMap<List<Integer>, Formatting> cellsFormatting;
 
     public Sheet() {
         cells = new ArrayList<>();
@@ -38,12 +38,12 @@ public class Sheet {
         return cells;
     }
 
-    public HashMap<int[], Formatting> getCellsFormatting() {
+    public HashMap<List<Integer>, Formatting> getCellsFormatting() {
         return cellsFormatting;
     }
 
     public void addCellFormatting(int xC, int yC, Formatting f) {
-        cellsFormatting.put(new int[]{xC, yC}, f);
+        cellsFormatting.put(List.of(xC, yC), f);
     }
 
     public void purgeDependencies() {

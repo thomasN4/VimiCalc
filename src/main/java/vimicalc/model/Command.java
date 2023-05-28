@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
 
+import java.util.List;
+
 import static vimicalc.controller.Controller.*;
 
 public class Command extends Interpretable {
@@ -69,7 +71,7 @@ public class Command extends Interpretable {
 
         Formatting f;
         try {
-            f = sheet.getCellsFormatting().get(new int[]{xC, yC});
+            f = sheet.getCellsFormatting().get(List.of(xC, yC));
             f.setCellColor(cC);
         } catch (Exception ignored) {
             f = new Formatting(cC, DEFAULT_TXT_C, DEFAULT_VPOS, DEFAULT_ALIGNMENT, DEFAULT_FONT, xC, yC);

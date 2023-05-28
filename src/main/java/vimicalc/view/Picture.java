@@ -10,6 +10,8 @@ import vimicalc.model.Sheet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Picture extends simpleRect {
     private final int DCW;
@@ -17,11 +19,11 @@ public class Picture extends simpleRect {
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
     private final Positions metadata;
-    private final HashMap<int[], Formatting> cellsFormatting;
+    private final HashMap<List<Integer>, Formatting> cellsFormatting;
 
     public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
                    HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets,
-                   HashMap<int[], Formatting> cellsFormatting) {
+                   HashMap<List<Integer>, Formatting> cellsFormatting) {
         super(x, y, w, h, c);
         this.DCW = DCW;
         this.DCH = DCH;
@@ -92,16 +94,43 @@ public class Picture extends simpleRect {
                 cellHeight = metadata.getCellAbsYs()[c.yCoord()+1] - metadata.getCellAbsYs()[c.yCoord()];
                 cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
             }
+
             try {
-                cellsFormatting.get(new int[]{c.xCoord(), c.yCoord()}).renderCell(
-                    gc, c.xCoord(), c.yCoord(), cellWidth, cellHeight, c.txt()
+                System.out.println("Applying formatting...");
+                System.out.println(cellsFormatting.get(List.of(c.xCoord(), c.yCoord())));
+                cellsFormatting.get(List.of(c.xCoord(), c.yCoord())).renderCell(
+                    gc, metadata.getCellAbsXs()[c.xCoord()], metadata.getCellAbsYs()[c.yCoord()],
+                    cellWidth, cellHeight, c.txt()
                 );
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                System.out.println("No formatting found for: xC = " + c.xCoord() + ", yC = " + c.yCoord());
                 gc.fillText(
                     c.txt(),
                    metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW / 2 + (float) cellWidth / 2,
                    metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight / 2,
                     cellWidth
+                );
+            }
+        }
+
+        for (Map.Entry<List<Integer>, Formatting> entry : cellsFormatting.entrySet()) {
+            int formattingXC = entry.getKey().get(0), formattingYC = entry.getKey().get(1);
+            if (formattingXC >= metadata.getFirstXC() &&
+                formattingXC <= metadata.getLastXC() &&
+                formattingYC >= metadata.getFirstYC() &&
+                formattingYC <= metadata.getLastYC()) {
+                boolean ignore = false;
+                for (Cell c : visibleCells)
+                    if (c.xCoord() == formattingXC && c.yCoord() == formattingYC)
+                        ignore = true;
+                if (!ignore) entry.getValue().renderCell(
+                    gc,
+                    metadata.getCellAbsXs()[formattingXC],
+                    metadata.getCellAbsYs()[formattingYC],
+                    metadata.getCellAbsXs()[formattingXC+1] = metadata.getCellAbsXs()[formattingXC],
+                    metadata.getCellAbsYs()[formattingYC+1] - metadata.getCellAbsYs()[formattingYC],
+                    ""
                 );
             }
         }
