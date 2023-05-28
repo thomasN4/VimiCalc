@@ -96,7 +96,6 @@ public class Picture extends simpleRect {
             }
 
             try {
-                System.out.println("Applying formatting...");
                 System.out.println(cellsFormatting.get(List.of(c.xCoord(), c.yCoord())));
                 cellsFormatting.get(List.of(c.xCoord(), c.yCoord())).renderCell(
                     gc,
@@ -106,9 +105,7 @@ public class Picture extends simpleRect {
                     cellHeight,
                     c.txt()
                 );
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("No formatting found for: xC = " + c.xCoord() + ", yC = " + c.yCoord());
+            } catch (Exception ignored) {
                 gc.fillText(
                     c.txt(),
                    metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW / 2 + (float) cellWidth / 2,
