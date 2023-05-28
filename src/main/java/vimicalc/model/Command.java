@@ -50,7 +50,7 @@ public class Command extends Interpretable {
             case "cellColor" -> cellColor(command[1].getFunc(), sheet);
             default -> {
                 commandExists = false;
-                System.out.println("Command \"" + command[0] + "\" doesn't exist.");
+                throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
             }
         }
         return new Lexeme[]{new Lexeme(0)};
@@ -79,9 +79,5 @@ public class Command extends Interpretable {
 
         sheet.addCellFormatting(xC, yC, f);
         System.out.println("Cell formats: " + sheet.getCellsFormatting());
-    }
-
-    public boolean commandExists() {
-        return commandExists;
     }
 }

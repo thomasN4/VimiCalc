@@ -490,18 +490,21 @@ public class Controller implements Initializable {
                 else moveLeft();
                 if (cellSelector.getY() == 0) moveDown();
                 else moveUp();
+
+                String commandError = null;
                 try {
                     command.interpret(sheet);
                 } catch (Exception e) {
-                    infoBar.setInfobarTxt(e.getMessage());
+                    commandError = e.getMessage();
                 }
+
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
+                if (commandError != null) infoBar.setInfobarTxt(commandError);
+                infoBar.draw(gc);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
-                if (!command.commandExists()) infoBar.setInfobarTxt("COMMAND OR FILE DOES NOT EXIST");
-                System.out.println(recordedCellStates.size());
             }
             case BACK_SPACE -> {
                 if (command.getTxt().equals("")) {
@@ -964,12 +967,22 @@ public class Controller implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
         DEFAULT_FONT = gc.getFont();
-        sheet = new Sheet();
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
+        sheet = new Sheet();
+        sheet.setPicMetadata(new Positions(
+            DEFAULT_CELL_W/2,
+            DEFAULT_CELL_H,
+            CANVAS_W - DEFAULT_CELL_W/2,
+            CANVAS_H - DEFAULT_CELL_H,
+            DEFAULT_CELL_W,
+            DEFAULT_CELL_H,
+            new HashMap<>(),
+            new HashMap<>()
+        ));
         macros = new HashMap<>();
         helpMenu = new HelpMenu(gc);
-        reset(new HashMap<>(), new HashMap<>());
+        reset();
         if (arg1 != null) {
             try {
                 sheet.readFile(arg1);
@@ -985,7 +998,7 @@ public class Controller implements Initializable {
         }
     }
 
-    public static void reset(HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
+    public static void reset() {
         camera = new Camera(
             DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
@@ -994,8 +1007,7 @@ public class Controller implements Initializable {
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
-            xOffsets,
-            yOffsets,
+            sheet.getPicMetadata(),
             sheet.getCellsFormatting()
         );
 

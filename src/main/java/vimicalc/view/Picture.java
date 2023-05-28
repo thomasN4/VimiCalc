@@ -21,13 +21,12 @@ public class Picture extends simpleRect {
     private final Positions metadata;
     private final HashMap<List<Integer>, Formatting> cellsFormatting;
 
-    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, int camAbsX, int camAbsY,
-                   HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets,
+    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, Positions metadata,
                    HashMap<List<Integer>, Formatting> cellsFormatting) {
         super(x, y, w, h, c);
         this.DCW = DCW;
         this.DCH = DCH;
-        metadata = new Positions(camAbsX, camAbsY, w, h, DCW, DCH, xOffsets, yOffsets);
+        this.metadata = metadata;
         this.cellsFormatting = cellsFormatting;
     }
 

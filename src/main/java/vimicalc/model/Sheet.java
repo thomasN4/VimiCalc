@@ -17,7 +17,7 @@ public class Sheet {
     private File file;
     private ArrayList<Dependency> dependencies;
     private Positions picPositions;
-    private final HashMap<List<Integer>, Formatting> cellsFormatting;
+    private HashMap<List<Integer>, Formatting> cellsFormatting;
 
     public Sheet() {
         cells = new ArrayList<>();
@@ -204,41 +204,39 @@ public class Sheet {
             evalDependents(e);
     }
 
-    public void writeFile() throws IOException {
+    public void writeFile() throws Exception {
         writeFile(file.getPath());
     }
 
-    public void writeFile(@NotNull String path) throws IOException {
+    public void writeFile(@NotNull String path) throws Exception {
         if (path.isEmpty()) return;
         if (!path.endsWith(".wss")) path += ".wss";
         System.out.println("Saving file " + path + "...");
         ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(path));
 
-        try {
-            oStream.writeUTF("\n====Cells====\n"); oStream.flush();
-            oStream.writeObject(cells); oStream.flush();
+        oStream.writeUTF("\n====Cells====\n"); oStream.flush();
+        oStream.writeObject(cells); oStream.flush();
 
-            oStream.writeUTF("\n\n====Dependencies====\n"); oStream.flush();
-            oStream.writeObject(dependencies); oStream.flush();
+        oStream.writeUTF("\n\n====Dependencies====\n"); oStream.flush();
+        oStream.writeObject(dependencies); oStream.flush();
 
-            oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
-            oStream.writeObject(picPositions.getxOffsets()); oStream.flush();
+        oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
+        oStream.writeObject(picPositions.getxOffsets()); oStream.flush();
 
-            oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
-            oStream.writeObject(picPositions.getyOffsets()); oStream.flush();
+        oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
+        oStream.writeObject(picPositions.getyOffsets()); oStream.flush();
 
-            oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
-            oStream.writeObject(macros); oStream.flush();
+        oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
+        oStream.writeObject(macros); oStream.flush();
 
-            oStream.writeUTF("\n\n====Formatting====\n"); oStream.flush();
-            oStream.writeObject(cellsFormatting); oStream.flush();
+        oStream.writeUTF("\n\n====Formatting====\n"); oStream.flush();
+        oStream.writeObject(cellsFormatting); oStream.flush();
 
-            file = new File(path);
-            Controller.statusBar.setFilename(file.getName());
-        } catch (Exception e) {
-            System.out.println("Error while saving file: " + Arrays.toString(e.getStackTrace()));
-        }
+        file = new File(path);
+        Controller.statusBar.setFilename(file.getName());
         oStream.close();
+
+        throw new Exception("File " + path + " has been saved.");
     }
 
     public void readFile(@NotNull String path) throws Exception {
@@ -255,20 +253,22 @@ public class Sheet {
 
             HashMap<Integer, Integer> newXOffsets = null;
             HashMap<Integer, Integer> newYOffsets = null;
+            cells = null;
+            dependencies = null;
+            macros = null;
             try {
                 iStream.readUTF();
-                cells = null;
                 cells = (ArrayList<Cell>) iStream.readObject();
                 iStream.readUTF();
-                dependencies = null;
                 dependencies = (ArrayList<Dependency>) iStream.readObject();
                 iStream.readUTF();
                 newXOffsets = (HashMap<Integer, Integer>) iStream.readObject();
                 iStream.readUTF();
                 newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
                 iStream.readUTF();
-                macros = null;
                 macros = (HashMap<Character, LinkedList<KeyEvent>>) iStream.readObject();
+                iStream.readUTF();
+                cellsFormatting = (HashMap<List<Integer>, Formatting>) iStream.readObject();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 System.out.println(Arrays.toString(e.getStackTrace()));
@@ -276,14 +276,23 @@ public class Sheet {
 
             newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
             newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
-            Controller.reset(newXOffsets, newYOffsets);
+            picPositions.setxOffsets(newXOffsets);
+            picPositions.setyOffsets(newYOffsets);
+
+            if (cells == null) cells = new ArrayList<>();
+            if (dependencies == null) dependencies = new ArrayList<>();
             if (macros == null) macros = new HashMap<>();
+            Controller.reset();
+
             iStream.close();
             file = new File(path);
             Controller.statusBar.setFilename(file.getName());
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-            Controller.reset(new HashMap<>(), new HashMap<>());
+            cells = new ArrayList<>();
+            dependencies = new ArrayList<>();
+            macros = new HashMap<>();
+            Controller.reset();
             file = new File(path);
             Controller.statusBar.setFilename(file.getName());
             throw new Exception("New file");

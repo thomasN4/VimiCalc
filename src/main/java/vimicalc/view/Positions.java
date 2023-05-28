@@ -7,8 +7,8 @@ import java.util.HashMap;
 public class Positions {
     private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
     private final int picW, picH, DCW, DCH;
-    private final HashMap<Integer, Integer> xOffsets;
-    private final HashMap<Integer, Integer> yOffsets;
+    private HashMap<Integer, Integer> xOffsets;
+    private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
 
     public Positions(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
@@ -166,5 +166,13 @@ public class Positions {
 
     public void setMaxYC(int maxYC) {
         this.maxYC = maxYC;
+    }
+
+    public void setxOffsets(HashMap<Integer, Integer> xOffsets) {
+        this.xOffsets = xOffsets;
+    }
+
+    public void setyOffsets(HashMap<Integer, Integer> yOffsets) {
+        this.yOffsets = yOffsets;
     }
 }
