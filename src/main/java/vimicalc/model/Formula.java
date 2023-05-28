@@ -174,15 +174,15 @@ public class Formula extends Interpretable {
                             reduced = new Lexeme(determinant(args[i-1].getFunc(), sheet));
                         } else throw new Exception("Not enough args.");
                     }
-                    case "tpose" -> {
-                        if (i == 0) throw new Exception("Not enough args.");
-                        reduction = 1;
-                        reduced = new Lexeme(transpose(args[i-1].getFunc(), sheet));
-                    }
-                    case "matMul" -> {
+//                    case "tpose" -> {
+//                        if (i == 0) throw new Exception("Not enough args.");
+//                        reduction = 1;
+//                        reduced = new Lexeme(transpose(args[i-1].getFunc(), sheet));
+//                    }
+                    case "matMult" -> {
                         if (i > 1) {
                             reduction = 2;
-                            reduced = new Lexeme(matMul(
+                            reduced = new Lexeme(matMult(
                                 args[i-2].getFunc(), args[i-1].getFunc(), sheet
                             ));
                         } else throw new Exception("Not enough args.");
@@ -353,18 +353,18 @@ public class Formula extends Interpretable {
         } else return new Lexeme(c.value());
     }
 
-    private double transpose(String coords, Sheet sheet) throws Exception {
-        Matrix ogMat = new Matrix(createMatrixFromArea(coords, sheet));
-        for (int i = 0; i < ogMat.getHeight(); ++i)
-            for (int j = 0; j < ogMat.getWidth(); ++j)
-                if (i != 0 || j != 0)
-                    sheet.addCell(new Cell(
-                        xC + i,
-                        yC + j,
-                        ogMat.getRow(i)[j]
-                    ));
-        return ogMat.getRow(0)[0];
-    }
+//    private double transpose(String coords, Sheet sheet) throws Exception {
+//        Matrix ogMat = new Matrix(createMatrixFromArea(coords, sheet));
+//        for (int i = 0; i < ogMat.getHeight(); ++i)
+//            for (int j = 0; j < ogMat.getWidth(); ++j)
+//                if (i != 0 || j != 0)
+//                    sheet.addCell(new Cell(
+//                        xC + i,
+//                        yC + j,
+//                        ogMat.getRow(i)[j]
+//                    ));
+//        return ogMat.getRow(0)[0];
+//    }
 
     private double determinant(String coords, Sheet sheet) throws Exception {
         return determinant(
@@ -397,7 +397,7 @@ public class Formula extends Interpretable {
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
     
-    public double matMul(String coords1, String coords2, Sheet sheet) throws Exception {
+    public double matMult(String coords1, String coords2, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
 
