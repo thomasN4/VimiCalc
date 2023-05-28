@@ -29,12 +29,12 @@ public class Formatting {
     }
 
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
+        gc.setFill(cellColor);
+        gc.fillRect(x, y, w, h);
         gc.setFill(txtColor);
         gc.setTextAlign(alignment);
         gc.setTextBaseline(vPos);
         gc.setFont(font);
         gc.fillText(txt, x, y, w);
-        gc.setFill(cellColor);
-        gc.fillRect(x, y, w, h);
     }
 }

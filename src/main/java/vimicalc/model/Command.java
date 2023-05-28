@@ -76,6 +76,7 @@ public class Command extends Interpretable {
         }
 
         sheet.addCellFormatting(xC, yC, f);
+        System.out.println("Cell formats: " + sheet.getCellsFormatting());
     }
 
     public boolean commandExists() {
