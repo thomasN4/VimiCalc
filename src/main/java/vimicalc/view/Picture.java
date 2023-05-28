@@ -99,8 +99,12 @@ public class Picture extends simpleRect {
                 System.out.println("Applying formatting...");
                 System.out.println(cellsFormatting.get(List.of(c.xCoord(), c.yCoord())));
                 cellsFormatting.get(List.of(c.xCoord(), c.yCoord())).renderCell(
-                    gc, metadata.getCellAbsXs()[c.xCoord()], metadata.getCellAbsYs()[c.yCoord()],
-                    cellWidth, cellHeight, c.txt()
+                    gc,
+                    (int) (metadata.getCellAbsXs()[c.xCoord()] - absX + (float)DCW/2),
+                    metadata.getCellAbsYs()[c.yCoord()] - absY + DCH,
+                    cellWidth,
+                    cellHeight,
+                    c.txt()
                 );
             } catch (Exception e) {
                 System.out.println(e.getMessage());
