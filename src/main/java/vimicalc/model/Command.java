@@ -62,6 +62,7 @@ public class Command extends Interpretable {
             case "red" -> cC = Color.RED;
             case "green" -> cC = Color.GREEN;
             case "blue" -> cC = Color.BLUE;
+            case "vLGray" -> cC = Color.DIMGRAY;
             case "lGray" -> cC = Color.LIGHTGRAY;
             case "gray" -> cC = Color.GRAY;
             case "dGray" -> cC = Color.DARKGRAY;

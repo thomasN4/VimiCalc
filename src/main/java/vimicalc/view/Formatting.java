@@ -7,7 +7,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-public class Formatting {
+import java.io.Serializable;
+
+public class Formatting implements Serializable {
     Color cellColor, txtColor;
     VPos vPos;
     TextAlignment alignment;
