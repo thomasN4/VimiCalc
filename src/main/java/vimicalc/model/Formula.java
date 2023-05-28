@@ -97,7 +97,6 @@ public class Formula extends Interpretable {
         return vector;
     }
 
-
     private double sum(Lexeme[] nums) {
         double s = 0;
         for (Lexeme n : nums) {
