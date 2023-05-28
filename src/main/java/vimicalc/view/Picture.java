@@ -126,9 +126,9 @@ public class Picture extends simpleRect {
                         ignore = true;
                 if (!ignore) entry.getValue().renderCell(
                     gc,
-                    metadata.getCellAbsXs()[formattingXC],
-                    metadata.getCellAbsYs()[formattingYC],
-                    metadata.getCellAbsXs()[formattingXC+1] = metadata.getCellAbsXs()[formattingXC],
+                    (int) (metadata.getCellAbsXs()[formattingXC] - absX + (float) DCW/2),
+                    metadata.getCellAbsYs()[formattingYC] - absY + DCH,
+                    metadata.getCellAbsXs()[formattingXC+1] - metadata.getCellAbsXs()[formattingXC],
                     metadata.getCellAbsYs()[formattingYC+1] - metadata.getCellAbsYs()[formattingYC],
                     ""
                 );

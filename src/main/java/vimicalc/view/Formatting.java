@@ -35,6 +35,6 @@ public class Formatting {
         gc.setTextAlign(alignment);
         gc.setTextBaseline(vPos);
         gc.setFont(font);
-        gc.fillText(txt, x, y, w);
+        gc.fillText(txt, x + (float)w/2, y + (float)h/2, w);
     }
 }
