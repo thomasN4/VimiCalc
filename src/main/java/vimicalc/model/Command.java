@@ -47,7 +47,7 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            case "getCellColor" -> cellColor(command[1].getFunc(), sheet);
+            case "cellColor" -> cellColor(command[1].getFunc(), sheet);
             default -> {
                 commandExists = false;
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
