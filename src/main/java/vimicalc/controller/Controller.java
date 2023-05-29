@@ -7,7 +7,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
@@ -34,7 +33,6 @@ public class Controller implements Initializable {
     public static final Color DEFAULT_TXT_C = Color.BLACK;
     public static final VPos DEFAULT_VPOS = VPos.CENTER;
     public static final TextAlignment DEFAULT_ALIGNMENT = TextAlignment.CENTER;
-    public static Font DEFAULT_FONT;
 
     /*CD
     private static int MOUSE_X;
@@ -966,7 +964,6 @@ public class Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
-        DEFAULT_FONT = gc.getFont();
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         sheet = new Sheet();

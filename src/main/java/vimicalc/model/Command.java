@@ -47,7 +47,7 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            case "cellColor" -> cellColor(command[1].getFunc(), sheet);
+            case "getCellColor" -> cellColor(command[1].getFunc(), sheet);
             default -> {
                 commandExists = false;
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
@@ -73,10 +73,10 @@ public class Command extends Interpretable {
         Formatting f;
         try {
             f = sheet.getCellsFormatting().get(List.of(xC, yC));
-            f.setCellColor(cC);
         } catch (Exception ignored) {
-            f = new Formatting(cC, DEFAULT_TXT_C, DEFAULT_VPOS, DEFAULT_ALIGNMENT, DEFAULT_FONT, xC, yC);
+            f = new Formatting();
         }
+        f.setColor(cC);
 
         sheet.addCellFormatting(xC, yC, f);
         System.out.println("Cell formats: " + sheet.getCellsFormatting());
