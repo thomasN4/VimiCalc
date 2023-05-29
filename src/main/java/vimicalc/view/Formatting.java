@@ -10,6 +10,7 @@ import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import static vimicalc.controller.Controller.*;
 
@@ -99,6 +100,15 @@ public class Formatting implements Serializable {
         return switch (fontPosture) {
             default -> "regular";
         };
+    }
+
+    public boolean isDefault() {
+        return (Arrays.equals(cellColor, setColor(DEFAULT_CELL_C)) &&
+                Arrays.equals(txtColor, setColor(DEFAULT_TXT_C)) &&
+                vPos.equals(setVPos(DEFAULT_VPOS)) &&
+                alignment.equals(setAlignment(DEFAULT_ALIGNMENT)) &&
+                fontPosture.equals("regular") &&
+                fontWeight.equals("normal"));
     }
 
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {

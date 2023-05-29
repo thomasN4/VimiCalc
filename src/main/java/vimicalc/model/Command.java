@@ -2,6 +2,7 @@ package vimicalc.model;
 
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
 
@@ -41,13 +42,19 @@ public class Command extends Interpretable {
             case "purgeDeps" -> sheet.purgeDependencies();
             case "w" -> writeFile(sheet, command);
             case "wq" -> {
-                writeFile(sheet, command);
+                try {
+                    writeFile(sheet, command);
+                } catch (Exception ignored) {}
                 Platform.exit();
             }
             case "q" -> Platform.exit();
             case "cellColor" -> {
                 if (command.length == 1) cellColor("", sheet);
                 else cellColor(command[1].getFunc(), sheet);
+            }
+            case "txtColor" -> {
+                if (command.length == 1) txtColor("", sheet);
+                else txtColor(command[1].getFunc(), sheet);
             }
             default -> {
                 commandExists = false;
@@ -57,7 +64,7 @@ public class Command extends Interpretable {
         return new Lexeme[]{new Lexeme(0)};
     }
 
-    private void cellColor(String color, Sheet sheet) {
+    private void cellColor(@NotNull String color, Sheet sheet) {
         Color cC = switch (color) {
             case "red" -> Color.RED;
             case "green" -> Color.GREEN;
@@ -81,6 +88,35 @@ public class Command extends Interpretable {
         System.out.println("New formatting: " + f);
         f.setCellColor(cC);
 
+        if (f.isDefault()) sheet.deleteFormatting(xC, yC);
+        System.out.println("Cell formats: " + sheet.getFormatting(xC, yC));
+    }
+
+    private void txtColor(String color, Sheet sheet) {
+        Color tC = switch (color) {
+            case "red" -> Color.RED;
+            case "green" -> Color.GREEN;
+            case "blue" -> Color.BLUE;
+            case "white" -> Color.WHITE;
+            case "vLGray" -> Color.DIMGRAY;
+            case "lGray" -> Color.LIGHTGRAY;
+            case "gray" -> Color.GRAY;
+            case "dGray" -> Color.DARKGRAY;
+            default -> DEFAULT_TXT_C;
+        };
+
+        Formatting f;
+        System.out.println("Executing command 'txtColor'...");
+        f = sheet.getFormatting(xC, yC);
+        if (f == null) {
+            System.out.println("Generating new Formatting...");
+            f = new Formatting();
+            sheet.addCellFormatting(xC, yC, f);
+        }
+        System.out.println("New formatting: " + f);
+        f.setTxtColor(tC);
+
+        if (f.isDefault()) sheet.deleteFormatting(xC, yC);
         System.out.println("Cell formats: " + sheet.getFormatting(xC, yC));
     }
 }

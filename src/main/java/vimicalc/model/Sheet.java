@@ -46,6 +46,10 @@ public class Sheet {
         return cellsFormatting.get(List.of(xC, yC));
     }
 
+    public void deleteFormatting(int xC, int yC) {
+        cellsFormatting.remove(List.of(xC, yC));
+    }
+
     public void addCellFormatting(int xC, int yC, Formatting f) {
         cellsFormatting.put(List.of(xC, yC), f);
     }
