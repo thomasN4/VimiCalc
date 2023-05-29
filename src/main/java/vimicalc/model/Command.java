@@ -2,6 +2,7 @@ package vimicalc.model;
 
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
+import javafx.scene.text.FontWeight;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
@@ -56,6 +57,7 @@ public class Command extends Interpretable {
                 if (command.length == 1) txtColor("", sheet);
                 else txtColor(command[1].getFunc(), sheet);
             }
+            case "boldTxt" -> boldTxt(sheet);
             default -> {
                 commandExists = false;
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
@@ -79,20 +81,20 @@ public class Command extends Interpretable {
 
         Formatting f;
         System.out.println("Executing command 'cellColor'...");
-        f = sheet.getFormatting(xC, yC);
+        f = sheet.findFormatting(xC, yC);
         if (f == null) {
             System.out.println("Generating new Formatting...");
             f = new Formatting();
-            sheet.addCellFormatting(xC, yC, f);
+            sheet.addFormatting(xC, yC, f);
         }
         System.out.println("New formatting: " + f);
         f.setCellColor(cC);
 
         if (f.isDefault()) sheet.deleteFormatting(xC, yC);
-        System.out.println("Cell formats: " + sheet.getFormatting(xC, yC));
+        System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
     }
 
-    private void txtColor(String color, Sheet sheet) {
+    private void txtColor(@NotNull String color, Sheet sheet) {
         Color tC = switch (color) {
             case "red" -> Color.RED;
             case "green" -> Color.GREEN;
@@ -107,16 +109,28 @@ public class Command extends Interpretable {
 
         Formatting f;
         System.out.println("Executing command 'txtColor'...");
-        f = sheet.getFormatting(xC, yC);
+        f = sheet.findFormatting(xC, yC);
         if (f == null) {
             System.out.println("Generating new Formatting...");
             f = new Formatting();
-            sheet.addCellFormatting(xC, yC, f);
+            sheet.addFormatting(xC, yC, f);
         }
         System.out.println("New formatting: " + f);
         f.setTxtColor(tC);
 
         if (f.isDefault()) sheet.deleteFormatting(xC, yC);
-        System.out.println("Cell formats: " + sheet.getFormatting(xC, yC));
+        System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
+    }
+
+    private void boldTxt(@NotNull Sheet sheet) {
+        Formatting f = sheet.findFormatting(xC, yC);
+        if (f == null) {
+            f = new Formatting();
+            sheet.addFormatting(xC, yC, f);
+            f.setFontWeight(FontWeight.BOLD);
+        } else if (f.getFontWeight().equals("bold")) {
+            f.setFontWeight(FontWeight.NORMAL);
+            if (f.isDefault()) sheet.deleteFormatting(xC, yC);
+        } else f.setFontWeight(FontWeight.BOLD);
     }
 }

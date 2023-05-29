@@ -27,7 +27,31 @@ public class Formatting implements Serializable {
         fontPosture = setFontPosture(FontPosture.REGULAR);
     }
 
-    public Color getColor(short[] color) {
+    public short[] getCellColor() {
+        return cellColor;
+    }
+
+    public short[] getTxtColor() {
+        return txtColor;
+    }
+
+    public String getvPos() {
+        return vPos;
+    }
+
+    public String getAlignment() {
+        return alignment;
+    }
+
+    public String getFontWeight() {
+        return fontWeight;
+    }
+
+    public String getFontPosture() {
+        return fontPosture;
+    }
+
+    public Color setFXColor(short[] color) {
         return Color.rgb(color[0], color[1], color[2]);
     }
     public short[] setColor(Color color) {
@@ -46,7 +70,7 @@ public class Formatting implements Serializable {
         this.txtColor = setColor(color);
     }
 
-    public VPos getVPos(String vPos) {
+    public VPos setFXVPos(String vPos) {
         return switch (vPos) {
             case "top" -> VPos.TOP;
             case "bottom" -> VPos.BOTTOM;
@@ -63,7 +87,7 @@ public class Formatting implements Serializable {
         };
     }
 
-    public TextAlignment getAlignment(String alignment) {
+    public TextAlignment setFXAlignment(String alignment) {
         return switch (alignment) {
             case "left" -> TextAlignment.LEFT;
             case "right" -> TextAlignment.RIGHT;
@@ -78,28 +102,22 @@ public class Formatting implements Serializable {
         };
     }
 
-    public FontWeight getFontWeight(String fontWeight) {
-        return switch (fontWeight) {
-            case "bold" -> FontWeight.BOLD;
-            default -> FontWeight.NORMAL;
-        };
+    public FontWeight setFXFontWeight(String fontWeight) {
+        if (fontWeight.equals("bold")) return FontWeight.BOLD;
+        else return FontWeight.NORMAL;
     }
     public String setFontWeight(FontWeight fontWeight) {
-        return switch (fontWeight) {
-            default -> "normal";
-        };
+        if (fontWeight == FontWeight.BOLD) return "bold";
+        else return "normal";
     }
     
-    public FontPosture getFontPosture(String fontPosture) {
-        return switch (fontPosture) {
-            case "italic" -> FontPosture.ITALIC;
-            default -> FontPosture.REGULAR;
-        };
+    public FontPosture setFXFontPosture(String fontPosture) {
+        if (fontPosture.equals("italic")) return FontPosture.ITALIC;
+        else return FontPosture.REGULAR;
     }
     public String setFontPosture(FontPosture fontPosture) {
-        return switch (fontPosture) {
-            default -> "regular";
-        };
+        if (fontPosture == FontPosture.ITALIC) return "italic";
+        else return "regular";
     }
 
     public boolean isDefault() {
@@ -112,15 +130,15 @@ public class Formatting implements Serializable {
     }
 
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
-        gc.setFill(getColor(cellColor));
+        gc.setFill(setFXColor(cellColor));
         gc.fillRect(x, y, w, h);
-        gc.setFill(getColor(txtColor));
-        gc.setTextAlign(getAlignment(alignment));
-        gc.setTextBaseline(getVPos(vPos));
+        gc.setFill(setFXColor(txtColor));
+        gc.setTextAlign(setFXAlignment(alignment));
+        gc.setTextBaseline(setFXVPos(vPos));
         gc.setFont(Font.font(
             gc.getFont().getFamily(),
-            getFontWeight(fontWeight),
-            getFontPosture(fontPosture),
+            setFXFontWeight(fontWeight),
+            setFXFontPosture(fontPosture),
             gc.getFont().getSize()
         ));
         gc.fillText(txt, x + (float)w/2, y + (float)h/2, w);

@@ -42,7 +42,7 @@ public class Sheet {
         return cellsFormatting;
     }
 
-    public Formatting getFormatting(int xC, int yC) {
+    public Formatting findFormatting(int xC, int yC) {
         return cellsFormatting.get(List.of(xC, yC));
     }
 
@@ -50,7 +50,7 @@ public class Sheet {
         cellsFormatting.remove(List.of(xC, yC));
     }
 
-    public void addCellFormatting(int xC, int yC, Formatting f) {
+    public void addFormatting(int xC, int yC, Formatting f) {
         cellsFormatting.put(List.of(xC, yC), f);
     }
 
