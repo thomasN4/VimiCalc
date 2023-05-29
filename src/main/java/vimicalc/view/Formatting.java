@@ -14,7 +14,7 @@ import java.io.Serializable;
 import static vimicalc.controller.Controller.*;
 
 public class Formatting implements Serializable {
-    byte[] cellColor, txtColor;
+    short[] cellColor, txtColor;
     String vPos, alignment, fontWeight, fontPosture;
 
     public Formatting() {
@@ -26,11 +26,23 @@ public class Formatting implements Serializable {
         fontPosture = setFontPosture(FontPosture.REGULAR);
     }
 
-    public Color getColor(byte[] color) {
-        return new Color(color[0], color[1], color[2], 1);
+    public Color getColor(short[] color) {
+        return Color.rgb(color[0], color[1], color[2]);
     }
-    public byte[] setColor(Color color) {
-        return new byte[]{(byte) color.getRed(), (byte) color.getBlue(), (byte) color.getGreen()};
+    public short[] setColor(Color color) {
+        return new short[]{
+            (short) (color.getRed() * 255),
+            (short) (color.getGreen() * 255),
+            (short) (color.getBlue() * 255)
+        };
+    }
+
+    public void setCellColor(Color color) {
+        this.cellColor = setColor(color);
+    }
+
+    public void setTxtColor(Color color) {
+        this.txtColor = setColor(color);
     }
 
     public VPos getVPos(String vPos) {

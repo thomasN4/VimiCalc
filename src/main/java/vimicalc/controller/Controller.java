@@ -967,7 +967,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         sheet = new Sheet();
-        sheet.setPicMetadata(new Positions(
+        sheet.setPositions(new Positions(
             DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
             CANVAS_W - DEFAULT_CELL_W/2,
@@ -1004,7 +1004,7 @@ public class Controller implements Initializable {
             DEFAULT_CELL_C,
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
-            sheet.getPicMetadata(),
+            sheet.getPositions(),
             sheet.getCellsFormatting()
         );
 
@@ -1097,6 +1097,6 @@ public class Controller implements Initializable {
         cellSelector.draw(gc);
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
         infoBar.draw(gc);
-        sheet.setPicMetadata(camera.picture.metadata());
+        sheet.setPositions(camera.picture.metadata());
     }
 }

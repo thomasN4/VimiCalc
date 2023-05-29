@@ -16,7 +16,7 @@ public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
     private ArrayList<Dependency> dependencies;
-    private Positions picPositions;
+    private Positions positions;
     private HashMap<List<Integer>, Formatting> cellsFormatting;
 
     public Sheet() {
@@ -26,12 +26,12 @@ public class Sheet {
         cellsFormatting = new HashMap<>();
     }
 
-    public Positions getPicMetadata() {
-        return picPositions;
+    public Positions getPositions() {
+        return positions;
     }
 
-    public void setPicMetadata(Positions picPositions) {
-        this.picPositions = picPositions;
+    public void setPositions(Positions picPositions) {
+        this.positions = picPositions;
     }
 
     public ArrayList<Cell> getCells() {
@@ -40,6 +40,10 @@ public class Sheet {
 
     public HashMap<List<Integer>, Formatting> getCellsFormatting() {
         return cellsFormatting;
+    }
+
+    public Formatting getFormatting(int xC, int yC) {
+        return cellsFormatting.get(List.of(xC, yC));
     }
 
     public void addCellFormatting(int xC, int yC, Formatting f) {
@@ -181,10 +185,10 @@ public class Sheet {
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
-        if (cell.xCoord() > picPositions.getMaxXC() || cell.yCoord() > picPositions.getMaxYC()) {
-            if (cell.xCoord() > picPositions.getMaxYC()) picPositions.setMaxXC(cell.xCoord());
-            if (cell.yCoord() > picPositions.getMaxYC()) picPositions.setMaxYC(cell.yCoord());
-            picPositions.generate(picPositions.getCamAbsX(), picPositions.getCamAbsY());
+        if (cell.xCoord() > positions.getMaxXC() || cell.yCoord() > positions.getMaxYC()) {
+            if (cell.xCoord() > positions.getMaxYC()) positions.setMaxXC(cell.xCoord());
+            if (cell.yCoord() > positions.getMaxYC()) positions.setMaxYC(cell.yCoord());
+            positions.generate(positions.getCamAbsX(), positions.getCamAbsY());
         }
     }
 
@@ -221,10 +225,10 @@ public class Sheet {
         oStream.writeObject(dependencies); oStream.flush();
 
         oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
-        oStream.writeObject(picPositions.getxOffsets()); oStream.flush();
+        oStream.writeObject(positions.getxOffsets()); oStream.flush();
 
         oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
-        oStream.writeObject(picPositions.getyOffsets()); oStream.flush();
+        oStream.writeObject(positions.getyOffsets()); oStream.flush();
 
         oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
         oStream.writeObject(macros); oStream.flush();
@@ -276,8 +280,8 @@ public class Sheet {
 
             newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
             newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
-            picPositions.setxOffsets(newXOffsets);
-            picPositions.setyOffsets(newYOffsets);
+            positions.setxOffsets(newXOffsets);
+            positions.setyOffsets(newYOffsets);
 
             if (cells == null) cells = new ArrayList<>();
             if (dependencies == null) dependencies = new ArrayList<>();

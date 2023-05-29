@@ -5,8 +5,6 @@ import javafx.scene.paint.Color;
 import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
 
-import java.util.List;
-
 import static vimicalc.controller.Controller.*;
 
 public class Command extends Interpretable {
@@ -32,11 +30,11 @@ public class Command extends Interpretable {
                 currMode = Mode.HELP;
             }
             case "e" -> readFile(sheet, command);
-            case "resCol" -> sheet.getPicMetadata().generate(
+            case "resCol" -> sheet.getPositions().generate(
                 new int[]{xC, (int) command[1].getVal()},
                 true
             );
-            case "resRow" -> sheet.getPicMetadata().generate(
+            case "resRow" -> sheet.getPositions().generate(
                 new int[]{yC, (int) command[1].getVal()},
                 false
             );
@@ -47,7 +45,10 @@ public class Command extends Interpretable {
                 Platform.exit();
             }
             case "q" -> Platform.exit();
-            case "cellColor" -> cellColor(command[1].getFunc(), sheet);
+            case "cellColor" -> {
+                if (command.length == 1) cellColor("", sheet);
+                else cellColor(command[1].getFunc(), sheet);
+            }
             default -> {
                 commandExists = false;
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
@@ -57,28 +58,29 @@ public class Command extends Interpretable {
     }
 
     private void cellColor(String color, Sheet sheet) {
-        Color cC;
-        switch (color) {
-            case "red" -> cC = Color.RED;
-            case "green" -> cC = Color.GREEN;
-            case "blue" -> cC = Color.BLUE;
-            case "vLGray" -> cC = Color.DIMGRAY;
-            case "lGray" -> cC = Color.LIGHTGRAY;
-            case "gray" -> cC = Color.GRAY;
-            case "dGray" -> cC = Color.DARKGRAY;
-            case "black" -> cC = Color.BLACK;
-            default -> cC = DEFAULT_CELL_C;
-        }
+        Color cC = switch (color) {
+            case "red" -> Color.RED;
+            case "green" -> Color.GREEN;
+            case "blue" -> Color.BLUE;
+            case "vLGray" -> Color.DIMGRAY;
+            case "lGray" -> Color.LIGHTGRAY;
+            case "gray" -> Color.GRAY;
+            case "dGray" -> Color.DARKGRAY;
+            case "black" -> Color.BLACK;
+            default -> DEFAULT_CELL_C;
+        };
 
         Formatting f;
-        try {
-            f = sheet.getCellsFormatting().get(List.of(xC, yC));
-        } catch (Exception ignored) {
+        System.out.println("Executing command 'cellColor'...");
+        f = sheet.getFormatting(xC, yC);
+        if (f == null) {
+            System.out.println("Generating new Formatting...");
             f = new Formatting();
+            sheet.addCellFormatting(xC, yC, f);
         }
-        f.setColor(cC);
+        System.out.println("New formatting: " + f);
+        f.setCellColor(cC);
 
-        sheet.addCellFormatting(xC, yC, f);
-        System.out.println("Cell formats: " + sheet.getCellsFormatting());
+        System.out.println("Cell formats: " + sheet.getFormatting(xC, yC));
     }
 }
