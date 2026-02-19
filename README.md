@@ -7,11 +7,11 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 ## Features
 
 - **Modal editing** — 6 modes inspired by Vim: Normal, Insert, Formula, Command, Visual, and Help
-- **Vim-style navigation** — `h/j/k/l` movement, multipliers (`5j`), and familiar keybindings (`d`, `y`, `p`, `i`, `a`)
+- **Vim-style navigation** — `h/j/k/l` movement, multipliers (`5j`), `g{coords}` go-to (e.g. `gA3`), `Ctrl-O` jump back, and familiar keybindings (`d`, `y`, `p`, `i`, `a`)
 - **RPN formulas** — Reverse Polish Notation formula engine with cell references, ranges (`B2:D3`), and relative coordinates (`kl -3j`)
 - **Matrix operations** — `matMul`, `det`, `tpose`, `sum`, `prod`, `quot`, and more
 - **Math functions** — `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `ln`, `log10`, `logBase`, `exp`, `sqrt`, `abs`, `PI`
-- **Macros** — Record with `q`, replay with `@`, chain with multipliers (`5@a`)
+- **Macros** — Record with `q`, replay with `@`, chain with multipliers (`5@a`), repeat last command with `.`
 - **Conditional execution** — `<formula{then{else}` syntax for conditional key commands
 - **Cell merging** — Select cells in Visual mode and press `m`
 - **Cell formatting** — Background colors, text colors, and bold via command mode
@@ -24,11 +24,11 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 | Mode | Enter with | Purpose |
 |------|-----------|---------|
 | **Normal** | `ESC` | Navigation and key commands |
-| **Insert** | `i` or `a` | Plain text entry |
+| **Insert** | `i` or `a` | Plain text entry (`ESC` to save, `Shift+ESC` to cancel) |
 | **Formula** | `=` | RPN formula entry (confirm with `Enter`, cancel with `ESC`) |
-| **Visual** | `v` | Multi-cell selection, merging, bulk operations |
+| **Visual** | `v` | Multi-cell selection, merging (`m`), copying (`y`), deleting (`d`), commands (`;`) |
 | **Command** | `:` | Vim-style commands (`:w`, `:q`, `:resCol`, etc.) |
-| **Help** | `:h` or `:help` | Built-in documentation |
+| **Help** | `:h`, `:help`, or `:?` | Built-in documentation |
 
 ## Commands
 
@@ -36,8 +36,8 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 |---------|-------------|
 | `:w [file]` | Save spreadsheet |
 | `:e [file]` | Open spreadsheet |
-| `:q` | Quit |
-| `:wq` | Save and quit |
+| `:q` / `ZQ` | Quit |
+| `:wq` / `ZZ` | Save and quit |
 | `:resCol [pixels]` | Resize column width |
 | `:resRow [pixels]` | Resize row height |
 | `:cellColor [color]` | Set cell background color |
