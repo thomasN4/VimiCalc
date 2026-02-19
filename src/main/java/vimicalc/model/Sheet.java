@@ -117,9 +117,11 @@ public class Sheet {
     }
 
     /**
-     * Removes the dependency at the given coordinates. If the dependency still
-     * has dependents (cells that reference it), triggers re-evaluation instead
-     * of full removal.
+     * Removes the dependency at the given coordinates. First clears the
+     * dependency's {@code dependeds} list (upstream references), then checks
+     * whether it still has dependents (downstream cells that reference it).
+     * If dependents remain, triggers re-evaluation; otherwise removes the
+     * dependency entirely.
      *
      * @param xCoord the column of the dependency to remove
      * @param yCoord the row of the dependency to remove
@@ -342,7 +344,9 @@ public class Sheet {
     /**
      * Writes the sheet to the previously used file path.
      *
-     * @throws Exception with a success message for display in the info bar
+     * @throws Exception always thrown with a success message for display in the
+     *         info bar; this is used as a control-flow mechanism so that the
+     *         caller ({@link Command}) can display the result message
      */
     public void writeFile() throws Exception {
         writeFile(file.getPath());
@@ -397,9 +401,6 @@ public class Sheet {
      */
     public void readFile(@NotNull String path) throws Exception {
         if (!path.endsWith(".wss")) {
-            /* On va devoir afficher cela dans l'infobar, de manière optimale.
-             * Je suggère d'avoir une variable statique pour le texte d'infobar, au lieu
-             * de rendre tout l'infobar static. */
             String errorMessage = "File is not of .wss format";
             throw new Exception(errorMessage);
         }

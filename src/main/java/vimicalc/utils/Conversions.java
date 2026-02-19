@@ -5,7 +5,21 @@ import org.jetbrains.annotations.NotNull;
 
 import static java.lang.Math.pow;
 
+/**
+ * Utility class for converting between spreadsheet coordinate formats.
+ *
+ * <p>Provides conversions between numeric column indices and alphabetic
+ * column labels (A, B, ... Z, AA, AB, ...), cell reference strings
+ * (e.g. "B3"), and relative Vim-style coordinates (e.g. "2j3l").</p>
+ */
 public class Conversions {
+    /**
+     * Converts a zero-based column index to an alphabetic column label.
+     * <p>Examples: 0 → "A", 25 → "Z", 26 → "AA".</p>
+     *
+     * @param num the zero-based column index
+     * @return the corresponding alphabetic label
+     */
     @Contract(pure = true)
     public static @NotNull String toAlpha(int num) {
         int rem = num % 26;
@@ -13,6 +27,13 @@ public class Conversions {
         else return ""+(char)(num+65);
     }
 
+    /**
+     * Converts an alphabetic column label to a one-based column index.
+     * <p>Examples: "A" → 1, "Z" → 26, "AA" → 27.</p>
+     *
+     * @param alpha the alphabetic column label (uppercase)
+     * @return the corresponding one-based column index
+     */
     public static int fromAlpha(@NotNull String alpha) {
         int num = 0;
         for (int i = 0; i < alpha.length(); i++) {
@@ -21,6 +42,12 @@ public class Conversions {
         return num;
     }
 
+    /**
+     * Checks whether a string can be parsed as a {@code double}.
+     *
+     * @param s the string to test
+     * @return {@code true} if {@code s} is a valid numeric literal
+     */
     public static boolean isNumber(String s) {
         boolean b = true;
         try {
@@ -31,6 +58,13 @@ public class Conversions {
         return b;
     }
 
+    /**
+     * Parses a cell reference string (e.g. "B3") into a two-element array
+     * {@code [column, row]}, where column is one-based.
+     *
+     * @param coords the cell reference string (letters for column, digits for row)
+     * @return {@code int[]{column, row}}, or {@code {0, 0}} if parsing fails
+     */
     public static int[] coordsStrToInts(@NotNull String coords) {
         StringBuilder coordX = new StringBuilder(),
                 coordY = new StringBuilder();
@@ -53,10 +87,30 @@ public class Conversions {
         return new int[]{xCoord, yCoord};
     }
 
+    /**
+     * Converts one-based column and row indices to a cell reference string.
+     * <p>Example: (1, 3) → "A3".</p>
+     *
+     * @param xC the one-based column index
+     * @param yC the row number
+     * @return the cell reference string
+     */
     public static String coordsIntsToStr(int xC, int yC) {
         return toAlpha(xC-1) + yC;
     }
 
+    /**
+     * Converts a Vim-style relative coordinate string to an absolute cell reference.
+     *
+     * <p>Relative coordinates use h/j/k/l directions with optional numeric prefixes.
+     * For example, {@code "2j3l"} from reference (1, 1) means "2 down, 3 right",
+     * yielding "D3". Recursively processes chained movements.</p>
+     *
+     * @param relC  the relative coordinate string (e.g. "2j", "3l", "2j3l")
+     * @param xRef  the one-based column of the reference cell
+     * @param yRef  the row of the reference cell
+     * @return the absolute cell reference string (e.g. "D3")
+     */
     public static String relToAbsCoords(@NotNull String relC, int xRef, int yRef) {
         String absC = "";
         StringBuilder deltaStr = new StringBuilder();

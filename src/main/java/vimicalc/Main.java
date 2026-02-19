@@ -35,6 +35,11 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Application entry point.
+     *
+     * @param args command-line arguments; the first is an optional file path
+     */
     public static void main(String[] args) {
         System.out.println("args: " + Arrays.toString(args));
         if (args.length > 0) arg1 = args[0];

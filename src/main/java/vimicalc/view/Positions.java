@@ -4,6 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * Manages the pixel-level layout of the spreadsheet grid.
+ *
+ * <p>Computes and stores the absolute pixel positions of every column and row
+ * boundary ({@code cellAbsXs} and {@code cellAbsYs}), taking into account
+ * per-column/row size offsets (from {@code :resCol} and {@code :resRow} commands).
+ * Also tracks which columns/rows are currently visible within the viewport.</p>
+ *
+ * <p>Regenerated every time the camera moves or column/row sizes change.</p>
+ */
 public class Positions {
     private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
     private final int picW, picH, DCW, DCH;
@@ -11,6 +21,18 @@ public class Positions {
     private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
 
+    /**
+     * Creates a new position layout manager.
+     *
+     * @param camAbsX  the initial camera horizontal offset
+     * @param camAbsY  the initial camera vertical offset
+     * @param picW     the picture area width in pixels
+     * @param picH     the picture area height in pixels
+     * @param DCW      the default cell width in pixels
+     * @param DCH      the default cell height in pixels
+     * @param xOffsets per-column pixel offsets from default width
+     * @param yOffsets per-row pixel offsets from default height
+     */
     public Positions(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
                      HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
         this.camAbsX = camAbsX;
@@ -36,8 +58,18 @@ public class Positions {
                ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1));
     }
 
-    // Les positions sont calculées à partir de l'origine, à chaque fois que la caméra bouge.
-    // Ça fonctionne, mais absolute yikes.
+    /**
+     * Recalculates all cell boundary positions from the origin, given the
+     * current camera viewport edges.
+     *
+     * <p>Walks column-by-column and row-by-row from position 0, accumulating
+     * pixel offsets, and records which columns/rows fall within the visible
+     * area bounded by {@code [xInnerEdge, xInnerEdge + picW]} and
+     * {@code [yInnerEdge, yInnerEdge + picH]}.</p>
+     *
+     * @param xInnerEdge the left pixel boundary of the visible area
+     * @param yInnerEdge the top pixel boundary of the visible area
+     */
     public void generate(int xInnerEdge, int yInnerEdge) {
         System.out.println("Generating metadata...");
         ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
@@ -103,7 +135,13 @@ public class Positions {
         camAbsY = yInnerEdge;
     }
 
-    // newOffset = {coord (X ou Y, conditionnel sur isXAxis), offset}
+    /**
+     * Applies a new size offset to a column or row and regenerates positions.
+     *
+     * @param newOffset {@code [index, pixelOffset]} — the column/row index and
+     *                  its pixel offset from the default size
+     * @param isXAxis   {@code true} to resize a column, {@code false} for a row
+     */
     public void generate(int[] newOffset, boolean isXAxis) {
         if (isXAxis)
             xOffsets.put(newOffset[0], newOffset[1]);
@@ -112,66 +150,82 @@ public class Positions {
         generate(camAbsX, camAbsY);
     }
 
+    /** @return the first visible column coordinate */
     public int getFirstXC() {
         return firstXC;
     }
 
+    /** @return the last visible column coordinate */
     public int getLastXC() {
         return lastXC;
     }
 
+    /** @return the first visible row coordinate */
     public int getFirstYC() {
         return firstYC;
     }
 
+    /** @return the last visible row coordinate */
     public int getLastYC() {
         return lastYC;
     }
 
+    /** @return the array of absolute x pixel positions for column boundaries */
     public int[] getCellAbsXs() {
         return cellAbsXs;
     }
 
+    /** @return the array of absolute y pixel positions for row boundaries */
     public int[] getCellAbsYs() {
         return cellAbsYs;
     }
 
+    /** @return the camera horizontal offset */
     public int getCamAbsX() {
         return camAbsX;
     }
 
+    /** @return the camera vertical offset */
     public int getCamAbsY() {
         return camAbsY;
     }
 
+    /** @return the per-column pixel offset map */
     public HashMap<Integer, Integer> getxOffsets() {
         return xOffsets;
     }
 
+    /** @return the per-row pixel offset map */
     public HashMap<Integer, Integer> getyOffsets() {
         return yOffsets;
     }
 
+    /** @return the maximum column coordinate with data */
     public int getMaxXC() {
         return maxXC;
     }
 
+    /** @return the maximum row coordinate with data */
     public int getMaxYC() {
         return maxYC;
     }
 
+    /** @param maxXC the maximum column coordinate */
     public void setMaxXC(int maxXC) {
         this.maxXC = maxXC;
     }
 
+    /** @param maxYC the maximum row coordinate */
     public void setMaxYC(int maxYC) {
         this.maxYC = maxYC;
     }
 
+    /** @param xOffsets the per-column pixel offset map */
     public void setxOffsets(HashMap<Integer, Integer> xOffsets) {
         this.xOffsets = xOffsets;
     }
 
+    /** @param yOffsets the per-row pixel offset map */
     public void setyOffsets(HashMap<Integer, Integer> yOffsets) {
         this.yOffsets = yOffsets;
     }
