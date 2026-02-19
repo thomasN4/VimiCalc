@@ -12,6 +12,14 @@ import java.util.*;
 import static vimicalc.controller.Controller.macros;
 import static vimicalc.utils.Conversions.*;
 
+/**
+ * The core data model representing an entire spreadsheet.
+ *
+ * <p>Holds the list of {@link Cell}s, the {@link Dependency} graph for formula
+ * re-evaluation, per-cell {@link Formatting}, and the current viewport
+ * {@link Positions}. Also handles file I/O — serializing/deserializing all
+ * state to/from {@code .wss} files using Java object serialization.</p>
+ */
 public class Sheet {
     private ArrayList<Cell> cells;
     private File file;
@@ -19,6 +27,7 @@ public class Sheet {
     private Positions positions;
     private HashMap<List<Integer>, Formatting> cellsFormatting;
 
+    /** Creates an empty sheet with no cells, dependencies, or formatting. */
     public Sheet() {
         cells = new ArrayList<>();
         dependencies = new ArrayList<>();
@@ -26,38 +35,71 @@ public class Sheet {
         cellsFormatting = new HashMap<>();
     }
 
+    /** @return the viewport positions metadata */
     public Positions getPositions() {
         return positions;
     }
 
+    /** @param picPositions the new positions metadata */
     public void setPositions(Positions picPositions) {
         this.positions = picPositions;
     }
 
+    /** @return the list of all cells in the sheet */
     public ArrayList<Cell> getCells() {
         return cells;
     }
 
+    /** @return the per-cell formatting map */
     public HashMap<List<Integer>, Formatting> getCellsFormatting() {
         return cellsFormatting;
     }
 
+    /**
+     * Finds the formatting for a cell at the given position.
+     *
+     * @param xC the column
+     * @param yC the row
+     * @return the formatting, or {@code null} if none
+     */
     public Formatting findFormatting(int xC, int yC) {
         return cellsFormatting.get(List.of(xC, yC));
     }
 
+    /**
+     * Removes formatting for the cell at the given position.
+     *
+     * @param xC the column
+     * @param yC the row
+     */
     public void deleteFormatting(int xC, int yC) {
         cellsFormatting.remove(List.of(xC, yC));
     }
 
+    /**
+     * Adds formatting for the cell at the given position.
+     *
+     * @param xC the column
+     * @param yC the row
+     * @param f  the formatting to apply
+     */
     public void addFormatting(int xC, int yC, Formatting f) {
         cellsFormatting.put(List.of(xC, yC), f);
     }
 
+    /** Removes all formula dependencies from the sheet. */
     public void purgeDependencies() {
         dependencies = new ArrayList<>();
     }
 
+    /**
+     * Deletes the content of a cell at the given coordinates.
+     * If the cell is a merge-start, preserves the merge structure but clears the content.
+     * Also removes any associated dependency.
+     *
+     * @param xCoord the one-based column index
+     * @param yCoord the row number
+     */
     public void deleteCell(int xCoord, int yCoord) {
         System.out.println("Deleting a cell...");
         Cell c = findCell(xCoord, yCoord);
@@ -74,6 +116,14 @@ public class Sheet {
         deleteDependency(xCoord, yCoord);
     }
 
+    /**
+     * Removes the dependency at the given coordinates. If the dependency still
+     * has dependents (cells that reference it), triggers re-evaluation instead
+     * of full removal.
+     *
+     * @param xCoord the column of the dependency to remove
+     * @param yCoord the row of the dependency to remove
+     */
     public void deleteDependency(int xCoord, int yCoord) {
         Dependency d = findDependency(xCoord, yCoord);
         if (d != null) {
@@ -86,10 +136,25 @@ public class Sheet {
         }
     }
 
+    /**
+     * Finds a cell by its string coordinates (e.g. "B3").
+     * Delegates to {@link #findCell(int, int)} after parsing.
+     *
+     * @param coords the cell reference string
+     * @return the cell, or a new empty cell if none exists
+     */
     public Cell findCell(@NotNull String coords) {
         int[] coordsInt = coordsStrToInts(coords);
         return findCell(coordsInt[0], coordsInt[1]);
     }
+    /**
+     * Finds a cell by numeric coordinates. If the cell is part of a merged
+     * range (but not the merge-start), returns the merge-start cell instead.
+     *
+     * @param xCoord the one-based column index
+     * @param yCoord the row number
+     * @return the cell, or a new empty cell if none exists at the position
+     */
     public Cell findCell(int xCoord, int yCoord) {
         for (Cell c : getCells()) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
@@ -101,6 +166,14 @@ public class Sheet {
         }
         return new Cell(xCoord, yCoord);
     }
+    /**
+     * Finds a cell by coordinates without following merge redirections.
+     * Returns the exact cell at the position, or a new empty cell.
+     *
+     * @param xCoord the one-based column index
+     * @param yCoord the row number
+     * @return the cell at the position
+     */
     public Cell simplyFindCell(int xCoord, int yCoord) {
         for (Cell c : getCells())
             if (c.xCoord() == xCoord && c.yCoord() == yCoord)
@@ -108,6 +181,12 @@ public class Sheet {
         return new Cell(xCoord, yCoord);
     }
 
+    /**
+     * Unmerges all cells in the merge group that the given cell belongs to.
+     * Works whether the cell is the merge-start or any cell within the range.
+     *
+     * @param c any cell in the merge group
+     */
     public void unmergeCells(@NotNull Cell c) {
         if (c.isMergeStart())
             unmergeCells(c, c.getMergeDelimiter());
@@ -132,6 +211,13 @@ public class Sheet {
         cells.removeIf(Cell::isEmpty);
     }
 
+    /**
+     * Finds the dependency node at the given coordinates.
+     *
+     * @param x the column
+     * @param y the row
+     * @return the dependency, or {@code null} if none exists
+     */
     public Dependency findDependency(int x, int y) {
         for (Dependency d : dependencies)
             if (d.getxCoord() == x && d.getyCoord() == y)
@@ -139,6 +225,12 @@ public class Sheet {
         return null;
     }
 
+    /**
+     * Registers a dependency node at the given coordinates if one doesn't exist.
+     *
+     * @param xCoord the column
+     * @param yCoord the row
+     */
     public void addDependent(int xCoord, int yCoord) {
         if (findDependency(xCoord, yCoord) == null)
             dependencies.add(new Dependency(xCoord, yCoord));
@@ -153,6 +245,16 @@ public class Sheet {
         }
     }
 
+    /**
+     * Registers a "depended" relationship: the cell at ({@code xCoord}, {@code yCoord})
+     * is referenced by the given {@code dependent}. Also checks for circular
+     * dependency cycles and throws if one is detected.
+     *
+     * @param xCoord    the column of the cell being referenced
+     * @param yCoord    the row of the cell being referenced
+     * @param dependent the dependency node that references this cell
+     * @throws Exception if a circular dependency is detected
+     */
     public void addDepended(int xCoord, int yCoord, Dependency dependent) throws Exception {
         Dependency depended = findDependency(xCoord, yCoord);
         if (depended == null) {
@@ -171,6 +273,13 @@ public class Sheet {
             dependencies.add(depended);
         } else System.out.println("Depended found but already added");
     }
+    /**
+     * Checks whether the depended is already in the dependent's list.
+     *
+     * @param dependent the dependency that references others
+     * @param depended  the dependency being checked
+     * @return {@code true} if already added
+     */
     public boolean dependedAlreadyAdded(@NotNull Dependency dependent, Dependency depended) {
         for (Dependency d : dependent.getDependeds()) {
             if (d.getxCoord() == depended.getxCoord() && d.getyCoord() == depended.getyCoord()) {
@@ -180,22 +289,40 @@ public class Sheet {
         return false;
     }
 
+    /**
+     * Adds or replaces a cell in the sheet and triggers re-evaluation of
+     * any cells that depend on this position.
+     *
+     * @param cell the cell to add
+     */
     public void addCell(Cell cell) {
         simplyAddCell(cell);
         Dependency d = findDependency(cell.xCoord(), cell.yCoord());
         if (d != null && d.getDependents().size() != 0)
             evalDependency(d);
     }
+    /**
+     * Adds or replaces a cell without triggering dependency re-evaluation.
+     * Expands the grid bounds if necessary.
+     *
+     * @param cell the cell to add
+     */
     public void simplyAddCell(Cell cell) {
         cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
         cells.add(cell);
         if (cell.xCoord() > positions.getMaxXC() || cell.yCoord() > positions.getMaxYC()) {
-            if (cell.xCoord() > positions.getMaxYC()) positions.setMaxXC(cell.xCoord());
+            if (cell.xCoord() > positions.getMaxXC()) positions.setMaxXC(cell.xCoord());
             if (cell.yCoord() > positions.getMaxYC()) positions.setMaxYC(cell.yCoord());
             positions.generate(positions.getCamAbsX(), positions.getCamAbsY());
         }
     }
 
+    /**
+     * Triggers re-evaluation of the given dependency and all its transitive
+     * dependents (cells whose formulas reference this cell).
+     *
+     * @param d the dependency to re-evaluate
+     */
     public void evalDependency(Dependency d) {
         evalDependents(d);
         cells.removeIf(Cell::isEmpty);
@@ -212,10 +339,23 @@ public class Sheet {
             evalDependents(e);
     }
 
+    /**
+     * Writes the sheet to the previously used file path.
+     *
+     * @throws Exception with a success message for display in the info bar
+     */
     public void writeFile() throws Exception {
         writeFile(file.getPath());
     }
 
+    /**
+     * Serializes the entire spreadsheet state to a {@code .wss} file using
+     * Java object serialization. Saves cells, dependencies, column/row offsets,
+     * macros, and formatting.
+     *
+     * @param path the file path (appends {@code .wss} if missing)
+     * @throws Exception always thrown with a success message for display in the info bar
+     */
     public void writeFile(@NotNull String path) throws Exception {
         if (path.isEmpty()) return;
         if (!path.endsWith(".wss")) path += ".wss";
@@ -247,6 +387,14 @@ public class Sheet {
         throw new Exception("File " + path + " has been saved.");
     }
 
+    /**
+     * Deserializes a spreadsheet from a {@code .wss} file, restoring cells,
+     * dependencies, column/row offsets, macros, and formatting.
+     * If the file doesn't exist, initializes a new empty sheet for that path.
+     *
+     * @param path the file path (must end in {@code .wss})
+     * @throws Exception with a message to display in the info bar
+     */
     public void readFile(@NotNull String path) throws Exception {
         if (!path.endsWith(".wss")) {
             /* On va devoir afficher cela dans l'infobar, de manière optimale.
@@ -308,10 +456,28 @@ public class Sheet {
     }
 }
 
+/**
+ * A node in the formula dependency graph.
+ *
+ * <p>Each {@code Dependency} corresponds to a cell coordinate and tracks two
+ * sets of relationships:</p>
+ * <ul>
+ *   <li><b>dependents</b> — cells whose formulas reference this cell
+ *       (i.e. cells that need re-evaluation when this cell changes)</li>
+ *   <li><b>dependeds</b> — cells that this cell's formula references
+ *       (i.e. cells that must be evaluated before this one)</li>
+ * </ul>
+ *
+ * <p>Used by {@link Sheet} to propagate formula re-evaluation in topological
+ * order and to detect circular references.</p>
+ */
 class Dependency implements Serializable {
     final int xCoord, yCoord;
+    /** Flag indicating this dependency needs re-evaluation in the current propagation pass. */
     boolean toBeEvaluated;
+    /** Cells that depend on this cell (downstream in the dependency graph). */
     final ArrayList<Dependency> dependents;
+    /** Cells that this cell depends on (upstream in the dependency graph). */
     ArrayList<Dependency> dependeds;
 
     Dependency(int xCoord, int yCoord) {
@@ -350,6 +516,10 @@ class Dependency implements Serializable {
         this.toBeEvaluated = true;
     }
 
+    /**
+     * Returns {@code true} if this node is marked for evaluation and all of its
+     * upstream dependencies have already been evaluated (none are still pending).
+     */
     boolean isReadyToBeEvaluated() {
         boolean b = true;
         for (Dependency d : dependeds) {
@@ -361,6 +531,10 @@ class Dependency implements Serializable {
         return toBeEvaluated & b;
     }
 
+    /**
+     * Re-evaluates the formula of the cell at this dependency's coordinates.
+     * If the cell has no formula or text, it is reset to an empty cell.
+     */
     void evaluate(@NotNull Sheet sheet) {
         Cell c = sheet.findCell(xCoord, yCoord);
         if (c.formula() != null) {

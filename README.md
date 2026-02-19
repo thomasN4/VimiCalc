@@ -9,12 +9,13 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 - **Modal editing** — 6 modes inspired by Vim: Normal, Insert, Formula, Command, Visual, and Help
 - **Vim-style navigation** — `h/j/k/l` movement, multipliers (`5j`), and familiar keybindings (`d`, `y`, `p`, `i`, `a`)
 - **RPN formulas** — Reverse Polish Notation formula engine with cell references, ranges (`B2:D3`), and relative coordinates (`kl -3j`)
-- **Matrix operations** — `matMul`, `det`, `transpose`, `sum`, `avg`, `min`, `max`, and more
+- **Matrix operations** — `matMul`, `det`, `tpose`, `sum`, `prod`, `quot`, and more
+- **Math functions** — `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `ln`, `log10`, `logBase`, `exp`, `sqrt`, `abs`, `PI`
 - **Macros** — Record with `q`, replay with `@`, chain with multipliers (`5@a`)
 - **Conditional execution** — `<formula{then{else}` syntax for conditional key commands
 - **Cell merging** — Select cells in Visual mode and press `m`
 - **Cell formatting** — Background colors, text colors, and bold via command mode
-- **Undo/redo** — `u` to undo, `Ctrl-R` to redo
+- **Undo/redo** — `u` to undo, `r` to redo
 - **Dependency tracking** — Automatic propagation when referenced cells change
 - **File persistence** — Save/load spreadsheets in `.wss` format
 
@@ -24,7 +25,7 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 |------|-----------|---------|
 | **Normal** | `ESC` | Navigation and key commands |
 | **Insert** | `i` or `a` | Plain text entry |
-| **Formula** | `f` | RPN formula entry (confirm with `Enter`, cancel with `ESC`) |
+| **Formula** | `=` | RPN formula entry (confirm with `Enter`, cancel with `ESC`) |
 | **Visual** | `v` | Multi-cell selection, merging, bulk operations |
 | **Command** | `:` | Vim-style commands (`:w`, `:q`, `:resCol`, etc.) |
 | **Help** | `:h` or `:help` | Built-in documentation |
