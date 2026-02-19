@@ -9,11 +9,41 @@ import static java.lang.Math.pow;
 import static vimicalc.controller.KeyCommand.Mfuncs;
 import static vimicalc.utils.Conversions.*;
 
+/**
+ * Evaluates Reverse Polish Notation (RPN) formulas against the spreadsheet.
+ *
+ * <p>Supports arithmetic operators ({@code +}, {@code -}, {@code *}, {@code /},
+ * {@code mod}, {@code ^}), trigonometric and logarithmic functions
+ * ({@code sin}, {@code cos}, {@code tan}, {@code asin}, {@code acos}, {@code atan},
+ * {@code ln}, {@code log10}, {@code logBase}, {@code exp}, {@code PI}, etc.),
+ * cell references (both absolute like "B3" and relative like "2j3l"),
+ * cell range operations ({@code sum}, {@code prod}, {@code quot}, {@code det}),
+ * and matrix operations ({@code det}, {@code tpose}, {@code matMul}).</p>
+ *
+ * <p>During evaluation, automatically registers dependencies in the
+ * {@link Sheet}'s dependency graph so that changes propagate correctly.</p>
+ */
 public class Formula extends Interpretable {
+    /**
+     * Creates a formula from the given RPN expression text.
+     *
+     * @param txt the RPN formula text
+     * @param xC  the column index of the owning cell
+     * @param yC  the row index of the owning cell
+     */
     public Formula(String txt, int xC, int yC) {
         super(txt, xC, yC);
     }
 
+    /**
+     * Extracts a 2D matrix of numeric values from a cell range (e.g. "A1:C3").
+     * Registers dependencies for each cell in the range.
+     *
+     * @param s     the range string (e.g. "A1:C3" or relative like "2j:4j2l")
+     * @param sheet the sheet to read cell values from
+     * @return a 2D array of doubles
+     * @throws Exception if coordinates are invalid
+     */
     protected double[][] createMatrixFromArea(@NotNull String s, @NotNull Sheet sheet) throws Exception {
         sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
@@ -54,6 +84,16 @@ public class Formula extends Interpretable {
         return mat;
     }
 
+    /**
+     * Extracts a flat array of {@link Lexeme}s from a cell range, reading
+     * cells left-to-right, top-to-bottom. Used by aggregate functions
+     * ({@code sum}, {@code prod}, {@code quot}).
+     *
+     * @param coordsArea the range string (e.g. "A1:C3")
+     * @param sheet      the sheet to read cell values from
+     * @return an array of value/identity lexemes
+     * @throws Exception if coordinates are invalid
+     */
     protected Lexeme[] createVectorFromArea(@NotNull String coordsArea, @NotNull Sheet sheet) throws Exception {
         sheet.addDependent(xC, yC);
         StringBuilder firstCoords = new StringBuilder();
@@ -147,6 +187,19 @@ public class Formula extends Interpretable {
         ))[0];
     }
 
+    /**
+     * Evaluates an RPN expression represented as a lexeme array.
+     *
+     * <p>Iterates through the tokens, reducing operators and functions by
+     * consuming their operands from the preceding positions and replacing
+     * them with the result. Handles cell references (absolute and relative),
+     * negative numbers, and all supported math operations.</p>
+     *
+     * @param args  the tokenised RPN expression
+     * @param sheet the sheet context for cell lookups and dependency tracking
+     * @return the reduced lexeme array (single element on success)
+     * @throws Exception if evaluation fails (not enough args, invalid refs, etc.)
+     */
     public Lexeme[] interpret(Lexeme[] args, Sheet sheet) throws Exception {
         byte reduction;
         Lexeme reduced;
@@ -353,6 +406,17 @@ public class Formula extends Interpretable {
         } else return new Lexeme(c.value());
     }
 
+    /**
+     * Transposes the matrix defined by the given cell range and writes the
+     * result directly into the sheet starting at this formula's cell position.
+     * This is a side-effecting operation: it modifies sheet cells beyond the
+     * formula's own cell. Returns the value at position [0][0] of the result.
+     *
+     * @param coords the range string defining the source matrix
+     * @param sheet  the sheet context
+     * @return the value at position [0][0] of the transposed matrix
+     * @throws Exception if coordinates are invalid
+     */
     private double transpose(String coords, Sheet sheet) throws Exception {
         Matrix ogMat = new Matrix(createMatrixFromArea(coords, sheet));
         for (int i = 0; i < ogMat.getHeight(); ++i)
@@ -366,11 +430,20 @@ public class Formula extends Interpretable {
         return ogMat.getRow(0)[0];
     }
 
+    /** Computes the determinant of the matrix defined by the given cell range. */
     private double determinant(String coords, Sheet sheet) throws Exception {
         return determinant(
             createMatrixFromArea(coords, sheet)
         );
     }
+    /**
+     * Recursively computes the determinant of a square matrix using
+     * cofactor expansion along the first column.
+     *
+     * @param imat the square matrix
+     * @return the determinant
+     * @throws Exception if the matrix is not square
+     */
     private double determinant(double[][] imat) throws Exception {
         if (imat.length != imat[0].length)
             throw new Exception("The matrix isn't square.");
@@ -397,6 +470,17 @@ public class Formula extends Interpretable {
         else return imat[0][0] * imat[1][1] - imat[0][1] * imat[1][0];
     }
     
+    /**
+     * Performs matrix multiplication of two cell ranges and writes the result
+     * matrix into the sheet starting at this formula's cell position.
+     * Returns the value at the top-left position of the result.
+     *
+     * @param coords1 the range string for the left matrix
+     * @param coords2 the range string for the right matrix
+     * @param sheet   the sheet context
+     * @return the value at position [0][0] of the product matrix
+     * @throws Exception if the matrices have incompatible dimensions
+     */
     public double matMul(String coords1, String coords2, Sheet sheet) throws Exception {
         Matrix mat1 = new Matrix(createMatrixFromArea(coords1, sheet));
         Matrix mat2 = new Matrix(createMatrixFromArea(coords2, sheet));
@@ -418,6 +502,13 @@ public class Formula extends Interpretable {
 
         return for1Pos(mat1.getRow(0), mat2.getCol(0));
     }
+    /**
+     * Computes the dot product of a row vector and a column vector.
+     *
+     * @param row the row vector
+     * @param col the column vector
+     * @return the dot product
+     */
     public double for1Pos(double[] row, double[] col) {
         double v = 0;
         for (int i = 0; i < row.length; i++) {
@@ -427,6 +518,11 @@ public class Formula extends Interpretable {
     }
 }
 
+/**
+ * A simple wrapper around a 2D double array, providing convenient access
+ * to rows, columns, and dimensions. Used by {@link Formula} for matrix
+ * operations (determinant, transpose, multiplication).
+ */
 class Matrix {
     final double[][] items;
     final int width;

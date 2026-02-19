@@ -9,15 +9,61 @@ import vimicalc.view.Formatting;
 
 import static vimicalc.controller.Controller.*;
 
+/**
+ * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
+ * {@code :cellColor red}).
+ *
+ * <p>Supported commands:</p>
+ * <ul>
+ *   <li>{@code :h}, {@code :help}, {@code :?} — open the help menu</li>
+ *   <li>{@code :e <path>} — open/read a {@code .wss} file</li>
+ *   <li>{@code :w [path]} — save the current sheet</li>
+ *   <li>{@code :wq [path]} — save and quit</li>
+ *   <li>{@code :q} — quit without saving</li>
+ *   <li>{@code :resCol <offset>} — resize the current column</li>
+ *   <li>{@code :resRow <offset>} — resize the current row</li>
+ *   <li>{@code :purgeDeps} — clear all formula dependencies</li>
+ *   <li>{@code :cellColor [color]} — set the cell background color</li>
+ *   <li>{@code :txtColor [color]} — set the cell text color</li>
+ *   <li>{@code :boldTxt} — toggle bold text on the current cell</li>
+ * </ul>
+ */
 public class Command extends Interpretable {
+    /**
+     * Creates a command from the given text at the specified cell position.
+     *
+     * @param txt the command text (without the leading colon)
+     * @param xC  the column index of the current cell
+     * @param yC  the row index of the current cell
+     */
     public Command(String txt, int xC, int yC) {
         super(txt, xC, yC);
     }
+    /**
+     * Set to {@code false} after evaluation if the entered command was not recognized.
+     * Starts as {@code true} and is reset to {@code true} at the beginning of every
+     * {@link #interpret(Lexeme[], Sheet)} call.
+     */
     public boolean commandExists = true;
+
+    /**
+     * Reads a {@code .wss} file into the sheet.
+     *
+     * @param sheet   the target sheet
+     * @param command the lexed command tokens (path in {@code command[1]})
+     * @throws Exception if the file cannot be read
+     */
     public void readFile(Sheet sheet, Lexeme[] command) throws Exception {
         sheet.readFile(command[1].getFunc());
     }
 
+    /**
+     * Writes the sheet to a {@code .wss} file.
+     *
+     * @param sheet   the sheet to save
+     * @param command the lexed command tokens (optional path in {@code command[1]})
+     * @throws Exception if the file cannot be written
+     */
     public void writeFile(Sheet sheet, Lexeme[] command) throws Exception {
         if (command.length == 1) sheet.writeFile();
         else sheet.writeFile(command[1].getFunc());
@@ -71,11 +117,13 @@ public class Command extends Interpretable {
             case "red" -> Color.RED;
             case "green" -> Color.GREEN;
             case "blue" -> Color.BLUE;
-            case "vLGray" -> Color.DIMGRAY;
+            case "vLGray" -> Color.DIMGRAY;  // Note: despite the name, maps to DIMGRAY (dark gray)
             case "lGray" -> Color.LIGHTGRAY;
             case "gray" -> Color.GRAY;
             case "dGray" -> Color.DARKGRAY;
             case "black" -> Color.BLACK;
+            // Note: "white" is not supported for cellColor (use default/empty instead);
+            // txtColor does support "white" for white-on-dark styling.
             default -> DEFAULT_CELL_C;
         };
 

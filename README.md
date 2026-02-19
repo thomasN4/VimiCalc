@@ -1,5 +1,7 @@
 # VimiCalc
 
+**Pre-alpha** — This project is in early development. Expect rough edges, missing features, and breaking changes.
+
 A spreadsheet application with Vim-style modal editing, built with Java and JavaFX.
 
 VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional spreadsheet with Vim's keyboard-driven workflow. Navigate cells with `hjkl`, edit with modal keybindings, write formulas in Reverse Polish Notation, record macros, and more — all without touching the mouse.

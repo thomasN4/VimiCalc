@@ -12,16 +12,42 @@ import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
 import static vimicalc.view.InfoBar.iBarExpr;
 
-/* Les combos de keys qu'on peut entrer en mode NORMAL */
+/**
+ * Processes multi-key command sequences entered in NORMAL mode.
+ *
+ * <p>Accumulates characters into an expression string and evaluates it
+ * when a complete command is recognized. Supports:</p>
+ * <ul>
+ *   <li><b>Movement:</b> h, j, k, l (with numeric multipliers like "5j")</li>
+ *   <li><b>Cell operations:</b> dd (delete), yy/yd (yank/cut), pp (paste)</li>
+ *   <li><b>Navigation:</b> g{coords} (go-to), Ctrl-O (jump back)</li>
+ *   <li><b>Editing:</b> i/a (enter INSERT), = (enter FORMULA), v (enter VISUAL)</li>
+ *   <li><b>Undo/redo:</b> u (undo), r (redo)</li>
+ *   <li><b>Macros:</b> q{letter} (record), @{letter} (play), . (repeat last)</li>
+ *   <li><b>Conditionals:</b> &lt;formula{then}{else} (conditional execution)</li>
+ *   <li><b>Cell ref:</b> ${coords}{movement} (use cell value as multiplier; last char must be a movement key)</li>
+ *   <li><b>Range operations:</b> {multiplier}{func}{multiplier}{dir}{dir} (e.g. "d5j" to delete 5 cells down)</li>
+ *   <li><b>Quit shortcuts:</b> ZZ (save+quit), ZQ (quit without saving)</li>
+ * </ul>
+ */
 public class KeyCommand {
-    // Les fonctions F sont celles qui sont répétables sur des plages de cellules
-    private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', /*'y',*/ 'p'));
+    /** "Field functions" — operations that can be repeated across cell ranges (e.g. delete, paste).
+     *  Note: 'y' (yank) is excluded because range-yank is handled separately in VISUAL mode. */
+    private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'p'));
+    /** "Movement functions" — the four directional keys used in Vim-style navigation. */
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
+    /** The current key-command expression being built. */
     private String expr;
+    /** The previous completed expression, replayed by the {@code .} command. */
     private String prevExpr;
+    /** The macro currently being recorded. */
     protected static LinkedList<KeyEvent> currMacro;
-    protected static boolean recordingMacro, canChangeIBarExpr;
+    /** Whether a macro is currently being recorded. */
+    protected static boolean recordingMacro;
+    /** Whether the info bar expression display should be updated on each keystroke. */
+    protected static boolean canChangeIBarExpr;
 
+    /** Creates a new KeyCommand handler with empty expression state. */
     public KeyCommand() {
         expr = "";
         prevExpr = "";
@@ -29,6 +55,13 @@ public class KeyCommand {
         canChangeIBarExpr = true;
     }
 
+    /**
+     * Processes a key event in NORMAL mode. Maps special keys to their
+     * Vim equivalents, appends the character to the expression, updates
+     * the info bar display, and triggers evaluation.
+     *
+     * @param event the key event from the scene
+     */
     public void addChar(@NotNull KeyEvent event) {
         char c = 0;
         try {
@@ -40,7 +73,7 @@ public class KeyCommand {
             case LEFT -> c = 'h';
             case DOWN, ENTER -> c = 'j';
             case UP -> c  = 'k';
-            case RIGHT, BACK_SPACE -> c = 'l';
+            case RIGHT, BACK_SPACE -> c = 'l';  // BACK_SPACE maps to move-right ('l') in NORMAL mode
             case TAB -> {
                 if (event.isShiftDown()) c = 'h';
                 else c = 'l';
@@ -82,6 +115,13 @@ public class KeyCommand {
         return str.toString();
     }
 
+    /**
+     * Replays a previously recorded macro by re-dispatching its key events.
+     * Temporarily pauses macro recording if one is in progress to avoid
+     * recording the replay into itself.
+     *
+     * @param macroName the single-character macro identifier
+     */
     private void runMacro(char macroName) {
         try {
             boolean aMacroIsInFactBeingRecorded = recordingMacro;
@@ -99,6 +139,14 @@ public class KeyCommand {
         }
     }
 
+    /**
+     * Parses a numeric multiplier prefix starting at the given index.
+     *
+     * @param subI the starting index in the expression
+     * @param expr the expression string
+     * @return {@code int[]{functionIndex, multiplier}} — the index of the first
+     *         non-digit character and the parsed multiplier (1 if none)
+     */
     public int[] parseFIndexAndMult(int subI, @NotNull String expr) {
         StringBuilder multStr = new StringBuilder();
         int i = subI;
@@ -109,6 +157,16 @@ public class KeyCommand {
         return new int[]{i, Integer.parseInt(multStr.toString())};
     }
 
+    /**
+     * Evaluates a (possibly partial) key-command expression. If the expression
+     * forms a complete command, executes it and resets. If not yet complete
+     * (e.g. waiting for more characters), returns and waits for the next keystroke.
+     *
+     * <p>Handles range operations (e.g. "d5j3l" — delete across a 5x3 area)
+     * by building a temporary macro of individual operations, then executing it.</p>
+     *
+     * @param expr the expression to evaluate
+     */
     public void evaluate(@NotNull String expr) {
         boolean evaluationFinished = false;
         if (expr.equals("")) return;

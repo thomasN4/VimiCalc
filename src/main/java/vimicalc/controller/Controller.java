@@ -24,41 +24,83 @@ import static vimicalc.Main.arg1;
 import static vimicalc.controller.KeyCommand.currMacro;
 import static vimicalc.controller.KeyCommand.recordingMacro;
 
+/**
+ * The main controller that orchestrates all user interaction with the spreadsheet.
+ *
+ * <p>Implements {@link Initializable} to set up the UI on FXML load. Manages
+ * the global application state including the current {@link Mode}, the
+ * {@link Camera} viewport, the {@link CellSelector} cursor, undo/redo history,
+ * clipboard, and macro recordings.</p>
+ *
+ * <p>Delegates keyboard input to mode-specific handlers:</p>
+ * <ul>
+ *   <li><b>NORMAL</b> → {@link KeyCommand#addChar(KeyEvent)}</li>
+ *   <li><b>INSERT</b> → {@link #textInput(KeyEvent)}</li>
+ *   <li><b>FORMULA</b> → {@link #formulaInput(KeyEvent)}</li>
+ *   <li><b>COMMAND</b> → {@link #commandInput(KeyEvent)}</li>
+ *   <li><b>VISUAL</b> → {@link #visualSelection(KeyEvent)}</li>
+ *   <li><b>HELP</b> → {@link HelpMenu#navigate(KeyEvent)}</li>
+ * </ul>
+ */
 public class Controller implements Initializable {
     private static int CANVAS_W;
     private static int CANVAS_H;
+    /** Default cell height in pixels. */
     public static final int DEFAULT_CELL_H = 24;
+    /** Default cell width in pixels (4x the height; halved for the first-column gutter in layout). */
     public static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
+    /** Default cell background color. */
     public static final Color DEFAULT_CELL_C = Color.WHITE;
+    /** Default cell text color. */
     public static final Color DEFAULT_TXT_C = Color.BLACK;
+    /** Default vertical text position within a cell. */
     public static final VPos DEFAULT_VPOS = VPos.CENTER;
+    /** Default horizontal text alignment within a cell. */
     public static final TextAlignment DEFAULT_ALIGNMENT = TextAlignment.CENTER;
 
     /*CD
     private static int MOUSE_X;
     private static int MOUSE_Y;*/
 
+    /** The graphics context used for all canvas drawing operations. */
     public static GraphicsContext gc;
     @FXML
     private Canvas canvas;
+    /** Stack of cell states recorded before each edit, used for undo. */
     protected static LinkedList<Cell> recordedCellStates;
+    /** Stack of cell states produced by undo, used for redo. */
     protected static LinkedList<Cell> undoneCellStates;
+    /** How many undo steps have been taken since the last edit. */
     protected static int undoCounter;
+    /** The clipboard for yank/paste operations. */
     protected static ArrayList<Cell> clipboard;
+    /** The viewport camera tracking the visible portion of the sheet. */
     protected static Camera camera;
+    /** The current colon-command being composed or executed. */
     protected static Command command;
+    /** Displays the current cell coordinates in the status area. */
     protected static CoordsInfo coordsInfo;
     private static FirstCol firstCol;
     private static FirstRow firstRow;
+    /** The help menu overlay shown in HELP mode. */
     public static HelpMenu helpMenu;
+    /** The information bar at the bottom of the window. */
     public static InfoBar infoBar;
+    /** Displays the last key stroke pressed. */
     public static KeyStrokeCell keyStrokeCell;
+    /** The cell selector (cursor) highlighting the active cell. */
     protected static CellSelector cellSelector;
+    /** The list of coordinates currently selected in VISUAL mode. */
     protected static ArrayList<int[]> selectedCoords;
+    /** The spreadsheet data model. */
     protected static Sheet sheet;
+    /** The status bar showing the current mode. */
     public static StatusBar statusBar;
+    /** Handles key-command sequences in NORMAL mode. */
     public static KeyCommand keyCommand;
+    /** The current input mode (NORMAL, INSERT, COMMAND, etc.). */
     public static Mode currMode;
+    /** Recorded macros, keyed by their assigned character. */
     public static HashMap<Character, LinkedList<KeyEvent>> macros;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
@@ -75,7 +117,12 @@ public class Controller implements Initializable {
     }
     */
 
+    /** Flag to prevent recursive merge-start navigation. */
     public static boolean goingToMergeStart = false;
+    /**
+     * If the cursor has landed on a cell that is part of a merged range
+     * (but not the merge-start), automatically navigates to the merge-start cell.
+     */
     private static void maybeGoToMergeStart() {
         System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
         if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
@@ -87,6 +134,10 @@ public class Controller implements Initializable {
             goingToMergeStart = false;
         }
     }
+    /**
+     * Moves the cell selector one cell to the left. Handles viewport scrolling
+     * when the cursor reaches the left edge, and boundary checks.
+     */
     protected static void moveLeft() {
         if (cellSelector.getXCoord() != 1) {
             cellSelector.updateXCoord(-1);
@@ -125,6 +176,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
+    /** Moves the cell selector one cell down, scrolling the viewport if necessary. */
     protected static void moveDown() {
         int prevH;
         if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
@@ -161,6 +213,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
+    /** Moves the cell selector one cell up, scrolling the viewport if necessary. */
     protected static void moveUp() {
         if (cellSelector.getYCoord() != 1) {
             cellSelector.updateYCoord(-1);
@@ -198,6 +251,7 @@ public class Controller implements Initializable {
         cellSelector.readCell(camera.picture.data());
         if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
+    /** Moves the cell selector one cell to the right, scrolling the viewport if necessary. */
     protected static void moveRight() {
         int prevW;
         if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
@@ -235,6 +289,11 @@ public class Controller implements Initializable {
         if (currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
+    /**
+     * Updates the info bar with the selected cell's value and formula
+     * expression (if any). For cells with no value, passes {@code null}
+     * to the info bar, which then displays its own default text.
+     */
     protected static void cellContentToIBar() {
         if (cellSelector.getSelectedCell().value() != null)
             infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().value()+")");
@@ -249,6 +308,11 @@ public class Controller implements Initializable {
             );
     }
 
+    /**
+     * Cleans up the undo history after a new edit is made while in a
+     * partially-undone state. Discards the undo entries that were created
+     * by previous undo operations, keeping only the latest state.
+     */
     protected static void removeUltCStates() {
         Cell last = recordedCellStates.getLast().copy();
         recordedCellStates.removeLast();
@@ -258,11 +322,9 @@ public class Controller implements Initializable {
         }
         recordedCellStates.add(last);
         undoneCellStates = new LinkedList<>();
-
-        System.out.println("Recorded cell states: ");
-        recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
     }
 
+    /** Reverts the last cell edit by swapping the current state with the recorded previous state. */
     protected static void undo() {
         int listIndex = recordedCellStates.size() - 1 - undoCounter;
         undoCounter++;
@@ -288,6 +350,7 @@ public class Controller implements Initializable {
         sheet.getCells().forEach(Cell::isEmpty);
     }
 
+    /** Re-applies a previously undone cell edit. */
     protected static void redo() {
         int listIndex = recordedCellStates.size() - undoCounter;
         undoCounter--;
@@ -313,7 +376,17 @@ public class Controller implements Initializable {
         sheet.getCells().forEach(Cell::isEmpty);
     }
 
-    public static int staticPrevXC, staticPrevYC;
+    /** Previous X coordinate, used for jump-back navigation. */
+    public static int staticPrevXC;
+    /** Previous Y coordinate, used for jump-back navigation. */
+    public static int staticPrevYC;
+    /**
+     * Navigates the cell selector to the given coordinates by issuing
+     * repeated move commands. Updates the coordinate display and visual state.
+     *
+     * @param xCoord the target column (one-based)
+     * @param yCoord the target row (one-based)
+     */
     protected static void goTo(int xCoord, int yCoord) {
         while (xCoord - cellSelector.getXCoord() > 0)
             moveRight();
@@ -326,12 +399,27 @@ public class Controller implements Initializable {
         coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         updateVisualState();
     }
+    /**
+     * Navigates to the given coordinates while remembering the previous position,
+     * allowing the user to jump back with {@code Ctrl-O}.
+     *
+     * @param xCoord the target column
+     * @param yCoord the target row
+     * @param prevXC the previous column to remember
+     * @param prevYC the previous row to remember
+     */
     protected static void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
         staticPrevXC = prevXC;
         staticPrevYC = prevYC;
         goTo(xCoord, yCoord);
     }
 
+    /**
+     * Pastes a cell from the clipboard at the current cursor position.
+     * If the clipboard cell has a formula, re-evaluates it at the new position.
+     *
+     * @param index the index into the clipboard list
+     */
     protected static void paste(int index) {
         System.out.println("Pasting cell " + clipboard.get(index));
         if (clipboard.get(index).formula() != null) {
@@ -360,6 +448,12 @@ public class Controller implements Initializable {
         if (undoCounter != 0) removeUltCStates();
     }
 
+    /**
+     * The global key event handler, wired to the scene in {@link vimicalc.Main}.
+     * Dispatches to mode-specific handlers and updates the UI after each keystroke.
+     *
+     * @param event the key event
+     */
     public static void onKeyPressed(@NotNull KeyEvent event) {
         keyStrokeCell.setKeyStroke(event.getCode().toString());
         if (recordingMacro) currMacro.add(event);
@@ -417,6 +511,7 @@ public class Controller implements Initializable {
         keyStrokeCell.draw(gc);
     }
 
+    /** Redraws all chrome UI elements (headers, status bar, info bar, coordinates). */
     protected static void updateVisualState() {
         firstCol.draw(gc);
         firstRow.draw(gc);
@@ -425,6 +520,14 @@ public class Controller implements Initializable {
         coordsInfo.draw(gc);
     }
 
+    /**
+     * Handles keyboard input in COMMAND mode. Builds up the command string
+     * character by character, executing it on ENTER and cancelling on ESC.
+     * Also supports entering commands from VISUAL mode via {@code ;} (SEMICOLON),
+     * for applying formulas to selections.
+     *
+     * @param event the key event to process
+     */
     protected static void commandInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
@@ -484,6 +587,8 @@ public class Controller implements Initializable {
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
+                // Phantom move-left/move-right and move-up/move-down to force a
+                // camera/picture refresh so the command's effects are visible.
                 if (cellSelector.getX() == 0) moveRight();
                 else moveLeft();
                 if (cellSelector.getY() == 0) moveDown();
@@ -520,7 +625,14 @@ public class Controller implements Initializable {
             infoBar.setCommandTxt(command.getTxt());
     }
 
+    /** Accumulates digit characters to form a numeric multiplier in VISUAL mode. */
     public static String multiplierForVISUAL = "";
+    /**
+     * Handles keyboard input in VISUAL mode. Extends or shrinks the cell
+     * selection using hjkl movement, supports numeric multipliers, and
+     * provides actions on the selection: delete (d), yank (y), merge (m),
+     * and entering commands (;).
+     */
     private static void visualSelection(@NotNull KeyEvent event) {
         if (!multiplierForVISUAL.equals("") && (
                 event.getText().equals("h") ||
@@ -757,6 +869,7 @@ public class Controller implements Initializable {
             }
         }
     }
+    /** Adds a full column or row of coordinates to the visual selection. */
     private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
         if (isAddingCol) for (int i = minC; i <= maxC; i++) {
             selectedCoords.add(new int[]{currC, i});
@@ -767,6 +880,7 @@ public class Controller implements Initializable {
             System.out.println(currC + ", " + i);
         }
     }
+    /** Removes all selected coordinates in the given column or row ({@code -1} to skip). */
     private static void purgeSCs(int col, int row) {
         if (col != -1)
             selectedCoords.removeIf(c -> c[0] == col);
@@ -774,13 +888,20 @@ public class Controller implements Initializable {
             selectedCoords.removeIf(c -> c[1] == row);
     }
 
-    protected static void setSCTxtForTextInput() {  //improve for later use maybe, or delete
+    /** Prepares the selected cell's text for INSERT mode editing. */
+    protected static void setSCTxtForTextInput() {
         if (cellSelector.getSelectedCell().value() != null &&
             !(""+cellSelector.getSelectedCell().value()).endsWith(".0"))
             cellSelector.getSelectedCell().setTxt(""+cellSelector.getSelectedCell().value());
         if (cellSelector.getSelectedCell().txt() == null)
             cellSelector.getSelectedCell().setTxt("");
     }
+    /**
+     * Handles keyboard input in INSERT mode. Characters are appended to the
+     * selected cell's text. ESC saves and exits, Shift-ESC cancels,
+     * arrow keys/Enter/Tab save and move to an adjacent cell,
+     * and Alt+hjkl saves and moves while staying in INSERT mode.
+     */
     private static void textInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
@@ -869,6 +990,12 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Handles keyboard input in FORMULA mode. Characters are appended to the
+     * formula expression. ENTER evaluates the formula and saves the result,
+     * ESC cancels, and Alt+hjkl evaluates, saves, moves, and re-enters
+     * FORMULA mode on the next cell.
+     */
     private static void formulaInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
@@ -995,6 +1122,10 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Resets all UI components and state to their defaults. Called on
+     * initialization, after loading a file, and from {@link Sheet#readFile(String)}.
+     */
     public static void reset() {
         camera = new Camera(
             DEFAULT_CELL_W/2,
