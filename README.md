@@ -57,28 +57,26 @@ kl -3j / 3 mod     → relative cell reference with arithmetic
 ## Requirements
 
 - Java 17+
-- JavaFX 17+
+
+## Building
+
+The project uses Gradle with the JavaFX plugin — no separate JavaFX SDK install is needed.
+
+```bash
+./gradlew build
+```
 
 ## Running
 
-1. Edit the file paths in the launch script for your system (`wss.sh` for Linux/macOS, `wss.ps1` for Windows) to point to your JavaFX SDK location.
-2. Run the script:
-
 ```bash
-# Linux / macOS
-./wss.sh [file.wss]
+# Launch the application
+./gradlew run
 
-# Windows
-.\wss.ps1 [file.wss]
+# Open a spreadsheet file
+./gradlew run --args="demos/fizzbuzz.wss"
 ```
 
-Or run manually:
-
-```bash
-java --module-path "/path/to/javafx-sdk-17/lib" \
-  --add-modules=javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web \
-  -jar out/artifacts/VimiCalc_jar/VimiCalc.jar [file.wss]
-```
+The convenience scripts `wss.sh` (Linux/macOS) and `wss.ps1` (Windows) wrap the Gradle run task.
 
 ## Demo Files
 
