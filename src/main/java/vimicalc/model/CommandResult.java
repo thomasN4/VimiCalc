@@ -8,5 +8,7 @@ public enum CommandResult {
     /** No special action needed. */
     NONE,
     /** The controller should switch to HELP mode. */
-    HELP
+    HELP,
+    /** The controller should quit the application. */
+    QUIT
 }

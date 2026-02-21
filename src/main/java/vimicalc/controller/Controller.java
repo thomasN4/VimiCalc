@@ -594,6 +594,11 @@ public class Controller implements Initializable {
                     commandError = e.getMessage();
                 }
 
+                if (command.getCommandResult() == CommandResult.QUIT) {
+                    javafx.application.Platform.exit();
+                    return;
+                }
+
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
