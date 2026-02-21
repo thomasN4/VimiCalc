@@ -7,8 +7,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import static vimicalc.controller.Controller.currMode;
-import static vimicalc.controller.Mode.NORMAL;
+import vimicalc.controller.Mode;
+
+import java.util.function.Consumer;
 
 /**
  * An overlay window that displays built-in help text when the user enters
@@ -21,6 +22,7 @@ import static vimicalc.controller.Mode.NORMAL;
 public class HelpMenu extends simpleRect {
     private int position;
     private final GraphicsContext gc;
+    private final Consumer<Mode> modeSetter;
     private final String[] text = {
         "=====Overview of how WeSpreadSheet works=====",
         "\n",
@@ -84,11 +86,13 @@ public class HelpMenu extends simpleRect {
     /**
      * Creates the help menu overlay.
      *
-     * @param gc the graphics context for rendering
+     * @param gc         the graphics context for rendering
+     * @param modeSetter consumer to set the current editing mode
      */
-    public HelpMenu(GraphicsContext gc) {
+    public HelpMenu(GraphicsContext gc, Consumer<Mode> modeSetter) {
         super(30, 30, 740, 480, Color.LIGHTYELLOW);
         this.gc = gc;
+        this.modeSetter = modeSetter;
         position = 0;
     }
 
@@ -111,7 +115,7 @@ public class HelpMenu extends simpleRect {
             }
             case ESCAPE -> {
                 position = 0;
-                currMode = NORMAL;
+                modeSetter.accept(Mode.NORMAL);
             }
         }
         drawText();

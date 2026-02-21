@@ -9,8 +9,7 @@ import vimicalc.controller.Mode;
 import vimicalc.model.Cell;
 
 import java.util.ArrayList;
-
-import static vimicalc.controller.Controller.currMode;
+import java.util.function.Supplier;
 
 /**
  * The cursor / selection highlight that indicates which cell is currently
@@ -26,6 +25,7 @@ public class CellSelector extends simpleRect {
     private int xCoord, yCoord, mergedW, mergedH;
     private Cell selectedCell;
     private final Positions picPositions;
+    private final Supplier<Mode> modeSupplier;
 
     /**
      * Creates a cell selector at the given pixel position.
@@ -36,10 +36,12 @@ public class CellSelector extends simpleRect {
      * @param h            the height in pixels
      * @param c            the highlight color
      * @param picPositions the position metadata for cell layout
+     * @param modeSupplier supplies the current editing mode
      */
-    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions) {
+    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions, Supplier<Mode> modeSupplier) {
         super(x, y, w, h, c);
         this.picPositions = picPositions;
+        this.modeSupplier = modeSupplier;
         // Starts at (2,2) rather than (1,1) because the first row and column
         // (index 1) are reserved for the header gutter (FirstRow / FirstCol).
         xCoord = 2;
@@ -94,7 +96,7 @@ public class CellSelector extends simpleRect {
     }
     @Override
     public void draw(@NotNull GraphicsContext gc) {
-        if (!selectedCell.isMergeStart() || currMode == Mode.VISUAL) {
+        if (!selectedCell.isMergeStart() || modeSupplier.get() == Mode.VISUAL) {
             super.draw(gc);
             if (selectedCell.txt() != null) drawTxt(gc);
         }
@@ -186,7 +188,7 @@ public class CellSelector extends simpleRect {
         for (Cell c : cells) {
             if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
                 selectedCell = c.copy();
-                if (c.isMergeStart() && currMode != Mode.VISUAL) {
+                if (c.isMergeStart() && modeSupplier.get() != Mode.VISUAL) {
                     Cell mergeEnd = c.getMergeDelimiter();
                     mergedW = picPositions.getCellAbsXs()[mergeEnd.xCoord()+1] -
                         picPositions.getCellAbsXs()[xCoord];

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import static vimicalc.controller.Controller.*;
+import static vimicalc.view.Defaults.*;
 
 /**
  * Stores the visual formatting attributes for a single cell.
