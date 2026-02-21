@@ -2,15 +2,15 @@ package vimicalc.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.*;
+
+import static vimicalc.view.Defaults.*;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,18 +45,6 @@ import static vimicalc.controller.KeyCommand.recordingMacro;
 public class Controller implements Initializable {
     private static int CANVAS_W;
     private static int CANVAS_H;
-    /** Default cell height in pixels. */
-    public static final int DEFAULT_CELL_H = 24;
-    /** Default cell width in pixels (4x the height; halved for the first-column gutter in layout). */
-    public static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
-    /** Default cell background color. */
-    public static final Color DEFAULT_CELL_C = Color.WHITE;
-    /** Default cell text color. */
-    public static final Color DEFAULT_TXT_C = Color.BLACK;
-    /** Default vertical text position within a cell. */
-    public static final VPos DEFAULT_VPOS = VPos.CENTER;
-    /** Default horizontal text alignment within a cell. */
-    public static final TextAlignment DEFAULT_ALIGNMENT = TextAlignment.CENTER;
 
     /*CD
     private static int MOUSE_X;

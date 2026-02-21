@@ -8,6 +8,7 @@ import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
 
 import static vimicalc.controller.Controller.*;
+import static vimicalc.view.Defaults.*;
 
 /**
  * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
