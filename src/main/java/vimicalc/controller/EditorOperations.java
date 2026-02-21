@@ -2,7 +2,6 @@ package vimicalc.controller;
 
 import vimicalc.model.*;
 
-import static vimicalc.controller.Controller.*;
 import static vimicalc.view.Defaults.*;
 
 /**
@@ -10,24 +9,34 @@ import static vimicalc.view.Defaults.*;
  * extracted from {@link Controller}.
  *
  * <p>Methods here were originally static methods on Controller.
- * They still access Controller's static fields directly; a future
- * phase will convert those to instance fields.</p>
+ * They access Controller's instance fields through a stored reference.</p>
  */
 public class EditorOperations {
+
+    private final Controller ctrl;
+
+    /**
+     * Creates a new EditorOperations that delegates field access to the given controller.
+     *
+     * @param ctrl the controller whose fields this instance operates on
+     */
+    public EditorOperations(Controller ctrl) {
+        this.ctrl = ctrl;
+    }
 
     /**
      * If the cursor has landed on a cell that is part of a merged range
      * (but not the merge-start), automatically navigates to the merge-start cell.
      */
     void maybeGoToMergeStart() {
-        System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
-        if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
-            !cellSelector.getSelectedCell().isMergeStart() &&
-            !goingToMergeStart) {
-            Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
-            goingToMergeStart = true;
+        System.out.println(ctrl.cellSelector.getSelectedCell().getMergeDelimiter());
+        if (ctrl.cellSelector.getSelectedCell().getMergeDelimiter() != null &&
+            !ctrl.cellSelector.getSelectedCell().isMergeStart() &&
+            !ctrl.goingToMergeStart) {
+            Cell currMergeStart = ctrl.cellSelector.getSelectedCell().getMergeDelimiter();
+            ctrl.goingToMergeStart = true;
             goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
-            goingToMergeStart = false;
+            ctrl.goingToMergeStart = false;
         }
     }
 
@@ -36,157 +45,157 @@ public class EditorOperations {
      * when the cursor reaches the left edge, and boundary checks.
      */
     public void moveLeft() {
-        if (cellSelector.getXCoord() != 1) {
-            cellSelector.updateXCoord(-1);
-            cellSelector.readCell(camera.picture.data());
+        if (ctrl.cellSelector.getXCoord() != 1) {
+            ctrl.cellSelector.updateXCoord(-1);
+            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
         } else {
-            infoBar.setInfobarTxt("CAN'T GO LEFT");
-            cellSelector.readCell(camera.picture.data());
+            ctrl.infoBar.setInfobarTxt("CAN'T GO LEFT");
+            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
             return;
         }
         cellContentToIBar();
-        if (cellSelector.getX() != firstCol.getW()) {
-            cellSelector.updateX(-cellSelector.getW());
-            if (cellSelector.getX() < firstCol.getW()) {
-                while (cellSelector.getX() != firstCol.getW()) {
-                    cellSelector.updateX(1);
-                    camera.updateAbsX(-1);
+        if (ctrl.cellSelector.getX() != ctrl.firstCol.getW()) {
+            ctrl.cellSelector.updateX(-ctrl.cellSelector.getW());
+            if (ctrl.cellSelector.getX() < ctrl.firstCol.getW()) {
+                while (ctrl.cellSelector.getX() != ctrl.firstCol.getW()) {
+                    ctrl.cellSelector.updateX(1);
+                    ctrl.camera.updateAbsX(-1);
                 }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstRow.draw(gc);
+                ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.firstRow.draw(ctrl.gc);
             }
         }
         else {
-            camera.updateAbsX(-cellSelector.getW());
-            if (camera.getAbsX() < firstCol.getW()) {
-                infoBar.setInfobarTxt("CAN'T GO LEFT");
-                while (camera.getAbsX() != firstCol.getW())
-                    camera.updateAbsX(1);
+            ctrl.camera.updateAbsX(-ctrl.cellSelector.getW());
+            if (ctrl.camera.getAbsX() < ctrl.firstCol.getW()) {
+                ctrl.infoBar.setInfobarTxt("CAN'T GO LEFT");
+                while (ctrl.camera.getAbsX() != ctrl.firstCol.getW())
+                    ctrl.camera.updateAbsX(1);
             }
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstRow.draw(gc);
-            cellSelector.readCell(camera.picture.data());
+            ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.firstRow.draw(ctrl.gc);
+            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
         }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        if (ctrl.currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
     /** Moves the cell selector one cell down, scrolling the viewport if necessary. */
     public void moveDown() {
         int prevH;
-        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
-            prevH = cellSelector.getH();
+        if (!ctrl.cellSelector.getSelectedCell().isMergeStart() || ctrl.currMode == Mode.VISUAL)
+            prevH = ctrl.cellSelector.getH();
         else {
-            prevH = cellSelector.getMergedH();
-            cellSelector.updateYCoord(
-                cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
-                cellSelector.getSelectedCell().yCoord()
+            prevH = ctrl.cellSelector.getMergedH();
+            ctrl.cellSelector.updateYCoord(
+                ctrl.cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
+                ctrl.cellSelector.getSelectedCell().yCoord()
             );
         }
-        cellSelector.updateYCoord(1);
-        cellSelector.readCell(camera.picture.data());
+        ctrl.cellSelector.updateYCoord(1);
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
         cellContentToIBar();
-        if (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
-            cellSelector.updateY(prevH);
-            if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
-                while (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
-                    cellSelector.updateY(-1);
-                    camera.updateAbsY(1);
+        if (ctrl.cellSelector.getY() + ctrl.cellSelector.getH() != ctrl.statusBar.getY()) {
+            ctrl.cellSelector.updateY(prevH);
+            if (ctrl.cellSelector.getY() + ctrl.cellSelector.getH() > ctrl.statusBar.getY()) {
+                while (ctrl.cellSelector.getY() + ctrl.cellSelector.getH() != ctrl.statusBar.getY()) {
+                    ctrl.cellSelector.updateY(-1);
+                    ctrl.camera.updateAbsY(1);
                 }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstCol.draw(gc);
+                ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.firstCol.draw(ctrl.gc);
             }
         }
         else {
-            camera.updateAbsY(prevH);
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstCol.draw(gc);
+            ctrl.camera.updateAbsY(prevH);
+            ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.firstCol.draw(ctrl.gc);
         }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        if (ctrl.currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
     /** Moves the cell selector one cell up, scrolling the viewport if necessary. */
     public void moveUp() {
-        if (cellSelector.getYCoord() != 1) {
-            cellSelector.updateYCoord(-1);
-            cellSelector.readCell(camera.picture.data());
+        if (ctrl.cellSelector.getYCoord() != 1) {
+            ctrl.cellSelector.updateYCoord(-1);
+            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
         } else {
-            infoBar.setInfobarTxt("CAN'T GO UP");
-            cellSelector.readCell(camera.picture.data());
+            ctrl.infoBar.setInfobarTxt("CAN'T GO UP");
+            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
             return;
         }
         cellContentToIBar();
-        if (cellSelector.getY() != DEFAULT_CELL_H) {
-            cellSelector.updateY(-cellSelector.getH());
-            if (cellSelector.getY() < DEFAULT_CELL_H) {
-                while (cellSelector.getY() != DEFAULT_CELL_H) {
-                    cellSelector.updateY(1);
-                    camera.updateAbsY(-1);
+        if (ctrl.cellSelector.getY() != DEFAULT_CELL_H) {
+            ctrl.cellSelector.updateY(-ctrl.cellSelector.getH());
+            if (ctrl.cellSelector.getY() < DEFAULT_CELL_H) {
+                while (ctrl.cellSelector.getY() != DEFAULT_CELL_H) {
+                    ctrl.cellSelector.updateY(1);
+                    ctrl.camera.updateAbsY(-1);
                 }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstCol.draw(gc);
+                ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.firstCol.draw(ctrl.gc);
             }
         }
         else {
-            camera.updateAbsY(-cellSelector.getH());
-            if (camera.getAbsY() < DEFAULT_CELL_H) {
-                infoBar.setInfobarTxt("CAN'T GO UP");
-                while (camera.getAbsY() != DEFAULT_CELL_H)
-                    camera.updateAbsY(1);
+            ctrl.camera.updateAbsY(-ctrl.cellSelector.getH());
+            if (ctrl.camera.getAbsY() < DEFAULT_CELL_H) {
+                ctrl.infoBar.setInfobarTxt("CAN'T GO UP");
+                while (ctrl.camera.getAbsY() != DEFAULT_CELL_H)
+                    ctrl.camera.updateAbsY(1);
             }
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstCol.draw(gc);
+            ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.firstCol.draw(ctrl.gc);
         }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        if (ctrl.currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
     /** Moves the cell selector one cell to the right, scrolling the viewport if necessary. */
     public void moveRight() {
         int prevW;
-        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
-            prevW = cellSelector.getW();
+        if (!ctrl.cellSelector.getSelectedCell().isMergeStart() || ctrl.currMode == Mode.VISUAL)
+            prevW = ctrl.cellSelector.getW();
         else {
-            prevW = cellSelector.getMergedW();
-            cellSelector.updateXCoord(
-                cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
-                cellSelector.getSelectedCell().xCoord()
+            prevW = ctrl.cellSelector.getMergedW();
+            ctrl.cellSelector.updateXCoord(
+                ctrl.cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
+                ctrl.cellSelector.getSelectedCell().xCoord()
             );
         }
-        cellSelector.updateXCoord(1);
-        cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
-            cellSelector.updateX(prevW);
-            if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
-                while (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
-                    cellSelector.updateX(-1);
-                    camera.updateAbsX(1);
+        ctrl.cellSelector.updateXCoord(1);
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        if (ctrl.cellSelector.getX() + ctrl.cellSelector.getW() != ctrl.CANVAS_W) {
+            ctrl.cellSelector.updateX(prevW);
+            if (ctrl.cellSelector.getX() + ctrl.cellSelector.getW() > ctrl.CANVAS_W) {
+                while (ctrl.cellSelector.getX() + ctrl.cellSelector.getW() != ctrl.CANVAS_W) {
+                    ctrl.cellSelector.updateX(-1);
+                    ctrl.camera.updateAbsX(1);
                 }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstRow.draw(gc);
+                ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                ctrl.firstRow.draw(ctrl.gc);
             }
         }
         else {
-            camera.updateAbsX(prevW);
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstRow.draw(gc);
+            ctrl.camera.updateAbsX(prevW);
+            ctrl.camera.picture.metadata().generate(ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+            ctrl.firstRow.draw(ctrl.gc);
         }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
         cellContentToIBar();
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
+        if (ctrl.currMode != Mode.VISUAL) maybeGoToMergeStart();
     }
 
     /**
@@ -194,16 +203,16 @@ public class EditorOperations {
      * expression (if any).
      */
     public void cellContentToIBar() {
-        if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().value()+")");
+        if (ctrl.cellSelector.getSelectedCell().value() != null)
+            ctrl.infoBar.setInfobarTxt("(="+ctrl.cellSelector.getSelectedCell().value()+")");
         else {
-            infoBar.setInfobarTxt(null);
+            ctrl.infoBar.setInfobarTxt(null);
             return;
         }
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(
-                infoBar.getInfobarTxt() + " " +
-                "(f:"+cellSelector.getSelectedCell().formula().getTxt()+")"
+        if (ctrl.cellSelector.getSelectedCell().formula() != null)
+            ctrl.infoBar.setInfobarTxt(
+                ctrl.infoBar.getInfobarTxt() + " " +
+                "(f:"+ctrl.cellSelector.getSelectedCell().formula().getTxt()+")"
             );
     }
 
@@ -212,66 +221,66 @@ public class EditorOperations {
      * partially-undone state.
      */
     public void removeUltCStates() {
-        Cell last = recordedCellStates.getLast().copy();
-        recordedCellStates.removeLast();
-        while (undoCounter != 0) {
-            recordedCellStates.removeLast();
-            undoCounter--;
+        Cell last = ctrl.recordedCellStates.getLast().copy();
+        ctrl.recordedCellStates.removeLast();
+        while (ctrl.undoCounter != 0) {
+            ctrl.recordedCellStates.removeLast();
+            ctrl.undoCounter--;
         }
-        recordedCellStates.add(last);
-        undoneCellStates = new java.util.LinkedList<>();
+        ctrl.recordedCellStates.add(last);
+        ctrl.undoneCellStates = new java.util.LinkedList<>();
     }
 
     /** Reverts the last cell edit by swapping the current state with the recorded previous state. */
     public void undo() {
-        int listIndex = recordedCellStates.size() - 1 - undoCounter;
-        undoCounter++;
+        int listIndex = ctrl.recordedCellStates.size() - 1 - ctrl.undoCounter;
+        ctrl.undoCounter++;
 
-        Cell substitute = recordedCellStates.get(listIndex).copy();
+        Cell substitute = ctrl.recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
-        undoneCellStates.add(substitute);
-        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
+        ctrl.recordedCellStates.set(listIndex, ctrl.sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
+        ctrl.undoneCellStates.add(substitute);
+        ctrl.sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
             try {
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+                ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 System.out.println("Something went very wrong.");
             }
-        } else cellSelector.setSelectedCell(substitute);
+        } else ctrl.cellSelector.setSelectedCell(substitute);
 
         cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        sheet.getCells().forEach(Cell::isEmpty);
+        ctrl.sheet.addCell(ctrl.cellSelector.getSelectedCell());
+        ctrl.sheet.getCells().forEach(Cell::isEmpty);
     }
 
     /** Re-applies a previously undone cell edit. */
     public void redo() {
-        int listIndex = recordedCellStates.size() - undoCounter;
-        undoCounter--;
+        int listIndex = ctrl.recordedCellStates.size() - ctrl.undoCounter;
+        ctrl.undoCounter--;
 
-        Cell substitute = recordedCellStates.get(listIndex).copy();
+        Cell substitute = ctrl.recordedCellStates.get(listIndex).copy();
         goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, undoneCellStates.getLast().copy());
-        undoneCellStates.removeLast();
-        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
+        ctrl.recordedCellStates.set(listIndex, ctrl.undoneCellStates.getLast().copy());
+        ctrl.undoneCellStates.removeLast();
+        ctrl.sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
         if (substitute.formula() != null) {
             Formula f = substitute.formula();
             try {
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+                ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
             } catch (Exception e) {
                 System.out.println(e.getMessage());
                 System.out.println("Something went very wrong.");
             }
-        } else cellSelector.setSelectedCell(substitute);
+        } else ctrl.cellSelector.setSelectedCell(substitute);
 
         cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        sheet.getCells().forEach(Cell::isEmpty);
+        ctrl.sheet.addCell(ctrl.cellSelector.getSelectedCell());
+        ctrl.sheet.getCells().forEach(Cell::isEmpty);
     }
 
     /**
@@ -282,15 +291,15 @@ public class EditorOperations {
      * @param yCoord the target row (one-based)
      */
     public void goTo(int xCoord, int yCoord) {
-        while (xCoord - cellSelector.getXCoord() > 0)
+        while (xCoord - ctrl.cellSelector.getXCoord() > 0)
             moveRight();
-        while (xCoord - cellSelector.getXCoord() < 0)
+        while (xCoord - ctrl.cellSelector.getXCoord() < 0)
             moveLeft();
-        while (yCoord - cellSelector.getYCoord() > 0)
+        while (yCoord - ctrl.cellSelector.getYCoord() > 0)
             moveDown();
-        while (yCoord - cellSelector.getYCoord() < 0)
+        while (yCoord - ctrl.cellSelector.getYCoord() < 0)
             moveUp();
-        coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
+        ctrl.coordsInfo.setCoords(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
         updateVisualState();
     }
 
@@ -303,8 +312,8 @@ public class EditorOperations {
      * @param prevYC the previous row to remember
      */
     public void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
-        staticPrevXC = prevXC;
-        staticPrevYC = prevYC;
+        ctrl.staticPrevXC = prevXC;
+        ctrl.staticPrevYC = prevYC;
         goTo(xCoord, yCoord);
     }
 
@@ -314,48 +323,48 @@ public class EditorOperations {
      * @param index the index into the clipboard list
      */
     public void paste(int index) {
-        System.out.println("Pasting cell " + clipboard.get(index));
-        if (clipboard.get(index).formula() != null) {
+        System.out.println("Pasting cell " + ctrl.clipboard.get(index));
+        if (ctrl.clipboard.get(index).formula() != null) {
             Formula f = new Formula(
-                clipboard.get(index).formula().getTxt(),
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord()
+                ctrl.clipboard.get(index).formula().getTxt(),
+                ctrl.cellSelector.getXCoord(),
+                ctrl.cellSelector.getYCoord()
             );
             try {
-                recordedCellStates.add(cellSelector.getSelectedCell().copy());
-                sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
+                ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
+                ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
+                ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
             } catch (Exception e) {
-                infoBar.setInfobarTxt(e.getMessage());
+                ctrl.infoBar.setInfobarTxt(e.getMessage());
                 return;
             }
         } else {
-            recordedCellStates.add(cellSelector.getSelectedCell().copy());
-            sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-            cellSelector.setSelectedCell(clipboard.get(index).copy());
+            ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
+            ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
+            ctrl.cellSelector.setSelectedCell(ctrl.clipboard.get(index).copy());
         }
-        cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
-        cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
+        ctrl.cellSelector.getSelectedCell().setXCoord(ctrl.cellSelector.getXCoord());
+        ctrl.cellSelector.getSelectedCell().setYCoord(ctrl.cellSelector.getYCoord());
         cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        if (undoCounter != 0) removeUltCStates();
+        ctrl.sheet.addCell(ctrl.cellSelector.getSelectedCell());
+        if (ctrl.undoCounter != 0) removeUltCStates();
     }
 
     /** Redraws all chrome UI elements (headers, status bar, info bar, coordinates). */
     public void updateVisualState() {
-        firstCol.draw(gc);
-        firstRow.draw(gc);
-        statusBar.draw(gc);
-        infoBar.draw(gc);
-        coordsInfo.draw(gc);
+        ctrl.firstCol.draw(ctrl.gc);
+        ctrl.firstRow.draw(ctrl.gc);
+        ctrl.statusBar.draw(ctrl.gc);
+        ctrl.infoBar.draw(ctrl.gc);
+        ctrl.coordsInfo.draw(ctrl.gc);
     }
 
     /** Prepares the selected cell's text for INSERT mode editing. */
     public void setSCTxtForTextInput() {
-        if (cellSelector.getSelectedCell().value() != null &&
-            !(""+cellSelector.getSelectedCell().value()).endsWith(".0"))
-            cellSelector.getSelectedCell().setTxt(""+cellSelector.getSelectedCell().value());
-        if (cellSelector.getSelectedCell().txt() == null)
-            cellSelector.getSelectedCell().setTxt("");
+        if (ctrl.cellSelector.getSelectedCell().value() != null &&
+            !(""+ctrl.cellSelector.getSelectedCell().value()).endsWith(".0"))
+            ctrl.cellSelector.getSelectedCell().setTxt(""+ctrl.cellSelector.getSelectedCell().value());
+        if (ctrl.cellSelector.getSelectedCell().txt() == null)
+            ctrl.cellSelector.getSelectedCell().setTxt("");
     }
 }

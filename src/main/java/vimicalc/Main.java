@@ -27,9 +27,10 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
 
         Group root = new Group((Parent) fxmlLoader.load());
+        Controller ctrl = fxmlLoader.getController();
 
         Scene scene = new Scene(root, 900, 600);
-        scene.setOnKeyPressed(Controller::onKeyPressed);
+        scene.setOnKeyPressed(ctrl::onKeyPressed);
         primaryStage.setTitle("WeSpreadSheet");
         primaryStage.setScene(scene);
         primaryStage.show();

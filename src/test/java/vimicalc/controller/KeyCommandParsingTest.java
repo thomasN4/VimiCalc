@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class KeyCommandParsingTest {
 
-    private final KeyCommand kc = new KeyCommand(null);
+    private final KeyCommand kc = new KeyCommand(null, null);
 
     @Test
     void multiplierThenFunction() {
