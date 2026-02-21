@@ -46,9 +46,16 @@ public class KeyCommand {
     protected static boolean recordingMacro;
     /** Whether the info bar expression display should be updated on each keystroke. */
     protected static boolean canChangeIBarExpr;
+    /** The editor operations handler for movement, navigation, and editing. */
+    private final EditorOperations ops;
 
-    /** Creates a new KeyCommand handler with empty expression state. */
-    public KeyCommand() {
+    /**
+     * Creates a new KeyCommand handler with empty expression state.
+     *
+     * @param ops the editor operations handler to delegate movement/editing to
+     */
+    public KeyCommand(EditorOperations ops) {
+        this.ops = ops;
         expr = "";
         prevExpr = "";
         recordingMacro = false;
@@ -88,7 +95,7 @@ public class KeyCommand {
             }
             case O -> {
                 if (event.isControlDown())
-                    goTo(staticPrevXC, staticPrevYC);
+                    ops.goTo(staticPrevXC, staticPrevYC);
             }
             case C -> {
                 if (event.isControlDown()) {
@@ -304,19 +311,19 @@ public class KeyCommand {
                     }
                 }
                 case 'h' -> {
-                    moveLeft();
+                    ops.moveLeft();
                     evaluationFinished = true;
                 }
                 case 'j' -> {
-                    moveDown();
+                    ops.moveDown();
                     evaluationFinished = true;
                 }
                 case 'k' -> {
-                    moveUp();
+                    ops.moveUp();
                     evaluationFinished = true;
                 }
                 case 'l' -> {
-                    moveRight();
+                    ops.moveRight();
                     evaluationFinished = true;
                 }
                 case 'g' -> {  // Aller vers une coordonnée précise, par exemple, 'gA3'
@@ -325,8 +332,8 @@ public class KeyCommand {
                         evaluationFinished = true;
                     else if (expr.length() > 2 && isNumber(""+beforeLastChar) && !isNumber("" + lastChar)) {
                         int[] coords = coordsStrToInts(expr.substring(1, expr.length() - 1));
-                        goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
-                        cellContentToIBar();
+                        ops.goToAndRemember(coords[0], coords[1], cellSelector.getXCoord(), cellSelector.getYCoord());
+                        ops.cellContentToIBar();
                         this.expr = ""+lastChar;
                         evaluate(this.expr);
                     }
@@ -344,7 +351,7 @@ public class KeyCommand {
                             camera.ready();
                             cellSelector.readCell(camera.picture.data());
                             infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-                            if (undoCounter != 0) removeUltCStates();
+                            if (undoCounter != 0) ops.removeUltCStates();
                         }
                         evaluationFinished = true;
                     }
@@ -360,7 +367,7 @@ public class KeyCommand {
                     if (undoCounter >= recordedCellStates.size())
                         infoBar.setInfobarTxt("Already at earliest change.");
                     else {
-                        undo();
+                        ops.undo();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
@@ -373,7 +380,7 @@ public class KeyCommand {
                     if (undoCounter == 0 || recordedCellStates.size() == 0)
                         infoBar.setInfobarTxt("Already at latest change.");
                     else {
-                        redo();
+                        ops.redo();
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                         camera.ready();
                         cellSelector.readCell(camera.picture.data());
@@ -404,17 +411,17 @@ public class KeyCommand {
                     if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'p') {
                         if (clipboard == null) infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                         else {
-                            if (clipboard.size() == 1) paste(0);
+                            if (clipboard.size() == 1) ops.paste(0);
                             else {
                                 int xCStart = cellSelector.getXCoord(), yCStart = cellSelector.getYCoord();
                                 for (int j = 0; j < clipboard.size()-1; j++) {
-                                    paste(j);
-                                    goTo(
+                                    ops.paste(j);
+                                    ops.goTo(
                                         xCStart + (clipboard.get(j+1).xCoord() - clipboard.get(0).xCoord()),
                                         yCStart + (clipboard.get(j+1).yCoord() - clipboard.get(0).yCoord())
                                     );
                                 }
-                                paste(clipboard.size()-1);
+                                ops.paste(clipboard.size()-1);
                             }
                         }
                         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
@@ -425,7 +432,7 @@ public class KeyCommand {
                 }
                 case 'a', 'i' -> {
                     recordedCellStates.add(cellSelector.getSelectedCell().copy());
-                    setSCTxtForTextInput();
+                    ops.setSCTxtForTextInput();
                     currMode = Mode.INSERT;
                     cellSelector.draw(gc);
                     evaluationFinished = true;

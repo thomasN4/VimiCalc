@@ -914,7 +914,7 @@ public class Controller implements Initializable {
 
         currMode = Mode.NORMAL;
         editorOps = new EditorOperations();
-        keyCommand = new KeyCommand();
+        keyCommand = new KeyCommand(editorOps);
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         staticPrevXC = cellSelector.getXCoord();
         staticPrevYC = cellSelector.getYCoord();
