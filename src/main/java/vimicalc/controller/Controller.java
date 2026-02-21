@@ -1093,7 +1093,7 @@ public class Controller implements Initializable {
             new HashMap<>()
         ));
         macros = new HashMap<>();
-        helpMenu = new HelpMenu(gc);
+        helpMenu = new HelpMenu(gc, mode -> currMode = mode);
         reset();
         if (arg1 != null) {
             try {
@@ -1150,7 +1150,8 @@ public class Controller implements Initializable {
             camera.picture.metadata().getCellAbsYs()[2] - camera.picture.metadata().getCellAbsYs()[1],
             new Color(0.0, 0.67, 1, 1),
 //            Color.LIMEGREEN,
-            camera.picture.metadata()
+            camera.picture.metadata(),
+            () -> currMode
         );
         coordsInfo = new CoordsInfo(
             CANVAS_W,
@@ -1185,7 +1186,8 @@ public class Controller implements Initializable {
             CANVAS_H-2*DEFAULT_CELL_H-4,
             CANVAS_W,
             DEFAULT_CELL_H+4,
-            Color.LIGHTGREEN
+            Color.LIGHTGREEN,
+            () -> currMode
         );
         keyStrokeCell = new KeyStrokeCell(
             0,
