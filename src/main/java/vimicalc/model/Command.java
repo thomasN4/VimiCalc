@@ -4,10 +4,8 @@ import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontWeight;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
 
-import static vimicalc.controller.Controller.*;
 import static vimicalc.view.Defaults.*;
 
 /**
@@ -47,6 +45,16 @@ public class Command extends Interpretable {
      */
     public boolean commandExists = true;
 
+    /** The result of the last {@link #interpret(Lexeme[], Sheet)} call. */
+    private CommandResult commandResult = CommandResult.NONE;
+
+    /**
+     * Returns the result of the last interpretation (e.g. {@link CommandResult#HELP}).
+     */
+    public CommandResult getCommandResult() {
+        return commandResult;
+    }
+
     /**
      * Reads a {@code .wss} file into the sheet.
      *
@@ -72,12 +80,9 @@ public class Command extends Interpretable {
 
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) throws Exception {
         commandExists = true;
+        commandResult = CommandResult.NONE;
         switch (command[0].getFunc()) {
-            case "h", "help", "?" -> {
-                infoBar.setInfobarTxt(helpMenu.percentage());
-                infoBar.draw(gc);
-                currMode = Mode.HELP;
-            }
+            case "h", "help", "?" -> commandResult = CommandResult.HELP;
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPositions().generate(
                 new int[]{xC, (int) command[1].getVal()},

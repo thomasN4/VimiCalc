@@ -537,6 +537,11 @@ public class Controller implements Initializable {
                         infoBar.setInfobarTxt(e.getMessage());
                         infoBar.draw(gc);
                     }
+                    if (command.getCommandResult() == CommandResult.HELP) {
+                        infoBar.setInfobarTxt(helpMenu.percentage());
+                        infoBar.draw(gc);
+                        currMode = Mode.HELP;
+                    }
                     onKeyPressed(event);
                     return;
                 }
