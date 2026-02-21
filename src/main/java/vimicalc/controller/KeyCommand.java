@@ -10,7 +10,7 @@ import java.util.*;
 import static vimicalc.controller.Controller.*;
 import static vimicalc.utils.Conversions.coordsStrToInts;
 import static vimicalc.utils.Conversions.isNumber;
-import static vimicalc.view.InfoBar.iBarExpr;
+
 
 /**
  * Processes multi-key command sequences entered in NORMAL mode.
@@ -93,7 +93,7 @@ public class KeyCommand {
             case C -> {
                 if (event.isControlDown()) {
                     expr = "";
-                    iBarExpr = "";
+                    infoBar.setIBarExpr("");
                     return;
                 }
             }
@@ -101,7 +101,7 @@ public class KeyCommand {
 
         if (c != 0) expr += c;
         if (canChangeIBarExpr) {
-            iBarExpr = expr;
+            infoBar.setIBarExpr(expr);
             infoBar.draw(gc);
         }
         evaluate(expr);
@@ -456,7 +456,7 @@ public class KeyCommand {
                     }
                 }
                 case '.' -> {
-                    iBarExpr = prevExpr;
+                    infoBar.setIBarExpr(prevExpr);
                     evaluate(prevExpr);
                     this.expr = "";
                 }

@@ -19,13 +19,13 @@ import java.util.Objects;
  *   <li><b>VISUAL</b> — can also show a command being entered for the selection</li>
  * </ul>
  *
- * <p>The static field {@link #iBarExpr} holds the current key-command expression
+ * <p>The field {@link #iBarExpr} holds the current key-command expression
  * displayed on the right side of the bar.</p>
  */
 public class InfoBar extends simpleRect {
 
     /** The current key-command expression, displayed right-aligned in the info bar. */
-    public static String iBarExpr;
+    private String iBarExpr;
     private String infobarTxt;
     private boolean enteringCommandInVISUAL;
 
@@ -41,6 +41,24 @@ public class InfoBar extends simpleRect {
     public InfoBar(int x, int y, int w, int h, Color c) {
         super(x, y, w, h, c);
         iBarExpr = "";
+    }
+
+    /**
+     * Returns the current key-command expression displayed in the info bar.
+     *
+     * @return the key-command expression string
+     */
+    public String getIBarExpr() {
+        return iBarExpr;
+    }
+
+    /**
+     * Sets the key-command expression displayed right-aligned in the info bar.
+     *
+     * @param iBarExpr the expression string to display
+     */
+    public void setIBarExpr(String iBarExpr) {
+        this.iBarExpr = iBarExpr;
     }
 
     /**
