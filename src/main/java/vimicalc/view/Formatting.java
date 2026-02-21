@@ -9,7 +9,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import static vimicalc.view.Defaults.*;
@@ -19,14 +18,13 @@ import static vimicalc.view.Defaults.*;
  *
  * <p>Properties include background color, text color, vertical position,
  * horizontal alignment, font weight, and font posture (italic). All fields
- * are stored as serializable primitives/strings so they can be persisted
- * in {@code .wss} files alongside cell data.</p>
+ * are stored as primitives/strings internally.</p>
  *
- * <p>Conversion methods bridge between these serializable representations
+ * <p>Conversion methods bridge between these internal representations
  * and JavaFX types (e.g. {@link javafx.scene.paint.Color},
  * {@link javafx.geometry.VPos}).</p>
  */
-public class Formatting implements Serializable {
+public class Formatting {
     /** The cell background color as RGB. */
     short[] cellColor;
     /** The text color as RGB. */
@@ -137,12 +135,49 @@ public class Formatting implements Serializable {
     }
 
     /**
+     * Sets the cell background color by name. Unrecognized names
+     * reset to the default cell color.
+     *
+     * @param colorName the color name (e.g. "red", "blue", "black")
+     */
+    public void setCellColor(String colorName) {
+        short[] rgb = colorNameToRGB(colorName);
+        this.cellColor = rgb != null ? rgb : setColor(DEFAULT_CELL_C);
+    }
+
+    /**
      * Sets the text color.
      *
      * @param color the new text color
      */
     public void setTxtColor(Color color) {
         this.txtColor = setColor(color);
+    }
+
+    /**
+     * Sets the text color by name. Unrecognized names
+     * reset to the default text color.
+     *
+     * @param colorName the color name (e.g. "red", "white", "blue")
+     */
+    public void setTxtColor(String colorName) {
+        short[] rgb = colorNameToRGB(colorName);
+        this.txtColor = rgb != null ? rgb : setColor(DEFAULT_TXT_C);
+    }
+
+    private short[] colorNameToRGB(String name) {
+        return switch (name) {
+            case "red"    -> new short[]{255, 0, 0};
+            case "green"  -> new short[]{0, 128, 0};
+            case "blue"   -> new short[]{0, 0, 255};
+            case "white"  -> new short[]{255, 255, 255};
+            case "black"  -> new short[]{0, 0, 0};
+            case "gray"   -> new short[]{128, 128, 128};
+            case "lGray"  -> new short[]{(short) 211, (short) 211, (short) 211};
+            case "dGray"  -> new short[]{(short) 169, (short) 169, (short) 169};
+            case "vLGray" -> new short[]{105, 105, 105};
+            default       -> null;
+        };
     }
 
     /**
@@ -220,6 +255,15 @@ public class Formatting implements Serializable {
     public String setFontWeight(FontWeight fontWeight) {
         if (fontWeight == FontWeight.BOLD) return "bold";
         else return "normal";
+    }
+
+    /**
+     * Sets the font weight directly from a string value.
+     *
+     * @param fontWeight "bold" or "normal"
+     */
+    public void setFontWeight(String fontWeight) {
+        this.fontWeight = fontWeight;
     }
 
     /**

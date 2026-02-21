@@ -21,8 +21,6 @@ import java.util.ResourceBundle;
 
 import static javafx.scene.input.KeyCode.ESCAPE;
 import static vimicalc.Main.arg1;
-import static vimicalc.controller.KeyCommand.currMacro;
-import static vimicalc.controller.KeyCommand.recordingMacro;
 
 /**
  * The main controller that orchestrates all user interaction with the spreadsheet.
@@ -43,56 +41,58 @@ import static vimicalc.controller.KeyCommand.recordingMacro;
  * </ul>
  */
 public class Controller implements Initializable {
-    private static int CANVAS_W;
-    private static int CANVAS_H;
+    int CANVAS_W;
+    private int CANVAS_H;
 
     /*CD
-    private static int MOUSE_X;
-    private static int MOUSE_Y;*/
+    private int MOUSE_X;
+    private int MOUSE_Y;*/
 
     /** The graphics context used for all canvas drawing operations. */
-    public static GraphicsContext gc;
+    GraphicsContext gc;
     @FXML
     private Canvas canvas;
     /** Stack of cell states recorded before each edit, used for undo. */
-    protected static LinkedList<Cell> recordedCellStates;
+    LinkedList<Cell> recordedCellStates;
     /** Stack of cell states produced by undo, used for redo. */
-    protected static LinkedList<Cell> undoneCellStates;
+    LinkedList<Cell> undoneCellStates;
     /** How many undo steps have been taken since the last edit. */
-    protected static int undoCounter;
+    int undoCounter;
     /** The clipboard for yank/paste operations. */
-    protected static ArrayList<Cell> clipboard;
+    ArrayList<Cell> clipboard;
     /** The viewport camera tracking the visible portion of the sheet. */
-    protected static Camera camera;
+    Camera camera;
     /** The current colon-command being composed or executed. */
-    protected static Command command;
+    Command command;
     /** Displays the current cell coordinates in the status area. */
-    protected static CoordsInfo coordsInfo;
-    private static FirstCol firstCol;
-    private static FirstRow firstRow;
+    CoordsInfo coordsInfo;
+    FirstCol firstCol;
+    FirstRow firstRow;
     /** The help menu overlay shown in HELP mode. */
-    public static HelpMenu helpMenu;
+    HelpMenu helpMenu;
     /** The information bar at the bottom of the window. */
-    public static InfoBar infoBar;
+    InfoBar infoBar;
     /** Displays the last key stroke pressed. */
-    public static KeyStrokeCell keyStrokeCell;
+    KeyStrokeCell keyStrokeCell;
     /** The cell selector (cursor) highlighting the active cell. */
-    protected static CellSelector cellSelector;
+    CellSelector cellSelector;
     /** The list of coordinates currently selected in VISUAL mode. */
-    protected static ArrayList<int[]> selectedCoords;
+    ArrayList<int[]> selectedCoords;
     /** The spreadsheet data model. */
-    protected static Sheet sheet;
+    Sheet sheet;
     /** The status bar showing the current mode. */
-    public static StatusBar statusBar;
+    StatusBar statusBar;
     /** Handles key-command sequences in NORMAL mode. */
-    public static KeyCommand keyCommand;
+    KeyCommand keyCommand;
     /** The current input mode (NORMAL, INSERT, COMMAND, etc.). */
-    public static Mode currMode;
+    Mode currMode;
     /** Recorded macros, keyed by their assigned character. */
-    public static HashMap<Character, LinkedList<KeyEvent>> macros;
+    HashMap<Character, LinkedList<KeyEvent>> macros;
+    /** Handles movement, navigation, editing, and undo/redo operations. */
+    EditorOperations editorOps;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
-    public static void onMouseClicked(@NotNull MouseEvent mouseEvent) {
+    public void onMouseClicked(@NotNull MouseEvent mouseEvent) {
         MOUSE_X = (int) mouseEvent.getX() / DEFAULT_CELL_W;
         MOUSE_Y = (int) mouseEvent.getY() / DEFAULT_CELL_H - 1;
 
@@ -106,335 +106,37 @@ public class Controller implements Initializable {
     */
 
     /** Flag to prevent recursive merge-start navigation. */
-    public static boolean goingToMergeStart = false;
-    /**
-     * If the cursor has landed on a cell that is part of a merged range
-     * (but not the merge-start), automatically navigates to the merge-start cell.
-     */
-    private static void maybeGoToMergeStart() {
-        System.out.println(cellSelector.getSelectedCell().getMergeDelimiter());
-        if (cellSelector.getSelectedCell().getMergeDelimiter() != null &&
-            !cellSelector.getSelectedCell().isMergeStart() &&
-            !goingToMergeStart) {
-            Cell currMergeStart = cellSelector.getSelectedCell().getMergeDelimiter();
-            goingToMergeStart = true;
-            goTo(currMergeStart.xCoord(), currMergeStart.yCoord());
-            goingToMergeStart = false;
-        }
-    }
-    /**
-     * Moves the cell selector one cell to the left. Handles viewport scrolling
-     * when the cursor reaches the left edge, and boundary checks.
-     */
-    protected static void moveLeft() {
-        if (cellSelector.getXCoord() != 1) {
-            cellSelector.updateXCoord(-1);
-            cellSelector.readCell(camera.picture.data());
-        } else {
-            infoBar.setInfobarTxt("CAN'T GO LEFT");
-            cellSelector.readCell(camera.picture.data());
-            return;
-        }
-        cellContentToIBar();
-        if (cellSelector.getX() != firstCol.getW()) {
-            cellSelector.updateX(-cellSelector.getW());
-            if (cellSelector.getX() < firstCol.getW()) {
-                while (cellSelector.getX() != firstCol.getW()) {
-                    cellSelector.updateX(1);
-                    camera.updateAbsX(-1);
-                }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstRow.draw(gc);
-            }
-        }
-        else {
-            camera.updateAbsX(-cellSelector.getW());
-            if (camera.getAbsX() < firstCol.getW()) {
-                infoBar.setInfobarTxt("CAN'T GO LEFT");
-                while (camera.getAbsX() != firstCol.getW())
-                    camera.updateAbsX(1);
-            }
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstRow.draw(gc);
-            cellSelector.readCell(camera.picture.data());
-        }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
-    }
-    /** Moves the cell selector one cell down, scrolling the viewport if necessary. */
-    protected static void moveDown() {
-        int prevH;
-        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
-            prevH = cellSelector.getH();
-        else {
-            prevH = cellSelector.getMergedH();
-            cellSelector.updateYCoord(
-                cellSelector.getSelectedCell().getMergeDelimiter().yCoord() -
-                cellSelector.getSelectedCell().yCoord()
-            );
-        }
-        cellSelector.updateYCoord(1);
-        cellSelector.readCell(camera.picture.data());
-        cellContentToIBar();
-        if (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
-            cellSelector.updateY(prevH);
-            if (cellSelector.getY() + cellSelector.getH() > statusBar.getY()) {
-                while (cellSelector.getY() + cellSelector.getH() != statusBar.getY()) {
-                    cellSelector.updateY(-1);
-                    camera.updateAbsY(1);
-                }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstCol.draw(gc);
-            }
-        }
-        else {
-            camera.updateAbsY(prevH);
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstCol.draw(gc);
-        }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
-    }
-    /** Moves the cell selector one cell up, scrolling the viewport if necessary. */
-    protected static void moveUp() {
-        if (cellSelector.getYCoord() != 1) {
-            cellSelector.updateYCoord(-1);
-            cellSelector.readCell(camera.picture.data());
-        } else {
-            infoBar.setInfobarTxt("CAN'T GO UP");
-            cellSelector.readCell(camera.picture.data());
-            return;
-        }
-        cellContentToIBar();
-        if (cellSelector.getY() != DEFAULT_CELL_H) {
-            cellSelector.updateY(-cellSelector.getH());
-            if (cellSelector.getY() < DEFAULT_CELL_H) {
-                while (cellSelector.getY() != DEFAULT_CELL_H) {
-                    cellSelector.updateY(1);
-                    camera.updateAbsY(-1);
-                }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstCol.draw(gc);
-            }
-        }
-        else {
-            camera.updateAbsY(-cellSelector.getH());
-            if (camera.getAbsY() < DEFAULT_CELL_H) {
-                infoBar.setInfobarTxt("CAN'T GO UP");
-                while (camera.getAbsY() != DEFAULT_CELL_H)
-                    camera.updateAbsY(1);
-            }
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstCol.draw(gc);
-        }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
-    }
-    /** Moves the cell selector one cell to the right, scrolling the viewport if necessary. */
-    protected static void moveRight() {
-        int prevW;
-        if (!cellSelector.getSelectedCell().isMergeStart() || currMode == Mode.VISUAL)
-            prevW = cellSelector.getW();
-        else {
-            prevW = cellSelector.getMergedW();
-            cellSelector.updateXCoord(
-                cellSelector.getSelectedCell().getMergeDelimiter().xCoord() -
-                cellSelector.getSelectedCell().xCoord()
-            );
-        }
-        cellSelector.updateXCoord(1);
-        cellSelector.readCell(camera.picture.data());
-        if (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
-            cellSelector.updateX(prevW);
-            if (cellSelector.getX() + cellSelector.getW() > CANVAS_W) {
-                while (cellSelector.getX() + cellSelector.getW() != CANVAS_W) {
-                    cellSelector.updateX(-1);
-                    camera.updateAbsX(1);
-                }
-                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                firstRow.draw(gc);
-            }
-        }
-        else {
-            camera.updateAbsX(prevW);
-            camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-            firstRow.draw(gc);
-        }
-        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-        cellSelector.readCell(camera.picture.data());
-        cellContentToIBar();
-        if (currMode != Mode.VISUAL) maybeGoToMergeStart();
-    }
+    boolean goingToMergeStart = false;
 
-    /**
-     * Updates the info bar with the selected cell's value and formula
-     * expression (if any). For cells with no value, passes {@code null}
-     * to the info bar, which then displays its own default text.
-     */
-    protected static void cellContentToIBar() {
-        if (cellSelector.getSelectedCell().value() != null)
-            infoBar.setInfobarTxt("(="+cellSelector.getSelectedCell().value()+")");
-        else {
-            infoBar.setInfobarTxt(null);
-            return;
-        }
-        if (cellSelector.getSelectedCell().formula() != null)
-            infoBar.setInfobarTxt(
-                infoBar.getInfobarTxt() + " " +
-                "(f:"+cellSelector.getSelectedCell().formula().getTxt()+")"
-            );
-    }
-
-    /**
-     * Cleans up the undo history after a new edit is made while in a
-     * partially-undone state. Discards the undo entries that were created
-     * by previous undo operations, keeping only the latest state.
-     */
-    protected static void removeUltCStates() {
-        Cell last = recordedCellStates.getLast().copy();
-        recordedCellStates.removeLast();
-        while (undoCounter != 0) {
-            recordedCellStates.removeLast();
-            undoCounter--;
-        }
-        recordedCellStates.add(last);
-        undoneCellStates = new LinkedList<>();
-    }
-
-    /** Reverts the last cell edit by swapping the current state with the recorded previous state. */
-    protected static void undo() {
-        int listIndex = recordedCellStates.size() - 1 - undoCounter;
-        undoCounter++;
-
-        Cell substitute = recordedCellStates.get(listIndex).copy();
-        goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
-        undoneCellStates.add(substitute);
-        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
-
-        if (substitute.formula() != null) {
-            Formula f = substitute.formula();
-            try {
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("Something went very wrong.");
-            }
-        } else cellSelector.setSelectedCell(substitute);
-
-        cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        sheet.getCells().forEach(Cell::isEmpty);
-    }
-
-    /** Re-applies a previously undone cell edit. */
-    protected static void redo() {
-        int listIndex = recordedCellStates.size() - undoCounter;
-        undoCounter--;
-
-        Cell substitute = recordedCellStates.get(listIndex).copy();
-        goTo(substitute.xCoord(), substitute.yCoord());
-        recordedCellStates.set(listIndex, undoneCellStates.getLast().copy());
-        undoneCellStates.removeLast();
-        sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
-
-        if (substitute.formula() != null) {
-            Formula f = substitute.formula();
-            try {
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("Something went very wrong.");
-            }
-        } else cellSelector.setSelectedCell(substitute);
-
-        cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        sheet.getCells().forEach(Cell::isEmpty);
-    }
+    /** Moves the cell selector one cell to the left. Delegates to {@link EditorOperations}. */
+    private void moveLeft() { editorOps.moveLeft(); }
+    /** Moves the cell selector one cell down. Delegates to {@link EditorOperations}. */
+    private void moveDown() { editorOps.moveDown(); }
+    /** Moves the cell selector one cell up. Delegates to {@link EditorOperations}. */
+    private void moveUp() { editorOps.moveUp(); }
+    /** Moves the cell selector one cell to the right. Delegates to {@link EditorOperations}. */
+    private void moveRight() { editorOps.moveRight(); }
+    /** Updates the info bar with the selected cell's content. Delegates to {@link EditorOperations}. */
+    private void cellContentToIBar() { editorOps.cellContentToIBar(); }
+    /** Cleans up undo history after a new edit in a partially-undone state. Delegates to {@link EditorOperations}. */
+    private void removeUltCStates() { editorOps.removeUltCStates(); }
+    /** Reverts the last cell edit. Delegates to {@link EditorOperations}. */
+    private void undo() { editorOps.undo(); }
+    /** Re-applies a previously undone cell edit. Delegates to {@link EditorOperations}. */
+    private void redo() { editorOps.redo(); }
 
     /** Previous X coordinate, used for jump-back navigation. */
-    public static int staticPrevXC;
+    int staticPrevXC;
     /** Previous Y coordinate, used for jump-back navigation. */
-    public static int staticPrevYC;
-    /**
-     * Navigates the cell selector to the given coordinates by issuing
-     * repeated move commands. Updates the coordinate display and visual state.
-     *
-     * @param xCoord the target column (one-based)
-     * @param yCoord the target row (one-based)
-     */
-    protected static void goTo(int xCoord, int yCoord) {
-        while (xCoord - cellSelector.getXCoord() > 0)
-            moveRight();
-        while (xCoord - cellSelector.getXCoord() < 0)
-            moveLeft();
-        while (yCoord - cellSelector.getYCoord() > 0)
-            moveDown();
-        while (yCoord - cellSelector.getYCoord() < 0)
-            moveUp();
-        coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-        updateVisualState();
+    int staticPrevYC;
+    /** Navigates the cell selector to the given coordinates. Delegates to {@link EditorOperations}. */
+    private void goTo(int xCoord, int yCoord) { editorOps.goTo(xCoord, yCoord); }
+    /** Navigates to coordinates while remembering the previous position. Delegates to {@link EditorOperations}. */
+    private void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
+        editorOps.goToAndRemember(xCoord, yCoord, prevXC, prevYC);
     }
-    /**
-     * Navigates to the given coordinates while remembering the previous position,
-     * allowing the user to jump back with {@code Ctrl-O}.
-     *
-     * @param xCoord the target column
-     * @param yCoord the target row
-     * @param prevXC the previous column to remember
-     * @param prevYC the previous row to remember
-     */
-    protected static void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
-        staticPrevXC = prevXC;
-        staticPrevYC = prevYC;
-        goTo(xCoord, yCoord);
-    }
-
-    /**
-     * Pastes a cell from the clipboard at the current cursor position.
-     * If the clipboard cell has a formula, re-evaluates it at the new position.
-     *
-     * @param index the index into the clipboard list
-     */
-    protected static void paste(int index) {
-        System.out.println("Pasting cell " + clipboard.get(index));
-        if (clipboard.get(index).formula() != null) {
-            Formula f = new Formula(
-                clipboard.get(index).formula().getTxt(),
-                cellSelector.getXCoord(),
-                cellSelector.getYCoord()
-            );
-            try {
-                recordedCellStates.add(cellSelector.getSelectedCell().copy());
-                sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-                cellSelector.getSelectedCell().setFormulaResult(f.interpret(sheet), f);
-            } catch (Exception e) {
-                infoBar.setInfobarTxt(e.getMessage());
-                return;
-            }
-        } else {
-            recordedCellStates.add(cellSelector.getSelectedCell().copy());
-            sheet.deleteCell(cellSelector.getXCoord(), cellSelector.getYCoord());
-            cellSelector.setSelectedCell(clipboard.get(index).copy());
-        }
-        cellSelector.getSelectedCell().setXCoord(cellSelector.getXCoord());
-        cellSelector.getSelectedCell().setYCoord(cellSelector.getYCoord());
-        cellContentToIBar();
-        sheet.addCell(cellSelector.getSelectedCell());
-        if (undoCounter != 0) removeUltCStates();
-    }
+    /** Pastes a cell from the clipboard. Delegates to {@link EditorOperations}. */
+    private void paste(int index) { editorOps.paste(index); }
 
     /**
      * The global key event handler, wired to the scene in {@link vimicalc.Main}.
@@ -442,9 +144,9 @@ public class Controller implements Initializable {
      *
      * @param event the key event
      */
-    public static void onKeyPressed(@NotNull KeyEvent event) {
+    public void onKeyPressed(@NotNull KeyEvent event) {
         keyStrokeCell.setKeyStroke(event.getCode().toString());
-        if (recordingMacro) currMacro.add(event);
+        if (keyCommand.recordingMacro) keyCommand.currMacro.add(event);
         if (currMode == Mode.NORMAL) keyCommand.addChar(event);
         else {
             switch (currMode) {
@@ -499,14 +201,8 @@ public class Controller implements Initializable {
         keyStrokeCell.draw(gc);
     }
 
-    /** Redraws all chrome UI elements (headers, status bar, info bar, coordinates). */
-    protected static void updateVisualState() {
-        firstCol.draw(gc);
-        firstRow.draw(gc);
-        statusBar.draw(gc);
-        infoBar.draw(gc);
-        coordsInfo.draw(gc);
-    }
+    /** Redraws all chrome UI elements. Delegates to {@link EditorOperations}. */
+    private void updateVisualState() { editorOps.updateVisualState(); }
 
     /**
      * Handles keyboard input in COMMAND mode. Builds up the command string
@@ -516,7 +212,7 @@ public class Controller implements Initializable {
      *
      * @param event the key event to process
      */
-    protected static void commandInput(@NotNull KeyEvent event) {
+    private void commandInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
                 if (infoBar.isEnteringCommandInVISUAL()) {
@@ -536,6 +232,11 @@ public class Controller implements Initializable {
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
                         infoBar.draw(gc);
+                    }
+                    if (command.getCommandResult() == CommandResult.HELP) {
+                        infoBar.setInfobarTxt(helpMenu.percentage());
+                        infoBar.draw(gc);
+                        currMode = Mode.HELP;
                     }
                     onKeyPressed(event);
                     return;
@@ -589,6 +290,11 @@ public class Controller implements Initializable {
                     commandError = e.getMessage();
                 }
 
+                if (command.getCommandResult() == CommandResult.QUIT) {
+                    javafx.application.Platform.exit();
+                    return;
+                }
+
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
@@ -614,14 +320,14 @@ public class Controller implements Initializable {
     }
 
     /** Accumulates digit characters to form a numeric multiplier in VISUAL mode. */
-    public static String multiplierForVISUAL = "";
+    String multiplierForVISUAL = "";
     /**
      * Handles keyboard input in VISUAL mode. Extends or shrinks the cell
      * selection using hjkl movement, supports numeric multipliers, and
      * provides actions on the selection: delete (d), yank (y), merge (m),
      * and entering commands (;).
      */
-    private static void visualSelection(@NotNull KeyEvent event) {
+    private void visualSelection(@NotNull KeyEvent event) {
         if (!multiplierForVISUAL.equals("") && (
                 event.getText().equals("h") ||
                 event.getText().equals("j") ||
@@ -703,7 +409,7 @@ public class Controller implements Initializable {
                     currMode = Mode.NORMAL;
                     cellSelector.readCell(camera.picture.data());
                     goingToMergeStart = false;
-                    maybeGoToMergeStart();
+                    editorOps.maybeGoToMergeStart();
                 }
             }
             case ESCAPE -> {
@@ -858,7 +564,7 @@ public class Controller implements Initializable {
         }
     }
     /** Adds a full column or row of coordinates to the visual selection. */
-    private static void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
+    private void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
         if (isAddingCol) for (int i = minC; i <= maxC; i++) {
             selectedCoords.add(new int[]{currC, i});
             System.out.println(currC + ", " + i);
@@ -869,28 +575,22 @@ public class Controller implements Initializable {
         }
     }
     /** Removes all selected coordinates in the given column or row ({@code -1} to skip). */
-    private static void purgeSCs(int col, int row) {
+    private void purgeSCs(int col, int row) {
         if (col != -1)
             selectedCoords.removeIf(c -> c[0] == col);
         else
             selectedCoords.removeIf(c -> c[1] == row);
     }
 
-    /** Prepares the selected cell's text for INSERT mode editing. */
-    protected static void setSCTxtForTextInput() {
-        if (cellSelector.getSelectedCell().value() != null &&
-            !(""+cellSelector.getSelectedCell().value()).endsWith(".0"))
-            cellSelector.getSelectedCell().setTxt(""+cellSelector.getSelectedCell().value());
-        if (cellSelector.getSelectedCell().txt() == null)
-            cellSelector.getSelectedCell().setTxt("");
-    }
+    /** Prepares the selected cell's text for INSERT mode editing. Delegates to {@link EditorOperations}. */
+    private void setSCTxtForTextInput() { editorOps.setSCTxtForTextInput(); }
     /**
      * Handles keyboard input in INSERT mode. Characters are appended to the
      * selected cell's text. ESC saves and exits, Shift-ESC cancels,
      * arrow keys/Enter/Tab save and move to an adjacent cell,
      * and Alt+hjkl saves and moves while staying in INSERT mode.
      */
-    private static void textInput(@NotNull KeyEvent event) {
+    private void textInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
                 if (event.isShiftDown()) {
@@ -984,7 +684,7 @@ public class Controller implements Initializable {
      * ESC cancels, and Alt+hjkl evaluates, saves, moves, and re-enters
      * FORMULA mode on the next cell.
      */
-    private static void formulaInput(@NotNull KeyEvent event) {
+    private void formulaInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
                 cellSelector.readCell(camera.picture.data());
@@ -1092,6 +792,19 @@ public class Controller implements Initializable {
             new HashMap<>(),
             new HashMap<>()
         ));
+        sheet.setFileIOCallbacks(new FileIOCallbacks() {
+            @Override
+            public void onFileSaved(String filename) {
+                statusBar.setFilename(filename);
+            }
+
+            @Override
+            public void onFileLoaded(String filename) {
+                macros = new HashMap<>();
+                reset();
+                statusBar.setFilename(filename);
+            }
+        });
         macros = new HashMap<>();
         helpMenu = new HelpMenu(gc, mode -> currMode = mode);
         reset();
@@ -1114,7 +827,7 @@ public class Controller implements Initializable {
      * Resets all UI components and state to their defaults. Called on
      * initialization, after loading a file, and from {@link Sheet#readFile(String)}.
      */
-    public static void reset() {
+    void reset() {
         camera = new Camera(
             DEFAULT_CELL_W/2,
             DEFAULT_CELL_H,
@@ -1198,7 +911,8 @@ public class Controller implements Initializable {
         );
 
         currMode = Mode.NORMAL;
-        keyCommand = new KeyCommand();
+        editorOps = new EditorOperations(this);
+        keyCommand = new KeyCommand(editorOps, this);
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
         staticPrevXC = cellSelector.getXCoord();
         staticPrevYC = cellSelector.getYCoord();

@@ -2,8 +2,6 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
-
 import static vimicalc.utils.Conversions.isNumber;
 
 /**
@@ -15,7 +13,7 @@ import static vimicalc.utils.Conversions.isNumber;
  * text into {@link Lexeme} arrays, and a template-method
  * {@link #interpret(Sheet)} that lexes and evaluates in one step.</p>
  */
-abstract class Interpretable implements Serializable {
+abstract class Interpretable {
     /** Column index of the cell this expression is associated with. */
     protected int xC;
     /** Row index of the cell this expression is associated with. */

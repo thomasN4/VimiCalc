@@ -1,14 +1,7 @@
 package vimicalc.model;
 
-import javafx.application.Platform;
-import javafx.scene.paint.Color;
-import javafx.scene.text.FontWeight;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Mode;
 import vimicalc.view.Formatting;
-
-import static vimicalc.controller.Controller.*;
-import static vimicalc.view.Defaults.*;
 
 /**
  * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
@@ -47,6 +40,16 @@ public class Command extends Interpretable {
      */
     public boolean commandExists = true;
 
+    /** The result of the last {@link #interpret(Lexeme[], Sheet)} call. */
+    private CommandResult commandResult = CommandResult.NONE;
+
+    /**
+     * Returns the result of the last interpretation (e.g. {@link CommandResult#HELP}).
+     */
+    public CommandResult getCommandResult() {
+        return commandResult;
+    }
+
     /**
      * Reads a {@code .wss} file into the sheet.
      *
@@ -72,12 +75,9 @@ public class Command extends Interpretable {
 
     public Lexeme[] interpret(Lexeme[] command, Sheet sheet) throws Exception {
         commandExists = true;
+        commandResult = CommandResult.NONE;
         switch (command[0].getFunc()) {
-            case "h", "help", "?" -> {
-                infoBar.setInfobarTxt(helpMenu.percentage());
-                infoBar.draw(gc);
-                currMode = Mode.HELP;
-            }
+            case "h", "help", "?" -> commandResult = CommandResult.HELP;
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPositions().generate(
                 new int[]{xC, (int) command[1].getVal()},
@@ -93,9 +93,9 @@ public class Command extends Interpretable {
                 try {
                     writeFile(sheet, command);
                 } catch (Exception ignored) {}
-                Platform.exit();
+                commandResult = CommandResult.QUIT;
             }
-            case "q" -> Platform.exit();
+            case "q" -> commandResult = CommandResult.QUIT;
             case "cellColor" -> {
                 if (command.length == 1) cellColor("", sheet);
                 else cellColor(command[1].getFunc(), sheet);
@@ -114,20 +114,6 @@ public class Command extends Interpretable {
     }
 
     private void cellColor(@NotNull String color, Sheet sheet) {
-        Color cC = switch (color) {
-            case "red" -> Color.RED;
-            case "green" -> Color.GREEN;
-            case "blue" -> Color.BLUE;
-            case "vLGray" -> Color.DIMGRAY;  // Note: despite the name, maps to DIMGRAY (dark gray)
-            case "lGray" -> Color.LIGHTGRAY;
-            case "gray" -> Color.GRAY;
-            case "dGray" -> Color.DARKGRAY;
-            case "black" -> Color.BLACK;
-            // Note: "white" is not supported for cellColor (use default/empty instead);
-            // txtColor does support "white" for white-on-dark styling.
-            default -> DEFAULT_CELL_C;
-        };
-
         Formatting f;
         System.out.println("Executing command 'cellColor'...");
         f = sheet.findFormatting(xC, yC);
@@ -137,25 +123,13 @@ public class Command extends Interpretable {
             sheet.addFormatting(xC, yC, f);
         }
         System.out.println("New formatting: " + f);
-        f.setCellColor(cC);
+        f.setCellColor(color);
 
         if (f.isDefault()) sheet.deleteFormatting(xC, yC);
         System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
     }
 
     private void txtColor(@NotNull String color, Sheet sheet) {
-        Color tC = switch (color) {
-            case "red" -> Color.RED;
-            case "green" -> Color.GREEN;
-            case "blue" -> Color.BLUE;
-            case "white" -> Color.WHITE;
-            case "vLGray" -> Color.DIMGRAY;
-            case "lGray" -> Color.LIGHTGRAY;
-            case "gray" -> Color.GRAY;
-            case "dGray" -> Color.DARKGRAY;
-            default -> DEFAULT_TXT_C;
-        };
-
         Formatting f;
         System.out.println("Executing command 'txtColor'...");
         f = sheet.findFormatting(xC, yC);
@@ -165,7 +139,7 @@ public class Command extends Interpretable {
             sheet.addFormatting(xC, yC, f);
         }
         System.out.println("New formatting: " + f);
-        f.setTxtColor(tC);
+        f.setTxtColor(color);
 
         if (f.isDefault()) sheet.deleteFormatting(xC, yC);
         System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
@@ -176,10 +150,10 @@ public class Command extends Interpretable {
         if (f == null) {
             f = new Formatting();
             sheet.addFormatting(xC, yC, f);
-            f.setFontWeight(FontWeight.BOLD);
+            f.setFontWeight("bold");
         } else if (f.getFontWeight().equals("bold")) {
-            f.setFontWeight(FontWeight.NORMAL);
+            f.setFontWeight("normal");
             if (f.isDefault()) sheet.deleteFormatting(xC, yC);
-        } else f.setFontWeight(FontWeight.BOLD);
+        } else f.setFontWeight("bold");
     }
 }

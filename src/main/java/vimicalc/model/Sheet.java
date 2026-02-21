@@ -1,15 +1,12 @@
 package vimicalc.model;
 
-import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.controller.Controller;
 import vimicalc.view.Formatting;
 import vimicalc.view.Positions;
 
 import java.io.*;
 import java.util.*;
 
-import static vimicalc.controller.Controller.macros;
 import static vimicalc.utils.Conversions.*;
 
 /**
@@ -26,6 +23,7 @@ public class Sheet {
     private ArrayList<Dependency> dependencies;
     private Positions positions;
     private HashMap<List<Integer>, Formatting> cellsFormatting;
+    private FileIOCallbacks fileIOCallbacks;
 
     /** Creates an empty sheet with no cells, dependencies, or formatting. */
     public Sheet() {
@@ -33,6 +31,11 @@ public class Sheet {
         dependencies = new ArrayList<>();
         file = new File("");
         cellsFormatting = new HashMap<>();
+    }
+
+    /** @param callbacks the file I/O callbacks to use */
+    public void setFileIOCallbacks(FileIOCallbacks callbacks) {
+        this.fileIOCallbacks = callbacks;
     }
 
     /** @return the viewport positions metadata */
@@ -379,13 +382,13 @@ public class Sheet {
         oStream.writeObject(positions.getyOffsets()); oStream.flush();
 
         oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
-        oStream.writeObject(macros); oStream.flush();
+        oStream.writeObject(new HashMap<>()); oStream.flush();
 
         oStream.writeUTF("\n\n====Formatting====\n"); oStream.flush();
         oStream.writeObject(cellsFormatting); oStream.flush();
 
         file = new File(path);
-        Controller.statusBar.setFilename(file.getName());
+        if (fileIOCallbacks != null) fileIOCallbacks.onFileSaved(file.getName());
         oStream.close();
 
         throw new Exception("File " + path + " has been saved.");
@@ -393,7 +396,7 @@ public class Sheet {
 
     /**
      * Deserializes a spreadsheet from a {@code .wss} file, restoring cells,
-     * dependencies, column/row offsets, macros, and formatting.
+     * dependencies, column/row offsets, and formatting.
      * If the file doesn't exist, initializes a new empty sheet for that path.
      *
      * @param path the file path (must end in {@code .wss})
@@ -412,7 +415,6 @@ public class Sheet {
             HashMap<Integer, Integer> newYOffsets = null;
             cells = null;
             dependencies = null;
-            macros = null;
             try {
                 iStream.readUTF();
                 cells = (ArrayList<Cell>) iStream.readObject();
@@ -423,7 +425,7 @@ public class Sheet {
                 iStream.readUTF();
                 newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
                 iStream.readUTF();
-                macros = (HashMap<Character, LinkedList<KeyEvent>>) iStream.readObject();
+                iStream.readObject(); // skip macros (no longer stored in Sheet)
                 iStream.readUTF();
                 cellsFormatting = (HashMap<List<Integer>, Formatting>) iStream.readObject();
             } catch (Exception e) {
@@ -438,20 +440,16 @@ public class Sheet {
 
             if (cells == null) cells = new ArrayList<>();
             if (dependencies == null) dependencies = new ArrayList<>();
-            if (macros == null) macros = new HashMap<>();
-            Controller.reset();
 
             iStream.close();
             file = new File(path);
-            Controller.statusBar.setFilename(file.getName());
+            if (fileIOCallbacks != null) fileIOCallbacks.onFileLoaded(file.getName());
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
             cells = new ArrayList<>();
             dependencies = new ArrayList<>();
-            macros = new HashMap<>();
-            Controller.reset();
             file = new File(path);
-            Controller.statusBar.setFilename(file.getName());
+            if (fileIOCallbacks != null) fileIOCallbacks.onFileLoaded(file.getName());
             throw new Exception("New file");
         }
     }
@@ -472,7 +470,7 @@ public class Sheet {
  * <p>Used by {@link Sheet} to propagate formula re-evaluation in topological
  * order and to detect circular references.</p>
  */
-class Dependency implements Serializable {
+class Dependency {
     final int xCoord, yCoord;
     /** Flag indicating this dependency needs re-evaluation in the current propagation pass. */
     boolean toBeEvaluated;
