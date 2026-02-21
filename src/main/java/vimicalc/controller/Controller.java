@@ -1092,6 +1092,19 @@ public class Controller implements Initializable {
             new HashMap<>(),
             new HashMap<>()
         ));
+        sheet.setFileIOCallbacks(new FileIOCallbacks() {
+            @Override
+            public void onFileSaved(String filename) {
+                statusBar.setFilename(filename);
+            }
+
+            @Override
+            public void onFileLoaded(String filename) {
+                macros = new HashMap<>();
+                reset();
+                statusBar.setFilename(filename);
+            }
+        });
         macros = new HashMap<>();
         helpMenu = new HelpMenu(gc, mode -> currMode = mode);
         reset();
