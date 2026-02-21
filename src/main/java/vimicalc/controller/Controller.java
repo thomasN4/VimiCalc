@@ -120,10 +120,6 @@ public class Controller implements Initializable {
     private void cellContentToIBar() { editorOps.cellContentToIBar(); }
     /** Cleans up undo history after a new edit in a partially-undone state. Delegates to {@link EditorOperations}. */
     private void removeUltCStates() { editorOps.removeUltCStates(); }
-    /** Reverts the last cell edit. Delegates to {@link EditorOperations}. */
-    private void undo() { editorOps.undo(); }
-    /** Re-applies a previously undone cell edit. Delegates to {@link EditorOperations}. */
-    private void redo() { editorOps.redo(); }
 
     /** Previous X coordinate, used for jump-back navigation. */
     int staticPrevXC;
@@ -131,12 +127,6 @@ public class Controller implements Initializable {
     int staticPrevYC;
     /** Navigates the cell selector to the given coordinates. Delegates to {@link EditorOperations}. */
     private void goTo(int xCoord, int yCoord) { editorOps.goTo(xCoord, yCoord); }
-    /** Navigates to coordinates while remembering the previous position. Delegates to {@link EditorOperations}. */
-    private void goToAndRemember(int xCoord, int yCoord, int prevXC, int prevYC) {
-        editorOps.goToAndRemember(xCoord, yCoord, prevXC, prevYC);
-    }
-    /** Pastes a cell from the clipboard. Delegates to {@link EditorOperations}. */
-    private void paste(int index) { editorOps.paste(index); }
 
     /**
      * The global key event handler, wired to the scene in {@link vimicalc.Main}.
@@ -174,6 +164,7 @@ public class Controller implements Initializable {
                     goingToMergeStart = true;
                     visualSelection(event);
                 }
+                default -> {}
             }
         }
 
@@ -472,6 +463,7 @@ public class Controller implements Initializable {
                     case J, DOWN, ENTER -> moveDown();
                     case K, UP -> moveUp();
                     case L, RIGHT, TAB, SPACE -> moveRight();
+                    default -> {}
                 }
                 int currXC = cellSelector.getXCoord();
                 int currYC = cellSelector.getYCoord();
@@ -634,6 +626,7 @@ public class Controller implements Initializable {
                         case J -> moveDown();
                         case K -> moveUp();
                         case L -> moveRight();
+                        default -> {}
                     }
                     recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     setSCTxtForTextInput();
@@ -660,6 +653,7 @@ public class Controller implements Initializable {
                     case DOWN, ENTER -> moveDown();
                     case UP -> moveUp();
                     case RIGHT, TAB -> moveRight();
+                    default -> {}
                 }
                 currMode = Mode.NORMAL;
             }
@@ -714,6 +708,7 @@ public class Controller implements Initializable {
                             case J -> moveDown();
                             case K -> moveUp();
                             case L -> moveRight();
+                            default -> {}
                         }
                         recordedCellStates.add(cellSelector.getSelectedCell().copy());
                         currMode = Mode.FORMULA;

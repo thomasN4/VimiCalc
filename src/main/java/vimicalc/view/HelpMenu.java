@@ -117,6 +117,7 @@ public class HelpMenu extends simpleRect {
                 position = 0;
                 modeSetter.accept(Mode.NORMAL);
             }
+            default -> {}
         }
         drawText();
     }

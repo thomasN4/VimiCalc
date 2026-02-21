@@ -107,6 +107,7 @@ public class KeyCommand {
                     return;
                 }
             }
+            default -> {}
         }
 
         if (c != 0) expr += c;
