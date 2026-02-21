@@ -470,7 +470,7 @@ public class Sheet {
  * <p>Used by {@link Sheet} to propagate formula re-evaluation in topological
  * order and to detect circular references.</p>
  */
-class Dependency implements Serializable {
+class Dependency {
     final int xCoord, yCoord;
     /** Flag indicating this dependency needs re-evaluation in the current propagation pass. */
     boolean toBeEvaluated;

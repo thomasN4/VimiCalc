@@ -2,7 +2,6 @@ package vimicalc.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -17,9 +16,8 @@ import static vimicalc.utils.Conversions.toAlpha;
  * participate in merges: a merge-start cell holds a reference to the
  * merge-end delimiter, and intermediate cells point back to the start.</p>
  *
- * <p>Implements {@link Serializable} for persistence in {@code .wss} files.</p>
  */
-public class Cell implements Serializable {
+public class Cell {
     /** The one-based column index. */
     private int xCoord;
     /** The row number. */

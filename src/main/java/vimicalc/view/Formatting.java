@@ -9,7 +9,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import static vimicalc.view.Defaults.*;
@@ -19,14 +18,13 @@ import static vimicalc.view.Defaults.*;
  *
  * <p>Properties include background color, text color, vertical position,
  * horizontal alignment, font weight, and font posture (italic). All fields
- * are stored as serializable primitives/strings so they can be persisted
- * in {@code .wss} files alongside cell data.</p>
+ * are stored as primitives/strings internally.</p>
  *
- * <p>Conversion methods bridge between these serializable representations
+ * <p>Conversion methods bridge between these internal representations
  * and JavaFX types (e.g. {@link javafx.scene.paint.Color},
  * {@link javafx.geometry.VPos}).</p>
  */
-public class Formatting implements Serializable {
+public class Formatting {
     /** The cell background color as RGB. */
     short[] cellColor;
     /** The text color as RGB. */
