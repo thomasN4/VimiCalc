@@ -25,7 +25,7 @@ import static vimicalc.utils.Conversions.isNumber;
  *   <li><b>Macros:</b> q{letter} (record), @{letter} (play), . (repeat last)</li>
  *   <li><b>Conditionals:</b> &lt;formula{then}{else} (conditional execution)</li>
  *   <li><b>Cell ref:</b> ${coords}{movement} (use cell value as multiplier; last char must be a movement key)</li>
- *   <li><b>Range operations:</b> {multiplier}{func}{multiplier}{dir}{dir} (e.g. "d5j" to delete 5 cells down)</li>
+ *   <li><b>Range operations:</b> {func}{multiplier}{dir} (e.g. "d5j" to delete 5 cells down)</li>
  *   <li><b>Quit shortcuts:</b> ZZ (save+quit), ZQ (quit without saving)</li>
  * </ul>
  */
@@ -150,22 +150,14 @@ public class KeyCommand {
         }
     }
 
-    /**
-     * Parses a numeric multiplier prefix starting at the given index.
-     *
-     * @param subI the starting index in the expression
-     * @param expr the expression string
-     * @return {@code int[]{functionIndex, multiplier}} — the index of the first
-     *         non-digit character and the parsed multiplier (1 if none)
-     */
-    public int[] parseFIndexAndMult(int subI, @NotNull String expr) {
-        StringBuilder multStr = new StringBuilder();
-        int i = subI;
-        for (; isNumber(""+expr.charAt(i)); i++)
-            multStr.append(expr.charAt(i));
-        if (i == subI)
-            return new int[]{i, 1};
-        return new int[]{i, Integer.parseInt(multStr.toString())};
+    record Prefix(int funcIndex, int multiplier) {}
+
+    public Prefix parsePrefix(int startIndex, @NotNull String expr) {
+        int i = startIndex;
+        while (i < expr.length() && Character.isDigit(expr.charAt(i)))
+            i++;
+        int multiplier = (i == startIndex) ? 1 : Integer.parseInt(expr.substring(startIndex, i));
+        return new Prefix(i, multiplier);
     }
 
     /**
@@ -173,7 +165,7 @@ public class KeyCommand {
      * forms a complete command, executes it and resets. If not yet complete
      * (e.g. waiting for more characters), returns and waits for the next keystroke.
      *
-     * <p>Handles range operations (e.g. "d5j3l" — delete across a 5x3 area)
+     * <p>Handles range operations (e.g. "d5j" — delete 5 cells down)
      * by building a temporary macro of individual operations, then executing it.</p>
      *
      * @param expr the expression to evaluate
@@ -184,57 +176,30 @@ public class KeyCommand {
         char lastChar = expr.charAt(expr.length() - 1), beforeLastChar = 0;
         if (expr.length() > 1) beforeLastChar = expr.charAt(expr.length() - 2);
         if (isNumber("" + lastChar)) return;
-        int[] fstFIandM = parseFIndexAndMult(0, expr);  // item 1 : indexe de la fonction, item 2 : multiplicateur
+        Prefix first = parsePrefix(0, expr);
 
-        if (fstFIandM[0] >= expr.length()) return;
-        char fstFunc = expr.charAt(fstFIandM[0]);
+        if (first.funcIndex >= expr.length()) return;
+        char fstFunc = expr.charAt(first.funcIndex);
 
         if (Ffuncs.contains(fstFunc) && Mfuncs.contains(expr.charAt(expr.length() - 1))) {
-            System.out.println("Executing one of *these* KeyCommand functions...");
+            Prefix second = parsePrefix(first.funcIndex + 1, expr);
+            char direction = expr.charAt(second.funcIndex);
+
             ArrayList<String> tempMacro = new ArrayList<>();
-            int toIgnore = 0;
             tempMacro.add(fstFunc + "" + fstFunc);
-
-            int[] sndFIandM = parseFIndexAndMult(fstFIandM[0] + 1, expr);
-            char sndFunc = expr.charAt(sndFIandM[0]);
-            if (sndFIandM[0] == expr.length() - 1) {
-                for (int i = 1; i <= sndFIandM[1]; i++) {
-                    tempMacro.add("" + sndFunc);
-                    tempMacro.add(fstFunc + "" + fstFunc);
-                }
-            } else {
-                int[] trdFIandM = parseFIndexAndMult(sndFIandM[0] + 1, expr);
-                char trdFunc = expr.charAt(expr.length() - 1);
-                fstFIandM[1] *= trdFIandM[1] + 1;
-                sndFunc = Character.toLowerCase(sndFunc);
-                char invSndFunc = 0;
-                switch (sndFunc) {
-                    case 'h' -> invSndFunc = 'l';
-                    case 'j' -> invSndFunc = 'k';
-                    case 'k' -> invSndFunc = 'j';
-                    case 'l' -> invSndFunc = 'h';
-                }
-                for (int i = 1; i <= sndFIandM[1]; i++) {
-                    tempMacro.add("" + sndFunc);
-                    tempMacro.add(fstFunc + "" + fstFunc);
-                }
-                tempMacro.add("" + trdFunc);
-                tempMacro.add(sndFIandM[1] + "" + invSndFunc);
-                toIgnore = 2;
+            for (int i = 1; i <= second.multiplier; i++) {
+                tempMacro.add("" + direction);
+                tempMacro.add(fstFunc + "" + fstFunc);
             }
 
-            System.out.println("Special macro: " + tempMacro);
-            for (int i = 0; i < fstFIandM[1]; i++) {
-                for (int j = 0; j < tempMacro.size(); j++) {
-                    if (i == fstFIandM[1] - 1 && j == tempMacro.size() - toIgnore) {
-                        this.expr = "";
-                        return;
-                    } else evaluate(tempMacro.get(j));
-                }
-            }
+            for (int i = 0; i < first.multiplier; i++)
+                for (String cmd : tempMacro)
+                    evaluate(cmd);
+            this.expr = "";
+            return;
         }
 
-        for (int i = 0; i < fstFIandM[1]; i++) {
+        for (int i = 0; i < first.multiplier; i++) {
             switch (fstFunc) {
                 case '=' -> {
                     ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
@@ -288,11 +253,11 @@ public class KeyCommand {
                     }
                 }
                 case 'q' -> {
-                    if (!recordingMacro && expr.length() - 1 > fstFIandM[0]) {
-                        char arg = expr.charAt(fstFIandM[0] + 1);
+                    if (!recordingMacro && expr.length() - 1 > first.funcIndex) {
+                        char arg = expr.charAt(first.funcIndex + 1);
                         ctrl.infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
                         currMacro = new LinkedList<>();
-                        ctrl.macros.put(expr.charAt(fstFIandM[0] + 1), currMacro);
+                        ctrl.macros.put(expr.charAt(first.funcIndex + 1), currMacro);
                         recordingMacro = true;
                         evaluationFinished = true;
                     } else if (recordingMacro) {
@@ -304,8 +269,8 @@ public class KeyCommand {
                     }
                 }
                 case '@' -> {
-                    if (expr.length() > fstFIandM[0] + 1) {
-                        char arg = expr.charAt(fstFIandM[0] + 1);
+                    if (expr.length() > first.funcIndex + 1) {
+                        char arg = expr.charAt(first.funcIndex + 1);
                         this.expr = "";
                         canChangeIBarExpr = false;
                         runMacro(arg);
@@ -343,20 +308,23 @@ public class KeyCommand {
                     }
                 }
                 case 'd' -> {
-                    if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'd') {
-                        System.out.println("Trying to delete a cell's content...");
-                        if (ctrl.cellSelector.getSelectedCell().txt() == null) {
-                            ctrl.infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
-                            ctrl.sheet.deleteDependency(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
-                        } else {
-                            ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
-                            ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
-                            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
-                            ctrl.camera.ready();
-                            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
-                            ctrl.infoBar.setInfobarTxt(ctrl.cellSelector.getSelectedCell().txt());
-                            if (ctrl.undoCounter != 0) ops.removeUltCStates();
-                        }
+                    if (expr.length() > 1) {
+                        if (expr.charAt(first.funcIndex + 1) == 'd') {
+                            System.out.println("Trying to delete a cell's content...");
+                            if (ctrl.cellSelector.getSelectedCell().txt() == null) {
+                                ctrl.infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
+                                ctrl.sheet.deleteDependency(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
+                            } else {
+                                ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
+                                ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
+                                ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                                ctrl.camera.ready();
+                                ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+                                ctrl.infoBar.setInfobarTxt(ctrl.cellSelector.getSelectedCell().txt());
+                                if (ctrl.undoCounter != 0) ops.removeUltCStates();
+                            }
+                        } else
+                            ctrl.infoBar.setInfobarTxt("Invalid command: " + expr);
                         evaluationFinished = true;
                     }
                 }
@@ -395,7 +363,7 @@ public class KeyCommand {
                 }
                 case 'y' -> {
                     if (expr.length() > 1) {
-                        char arg1 = expr.charAt(fstFIandM[0] + 1);
+                        char arg1 = expr.charAt(first.funcIndex + 1);
                         if (arg1 == 'y' || arg1 == 'd') {
                             if (ctrl.cellSelector.getSelectedCell().txt() == null)
                                 ctrl.infoBar.setInfobarTxt("CAN'T COPY, CELL IS EMPTY");
@@ -407,30 +375,34 @@ public class KeyCommand {
                             ctrl.camera.ready();
                             ctrl.cellSelector.readCell(ctrl.camera.picture.data());
                             if (arg1 == 'd') evaluate("dd");
-                            evaluationFinished = true;
-                        }
+                        } else
+                            ctrl.infoBar.setInfobarTxt("Invalid command: " + expr);
+                        evaluationFinished = true;
                     }
                 }
                 case 'p' -> {
-                    if (expr.length() > 1 && expr.charAt(fstFIandM[0] + 1) == 'p') {
-                        if (ctrl.clipboard == null) ctrl.infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
-                        else {
-                            if (ctrl.clipboard.size() == 1) ops.paste(0);
+                    if (expr.length() > 1) {
+                        if (expr.charAt(first.funcIndex + 1) == 'p') {
+                            if (ctrl.clipboard == null || ctrl.clipboard.isEmpty()) ctrl.infoBar.setInfobarTxt("CAN'T PASTE, NOTHING HAS BEEN COPIED YET");
                             else {
-                                int xCStart = ctrl.cellSelector.getXCoord(), yCStart = ctrl.cellSelector.getYCoord();
-                                for (int j = 0; j < ctrl.clipboard.size()-1; j++) {
-                                    ops.paste(j);
-                                    ops.goTo(
-                                        xCStart + (ctrl.clipboard.get(j+1).xCoord() - ctrl.clipboard.get(0).xCoord()),
-                                        yCStart + (ctrl.clipboard.get(j+1).yCoord() - ctrl.clipboard.get(0).yCoord())
-                                    );
+                                if (ctrl.clipboard.size() == 1) ops.paste(0);
+                                else {
+                                    int xCStart = ctrl.cellSelector.getXCoord(), yCStart = ctrl.cellSelector.getYCoord();
+                                    for (int j = 0; j < ctrl.clipboard.size()-1; j++) {
+                                        ops.paste(j);
+                                        ops.goTo(
+                                            xCStart + (ctrl.clipboard.get(j+1).xCoord() - ctrl.clipboard.get(0).xCoord()),
+                                            yCStart + (ctrl.clipboard.get(j+1).yCoord() - ctrl.clipboard.get(0).yCoord())
+                                        );
+                                    }
+                                    ops.paste(ctrl.clipboard.size()-1);
                                 }
-                                ops.paste(ctrl.clipboard.size()-1);
                             }
-                        }
-                        ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
-                        ctrl.camera.ready();
-                        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+                            ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+                            ctrl.camera.ready();
+                            ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+                        } else
+                            ctrl.infoBar.setInfobarTxt("Invalid command: " + expr);
                         evaluationFinished = true;
                     }
                 }
@@ -449,7 +421,7 @@ public class KeyCommand {
                 }
                 case 'Z' -> {
                     if (expr.length() > 1) {
-                        char arg = expr.charAt(fstFIandM[0] + 1);
+                        char arg = expr.charAt(first.funcIndex + 1);
                         if (arg == 'Q')
                             ctrl.command = new Command("q", 0, 0);
                         else if (arg == 'Z')
