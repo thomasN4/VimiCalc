@@ -1,5 +1,6 @@
 package vimicalc.model;
 
+import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.view.Formatting;
 import vimicalc.view.Positions;
@@ -15,7 +16,7 @@ import static vimicalc.utils.Conversions.*;
  * <p>Holds the list of {@link Cell}s, the {@link Dependency} graph for formula
  * re-evaluation, per-cell {@link Formatting}, and the current viewport
  * {@link Positions}. Also handles file I/O — serializing/deserializing all
- * state to/from {@code .wss} files using Java object serialization.</p>
+ * state to/from {@code .json} files using Gson.</p>
  */
 public class Sheet {
     private ArrayList<Cell> cells;
@@ -356,92 +357,218 @@ public class Sheet {
     }
 
     /**
-     * Serializes the entire spreadsheet state to a {@code .wss} file using
-     * Java object serialization. Saves cells, dependencies, column/row offsets,
-     * macros, and formatting.
+     * Serializes the entire spreadsheet state to a {@code .json} file using
+     * Gson. Saves non-empty cells, non-default formatting, and column/row
+     * size offsets. Dependencies are not persisted — they are rebuilt on load.
      *
-     * @param path the file path (appends {@code .wss} if missing)
+     * @param path the file path (appends {@code .json} if missing)
      * @throws Exception always thrown with a success message for display in the info bar
      */
     public void writeFile(@NotNull String path) throws Exception {
         if (path.isEmpty()) return;
-        if (!path.endsWith(".wss")) path += ".wss";
+        if (!path.endsWith(".json")) path += ".json";
         System.out.println("Saving file " + path + "...");
-        ObjectOutputStream oStream = new ObjectOutputStream(new FileOutputStream(path));
 
-        oStream.writeUTF("\n====Cells====\n"); oStream.flush();
-        oStream.writeObject(cells); oStream.flush();
+        JsonObject root = new JsonObject();
+        root.addProperty("version", 1);
 
-        oStream.writeUTF("\n\n====Dependencies====\n"); oStream.flush();
-        oStream.writeObject(dependencies); oStream.flush();
+        // ── Cells ──
+        JsonArray cellsArr = new JsonArray();
+        for (Cell c : cells) {
+            if (c.isEmpty()) continue;
+            JsonObject co = new JsonObject();
+            co.addProperty("x", c.xCoord());
+            co.addProperty("y", c.yCoord());
+            if (c.formula() != null)
+                co.addProperty("formulaTxt", c.formula().getTxt());
+            if (c.txt() != null)
+                co.addProperty("txt", c.txt());
+            if (c.isMergeStart() && c.getMergeDelimiter() != null) {
+                co.addProperty("mergeStart", true);
+                co.addProperty("mergeEndX", c.getMergeDelimiter().xCoord());
+                co.addProperty("mergeEndY", c.getMergeDelimiter().yCoord());
+            }
+            cellsArr.add(co);
+        }
+        root.add("cells", cellsArr);
 
-        oStream.writeUTF("\n\n====xOffsets====\n"); oStream.flush();
-        oStream.writeObject(positions.getxOffsets()); oStream.flush();
+        // ── Column/Row widths ──
+        JsonObject colWidths = new JsonObject();
+        for (Map.Entry<Integer, Integer> e : positions.getxOffsets().entrySet())
+            colWidths.addProperty(String.valueOf(e.getKey()), e.getValue());
+        root.add("columnWidths", colWidths);
 
-        oStream.writeUTF("\n\n====yOffsets====\n"); oStream.flush();
-        oStream.writeObject(positions.getyOffsets()); oStream.flush();
+        JsonObject rowHeights = new JsonObject();
+        for (Map.Entry<Integer, Integer> e : positions.getyOffsets().entrySet())
+            rowHeights.addProperty(String.valueOf(e.getKey()), e.getValue());
+        root.add("rowHeights", rowHeights);
 
-        oStream.writeUTF("\n\n====Macros====\n"); oStream.flush();
-        oStream.writeObject(new HashMap<>()); oStream.flush();
+        // ── Formatting ──
+        JsonArray fmtArr = new JsonArray();
+        for (Map.Entry<List<Integer>, Formatting> entry : cellsFormatting.entrySet()) {
+            Formatting f = entry.getValue();
+            if (f.isDefault()) continue;
+            JsonObject fo = new JsonObject();
+            fo.addProperty("x", entry.getKey().get(0));
+            fo.addProperty("y", entry.getKey().get(1));
+            JsonArray cc = new JsonArray();
+            for (short v : f.getCellColor()) cc.add(v);
+            fo.add("cellColor", cc);
+            JsonArray tc = new JsonArray();
+            for (short v : f.getTxtColor()) tc.add(v);
+            fo.add("txtColor", tc);
+            fo.addProperty("vPos", f.getvPos());
+            fo.addProperty("alignment", f.getAlignment());
+            fo.addProperty("fontWeight", f.getFontWeight());
+            fo.addProperty("fontPosture", f.getFontPosture());
+            fmtArr.add(fo);
+        }
+        root.add("formatting", fmtArr);
 
-        oStream.writeUTF("\n\n====Formatting====\n"); oStream.flush();
-        oStream.writeObject(cellsFormatting); oStream.flush();
+        try (FileWriter writer = new FileWriter(path)) {
+            new GsonBuilder().setPrettyPrinting().create().toJson(root, writer);
+        }
 
         file = new File(path);
         if (fileIOCallbacks != null) fileIOCallbacks.onFileSaved(file.getName());
-        oStream.close();
 
         throw new Exception("File " + path + " has been saved.");
     }
 
     /**
-     * Deserializes a spreadsheet from a {@code .wss} file, restoring cells,
-     * dependencies, column/row offsets, and formatting.
+     * Deserializes a spreadsheet from a {@code .json} file, restoring cells,
+     * column/row offsets, and formatting. Dependencies are rebuilt by
+     * re-evaluating all formula cells after loading.
      * If the file doesn't exist, initializes a new empty sheet for that path.
      *
-     * @param path the file path (must end in {@code .wss})
+     * @param path the file path (must end in {@code .json})
      * @throws Exception with a message to display in the info bar
      */
     public void readFile(@NotNull String path) throws Exception {
-        if (!path.endsWith(".wss")) {
-            String errorMessage = "File is not of .wss format";
-            throw new Exception(errorMessage);
+        if (!path.endsWith(".json")) {
+            throw new Exception("File is not of .json format");
         }
 
-        try {
-            ObjectInputStream iStream = new ObjectInputStream(new FileInputStream(path));
+        try (FileReader reader = new FileReader(path)) {
+            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
 
-            HashMap<Integer, Integer> newXOffsets = null;
-            HashMap<Integer, Integer> newYOffsets = null;
-            cells = null;
-            dependencies = null;
-            try {
-                iStream.readUTF();
-                cells = (ArrayList<Cell>) iStream.readObject();
-                iStream.readUTF();
-                dependencies = (ArrayList<Dependency>) iStream.readObject();
-                iStream.readUTF();
-                newXOffsets = (HashMap<Integer, Integer>) iStream.readObject();
-                iStream.readUTF();
-                newYOffsets = (HashMap<Integer, Integer>) iStream.readObject();
-                iStream.readUTF();
-                iStream.readObject(); // skip macros (no longer stored in Sheet)
-                iStream.readUTF();
-                cellsFormatting = (HashMap<List<Integer>, Formatting>) iStream.readObject();
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println(Arrays.toString(e.getStackTrace()));
+            // ── Cells (pass 1: create) ──
+            cells = new ArrayList<>();
+            dependencies = new ArrayList<>();
+            cellsFormatting = new HashMap<>();
+            Map<List<Integer>, Cell> cellMap = new HashMap<>();
+
+            JsonArray cellsArr = root.getAsJsonArray("cells");
+            if (cellsArr != null) {
+                for (JsonElement elem : cellsArr) {
+                    JsonObject co = elem.getAsJsonObject();
+                    int x = co.get("x").getAsInt();
+                    int y = co.get("y").getAsInt();
+
+                    Cell c;
+                    if (co.has("formulaTxt")) {
+                        String formulaTxt = co.get("formulaTxt").getAsString();
+                        // Create cell with placeholder; will re-evaluate below
+                        c = new Cell(x, y);
+                        c.setFormula(new Formula(formulaTxt, x, y));
+                        if (co.has("txt")) c.setTxt(co.get("txt").getAsString());
+                    } else if (co.has("txt")) {
+                        c = new Cell(x, y, co.get("txt").getAsString());
+                    } else {
+                        c = new Cell(x, y);
+                    }
+
+                    cellMap.put(List.of(x, y), c);
+                    cells.add(c);
+                }
             }
 
-            newXOffsets = (newXOffsets == null) ? new HashMap<>() : newXOffsets;
-            newYOffsets = (newYOffsets == null) ? new HashMap<>() : newYOffsets;
+            // ── Cells (pass 2: wire merges) ──
+            if (cellsArr != null) {
+                for (JsonElement elem : cellsArr) {
+                    JsonObject co = elem.getAsJsonObject();
+                    if (co.has("mergeStart") && co.get("mergeStart").getAsBoolean()) {
+                        int x = co.get("x").getAsInt();
+                        int y = co.get("y").getAsInt();
+                        int endX = co.get("mergeEndX").getAsInt();
+                        int endY = co.get("mergeEndY").getAsInt();
+
+                        Cell start = cellMap.get(List.of(x, y));
+                        start.setMergeStart(true);
+
+                        // Merge-end cell may not be in the cells list (if truly empty)
+                        Cell end = cellMap.get(List.of(endX, endY));
+                        if (end == null) {
+                            end = new Cell(endX, endY);
+                            cellMap.put(List.of(endX, endY), end);
+                            cells.add(end);
+                        }
+                        start.mergeWith(end);
+                        end.mergeWith(start);
+
+                        // Wire intermediate cells
+                        for (int i = x; i <= endX; i++) {
+                            for (int j = y; j <= endY; j++) {
+                                if (i == x && j == y) continue;
+                                if (i == endX && j == endY) continue;
+                                Cell mid = cellMap.get(List.of(i, j));
+                                if (mid == null) {
+                                    mid = new Cell(i, j);
+                                    cellMap.put(List.of(i, j), mid);
+                                    cells.add(mid);
+                                }
+                                mid.mergeWith(start);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── Column/Row offsets ──
+            HashMap<Integer, Integer> newXOffsets = new HashMap<>();
+            HashMap<Integer, Integer> newYOffsets = new HashMap<>();
+            if (root.has("columnWidths")) {
+                for (Map.Entry<String, JsonElement> e : root.getAsJsonObject("columnWidths").entrySet())
+                    newXOffsets.put(Integer.parseInt(e.getKey()), e.getValue().getAsInt());
+            }
+            if (root.has("rowHeights")) {
+                for (Map.Entry<String, JsonElement> e : root.getAsJsonObject("rowHeights").entrySet())
+                    newYOffsets.put(Integer.parseInt(e.getKey()), e.getValue().getAsInt());
+            }
             positions.setxOffsets(newXOffsets);
             positions.setyOffsets(newYOffsets);
 
-            if (cells == null) cells = new ArrayList<>();
-            if (dependencies == null) dependencies = new ArrayList<>();
+            // ── Formatting ──
+            if (root.has("formatting")) {
+                for (JsonElement elem : root.getAsJsonArray("formatting")) {
+                    JsonObject fo = elem.getAsJsonObject();
+                    int x = fo.get("x").getAsInt();
+                    int y = fo.get("y").getAsInt();
+                    JsonArray cc = fo.getAsJsonArray("cellColor");
+                    JsonArray tc = fo.getAsJsonArray("txtColor");
+                    Formatting f = new Formatting(
+                        new short[]{cc.get(0).getAsShort(), cc.get(1).getAsShort(), cc.get(2).getAsShort()},
+                        new short[]{tc.get(0).getAsShort(), tc.get(1).getAsShort(), tc.get(2).getAsShort()},
+                        fo.get("vPos").getAsString(),
+                        fo.get("alignment").getAsString(),
+                        fo.get("fontWeight").getAsString(),
+                        fo.get("fontPosture").getAsString()
+                    );
+                    cellsFormatting.put(List.of(x, y), f);
+                }
+            }
 
-            iStream.close();
+            // ── Re-evaluate formulas to rebuild dependency graph ──
+            for (Cell c : cells) {
+                if (c.formula() != null) {
+                    try {
+                        c.setFormulaResult(c.formula().interpret(this), c.formula());
+                    } catch (Exception e) {
+                        System.out.println("Formula eval error at (" + c.xCoord() + "," + c.yCoord() + "): " + e.getMessage());
+                    }
+                }
+            }
+
             file = new File(path);
             if (fileIOCallbacks != null) fileIOCallbacks.onFileLoaded(file.getName());
         } catch (FileNotFoundException e) {

@@ -38,6 +38,26 @@ public class Formatting {
     /** The font posture (e.g. "italic" or "regular"). */
     String fontPosture;
 
+    /**
+     * Creates a formatting instance with all fields specified directly.
+     *
+     * @param cellColor  the cell background color as RGB
+     * @param txtColor   the text color as RGB
+     * @param vPos       the vertical text position
+     * @param alignment  the horizontal text alignment
+     * @param fontWeight the font weight
+     * @param fontPosture the font posture
+     */
+    public Formatting(short[] cellColor, short[] txtColor, String vPos,
+                      String alignment, String fontWeight, String fontPosture) {
+        this.cellColor = cellColor;
+        this.txtColor = txtColor;
+        this.vPos = vPos;
+        this.alignment = alignment;
+        this.fontWeight = fontWeight;
+        this.fontPosture = fontPosture;
+    }
+
     /** Creates a formatting instance with all default values. */
     public Formatting() {
         cellColor = setColor(DEFAULT_CELL_C);

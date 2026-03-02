@@ -15,7 +15,7 @@ import java.util.Arrays;
  *
  * <p>Sets up the JavaFX stage, loads the FXML layout,
  * and wires keyboard input to the {@link Controller}. An optional file path
- * can be passed as a command-line argument to open a {@code .wss} file on launch.</p>
+ * can be passed as a command-line argument to open a {@code .json} file on launch.</p>
  */
 public class Main extends Application {
 

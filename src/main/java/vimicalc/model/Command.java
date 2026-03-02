@@ -10,7 +10,7 @@ import vimicalc.view.Formatting;
  * <p>Supported commands:</p>
  * <ul>
  *   <li>{@code :h}, {@code :help}, {@code :?} — open the help menu</li>
- *   <li>{@code :e <path>} — open/read a {@code .wss} file</li>
+ *   <li>{@code :e <path>} — open/read a {@code .json} file</li>
  *   <li>{@code :w [path]} — save the current sheet</li>
  *   <li>{@code :wq [path]} — save and quit</li>
  *   <li>{@code :q} — quit without saving</li>
@@ -51,7 +51,7 @@ public class Command extends Interpretable {
     }
 
     /**
-     * Reads a {@code .wss} file into the sheet.
+     * Reads a {@code .json} file into the sheet.
      *
      * @param sheet   the target sheet
      * @param command the lexed command tokens (path in {@code command[1]})
@@ -62,7 +62,7 @@ public class Command extends Interpretable {
     }
 
     /**
-     * Writes the sheet to a {@code .wss} file.
+     * Writes the sheet to a {@code .json} file.
      *
      * @param sheet   the sheet to save
      * @param command the lexed command tokens (optional path in {@code command[1]})
