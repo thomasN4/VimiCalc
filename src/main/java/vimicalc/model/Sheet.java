@@ -13,22 +13,26 @@ import static vimicalc.utils.Conversions.*;
 /**
  * The core data model representing an entire spreadsheet.
  *
- * <p>Holds the list of {@link Cell}s, the {@link Dependency} graph for formula
+ * <p>Holds a map of {@link Cell}s (keyed by coordinates), the {@link Dependency} graph for formula
  * re-evaluation, per-cell {@link Formatting}, and the current viewport
  * {@link Positions}. Also handles file I/O — serializing/deserializing all
  * state to/from {@code .json} files using Gson.</p>
  */
 public class Sheet {
-    private ArrayList<Cell> cells;
+    private HashMap<List<Integer>, Cell> cells;
     private File file;
     private ArrayList<Dependency> dependencies;
     private Positions positions;
     private HashMap<List<Integer>, Formatting> cellsFormatting;
     private FileIOCallbacks fileIOCallbacks;
 
+    private static List<Integer> cellKey(int x, int y) {
+        return List.of(x, y);
+    }
+
     /** Creates an empty sheet with no cells, dependencies, or formatting. */
     public Sheet() {
-        cells = new ArrayList<>();
+        cells = new HashMap<>();
         dependencies = new ArrayList<>();
         file = new File("");
         cellsFormatting = new HashMap<>();
@@ -49,9 +53,9 @@ public class Sheet {
         this.positions = picPositions;
     }
 
-    /** @return the list of all cells in the sheet */
-    public ArrayList<Cell> getCells() {
-        return cells;
+    /** @return all cells in the sheet */
+    public Collection<Cell> getCells() {
+        return cells.values();
     }
 
     /** @return the per-cell formatting map */
@@ -112,11 +116,9 @@ public class Sheet {
             c = new Cell(xCoord, yCoord);
             c.setMergeStart(true);
             c.mergeWith(mergeEnd);
-            int finalCxC = c.xCoord(), finalCyC = c.yCoord();
-            cells.removeIf(b -> b.xCoord() == finalCxC && b.yCoord() == finalCyC);
-            cells.add(c);
+            cells.put(cellKey(xCoord, yCoord), c);
         }
-        else cells.remove(c);
+        else cells.remove(cellKey(xCoord, yCoord));
         deleteDependency(xCoord, yCoord);
     }
 
@@ -162,15 +164,11 @@ public class Sheet {
      * @return the cell, or a new empty cell if none exists at the position
      */
     public Cell findCell(int xCoord, int yCoord) {
-        for (Cell c : getCells()) {
-            if (c.xCoord() == xCoord && c.yCoord() == yCoord) {
-                if (c.getMergeDelimiter() != null && !c.isMergeStart())
-                    return c.getMergeDelimiter();
-                else
-                    return c;
-            }
-        }
-        return new Cell(xCoord, yCoord);
+        Cell c = cells.get(cellKey(xCoord, yCoord));
+        if (c == null) return new Cell(xCoord, yCoord);
+        if (c.getMergeDelimiter() != null && !c.isMergeStart())
+            return c.getMergeDelimiter();
+        return c;
     }
     /**
      * Finds a cell by coordinates without following merge redirections.
@@ -181,10 +179,8 @@ public class Sheet {
      * @return the cell at the position
      */
     public Cell simplyFindCell(int xCoord, int yCoord) {
-        for (Cell c : getCells())
-            if (c.xCoord() == xCoord && c.yCoord() == yCoord)
-                return c;
-        return new Cell(xCoord, yCoord);
+        Cell c = cells.get(cellKey(xCoord, yCoord));
+        return c != null ? c : new Cell(xCoord, yCoord);
     }
 
     /**
@@ -214,7 +210,7 @@ public class Sheet {
         }
         mergeStart.mergeWith(null);
         mergeStart.setMergeStart(false);
-        cells.removeIf(Cell::isEmpty);
+        cells.values().removeIf(Cell::isEmpty);
     }
 
     /**
@@ -314,8 +310,7 @@ public class Sheet {
      * @param cell the cell to add
      */
     public void simplyAddCell(Cell cell) {
-        cells.removeIf(c -> c.xCoord() == cell.xCoord() && c.yCoord() == cell.yCoord());
-        cells.add(cell);
+        cells.put(cellKey(cell.xCoord(), cell.yCoord()), cell);
         if (cell.xCoord() > positions.getMaxXC() || cell.yCoord() > positions.getMaxYC()) {
             if (cell.xCoord() > positions.getMaxXC()) positions.setMaxXC(cell.xCoord());
             if (cell.yCoord() > positions.getMaxYC()) positions.setMaxYC(cell.yCoord());
@@ -331,7 +326,7 @@ public class Sheet {
      */
     public void evalDependency(Dependency d) {
         evalDependents(d);
-        cells.removeIf(Cell::isEmpty);
+        cells.values().removeIf(Cell::isEmpty);
         System.out.println("All of the dependencies (result):");
 //        dependencies.forEach(e -> System.out.println(e.log()));
     }
@@ -374,7 +369,7 @@ public class Sheet {
 
         // ── Cells ──
         JsonArray cellsArr = new JsonArray();
-        for (Cell c : cells) {
+        for (Cell c : cells.values()) {
             if (c.isEmpty()) continue;
             JsonObject co = new JsonObject();
             co.addProperty("x", c.xCoord());
@@ -453,10 +448,9 @@ public class Sheet {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
 
             // ── Cells (pass 1: create) ──
-            cells = new ArrayList<>();
+            cells = new HashMap<>();
             dependencies = new ArrayList<>();
             cellsFormatting = new HashMap<>();
-            Map<List<Integer>, Cell> cellMap = new HashMap<>();
 
             JsonArray cellsArr = root.getAsJsonArray("cells");
             if (cellsArr != null) {
@@ -478,8 +472,7 @@ public class Sheet {
                         c = new Cell(x, y);
                     }
 
-                    cellMap.put(List.of(x, y), c);
-                    cells.add(c);
+                    cells.put(cellKey(x, y), c);
                 }
             }
 
@@ -493,15 +486,14 @@ public class Sheet {
                         int endX = co.get("mergeEndX").getAsInt();
                         int endY = co.get("mergeEndY").getAsInt();
 
-                        Cell start = cellMap.get(List.of(x, y));
+                        Cell start = cells.get(cellKey(x, y));
                         start.setMergeStart(true);
 
-                        // Merge-end cell may not be in the cells list (if truly empty)
-                        Cell end = cellMap.get(List.of(endX, endY));
+                        // Merge-end cell may not be in the cells map (if truly empty)
+                        Cell end = cells.get(cellKey(endX, endY));
                         if (end == null) {
                             end = new Cell(endX, endY);
-                            cellMap.put(List.of(endX, endY), end);
-                            cells.add(end);
+                            cells.put(cellKey(endX, endY), end);
                         }
                         start.mergeWith(end);
                         end.mergeWith(start);
@@ -511,11 +503,10 @@ public class Sheet {
                             for (int j = y; j <= endY; j++) {
                                 if (i == x && j == y) continue;
                                 if (i == endX && j == endY) continue;
-                                Cell mid = cellMap.get(List.of(i, j));
+                                Cell mid = cells.get(cellKey(i, j));
                                 if (mid == null) {
                                     mid = new Cell(i, j);
-                                    cellMap.put(List.of(i, j), mid);
-                                    cells.add(mid);
+                                    cells.put(cellKey(i, j), mid);
                                 }
                                 mid.mergeWith(start);
                             }
@@ -559,7 +550,7 @@ public class Sheet {
             }
 
             // ── Re-evaluate formulas to rebuild dependency graph ──
-            for (Cell c : cells) {
+            for (Cell c : cells.values()) {
                 if (c.formula() != null) {
                     try {
                         c.setFormulaResult(c.formula().interpret(this), c.formula());
@@ -573,7 +564,7 @@ public class Sheet {
             if (fileIOCallbacks != null) fileIOCallbacks.onFileLoaded(file.getName());
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-            cells = new ArrayList<>();
+            cells = new HashMap<>();
             dependencies = new ArrayList<>();
             file = new File(path);
             if (fileIOCallbacks != null) fileIOCallbacks.onFileLoaded(file.getName());
@@ -673,8 +664,7 @@ class Dependency {
             sheet.simplyAddCell(c);
         }
         else if (c.txt() == null) {
-            sheet.getCells().removeIf(b -> b.xCoord() == c.xCoord() && b.yCoord() == c.yCoord());
-            sheet.getCells().add(new Cell(xCoord, yCoord));
+            sheet.simplyAddCell(new Cell(xCoord, yCoord));
         }
         toBeEvaluated = false;
         System.out.println("Evaluating dependency at: " + xCoord + ", " + yCoord + "...");
