@@ -19,7 +19,7 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 - **Cell formatting** — Background colors, text colors, and bold via command mode
 - **Undo/redo** — `u` to undo, `r` to redo
 - **Dependency tracking** — Automatic propagation when referenced cells change
-- **File persistence** — Save/load spreadsheets in `.wss` format
+- **File persistence** — Save/load spreadsheets as JSON (`.json`)
 
 ## Modes
 
@@ -76,18 +76,10 @@ The project uses Gradle with the JavaFX plugin — no separate JavaFX SDK instal
 ./gradlew run
 
 # Open a spreadsheet file
-./gradlew run --args="demos/fizzbuzz.wss"
+./gradlew run --args="mysheet.json"
 ```
 
 The convenience scripts `wss.sh` (Linux/macOS) and `wss.ps1` (Windows) wrap the Gradle run task.
-
-## Demo Files
-
-The `demos/` directory contains example spreadsheets:
-
-- **fizzbuzz.wss** — FizzBuzz implemented in spreadsheet formulas
-- **rule110.wss** — Rule 110 cellular automaton
-- **various.wss** — Miscellaneous feature demonstrations
 
 ## Project Structure
 
@@ -100,4 +92,4 @@ src/main/java/vimicalc/
 └── utils/                 # Coordinate conversions, helpers
 ```
 
-The application follows an MVC architecture, uses a Canvas-based renderer, and stores spreadsheet data via Java serialization.
+The application follows an MVC architecture, uses a Canvas-based renderer, and stores spreadsheet data as JSON (via Gson).
