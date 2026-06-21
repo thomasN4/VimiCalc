@@ -69,6 +69,24 @@ The project uses Gradle with the JavaFX plugin — no separate JavaFX SDK instal
 ./gradlew build
 ```
 
+## Testing
+
+Unit and model tests can be run without a display:
+
+```bash
+./gradlew test
+```
+
+UI tests that boot the JavaFX scene graph require a display. To run all tests on a headless machine (e.g. over SSH without a monitor):
+
+```bash
+# Debian / Ubuntu / Termux
+sudo apt install xvfb   # or: pkg install xvfb
+xvfb-run ./gradlew test
+```
+
+The build is preconfigured with `prism.order=sw` so that JavaFX uses software rendering during tests, avoiding GPU dependencies in headless environments.
+
 ## Running
 
 ```bash
