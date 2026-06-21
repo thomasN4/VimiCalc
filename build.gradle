@@ -28,8 +28,13 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:23.0.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.testfx:testfx-core:4.0.18'
+    testImplementation 'org.testfx:testfx-junit5:4.0.18'
 }
 
 test {
     useJUnitPlatform()
+    // Use software rendering for stable headless / xvfb execution
+    systemProperty 'prism.order', 'sw'
+    systemProperty 'prism.text', 't2k'
 }
