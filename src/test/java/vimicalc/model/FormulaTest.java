@@ -36,7 +36,7 @@ class FormulaTest {
         @Test
         void tokenizesNumbers() {
             Formula f = new Formula("", 1, 1);
-            Lexeme[] result = f.lexer("42");
+            Token[] result = f.lexer("42");
             assertEquals(1, result.length);
             assertFalse(result[0].isFunction());
             assertEquals(42.0, result[0].getVal());
@@ -45,7 +45,7 @@ class FormulaTest {
         @Test
         void tokenizesIdentifiers() {
             Formula f = new Formula("", 1, 1);
-            Lexeme[] result = f.lexer("sin");
+            Token[] result = f.lexer("sin");
             assertEquals(1, result.length);
             assertTrue(result[0].isFunction());
             assertEquals("sin", result[0].getFunc());
@@ -54,7 +54,7 @@ class FormulaTest {
         @Test
         void stripsParentheses() {
             Formula f = new Formula("", 1, 1);
-            Lexeme[] result = f.lexer("(A1:C1)");
+            Token[] result = f.lexer("(A1:C1)");
             assertEquals(1, result.length);
             assertEquals("A1:C1", result[0].getFunc());
         }
@@ -62,7 +62,7 @@ class FormulaTest {
         @Test
         void multipleTokens() {
             Formula f = new Formula("", 1, 1);
-            Lexeme[] result = f.lexer("3 4 +");
+            Token[] result = f.lexer("3 4 +");
             assertEquals(3, result.length);
             assertFalse(result[0].isFunction());
             assertEquals(3.0, result[0].getVal());
@@ -276,12 +276,12 @@ class FormulaTest {
         }
 
         @Test
-        void for1Pos() {
+        void dotProduct() {
             Formula f = new Formula("", 1, 1);
             double[] row = {1, 2, 3};
             double[] col = {4, 5, 6};
             // 1*4 + 2*5 + 3*6 = 32
-            assertEquals(32.0, f.for1Pos(row, col));
+            assertEquals(32.0, f.dotProduct(row, col));
         }
 
         @Test
@@ -319,6 +319,49 @@ class FormulaTest {
             Formula f = new Formula("(A1:C2) tpose", 4, 3);
             double topLeft = f.interpret(sheet);
             assertEquals(1.0, topLeft, 1e-10);
+        }
+    }
+
+    // ── Empty-cell behavior (blank cells act as per-operator identity) ──
+
+    @Nested
+    class EmptyCellTests {
+        @Test
+        void emptyCellIsAdditiveIdentity() throws Exception {
+            // B1 is never populated → blank; blank contributes 0 to addition.
+            Formula f = new Formula("5 B1 +", 1, 1);
+            assertEquals(5.0, f.interpret(sheet));
+        }
+
+        @Test
+        void emptyCellIsMultiplicativeIdentity() throws Exception {
+            // Blank contributes 1 to multiplication (not 0).
+            Formula f = new Formula("5 B1 *", 1, 1);
+            assertEquals(5.0, f.interpret(sheet));
+        }
+
+        @Test
+        void productSkipsEmptyCell() throws Exception {
+            // A1=2, B1 blank, C1=3 → 2*3 (blank excluded, not treated as 0).
+            sheet.simplyAddCell(new Cell(1, 1, 2.0));
+            sheet.simplyAddCell(new Cell(3, 1, 3.0));
+            Formula f = new Formula("(A1:C1) prod", 4, 1);
+            assertEquals(6.0, f.interpret(sheet));
+        }
+
+        @Test
+        void quotientSkipsEmptyCell() throws Exception {
+            // A1=12, B1 blank, C1=2 → 12/2 (blank excluded, so no divide-by-zero).
+            sheet.simplyAddCell(new Cell(1, 1, 12.0));
+            sheet.simplyAddCell(new Cell(3, 1, 2.0));
+            Formula f = new Formula("(A1:C1) quot", 4, 1);
+            assertEquals(6.0, f.interpret(sheet), 1e-10);
+        }
+
+        @Test
+        void loneEmptyCellIsZero() throws Exception {
+            Formula f = new Formula("B1", 1, 1);
+            assertEquals(0.0, f.interpret(sheet));
         }
     }
 

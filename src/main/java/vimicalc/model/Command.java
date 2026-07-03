@@ -36,11 +36,11 @@ public class Command extends Interpretable {
     /**
      * Set to {@code false} after evaluation if the entered command was not recognized.
      * Starts as {@code true} and is reset to {@code true} at the beginning of every
-     * {@link #interpret(Lexeme[], Sheet)} call.
+     * {@link #interpret(Token[], Sheet)} call.
      */
     public boolean commandExists = true;
 
-    /** The result of the last {@link #interpret(Lexeme[], Sheet)} call. */
+    /** The result of the last {@link #interpret(Token[], Sheet)} call. */
     private CommandResult commandResult = CommandResult.NONE;
 
     /**
@@ -57,7 +57,7 @@ public class Command extends Interpretable {
      * @param command the lexed command tokens (path in {@code command[1]})
      * @throws Exception if the file cannot be read
      */
-    public void readFile(Sheet sheet, Lexeme[] command) throws Exception {
+    public void readFile(Sheet sheet, Token[] command) throws Exception {
         sheet.readFile(command[1].getFunc());
     }
 
@@ -68,12 +68,12 @@ public class Command extends Interpretable {
      * @param command the lexed command tokens (optional path in {@code command[1]})
      * @throws Exception if the file cannot be written
      */
-    public void writeFile(Sheet sheet, Lexeme[] command) throws Exception {
+    public void writeFile(Sheet sheet, Token[] command) throws Exception {
         if (command.length == 1) sheet.writeFile();
         else sheet.writeFile(command[1].getFunc());
     }
 
-    public Lexeme[] interpret(Lexeme[] command, Sheet sheet) throws Exception {
+    public Token[] interpret(Token[] command, Sheet sheet) throws Exception {
         commandExists = true;
         commandResult = CommandResult.NONE;
         switch (command[0].getFunc()) {
@@ -110,7 +110,7 @@ public class Command extends Interpretable {
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
             }
         }
-        return new Lexeme[]{new Lexeme(0)};
+        return new Token[]{new Token(0)};
     }
 
     private void cellColor(@NotNull String color, Sheet sheet) {

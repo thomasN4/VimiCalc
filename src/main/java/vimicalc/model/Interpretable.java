@@ -10,7 +10,7 @@ import static vimicalc.utils.Conversions.isNumber;
  * {@link Command} (colon commands like {@code :w}, {@code :q}).
  *
  * <p>Provides a shared {@link #lexer(String)} that tokenises the expression
- * text into {@link Lexeme} arrays, and a template-method
+ * text into {@link Token} arrays, and a template-method
  * {@link #interpret(Sheet)} that lexes and evaluates in one step.</p>
  */
 abstract class Interpretable {
@@ -28,15 +28,15 @@ abstract class Interpretable {
     }
 
     /**
-     * Tokenises the expression text into an array of {@link Lexeme}s.
-     * Splits on spaces; numeric tokens become value lexemes, everything
-     * else becomes function/identifier lexemes. Parentheses are stripped.
+     * Tokenises the expression text into an array of {@link Token}s.
+     * Splits on spaces; numeric tokens become value tokens, everything
+     * else becomes function/identifier tokens. Parentheses are stripped.
      *
      * @param txt the expression text to tokenise
-     * @return the array of lexemes
+     * @return the array of tokens
      */
-    protected Lexeme[] lexer(@NotNull String txt) {
-        Lexeme[] argsLong = new Lexeme[txt.length()];
+    protected Token[] lexer(@NotNull String txt) {
+        Token[] argsLong = new Token[txt.length()];
         txt += ' ';
         String arg = "";
 
@@ -45,15 +45,15 @@ abstract class Interpretable {
             if (txt.charAt(i) == '(' || txt.charAt(i) == ')') continue;
             if (txt.charAt(i) == ' ') {
                 if (isNumber(arg))
-                    argsLong[argsLength++] = new Lexeme(Double.parseDouble(arg));
-                else argsLong[argsLength++] = new Lexeme(arg);
+                    argsLong[argsLength++] = new Token(Double.parseDouble(arg));
+                else argsLong[argsLength++] = new Token(arg);
                 arg = "";
                 continue;
             }
             arg += txt.charAt(i);
         }
 
-        Lexeme[] args = new Lexeme[argsLength];
+        Token[] args = new Token[argsLength];
         System.arraycopy(argsLong, 0, args, 0, argsLength);
 
         return args;
@@ -95,36 +95,36 @@ abstract class Interpretable {
      * Implemented by {@link Formula} (RPN evaluation) and {@link Command}
      * (command dispatch).
      *
-     * @param args  the lexeme array to evaluate
+     * @param args  the token array to evaluate
      * @param sheet the sheet context
-     * @return the resulting lexeme array (typically a single-element result)
+     * @return the resulting token array (typically a single-element result)
      * @throws Exception if evaluation fails
      */
-    public abstract Lexeme[] interpret(Lexeme[] args, Sheet sheet) throws Exception;
+    public abstract Token[] interpret(Token[] args, Sheet sheet) throws Exception;
 }
 
 /**
  * A token produced by the {@link Interpretable#lexer(String)}.
  *
- * <p>A lexeme is either a <b>value</b> (a numeric literal) or a <b>function</b>
+ * <p>A token is either a <b>value</b> (a numeric literal) or a <b>function</b>
  * (an operator, cell reference, or named function like "sum", "det", etc.).
  * The {@code isFunction} flag determines which field ({@code val} or {@code func})
  * holds the meaningful data.</p>
  */
-class Lexeme {
-    /** The function/identifier name (empty string for value lexemes). */
+class Token {
+    /** The function/identifier name (empty string for value tokens). */
     String func;
     /** The numeric value (only meaningful when {@code isFunction} is false). */
     double val;
-    /** {@code true} if this lexeme represents a function/identifier rather than a numeric value. */
+    /** {@code true} if this token represents a function/identifier rather than a numeric value. */
     boolean isFunction;
 
-    Lexeme(String func) {
+    Token(String func) {
         this.func = func;
         isFunction = true;
     }
 
-    Lexeme(double val) {
+    Token(double val) {
         this.val = val;
         isFunction = false;
         func = "";
