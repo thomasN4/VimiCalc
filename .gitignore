@@ -9,3 +9,7 @@ out/
 !gradle/wrapper/gradle-wrapper.jar
 current_modifications.txt
 javadoc/
+.classpath
+bin/
+hs_err_pid*.log
+README.html
