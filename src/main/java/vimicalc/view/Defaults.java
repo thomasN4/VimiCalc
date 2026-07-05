@@ -17,6 +17,8 @@ public final class Defaults {
     public static final int DEFAULT_CELL_H = 24;
     /** Default cell width in pixels (4x the height; halved for the first-column gutter in layout). */
     public static final int DEFAULT_CELL_W = DEFAULT_CELL_H * 4;
+    /** Default font size in points (matches the JavaFX canvas default font). */
+    public static final int DEFAULT_FONT_SIZE = 13;
     /** Default cell background color. */
     public static final Color DEFAULT_CELL_C = Color.WHITE;
     /** Default cell text color. */

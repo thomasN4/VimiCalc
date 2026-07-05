@@ -3,6 +3,8 @@ package vimicalc.model;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.view.Formatting;
 
+import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
+
 /**
  * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
  * {@code :cellColor red}).
@@ -20,7 +22,15 @@ import vimicalc.view.Formatting;
  *   <li>{@code :cellColor [color]} — set the cell background color</li>
  *   <li>{@code :txtColor [color]} — set the cell text color</li>
  *   <li>{@code :boldTxt} — toggle bold text on the current cell</li>
+ *   <li>{@code :italicTxt} — toggle italic text on the current cell</li>
+ *   <li>{@code :fontSize [px]} — set the font size (no argument resets to default)</li>
+ *   <li>{@code :fontWeight [bold|normal|100-900]} — set the font weight (no argument resets to normal)</li>
  * </ul>
+ *
+ * <p>Color arguments accept the built-in names (red, green, blue, white, black,
+ * gray, lGray, dGray, vLGray), any CSS color name (e.g. crimson, teal), or a
+ * hex value like {@code #ff8800}. An empty or unrecognized color resets to the
+ * default.</p>
  */
 public class Command extends Interpretable {
     /**
@@ -105,6 +115,29 @@ public class Command extends Interpretable {
                 else txtColor(command[1].getFunc(), sheet);
             }
             case "boldTxt" -> boldTxt(sheet);
+            case "italicTxt" -> italicTxt(sheet);
+            case "fontSize" -> {
+                if (command.length == 1) fontSize(DEFAULT_FONT_SIZE, sheet);
+                else {
+                    if (command[1].isFunction() ||
+                        command[1].getVal() < 4 || command[1].getVal() > 200)
+                        throw new Exception("fontSize expects a size between 4 and 200.");
+                    fontSize((int) command[1].getVal(), sheet);
+                }
+            }
+            case "fontWeight" -> {
+                if (command.length == 1) fontWeight("normal", sheet);
+                else if (!command[1].isFunction()) {
+                    if (command[1].getVal() < 100 || command[1].getVal() > 900)
+                        throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
+                    fontWeight(String.valueOf((int) command[1].getVal()), sheet);
+                }
+                else {
+                    if (!command[1].getFunc().equals("bold") && !command[1].getFunc().equals("normal"))
+                        throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
+                    fontWeight(command[1].getFunc(), sheet);
+                }
+            }
             default -> {
                 commandExists = false;
                 throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
@@ -155,5 +188,39 @@ public class Command extends Interpretable {
             f.setFontWeight("normal");
             if (f.isDefault()) sheet.deleteFormatting(xC, yC);
         } else f.setFontWeight("bold");
+    }
+
+    private void italicTxt(@NotNull Sheet sheet) {
+        Formatting f = sheet.findFormatting(xC, yC);
+        if (f == null) {
+            f = new Formatting();
+            sheet.addFormatting(xC, yC, f);
+            f.setFontPosture("italic");
+        } else if (f.getFontPosture().equals("italic")) {
+            f.setFontPosture("regular");
+            if (f.isDefault()) sheet.deleteFormatting(xC, yC);
+        } else f.setFontPosture("italic");
+    }
+
+    private void fontSize(int size, @NotNull Sheet sheet) {
+        Formatting f = sheet.findFormatting(xC, yC);
+        if (f == null) {
+            f = new Formatting();
+            sheet.addFormatting(xC, yC, f);
+        }
+        f.setFontSize(size);
+
+        if (f.isDefault()) sheet.deleteFormatting(xC, yC);
+    }
+
+    private void fontWeight(@NotNull String weight, @NotNull Sheet sheet) {
+        Formatting f = sheet.findFormatting(xC, yC);
+        if (f == null) {
+            f = new Formatting();
+            sheet.addFormatting(xC, yC, f);
+        }
+        f.setFontWeight(weight);
+
+        if (f.isDefault()) sheet.deleteFormatting(xC, yC);
     }
 }

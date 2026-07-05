@@ -416,6 +416,7 @@ public class Sheet {
             fo.addProperty("alignment", f.getAlignment());
             fo.addProperty("fontWeight", f.getFontWeight());
             fo.addProperty("fontPosture", f.getFontPosture());
+            fo.addProperty("fontSize", f.getFontSize());
             fmtArr.add(fo);
         }
         root.add("formatting", fmtArr);
@@ -545,6 +546,8 @@ public class Sheet {
                         fo.get("fontWeight").getAsString(),
                         fo.get("fontPosture").getAsString()
                     );
+                    // Older files predate the fontSize property; keep the default then.
+                    if (fo.has("fontSize")) f.setFontSize(fo.get("fontSize").getAsInt());
                     cellsFormatting.put(List.of(x, y), f);
                 }
             }

@@ -37,6 +37,8 @@ public class Formatting {
     String fontWeight;
     /** The font posture (e.g. "italic" or "regular"). */
     String fontPosture;
+    /** The font size in points. */
+    int fontSize;
 
     /**
      * Creates a formatting instance with all fields specified directly.
@@ -56,6 +58,7 @@ public class Formatting {
         this.alignment = alignment;
         this.fontWeight = fontWeight;
         this.fontPosture = fontPosture;
+        this.fontSize = DEFAULT_FONT_SIZE;
     }
 
     /** Creates a formatting instance with all default values. */
@@ -66,6 +69,7 @@ public class Formatting {
         alignment = setAlignment(DEFAULT_ALIGNMENT);
         fontWeight = setFontWeight(FontWeight.NORMAL);
         fontPosture = setFontPosture(FontPosture.REGULAR);
+        fontSize = DEFAULT_FONT_SIZE;
     }
 
     /**
@@ -123,6 +127,24 @@ public class Formatting {
     }
 
     /**
+     * Returns the font size in points.
+     *
+     * @return the font size
+     */
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    /**
+     * Sets the font size in points.
+     *
+     * @param fontSize the new font size
+     */
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    /**
      * Converts an RGB short array to a JavaFX {@link Color}.
      *
      * @param color the RGB short array
@@ -139,9 +161,9 @@ public class Formatting {
      */
     public short[] setColor(Color color) {
         return new short[]{
-            (short) (color.getRed() * 255),
-            (short) (color.getGreen() * 255),
-            (short) (color.getBlue() * 255)
+            (short) Math.round(color.getRed() * 255),
+            (short) Math.round(color.getGreen() * 255),
+            (short) Math.round(color.getBlue() * 255)
         };
     }
 
@@ -196,7 +218,13 @@ public class Formatting {
             case "lGray"  -> new short[]{(short) 211, (short) 211, (short) 211};
             case "dGray"  -> new short[]{(short) 169, (short) 169, (short) 169};
             case "vLGray" -> new short[]{105, 105, 105};
-            default       -> null;
+            default       -> {
+                try {
+                    yield setColor(Color.web(name));
+                } catch (Exception e) {
+                    yield null;
+                }
+            }
         };
     }
 
@@ -258,13 +286,18 @@ public class Formatting {
 
     /**
      * Converts a font weight string to a JavaFX {@link FontWeight}.
+     * Accepts "bold", "normal", or a numeric CSS-style weight (100-900).
      *
      * @param fontWeight the font weight string
      * @return the JavaFX FontWeight
      */
     public FontWeight setFXFontWeight(String fontWeight) {
         if (fontWeight.equals("bold")) return FontWeight.BOLD;
-        else return FontWeight.NORMAL;
+        try {
+            FontWeight w = FontWeight.findByWeight(Integer.parseInt(fontWeight));
+            if (w != null) return w;
+        } catch (NumberFormatException ignored) {}
+        return FontWeight.NORMAL;
     }
     /**
      * Converts a JavaFX {@link FontWeight} to a serializable string.
@@ -308,6 +341,15 @@ public class Formatting {
     }
 
     /**
+     * Sets the font posture directly from a string value.
+     *
+     * @param fontPosture "italic" or "regular"
+     */
+    public void setFontPosture(String fontPosture) {
+        this.fontPosture = fontPosture;
+    }
+
+    /**
      * Returns {@code true} if all formatting properties match their defaults,
      * meaning this cell needs no special formatting entry.
      *
@@ -319,7 +361,8 @@ public class Formatting {
                 vPos.equals(setVPos(DEFAULT_VPOS)) &&
                 alignment.equals(setAlignment(DEFAULT_ALIGNMENT)) &&
                 fontPosture.equals("regular") &&
-                fontWeight.equals("normal"));
+                fontWeight.equals("normal") &&
+                fontSize == DEFAULT_FONT_SIZE);
     }
 
     /**
@@ -333,17 +376,29 @@ public class Formatting {
      * @param txt the text content to display
      */
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
+        // Save shared GC state so this cell's style doesn't leak into
+        // cells rendered after it in the same pass.
+        Font prevFont = gc.getFont();
+        TextAlignment prevAlign = gc.getTextAlign();
+        VPos prevBaseline = gc.getTextBaseline();
+        javafx.scene.paint.Paint prevFill = gc.getFill();
+
         gc.setFill(setFXColor(cellColor));
         gc.fillRect(x, y, w, h);
         gc.setFill(setFXColor(txtColor));
         gc.setTextAlign(setFXAlignment(alignment));
         gc.setTextBaseline(setFXVPos(vPos));
         gc.setFont(Font.font(
-            gc.getFont().getFamily(),
+            prevFont.getFamily(),
             setFXFontWeight(fontWeight),
             setFXFontPosture(fontPosture),
-            gc.getFont().getSize()
+            fontSize
         ));
         gc.fillText(txt, x + (float)w/2, y + (float)h/2, w);
+
+        gc.setFont(prevFont);
+        gc.setTextAlign(prevAlign);
+        gc.setTextBaseline(prevBaseline);
+        gc.setFill(prevFill);
     }
 }
