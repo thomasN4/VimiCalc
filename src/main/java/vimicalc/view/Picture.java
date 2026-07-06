@@ -105,9 +105,17 @@ public class Picture extends simpleRect {
         super.draw(gc);
 
         for (Cell c : sheet.getCells()) {
-            if (c.xCoord() >= metadata.getFirstXC() &&
+            // A merge-start draws the whole merged block, so it must stay
+            // visible as long as any part of its range intersects the
+            // viewport — not only while its own (top-left) coordinate does.
+            int maxXC = c.xCoord(), maxYC = c.yCoord();
+            if (c.isMergeStart() && c.getMergeDelimiter() != null) {
+                maxXC = c.getMergeDelimiter().xCoord();
+                maxYC = c.getMergeDelimiter().yCoord();
+            }
+            if (maxXC >= metadata.getFirstXC() &&
                 c.xCoord() <= metadata.getLastXC() &&
-                c.yCoord() >= metadata.getFirstYC() &&
+                maxYC >= metadata.getFirstYC() &&
                 c.yCoord() <= metadata.getLastYC()) {
                     visibleCells.add(c);
             }

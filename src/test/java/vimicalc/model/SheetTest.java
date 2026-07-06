@@ -409,6 +409,49 @@ class SheetTest {
         }
 
         @Test
+        void roundTripFontSize() throws Exception {
+            Formatting f = new Formatting();
+            f.setFontSize(30);
+            sheet.addFormatting(2, 3, f);
+
+            String path = tempDir.resolve("fontsize.json").toString();
+            assertThrows(Exception.class, () -> sheet.writeFile(path));
+
+            loadSheet.readFile(path);
+            Formatting loaded = loadSheet.findFormatting(2, 3);
+            assertNotNull(loaded);
+            assertEquals(30, loaded.getFontSize());
+        }
+
+        @Test
+        void formattingWithoutFontSizeLoadsDefault() throws Exception {
+            // Files written before the fontSize property existed must still load.
+            String json = """
+                {
+                  "formatting": [
+                    {
+                      "x": 2, "y": 3,
+                      "cellColor": [255, 0, 0],
+                      "txtColor": [0, 0, 0],
+                      "vPos": "center",
+                      "alignment": "center",
+                      "fontWeight": "bold",
+                      "fontPosture": "regular"
+                    }
+                  ]
+                }
+                """;
+            Path path = tempDir.resolve("legacy.json");
+            java.nio.file.Files.writeString(path, json);
+
+            loadSheet.readFile(path.toString());
+            Formatting loaded = loadSheet.findFormatting(2, 3);
+            assertNotNull(loaded);
+            assertEquals(vimicalc.view.Defaults.DEFAULT_FONT_SIZE, loaded.getFontSize());
+            assertEquals("bold", loaded.getFontWeight());
+        }
+
+        @Test
         void roundTripColumnWidths() throws Exception {
             sheet.getPositions().getxOffsets().put(3, 120);
 

@@ -859,6 +859,7 @@ public class Controller implements Initializable {
             new Color(0.0, 0.67, 1, 1),
 //            Color.LIMEGREEN,
             camera.picture.metadata(),
+            sheet.getCellsFormatting(),
             () -> currMode
         );
         coordsInfo = new CoordsInfo(

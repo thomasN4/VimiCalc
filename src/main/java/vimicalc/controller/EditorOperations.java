@@ -287,18 +287,39 @@ public class EditorOperations {
      * Navigates the cell selector to the given coordinates by issuing
      * repeated move commands.
      *
+     * <p>Both axes are re-checked after every single step: a move (or the
+     * merge pull in {@link #maybeGoToMergeStart()}) can displace the axis
+     * that was already corrected, so running one axis to completion before
+     * the other lands on the wrong cell next to merged ranges. An iteration
+     * cap guards against unreachable targets (e.g. a merge interior, whose
+     * pull would otherwise oscillate forever).</p>
+     *
      * @param xCoord the target column (one-based)
      * @param yCoord the target row (one-based)
      */
     public void goTo(int xCoord, int yCoord) {
-        while (xCoord - ctrl.cellSelector.getXCoord() > 0)
-            moveRight();
-        while (xCoord - ctrl.cellSelector.getXCoord() < 0)
-            moveLeft();
-        while (yCoord - ctrl.cellSelector.getYCoord() > 0)
-            moveDown();
-        while (yCoord - ctrl.cellSelector.getYCoord() < 0)
-            moveUp();
+        int guard = 3 * (Math.abs(xCoord - ctrl.cellSelector.getXCoord()) +
+                         Math.abs(yCoord - ctrl.cellSelector.getYCoord())) + 32;
+        boolean xFirst = true;
+        int beforeLastXC = Integer.MIN_VALUE, beforeLastYC = Integer.MIN_VALUE;
+        while ((ctrl.cellSelector.getXCoord() != xCoord ||
+                ctrl.cellSelector.getYCoord() != yCoord) && guard-- > 0) {
+            int prevXC = ctrl.cellSelector.getXCoord(), prevYC = ctrl.cellSelector.getYCoord();
+            int dx = xCoord - prevXC, dy = yCoord - prevYC;
+            if (dx != 0 && (xFirst || dy == 0)) {
+                if (dx > 0) moveRight();
+                else moveLeft();
+            }
+            else if (dy > 0) moveDown();
+            else moveUp();
+            int currXC = ctrl.cellSelector.getXCoord(), currYC = ctrl.cellSelector.getYCoord();
+            if (currXC == prevXC && currYC == prevYC)
+                break; // blocked (sheet boundary): no progress possible
+            if (currXC == beforeLastXC && currYC == beforeLastYC)
+                xFirst = !xFirst; // merge skip/pull ping-pong: try the other axis
+            beforeLastXC = prevXC;
+            beforeLastYC = prevYC;
+        }
         ctrl.coordsInfo.setCoords(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
         updateVisualState();
     }

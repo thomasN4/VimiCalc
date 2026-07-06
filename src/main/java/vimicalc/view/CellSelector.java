@@ -3,12 +3,15 @@ package vimicalc.view;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.controller.Mode;
 import vimicalc.model.Cell;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -26,21 +29,26 @@ public class CellSelector extends simpleRect {
     private Cell selectedCell;
     private final Positions picPositions;
     private final Supplier<Mode> modeSupplier;
+    private final HashMap<List<Integer>, Formatting> cellsFormatting;
 
     /**
      * Creates a cell selector at the given pixel position.
      *
-     * @param x            the x pixel position
-     * @param y            the y pixel position
-     * @param w            the width in pixels
-     * @param h            the height in pixels
-     * @param c            the highlight color
-     * @param picPositions the position metadata for cell layout
-     * @param modeSupplier supplies the current editing mode
+     * @param x               the x pixel position
+     * @param y               the y pixel position
+     * @param w               the width in pixels
+     * @param h               the height in pixels
+     * @param c               the highlight color
+     * @param picPositions    the position metadata for cell layout
+     * @param cellsFormatting per-cell formatting overrides, used to style the
+     *                        selected cell's text like its rendered form
+     * @param modeSupplier    supplies the current editing mode
      */
-    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions, Supplier<Mode> modeSupplier) {
+    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions,
+                        HashMap<List<Integer>, Formatting> cellsFormatting, Supplier<Mode> modeSupplier) {
         super(x, y, w, h, c);
         this.picPositions = picPositions;
+        this.cellsFormatting = cellsFormatting;
         this.modeSupplier = modeSupplier;
         // Starts at (2,2) rather than (1,1) because the first row and column
         // (index 1) are reserved for the header gutter (FirstRow / FirstCol).
@@ -86,13 +94,28 @@ public class CellSelector extends simpleRect {
     }
 
     private void drawTxt(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.setTextAlign(TextAlignment.CENTER);
+        Formatting f = cellsFormatting.get(List.of(xCoord, yCoord));
+        Font prevFont = gc.getFont();
+        if (f != null) {
+            gc.setFill(f.setFXColor(f.getTxtColor()));
+            gc.setTextBaseline(f.setFXVPos(f.getvPos()));
+            gc.setTextAlign(f.setFXAlignment(f.getAlignment()));
+            gc.setFont(Font.font(
+                prevFont.getFamily(),
+                f.setFXFontWeight(f.getFontWeight()),
+                f.setFXFontPosture(f.getFontPosture()),
+                f.getFontSize()
+            ));
+        } else {
+            gc.setFill(Color.BLACK);
+            gc.setTextBaseline(VPos.CENTER);
+            gc.setTextAlign(TextAlignment.CENTER);
+        }
         gc.fillText(selectedCell.txt()
             , x + (float) w/2
             , y + (float) h/2
             , w);
+        gc.setFont(prevFont);
     }
     @Override
     public void draw(@NotNull GraphicsContext gc) {
