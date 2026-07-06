@@ -76,6 +76,32 @@ class MergeInteractionUiTest {
             "the command should have applied to the cell it was typed on");
     }
 
+    @Test
+    void unmergeFromInteriorWorksAfterEditingMergedCell(FxRobot robot) {
+        // Merge (2,2)-(5,4), then type text into the merged cell — the INSERT
+        // commit replaces the merge-start object in the cell map while the
+        // interior cells keep referencing the old one (issue #29)
+        robot.type(KeyCode.V, KeyCode.L, KeyCode.L, KeyCode.L, KeyCode.J, KeyCode.J, KeyCode.M);
+        robot.type(KeyCode.I);
+        typeText(robot, "hi");
+        robot.type(KeyCode.ESCAPE);
+        assertTrue(controller.sheet.simplyFindCell(2, 2).isMergeStart());
+
+        // Move below an interior column and unmerge via a VISUAL selection
+        // that touches the interior cell (4,4)
+        robot.type(KeyCode.J, KeyCode.L, KeyCode.L);
+        assertEquals(4, controller.cellSelector.getXCoord());
+        assertEquals(5, controller.cellSelector.getYCoord());
+        robot.type(KeyCode.V, KeyCode.K, KeyCode.M);
+        robot.type(KeyCode.ESCAPE);
+
+        assertFalse(controller.sheet.simplyFindCell(2, 2).isMergeStart(),
+            "the merge-start stored in the cell map must be unmerged");
+        assertTrue(controller.camera.picture.data().stream()
+                .noneMatch(vimicalc.model.Cell::isMergeStart),
+            "no visible cell may still render as a merged block (ghost merge)");
+    }
+
     /** Types text as real key codes; the Controller reads KEY_PRESSED text. */
     private void typeText(FxRobot robot, String s) {
         for (char c : s.toCharArray()) {

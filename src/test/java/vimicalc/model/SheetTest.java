@@ -268,6 +268,41 @@ class SheetTest {
             assertNull(sheet.simplyFindCell(2, 1).getMergeDelimiter());
             assertNull(sheet.simplyFindCell(1, 2).getMergeDelimiter());
         }
+
+        @Test
+        void unmergeFromInteriorAfterMergeStartWasReplacedInMap() {
+            // Merge (1,1)-(2,2), then replace the merge-start in the cell map
+            // with a copy — as Controller.textInput does when committing text
+            // typed into a merged cell. The interior cells still reference the
+            // old object; unmerging via an interior must still unmerge the
+            // cell actually stored in the map (issue #29).
+            Cell start = new Cell(1, 1, "content");
+            Cell end = new Cell(2, 2);
+            start.setMergeStart(true);
+            start.mergeWith(end);
+            end.mergeWith(start);
+            Cell mid1 = new Cell(2, 1);
+            mid1.mergeWith(start);
+            Cell mid2 = new Cell(1, 2);
+            mid2.mergeWith(start);
+
+            sheet.simplyAddCell(start);
+            sheet.simplyAddCell(end);
+            sheet.simplyAddCell(mid1);
+            sheet.simplyAddCell(mid2);
+
+            sheet.addCell(start.copy());
+
+            sheet.unmergeCells(sheet.findCell(2, 1));
+
+            Cell mappedStart = sheet.simplyFindCell(1, 1);
+            assertFalse(mappedStart.isMergeStart(),
+                "the merge-start stored in the map must be unmerged");
+            assertNull(mappedStart.getMergeDelimiter());
+            assertNull(sheet.simplyFindCell(2, 1).getMergeDelimiter());
+            assertNull(sheet.simplyFindCell(1, 2).getMergeDelimiter());
+            assertNull(sheet.simplyFindCell(2, 2).getMergeDelimiter());
+        }
     }
 
     // ── Dependency re-evaluation ──
