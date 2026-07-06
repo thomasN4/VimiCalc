@@ -190,10 +190,16 @@ public class Sheet {
      * @param c any cell in the merge group
      */
     public void unmergeCells(@NotNull Cell c) {
-        if (c.isMergeStart())
-            unmergeCells(c, c.getMergeDelimiter());
-        else if (c.getMergeDelimiter() != null)
-            unmergeCells(c.getMergeDelimiter(), c.getMergeDelimiter().getMergeDelimiter());
+        Cell mergeStart = c.isMergeStart() ? c : c.getMergeDelimiter();
+        if (mergeStart == null) return;
+        // Merge pointers can reference an object that addCell has since
+        // replaced in the cell map (e.g. after editing the merged cell's
+        // text), so resolve the merge-start through the map before mutating
+        // it — otherwise only the orphaned copy gets unmerged (issue #29).
+        Cell mapped = simplyFindCell(mergeStart.xCoord(), mergeStart.yCoord());
+        if (mapped.isMergeStart()) mergeStart = mapped;
+        if (mergeStart.getMergeDelimiter() != null)
+            unmergeCells(mergeStart, mergeStart.getMergeDelimiter());
     }
     private void unmergeCells(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
         System.out.println("Unmerging cells...");
