@@ -13,3 +13,6 @@ javadoc/
 bin/
 hs_err_pid*.log
 README.html
+
+# Claude Code: personal/local settings stay untracked
+.claude/settings.local.json
