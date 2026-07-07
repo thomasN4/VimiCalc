@@ -17,7 +17,7 @@ class FormulaTest {
     void setUp() {
         sheet = new Sheet();
         Positions positions = new Positions(
-            0, 0, 2000, 2000, 100, 30,
+            2000, 2000, 100, 30,
             new HashMap<>(), new HashMap<>()
         );
         positions.generate(0, 0);

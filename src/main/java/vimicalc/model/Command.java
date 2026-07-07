@@ -89,11 +89,11 @@ public class Command extends Interpretable {
         switch (command[0].getFunc()) {
             case "h", "help", "?" -> commandResult = CommandResult.HELP;
             case "e" -> readFile(sheet, command);
-            case "resCol" -> sheet.getPositions().generate(
+            case "resCol" -> sheet.getPositions().applyOffset(
                 new int[]{xC, (int) command[1].getVal()},
                 true
             );
-            case "resRow" -> sheet.getPositions().generate(
+            case "resRow" -> sheet.getPositions().applyOffset(
                 new int[]{yC, (int) command[1].getVal()},
                 false
             );

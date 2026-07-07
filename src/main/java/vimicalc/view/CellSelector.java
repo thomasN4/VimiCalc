@@ -14,39 +14,43 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static vimicalc.view.Defaults.GUTTER_W;
+import static vimicalc.view.Defaults.HEADER_H;
+
 /**
  * The cursor / selection highlight that indicates which cell is currently
  * active in the spreadsheet.
  *
- * <p>Tracks both the logical cell coordinates ({@code xCoord}, {@code yCoord})
- * and the pixel position on the canvas. Handles merged cells by expanding
- * the highlight to cover the full merged area. Also supports rendering
- * text as it is typed in INSERT mode.</p>
+ * <p>Tracks the logical cell coordinates ({@code xCoord}, {@code yCoord});
+ * the pixel position and size are always derived from the grid layout and
+ * the live camera offset (see {@link #syncToGrid()}), never accumulated.
+ * Handles merged cells by expanding the highlight to cover the full merged
+ * area. Also supports rendering text as it is typed in INSERT mode.</p>
  */
 public class CellSelector extends simpleRect {
 
     private int xCoord, yCoord, mergedW, mergedH;
     private Cell selectedCell;
+    private final Camera camera;
     private final Positions picPositions;
     private final Supplier<Mode> modeSupplier;
     private final HashMap<List<Integer>, Formatting> cellsFormatting;
 
     /**
-     * Creates a cell selector at the given pixel position.
+     * Creates a cell selector; its pixel position is derived from the grid
+     * layout, so {@code picPositions} must already be generated.
      *
-     * @param x               the x pixel position
-     * @param y               the y pixel position
-     * @param w               the width in pixels
-     * @param h               the height in pixels
      * @param c               the highlight color
+     * @param camera          the viewport camera the pixel position derives from
      * @param picPositions    the position metadata for cell layout
      * @param cellsFormatting per-cell formatting overrides, used to style the
      *                        selected cell's text like its rendered form
      * @param modeSupplier    supplies the current editing mode
      */
-    public CellSelector(int x, int y, int w, int h, Color c, Positions picPositions,
+    public CellSelector(Color c, Camera camera, Positions picPositions,
                         HashMap<List<Integer>, Formatting> cellsFormatting, Supplier<Mode> modeSupplier) {
-        super(x, y, w, h, c);
+        super(0, 0, 0, 0, c);
+        this.camera = camera;
         this.picPositions = picPositions;
         this.cellsFormatting = cellsFormatting;
         this.modeSupplier = modeSupplier;
@@ -55,6 +59,7 @@ public class CellSelector extends simpleRect {
         xCoord = 2;
         yCoord = 2;
         selectedCell = new Cell(xCoord, yCoord);
+        syncToGrid();
     }
 
     /**
@@ -163,24 +168,6 @@ public class CellSelector extends simpleRect {
     }
 
     /**
-     * Adjusts the pixel x-position by the given delta.
-     *
-     * @param x_mov the horizontal pixel delta
-     */
-    public void updateX(int x_mov) {
-        x += x_mov;
-    }
-
-    /**
-     * Adjusts the pixel y-position by the given delta.
-     *
-     * @param y_mov the vertical pixel delta
-     */
-    public void updateY(int y_mov) {
-        y += y_mov;
-    }
-
-    /**
      * Adjusts the logical column coordinate by the given delta.
      *
      * @param xCoord_mov the column delta
@@ -218,16 +205,24 @@ public class CellSelector extends simpleRect {
                     mergedH = picPositions.getCellAbsYs()[mergeEnd.yCoord()+1] -
                         picPositions.getCellAbsYs()[yCoord];
                 }
-                setDimensions();
+                syncToGrid();
                 return;
             }
         }
         selectedCell = new Cell(xCoord, yCoord);
-        setDimensions();
+        syncToGrid();
     }
 
-    private void setDimensions() {
-        w = picPositions.getCellAbsXs()[xCoord+1] - picPositions.getCellAbsXs()[xCoord];
-        h = picPositions.getCellAbsYs()[yCoord+1] - picPositions.getCellAbsYs()[yCoord];
+    /**
+     * Derives the pixel position and size from the grid layout and the live
+     * camera offset — the same formula the cell grid and headers use, so the
+     * highlight can never drift away from its cell (issue #30).
+     */
+    private void syncToGrid() {
+        int[] xs = picPositions.getCellAbsXs(), ys = picPositions.getCellAbsYs();
+        w = xs[xCoord+1] - xs[xCoord];
+        h = ys[yCoord+1] - ys[yCoord];
+        x = xs[xCoord] - camera.getAbsX() + GUTTER_W;
+        y = ys[yCoord] - camera.getAbsY() + HEADER_H;
     }
 }
