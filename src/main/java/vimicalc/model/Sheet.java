@@ -320,7 +320,7 @@ public class Sheet {
         if (cell.xCoord() > positions.getMaxXC() || cell.yCoord() > positions.getMaxYC()) {
             if (cell.xCoord() > positions.getMaxXC()) positions.setMaxXC(cell.xCoord());
             if (cell.yCoord() > positions.getMaxYC()) positions.setMaxYC(cell.yCoord());
-            positions.generate(positions.getCamAbsX(), positions.getCamAbsY());
+            positions.regenerate();
         }
     }
 

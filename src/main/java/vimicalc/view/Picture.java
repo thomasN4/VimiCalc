@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static vimicalc.view.Defaults.GUTTER_W;
+import static vimicalc.view.Defaults.HEADER_H;
+
 /**
  * The main spreadsheet grid renderer, responsible for drawing all visible cells
  * onto the canvas.
@@ -22,10 +25,6 @@ import java.util.Map;
  * and visual selection highlighting.</p>
  */
 public class Picture extends simpleRect {
-    /** Default cell width in pixels. */
-    private final int DCW;
-    /** Default cell height in pixels. */
-    private final int DCH;
     private ArrayList<Cell> visibleCells;
     private boolean isntReady;
     private final Positions metadata;
@@ -39,16 +38,12 @@ public class Picture extends simpleRect {
      * @param w               the width in pixels
      * @param h               the height in pixels
      * @param c               the background color
-     * @param DCW             the default cell width
-     * @param DCH             the default cell height
      * @param metadata        the position metadata
      * @param cellsFormatting per-cell formatting overrides
      */
-    public Picture(int x, int y, int w, int h, Color c, int DCW, int DCH, Positions metadata,
+    public Picture(int x, int y, int w, int h, Color c, Positions metadata,
                    HashMap<List<Integer>, Formatting> cellsFormatting) {
         super(x, y, w, h, c);
-        this.DCW = DCW;
-        this.DCH = DCH;
         this.metadata = metadata;
         this.cellsFormatting = cellsFormatting;
     }
@@ -124,8 +119,8 @@ public class Picture extends simpleRect {
         gc.setFill(new Color(0,0.67,1,1));
         selectedCoords.forEach(c ->
             gc.fillRect(
-                metadata.getCellAbsXs()[c[0]] - absX + (float) DCW/2,
-                metadata.getCellAbsYs()[c[1]] - absY + DCH,
+                metadata.getCellAbsXs()[c[0]] - absX + GUTTER_W,
+                metadata.getCellAbsYs()[c[1]] - absY + HEADER_H,
                 metadata.getCellAbsXs()[c[0]+1] - metadata.getCellAbsXs()[c[0]],
                 metadata.getCellAbsYs()[c[1]+1] - metadata.getCellAbsYs()[c[1]]
             )
@@ -170,8 +165,8 @@ public class Picture extends simpleRect {
                 System.out.println(cellsFormatting.get(List.of(c.xCoord(), c.yCoord())));
                 cellsFormatting.get(List.of(c.xCoord(), c.yCoord())).renderCell(
                     gc,
-                    (int) (metadata.getCellAbsXs()[c.xCoord()] - absX + (float)DCW/2),
-                    metadata.getCellAbsYs()[c.yCoord()] - absY + DCH,
+                    metadata.getCellAbsXs()[c.xCoord()] - absX + GUTTER_W,
+                    metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H,
                     cellWidth,
                     cellHeight,
                     c.txt()
@@ -179,8 +174,8 @@ public class Picture extends simpleRect {
             } catch (Exception ignored) {
                 gc.fillText(
                     c.txt(),
-                   metadata.getCellAbsXs()[c.xCoord()] - absX + (float) DCW / 2 + (float) cellWidth / 2,
-                   metadata.getCellAbsYs()[c.yCoord()] - absY + DCH + (float) cellHeight / 2,
+                   metadata.getCellAbsXs()[c.xCoord()] - absX + GUTTER_W + (float) cellWidth / 2,
+                   metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H + (float) cellHeight / 2,
                     cellWidth
                 );
             }
@@ -198,8 +193,8 @@ public class Picture extends simpleRect {
                         ignore = true;
                 if (!ignore) entry.getValue().renderCell(
                     gc,
-                    (int) (metadata.getCellAbsXs()[formattingXC] - absX + (float) DCW/2),
-                    metadata.getCellAbsYs()[formattingYC] - absY + DCH,
+                    metadata.getCellAbsXs()[formattingXC] - absX + GUTTER_W,
+                    metadata.getCellAbsYs()[formattingYC] - absY + HEADER_H,
                     metadata.getCellAbsXs()[formattingXC+1] - metadata.getCellAbsXs()[formattingXC],
                     metadata.getCellAbsYs()[formattingYC+1] - metadata.getCellAbsYs()[formattingYC],
                     ""

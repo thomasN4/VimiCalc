@@ -15,7 +15,13 @@ import java.util.HashMap;
  * <p>Regenerated every time the camera moves or column/row sizes change.</p>
  */
 public class Positions {
-    private int camAbsX, camAbsY, firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
+    /**
+     * The viewport edges passed to the last {@link #generate(int, int)} call.
+     * Only used by {@link #regenerate()} to re-run layout at the same spot;
+     * never a substitute for the live camera offset (see issue #30).
+     */
+    private int lastXInnerEdge, lastYInnerEdge;
+    private int firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
     private final int picW, picH, DCW, DCH;
     private HashMap<Integer, Integer> xOffsets;
     private HashMap<Integer, Integer> yOffsets;
@@ -24,8 +30,6 @@ public class Positions {
     /**
      * Creates a new position layout manager.
      *
-     * @param camAbsX  the initial camera horizontal offset
-     * @param camAbsY  the initial camera vertical offset
      * @param picW     the picture area width in pixels
      * @param picH     the picture area height in pixels
      * @param DCW      the default cell width in pixels
@@ -33,10 +37,8 @@ public class Positions {
      * @param xOffsets per-column pixel offsets from default width
      * @param yOffsets per-row pixel offsets from default height
      */
-    public Positions(int camAbsX, int camAbsY, int picW, int picH, int DCW, int DCH,
+    public Positions(int picW, int picH, int DCW, int DCH,
                      HashMap<Integer, Integer> xOffsets, HashMap<Integer, Integer> yOffsets) {
-        this.camAbsX = camAbsX;
-        this.camAbsY = camAbsY;
         this.xOffsets = xOffsets;
         this.yOffsets = yOffsets;
         this.picW = picW;
@@ -131,8 +133,18 @@ public class Positions {
         System.out.println("\t" + Arrays.toString(cellAbsYs));
         System.out.println('}');
 
-        camAbsX = xInnerEdge;
-        camAbsY = yInnerEdge;
+        lastXInnerEdge = xInnerEdge;
+        lastYInnerEdge = yInnerEdge;
+    }
+
+    /**
+     * Re-runs {@link #generate(int, int)} at the last-generated viewport edges.
+     * Used by callers without access to the camera (the model layer); safe
+     * because {@link Camera#scrollBy(int, int)} regenerates on every camera
+     * move, so the last edges always match the live offset.
+     */
+    public void regenerate() {
+        generate(lastXInnerEdge, lastYInnerEdge);
     }
 
     /**
@@ -142,12 +154,12 @@ public class Positions {
      *                  its pixel offset from the default size
      * @param isXAxis   {@code true} to resize a column, {@code false} for a row
      */
-    public void generate(int[] newOffset, boolean isXAxis) {
+    public void applyOffset(int[] newOffset, boolean isXAxis) {
         if (isXAxis)
             xOffsets.put(newOffset[0], newOffset[1]);
         else
             yOffsets.put(newOffset[0], newOffset[1]);
-        generate(camAbsX, camAbsY);
+        regenerate();
     }
 
     /** @return the first visible column coordinate */
@@ -178,16 +190,6 @@ public class Positions {
     /** @return the array of absolute y pixel positions for row boundaries */
     public int[] getCellAbsYs() {
         return cellAbsYs;
-    }
-
-    /** @return the camera horizontal offset */
-    public int getCamAbsX() {
-        return camAbsX;
-    }
-
-    /** @return the camera vertical offset */
-    public int getCamAbsY() {
-        return camAbsY;
     }
 
     /** @return the per-column pixel offset map */

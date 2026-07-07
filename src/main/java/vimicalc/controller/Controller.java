@@ -267,12 +267,6 @@ public class Controller implements Initializable {
                 }
                 currMode = Mode.NORMAL;
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
-                // Phantom move-left/move-right and move-up/move-down to force a
-                // camera/picture refresh so the command's effects are visible.
-                if (cellSelector.getX() == 0) moveRight();
-                else moveLeft();
-                if (cellSelector.getY() == 0) moveDown();
-                else moveUp();
 
                 String commandError = null;
                 try {
@@ -286,6 +280,9 @@ public class Controller implements Initializable {
                     return;
                 }
 
+                // Relayout at the live camera offset (the command may have
+                // resized columns/rows) and re-derive the cursor from it.
+                camera.picture.metadata().generate(camera.getAbsX(), camera.getAbsY());
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
@@ -778,10 +775,8 @@ public class Controller implements Initializable {
         CANVAS_H = (int) canvas.getHeight();
         sheet = new Sheet();
         sheet.setPositions(new Positions(
-            DEFAULT_CELL_W/2,
-            DEFAULT_CELL_H,
-            CANVAS_W - DEFAULT_CELL_W/2,
-            CANVAS_H - DEFAULT_CELL_H,
+            CANVAS_W - GUTTER_W,
+            CANVAS_H - HEADER_H,
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
             new HashMap<>(),
@@ -824,13 +819,11 @@ public class Controller implements Initializable {
      */
     void reset() {
         camera = new Camera(
-            DEFAULT_CELL_W/2,
-            DEFAULT_CELL_H,
-            CANVAS_W-DEFAULT_CELL_W/2,
+            GUTTER_W,
+            HEADER_H,
+            CANVAS_W-GUTTER_W,
             CANVAS_H-3*DEFAULT_CELL_H-4,
             DEFAULT_CELL_C,
-            DEFAULT_CELL_W,
-            DEFAULT_CELL_H,
             sheet.getPositions(),
             sheet.getCellsFormatting()
         );
@@ -852,12 +845,9 @@ public class Controller implements Initializable {
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
 
         cellSelector = new CellSelector(
-            camera.picture.metadata().getCellAbsXs()[2],
-            camera.picture.metadata().getCellAbsYs()[2],
-            camera.picture.metadata().getCellAbsXs()[2] - camera.picture.metadata().getCellAbsYs()[1],
-            camera.picture.metadata().getCellAbsYs()[2] - camera.picture.metadata().getCellAbsYs()[1],
             new Color(0.0, 0.67, 1, 1),
 //            Color.LIMEGREEN,
+            camera,
             camera.picture.metadata(),
             sheet.getCellsFormatting(),
             () -> currMode
@@ -869,18 +859,20 @@ public class Controller implements Initializable {
         );
         firstCol = new FirstCol(
             0,
-            DEFAULT_CELL_H,
-            DEFAULT_CELL_W/2,
+            HEADER_H,
+            GUTTER_W,
             CANVAS_H-3*DEFAULT_CELL_H-4,
             Color.LIGHTBLUE,
+            camera,
             camera.picture.metadata()
         );
         firstRow = new FirstRow(
-            DEFAULT_CELL_W/2,
+            GUTTER_W,
             0,
-            CANVAS_W-DEFAULT_CELL_W/2,
-            DEFAULT_CELL_H,
+            CANVAS_W-GUTTER_W,
+            HEADER_H,
             Color.LIGHTBLUE,
+            camera,
             camera.picture.metadata()
         );
         infoBar = new InfoBar(

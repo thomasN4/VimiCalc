@@ -14,6 +14,7 @@ import static vimicalc.utils.Conversions.toAlpha;
  * column, using the layout information from {@link Positions}.</p>
  */
 public class FirstRow extends simpleRect {
+    Camera camera;
     Positions picPositions;
 
     /**
@@ -24,10 +25,12 @@ public class FirstRow extends simpleRect {
      * @param w            the width in pixels
      * @param h            the height in pixels
      * @param c            the background color
+     * @param camera       the viewport camera the label positions derive from
      * @param picPositions the position metadata for cell layout
      */
-    public FirstRow(int x, int y, int w, int h, Color c, Positions picPositions) {
+    public FirstRow(int x, int y, int w, int h, Color c, Camera camera, Positions picPositions) {
         super(x, y, w, h, c);
+        this.camera = camera;
         this.picPositions = picPositions;
     }
 
@@ -40,7 +43,7 @@ public class FirstRow extends simpleRect {
         for (int xC = picPositions.getFirstXC(); xC <= picPositions.getLastXC(); xC++) {
             cellWidth = picPositions.getCellAbsXs()[xC+1] - picPositions.getCellAbsXs()[xC];
             gc.fillText(toAlpha(xC-1)
-                , picPositions.getCellAbsXs()[xC] - picPositions.getCamAbsX() + x + (float) cellWidth/2
+                , picPositions.getCellAbsXs()[xC] - camera.getAbsX() + x + (float) cellWidth/2
                 , (float) h/2
                 , cellWidth);
         }
