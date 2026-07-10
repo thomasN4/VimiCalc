@@ -56,6 +56,8 @@ public class HelpMenu extends simpleRect {
         "\t Formatting commands: :cellColor and :txtColor (CSS color names or #hex values),",
         "\t :fontSize [px], :fontWeight [bold|normal|100-900], :boldTxt and :italicTxt toggles.",
         "\t Formatting commands without an argument reset the property to its default.",
+        "\t View zoom: :zoom [25-400] sets the zoom percentage (no argument resets to 100%),",
+        "\t or use Ctrl-= / Ctrl-- / Ctrl-0 in NORMAL mode to zoom in / out / reset.",
         "\n",
         "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
         "NORMAL mode. They appear at the bottom right of the window as you type.",

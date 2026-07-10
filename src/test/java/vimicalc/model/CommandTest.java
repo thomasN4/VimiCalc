@@ -4,6 +4,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import vimicalc.view.Formatting;
+import vimicalc.view.Positions;
+
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,6 +123,45 @@ class CommandTest {
             run("cellColor teal");
             run("cellColor notacolor");
             assertNull(sheet.findFormatting(2, 3));
+        }
+    }
+
+    // ── :zoom ──
+
+    @Nested
+    class ZoomTests {
+        @BeforeEach
+        void setUpPositions() {
+            // :zoom acts on the sheet's Positions, which the bare Sheet from
+            // the outer setUp doesn't have.
+            sheet.setPositions(new Positions(852, 552, 96, 24, new HashMap<>(), new HashMap<>()));
+            sheet.getPositions().generate(48, 24);
+        }
+
+        @Test
+        void setsZoomFromPercent() throws Exception {
+            run("zoom 150");
+            assertEquals(1.5, sheet.getPositions().getZoom());
+        }
+
+        @Test
+        void noArgumentResetsToDefault() throws Exception {
+            run("zoom 150");
+            run("zoom");
+            assertEquals(1.0, sheet.getPositions().getZoom());
+        }
+
+        @Test
+        void outOfRangePercentThrows() {
+            Exception low = assertThrows(Exception.class, () -> run("zoom 10"));
+            assertTrue(low.getMessage().contains("zoom"));
+            Exception high = assertThrows(Exception.class, () -> run("zoom 500"));
+            assertTrue(high.getMessage().contains("zoom"));
+        }
+
+        @Test
+        void nonNumericPercentThrows() {
+            assertThrows(Exception.class, () -> run("zoom huge"));
         }
     }
 

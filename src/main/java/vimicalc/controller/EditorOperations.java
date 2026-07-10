@@ -1,6 +1,7 @@
 package vimicalc.controller;
 
 import vimicalc.model.*;
+import vimicalc.view.Positions;
 
 import static vimicalc.view.Defaults.*;
 
@@ -67,6 +68,41 @@ public class EditorOperations {
         ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
         ctrl.firstRow.draw(ctrl.gc);
         ctrl.firstCol.draw(ctrl.gc);
+    }
+
+    /** Zooms the grid view in by one step. */
+    public void zoomIn() {
+        applyZoom(ctrl.camera.picture.metadata().getZoom() * ZOOM_STEP);
+    }
+
+    /** Zooms the grid view out by one step. */
+    public void zoomOut() {
+        applyZoom(ctrl.camera.picture.metadata().getZoom() / ZOOM_STEP);
+    }
+
+    /** Resets the grid view zoom to 100%. */
+    public void zoomReset() {
+        applyZoom(DEFAULT_ZOOM);
+    }
+
+    /**
+     * Applies a new zoom factor (clamped by {@link Positions#setZoom(double)}),
+     * re-renders the grid, and keeps the cursor visible: the camera offset is
+     * never mutated by zoom itself, but zooming in can push the selected cell
+     * past the viewport edge, so the standard scroll correction runs after.
+     *
+     * @param newZoom the requested zoom factor (1.0 = 100%)
+     */
+    private void applyZoom(double newZoom) {
+        Positions positions = ctrl.camera.picture.metadata();
+        positions.setZoom(newZoom);
+        ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.camera.ready();
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        scrollCursorIntoView();
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.readCell(ctrl.camera.picture.data());
+        ctrl.infoBar.setInfobarTxt("Zoom: " + Math.round(positions.getZoom() * 100) + "%");
     }
 
     /**

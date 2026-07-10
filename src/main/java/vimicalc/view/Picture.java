@@ -3,6 +3,7 @@ package vimicalc.view;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Cell;
@@ -13,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.GUTTER_W;
 import static vimicalc.view.Defaults.HEADER_H;
 
@@ -148,6 +150,10 @@ public class Picture extends simpleRect {
         gc.setFill(Color.BLACK);
         gc.setTextBaseline(VPos.CENTER);
         gc.setTextAlign(TextAlignment.CENTER);
+        // Scale the default font so unformatted cells zoom with the grid;
+        // formatted cells scale via the zoom argument to renderCell.
+        Font prevFont = gc.getFont();
+        gc.setFont(Font.font(prevFont.getFamily(), DEFAULT_FONT_SIZE * metadata.getZoom()));
         int cellHeight, cellWidth;
         for (Cell c : visibleCells) {
             if (c.isMergeStart()) {
@@ -169,7 +175,8 @@ public class Picture extends simpleRect {
                     metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H,
                     cellWidth,
                     cellHeight,
-                    c.txt()
+                    c.txt(),
+                    metadata.getZoom()
                 );
             } catch (Exception ignored) {
                 gc.fillText(
@@ -197,9 +204,11 @@ public class Picture extends simpleRect {
                     metadata.getCellAbsYs()[formattingYC] - absY + HEADER_H,
                     metadata.getCellAbsXs()[formattingXC+1] - metadata.getCellAbsXs()[formattingXC],
                     metadata.getCellAbsYs()[formattingYC+1] - metadata.getCellAbsYs()[formattingYC],
-                    ""
+                    "",
+                    metadata.getZoom()
                 );
             }
         }
+        gc.setFont(prevFont);
     }
 }

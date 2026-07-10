@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static vimicalc.view.Defaults.DEFAULT_ZOOM;
+import static vimicalc.view.Defaults.MAX_ZOOM;
+import static vimicalc.view.Defaults.MIN_ZOOM;
+
 /**
  * Manages the pixel-level layout of the spreadsheet grid.
  *
@@ -26,6 +30,11 @@ public class Positions {
     private HashMap<Integer, Integer> xOffsets;
     private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
+    /**
+     * The view zoom factor multiplied into every cell size during
+     * {@link #generate(int, int)}. Session-only view state — never persisted.
+     */
+    private double zoom = DEFAULT_ZOOM;
 
     /**
      * Creates a new position layout manager.
@@ -49,15 +58,20 @@ public class Positions {
         maxYC = 0;
     }
 
+    /** Scales a pixel size by the current zoom factor. */
+    private int scaled(int size) {
+        return (int) Math.round(size * zoom);
+    }
+
     private int xOuterEdge(int xInnerEdge, int xC) {
-        return xInnerEdge + picW + 2 * DCW +
+        return xInnerEdge + picW + scaled(2 * DCW +
                ((xOffsets.get(xC) == null) ? 0 : xOffsets.get(xC)) +
-               ((xOffsets.get(xC + 1) == null) ? 0 : xOffsets.get(xC + 1));
+               ((xOffsets.get(xC + 1) == null) ? 0 : xOffsets.get(xC + 1)));
     }
     private int yOuterEdge(int yInnerEdge, int yC) {
-        return yInnerEdge + picH + 2 * DCH +
+        return yInnerEdge + picH + scaled(2 * DCH +
                ((yOffsets.get(yC) == null) ? 0 : yOffsets.get(yC)) +
-               ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1));
+               ((yOffsets.get(yC + 1) == null) ? 0 : yOffsets.get(yC + 1)));
     }
 
     /**
@@ -76,6 +90,10 @@ public class Positions {
         System.out.println("Generating metadata...");
         ArrayList<Integer> cellAbsXsLong = new ArrayList<>(), cellAbsYsLong = new ArrayList<>();
         cellAbsXsLong.add(0); cellAbsYsLong.add(0);
+        // The seeds stay unscaled by zoom: cellAbsXs[1] must equal GUTTER_W and
+        // cellAbsYs[1] must equal HEADER_H so the grid stays flush against the
+        // fixed-size chrome at the camera home position (Camera.scrollBy clamps
+        // to those values).
         int currAbsX = DCW/2, currAbsY = DCH, xC = 1, yC = 1;
         boolean firstXCFound = false, lastXCFound = false,
                 firstYCFound = false, lastYCFound = false;
@@ -88,7 +106,10 @@ public class Positions {
                 firstXCFound = true;
             }
             cellAbsXsLong.add(currAbsX);
-            currAbsX += DCW + xOffset;
+            // Scaling (default + offset) as one unit makes :resCol sizes zoom
+            // proportionally without mutating the stored offset maps, and
+            // per-increment rounding cannot accumulate drift across columns.
+            currAbsX += scaled(DCW + xOffset);
             if (currAbsX > xInnerEdge + picW && !lastXCFound) {
                 System.out.println(currAbsX + " " + xInnerEdge + " " + picW + " " + DCW);
                 lastXC = xC;
@@ -107,7 +128,7 @@ public class Positions {
                 firstYCFound = true;
             }
             cellAbsYsLong.add(currAbsY);
-            currAbsY += DCH + yOffset;
+            currAbsY += scaled(DCH + yOffset);
             if (currAbsY > yInnerEdge + picH && !lastYCFound) {
                 System.out.println(currAbsY + " " + yInnerEdge + " " + picH + " " + DCH);
                 lastYC = yC;
@@ -159,6 +180,22 @@ public class Positions {
             xOffsets.put(newOffset[0], newOffset[1]);
         else
             yOffsets.put(newOffset[0], newOffset[1]);
+        regenerate();
+    }
+
+    /** @return the current view zoom factor */
+    public double getZoom() {
+        return zoom;
+    }
+
+    /**
+     * Sets the view zoom factor, clamped to {@code [MIN_ZOOM, MAX_ZOOM]},
+     * and regenerates positions at the last viewport edges.
+     *
+     * @param zoom the new zoom factor (1.0 = 100%)
+     */
+    public void setZoom(double zoom) {
+        this.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
         regenerate();
     }
 
