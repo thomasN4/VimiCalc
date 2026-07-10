@@ -249,4 +249,33 @@ class CellTest {
             assertNull(c.getMergeDelimiter());
         }
     }
+
+    @Nested
+    class ToStringTests {
+
+        @Test
+        void mergeStartPrintsDelimiterLabel() {
+            // Merge J6:X6 — start (10,6) points at delimiter X6 (24,6)
+            Cell start = new Cell(10, 6);
+            start.setMergeStart(true);
+            start.mergeWith(new Cell(24, 6));
+            assertTrue(start.toString().contains("mergeDelimiter=X6"),
+                       "expected delimiter X6, got: " + start);
+        }
+
+        @Test
+        void mergeInteriorPrintsStartLabel() {
+            // Interior (11,6) of merge J6:X6 points back at the start J6 (10,6)
+            Cell interior = new Cell(11, 6);
+            interior.mergeWith(new Cell(10, 6));
+            assertTrue(interior.toString().contains("mergeDelimiter=J6"),
+                       "expected delimiter J6, got: " + interior);
+        }
+
+        @Test
+        void unmergedCellPrintsNullDelimiter() {
+            Cell c = new Cell(1, 1);
+            assertTrue(c.toString().contains("mergeDelimiter=null"));
+        }
+    }
 }
