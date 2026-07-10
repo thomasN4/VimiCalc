@@ -22,7 +22,7 @@ import static vimicalc.utils.Conversions.isNumber;
  *   <li><b>Navigation:</b> g{coords} (go-to), Ctrl-O (jump back)</li>
  *   <li><b>Editing:</b> i/a (enter INSERT), = (enter FORMULA), v (enter VISUAL)</li>
  *   <li><b>Undo/redo:</b> u (undo), r (redo)</li>
- *   <li><b>Macros:</b> q{letter} (record), @{letter} (play), . (repeat last)</li>
+ *   <li><b>Macros:</b> q{letter} (record), @{letter} (play), . (repeat last edit)</li>
  *   <li><b>Conditionals:</b> &lt;formula{then}{else} (conditional execution)</li>
  *   <li><b>Cell ref:</b> ${coords}{movement} (use cell value as multiplier; last char must be a movement key)</li>
  *   <li><b>Range operations:</b> {func}{multiplier}{dir} (e.g. "d5j" to delete 5 cells down)</li>
@@ -35,9 +35,13 @@ public class KeyCommand {
     private final HashSet<Character> Ffuncs = new HashSet<>(Set.of('d', 'p'));
     /** "Movement functions" — the four directional keys used in Vim-style navigation. */
     public static final HashSet<Character> Mfuncs = new HashSet<>(Set.of('h', 'j', 'k', 'l'));
+    /** "Editing functions" — commands that modify the sheet (dd, yy/yd, pp, m) and are
+     *  therefore replayable by the {@code .} command. */
+    public static final HashSet<Character> EditFuncs = new HashSet<>(Set.of('d', 'y', 'p', 'm'));
     /** The current key-command expression being built. */
     private String expr;
-    /** The previous completed expression, replayed by the {@code .} command. */
+    /** The last completed editing expression, replayed by the {@code .} command.
+     *  Movement and other non-editing expressions do not overwrite it. */
     private String prevExpr;
     /** The macro currently being recorded. */
     protected LinkedList<KeyEvent> currMacro;
@@ -158,6 +162,20 @@ public class KeyCommand {
             i++;
         int multiplier = (i == startIndex) ? 1 : Integer.parseInt(expr.substring(startIndex, i));
         return new Prefix(i, multiplier);
+    }
+
+    /**
+     * Returns whether a completed expression is an editing command that the
+     * {@code .} command should replay. Movement and other non-editing
+     * expressions leave the dot register untouched, matching Vim's
+     * "repeat the last change" semantics.
+     *
+     * @param expr the completed key-command expression
+     * @return {@code true} if the expression should become the {@code .} target
+     */
+    public boolean updatesDotRegister(@NotNull String expr) {
+        Prefix prefix = parsePrefix(0, expr);
+        return prefix.funcIndex() < expr.length() && EditFuncs.contains(expr.charAt(prefix.funcIndex()));
     }
 
     /**
@@ -448,7 +466,7 @@ public class KeyCommand {
         }
 
         if (evaluationFinished) {
-            prevExpr = expr;
+            if (updatesDotRegister(expr)) prevExpr = expr;
             this.expr = "";
         }
     }

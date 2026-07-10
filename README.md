@@ -13,7 +13,7 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 - **RPN formulas** — Reverse Polish Notation formula engine with cell references, ranges (`B2:D3`), and relative coordinates (`kl -3j`)
 - **Matrix operations** — `matMul`, `det`, `tpose`, `sum`, `prod`, `quot`, and more
 - **Math functions** — `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `ln`, `log10`, `logBase`, `exp`, `sqrt`, `abs`, `PI`
-- **Macros** — Record with `q`, replay with `@`, chain with multipliers (`5@a`), repeat last command with `.`
+- **Macros** — Record with `q`, replay with `@`, chain with multipliers (`5@a`), repeat the last editing command (`dd`, `yy`, `pp`, …) with `.`
 - **Conditional execution** — `<formula{then{else}` syntax for conditional key commands
 - **Cell merging** — Select cells in Visual mode and press `m`
 - **Cell formatting** — Background colors, text colors, and bold via command mode

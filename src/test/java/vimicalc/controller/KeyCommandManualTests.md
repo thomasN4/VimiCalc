@@ -139,14 +139,20 @@ Legend:
 3. Press `q` — info bar shows "Macro recorded"
 4. Press `@` `a` — the cell below should now contain "macro", cursor moves down
 
-### 7.2 Repeat last command (.)
-Note: `.` replays the last KeyCommand expression, including movement keys.
-Since there's no mouse navigation yet, any movement between `.` presses
-will overwrite the previous expression. See issue #24.
+### 7.2 Repeat last editing command (.)
+Note: `.` replays the last *editing* expression (`dd`, `yy`, `yd`, `pp`, `m`,
+macro replays). Movement keys, undo/redo, and mode switches do not overwrite
+it — Vim-like behavior, per issue #24.
 
+1. Enter "one" into A1 and "two" into A2
+2. At A1, press `d` `d` — A1 is deleted
+3. Press `j` — moves to A2
+4. Press `.` — A2 is deleted (replays `dd`, not `j`)
+
+### 7.3 Dot ignores movement-only presses
 1. At A1, press `3` `j` — moves to A4
-2. Press `.` — moves 3 more rows down to A7 (replays `3j`)
-3. Press `.` — moves to A10
+2. Press `.` — nothing moves (movement never enters the dot register;
+   if an edit was made earlier in the session, that edit repeats instead)
 
 ---
 
