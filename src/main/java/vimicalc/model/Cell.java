@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
+import static vimicalc.utils.Conversions.coordsIntsToStr;
 import static vimicalc.utils.Conversions.isNumber;
-import static vimicalc.utils.Conversions.toAlpha;
 
 /**
  * Represents a single cell in the spreadsheet.
@@ -177,7 +177,7 @@ public class Cell {
     public String toString() {
         String mergeDelimiterCoords;
         try {
-            mergeDelimiterCoords = toAlpha(mergeDelimiter.xCoord) + mergeDelimiter.yCoord;
+            mergeDelimiterCoords = coordsIntsToStr(mergeDelimiter.xCoord, mergeDelimiter.yCoord);
         } catch (Exception ignored) {
             mergeDelimiterCoords = "null";
         }
