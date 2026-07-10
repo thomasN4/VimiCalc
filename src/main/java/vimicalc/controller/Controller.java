@@ -391,14 +391,14 @@ public class Controller implements Initializable {
                             }
                         }
                     }
-
-                    selectedCoords = new ArrayList<>();
-                    camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
-                    currMode = Mode.NORMAL;
-                    cellSelector.readCell(camera.picture.data());
-                    goingToMergeStart = false;
-                    editorOps.maybeGoToMergeStart();
                 }
+
+                selectedCoords = new ArrayList<>();
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                currMode = Mode.NORMAL;
+                cellSelector.readCell(camera.picture.data());
+                goingToMergeStart = false;
+                editorOps.maybeGoToMergeStart();
             }
             case ESCAPE -> {
                 goingToMergeStart = false;
