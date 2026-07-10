@@ -17,9 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Regression tests for cursor/rendering interactions with merged cells at
  * viewport edges: merge-range-aware visibility culling in
- * {@link vimicalc.view.Picture#take}, and axis re-checking in
+ * {@link vimicalc.view.Picture#take}, axis re-checking in
  * {@link EditorOperations#goTo} (colon commands executed beside a merge used
- * to displace the cursor via the phantom-move/merge-pull interaction).
+ * to displace the cursor via the phantom-move/merge-pull interaction), and
+ * VISUAL-mode merge/unmerge mode transitions.
  */
 @ExtendWith(ApplicationExtension.class)
 class MergeInteractionUiTest {
@@ -100,6 +101,29 @@ class MergeInteractionUiTest {
         assertTrue(controller.camera.picture.data().stream()
                 .noneMatch(vimicalc.model.Cell::isMergeStart),
             "no visible cell may still render as a merged block (ghost merge)");
+    }
+
+    @Test
+    void visualUnmergeExitsToNormalWithSelectionCleared(FxRobot robot) {
+        // Merge (2,2)-(8,3); the merge branch exits to NORMAL on the start cell
+        robot.type(KeyCode.V);
+        for (int i = 0; i < 6; i++) robot.type(KeyCode.L);
+        robot.type(KeyCode.J, KeyCode.M);
+        assertEquals(Mode.NORMAL, controller.currMode);
+        assertEquals(2, controller.cellSelector.getXCoord());
+
+        // VISUAL-select the merge start and unmerge with 'm' — the unmerge
+        // branch used to stay in VISUAL with the selection live, so the next
+        // 'm' re-merged the selected rectangle (issue #32)
+        robot.type(KeyCode.V, KeyCode.M);
+
+        assertEquals(Mode.NORMAL, controller.currMode,
+            "VISUAL 'm' unmerge must exit to NORMAL like the merge branch");
+        assertTrue(controller.selectedCoords.isEmpty(),
+            "the selection must be cleared after unmerging");
+        assertTrue(controller.camera.picture.data().stream()
+                .noneMatch(vimicalc.model.Cell::isMergeStart),
+            "the range must actually be unmerged");
     }
 
     @Test
