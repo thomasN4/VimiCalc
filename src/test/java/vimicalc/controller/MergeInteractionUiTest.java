@@ -102,6 +102,83 @@ class MergeInteractionUiTest {
             "no visible cell may still render as a merged block (ghost merge)");
     }
 
+    @Test
+    void goToMergeInteriorLandsOnMergeStart(FxRobot robot) {
+        // Build merge B2:E4 = (2,2)-(5,4) on the model (avoids TestFX key
+        // delivery, which is unreliable on rootless Xwayland), then approach
+        // from below the range and go-to an interior cell (issue #31).
+        robot.interact(() -> {
+            mergeRange(2, 2, 5, 4);
+            refreshView();
+            controller.editorOps.goTo(2, 5); // below merge start
+            assertEquals(2, controller.cellSelector.getXCoord());
+            assertEquals(5, controller.cellSelector.getYCoord());
+
+            controller.editorOps.goTo(3, 3); // interior C3
+
+            assertEquals(2, controller.cellSelector.getXCoord(),
+                "go-to merge interior must land on merge-start column");
+            assertEquals(2, controller.cellSelector.getYCoord(),
+                "go-to merge interior must land on merge-start row");
+            assertTrue(controller.cellSelector.getSelectedCell().isMergeStart(),
+                "selected cell must be the merge start");
+        });
+    }
+
+    @Test
+    void goToMergeDelimiterFromBelowRightLandsOnMergeStart(FxRobot robot) {
+        // Same merge, approach from below-right, target the non-start
+        // delimiter corner E4 — different approach direction, same landing.
+        robot.interact(() -> {
+            mergeRange(2, 2, 5, 4);
+            refreshView();
+            controller.editorOps.goTo(6, 5); // below-right of merge
+            assertEquals(6, controller.cellSelector.getXCoord());
+            assertEquals(5, controller.cellSelector.getYCoord());
+
+            controller.editorOps.goTo(5, 4); // merge-end delimiter
+
+            assertEquals(2, controller.cellSelector.getXCoord(),
+                "go-to merge delimiter must land on merge-start column");
+            assertEquals(2, controller.cellSelector.getYCoord(),
+                "go-to merge delimiter must land on merge-start row");
+            assertTrue(controller.cellSelector.getSelectedCell().isMergeStart());
+        });
+    }
+
+    /**
+     * Creates a rectangular merge on the sheet matching VISUAL-mode {@code m}
+     * wiring (start at top-left, end at bottom-right, interiors point at start).
+     */
+    private void mergeRange(int minXC, int minYC, int maxXC, int maxYC) {
+        vimicalc.model.Cell mergeStart = controller.sheet.findCell(minXC, minYC);
+        vimicalc.model.Cell mergeEnd = controller.sheet.findCell(maxXC, maxYC);
+        if (mergeStart.isEmpty()) controller.sheet.addCell(mergeStart);
+        if (mergeEnd.isEmpty()) controller.sheet.addCell(mergeEnd);
+        else mergeEnd = new vimicalc.model.Cell(mergeEnd.xCoord(), mergeEnd.yCoord());
+        mergeStart.setMergeStart(true);
+        mergeStart.mergeWith(mergeEnd);
+        mergeEnd.mergeWith(mergeStart);
+        for (int i = minXC; i <= maxXC; i++) {
+            for (int j = minYC; j <= maxYC; j++) {
+                if (i == minXC && j == minYC) continue;
+                if (i == maxXC && j == maxYC) continue;
+                vimicalc.model.Cell c = new vimicalc.model.Cell(i, j);
+                c.mergeWith(mergeStart);
+                controller.sheet.addCell(c);
+            }
+        }
+        // ensure end is in the map (may have been replaced when non-empty)
+        controller.sheet.addCell(mergeEnd);
+    }
+
+    private void refreshView() {
+        controller.camera.picture.take(
+            controller.gc, controller.sheet, controller.selectedCoords,
+            controller.camera.getAbsX(), controller.camera.getAbsY());
+        controller.cellSelector.readCell(controller.camera.picture.data());
+    }
+
     /** Types text as real key codes; the Controller reads KEY_PRESSED text. */
     private void typeText(FxRobot robot, String s) {
         for (char c : s.toCharArray()) {

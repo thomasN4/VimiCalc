@@ -227,17 +227,29 @@ public class EditorOperations {
      * Navigates the cell selector to the given coordinates by issuing
      * repeated move commands.
      *
+     * <p>If the target lies inside a merged range (including the non-start
+     * delimiter corner), it is remapped to the merge-start cell first — the
+     * same convention as hjkl via {@link #maybeGoToMergeStart()}. Without
+     * that remap, step-wise movement cannot settle on a merge interior:
+     * each entry into the range is pulled back to the start, and the loop
+     * exits beside the merge (issue #31).</p>
+     *
      * <p>Both axes are re-checked after every single step: a move (or the
      * merge pull in {@link #maybeGoToMergeStart()}) can displace the axis
      * that was already corrected, so running one axis to completion before
      * the other lands on the wrong cell next to merged ranges. An iteration
-     * cap guards against unreachable targets (e.g. a merge interior, whose
-     * pull would otherwise oscillate forever).</p>
+     * cap guards against pathological non-convergence (e.g. sheet-boundary
+     * blocks or residual merge skip/pull ping-pong en route).</p>
      *
      * @param xCoord the target column (one-based)
      * @param yCoord the target row (one-based)
      */
     public void goTo(int xCoord, int yCoord) {
+        // Land on merge start when the target is a merge interior (issue #31).
+        Cell resolved = ctrl.sheet.findCell(xCoord, yCoord);
+        xCoord = resolved.xCoord();
+        yCoord = resolved.yCoord();
+
         int guard = 3 * (Math.abs(xCoord - ctrl.cellSelector.getXCoord()) +
                          Math.abs(yCoord - ctrl.cellSelector.getYCoord())) + 32;
         boolean xFirst = true;
