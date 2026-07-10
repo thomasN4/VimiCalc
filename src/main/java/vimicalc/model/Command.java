@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import vimicalc.view.Formatting;
 
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
+import static vimicalc.view.Defaults.DEFAULT_ZOOM;
 
 /**
  * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
@@ -25,6 +26,7 @@ import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
  *   <li>{@code :italicTxt} — toggle italic text on the current cell</li>
  *   <li>{@code :fontSize [px]} — set the font size (no argument resets to default)</li>
  *   <li>{@code :fontWeight [bold|normal|100-900]} — set the font weight (no argument resets to normal)</li>
+ *   <li>{@code :zoom [25-400]} — set the view zoom percentage (no argument resets to 100%)</li>
  * </ul>
  *
  * <p>Color arguments accept the built-in names (red, green, blue, white, black,
@@ -123,6 +125,16 @@ public class Command extends Interpretable {
                         command[1].getVal() < 4 || command[1].getVal() > 200)
                         throw new Exception("fontSize expects a size between 4 and 200.");
                     fontSize((int) command[1].getVal(), sheet);
+                }
+            }
+            case "zoom" -> {
+                // Global view zoom — unlike :resCol/:fontSize, ignores xC/yC.
+                if (command.length == 1) sheet.getPositions().setZoom(DEFAULT_ZOOM);
+                else {
+                    if (command[1].isFunction() ||
+                        command[1].getVal() < 25 || command[1].getVal() > 400)
+                        throw new Exception("zoom expects a percentage between 25 and 400.");
+                    sheet.getPositions().setZoom(command[1].getVal() / 100);
                 }
             }
             case "fontWeight" -> {

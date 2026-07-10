@@ -27,6 +27,7 @@ import static vimicalc.utils.Conversions.isNumber;
  *   <li><b>Cell ref:</b> ${coords}{movement} (use cell value as multiplier; last char must be a movement key)</li>
  *   <li><b>Range operations:</b> {func}{multiplier}{dir} (e.g. "d5j" to delete 5 cells down)</li>
  *   <li><b>Quit shortcuts:</b> ZZ (save+quit), ZQ (quit without saving)</li>
+ *   <li><b>Zoom:</b> Ctrl-= (zoom in), Ctrl-- (zoom out), Ctrl-0 (reset)</li>
  * </ul>
  */
 public class KeyCommand {
@@ -106,6 +107,33 @@ public class KeyCommand {
             }
             case C -> {
                 if (event.isControlDown()) {
+                    expr = "";
+                    ctrl.infoBar.setIBarExpr("");
+                    return;
+                }
+            }
+            // Zoom shortcuts consume the event only with Ctrl held; otherwise
+            // the keys keep their NORMAL-mode meaning ('=' enters FORMULA
+            // mode, '0' stays a multiplier digit).
+            case EQUALS, PLUS, ADD -> {
+                if (event.isControlDown()) {
+                    ops.zoomIn();
+                    expr = "";
+                    ctrl.infoBar.setIBarExpr("");
+                    return;
+                }
+            }
+            case MINUS, SUBTRACT -> {
+                if (event.isControlDown()) {
+                    ops.zoomOut();
+                    expr = "";
+                    ctrl.infoBar.setIBarExpr("");
+                    return;
+                }
+            }
+            case DIGIT0, NUMPAD0 -> {
+                if (event.isControlDown()) {
+                    ops.zoomReset();
                     expr = "";
                     ctrl.infoBar.setIBarExpr("");
                     return;

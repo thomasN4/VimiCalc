@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "cells": [
+    {
+      "x": 2, "y": 2, "txt": "RPN Formula Showcase",
+      "mergeStart": true, "mergeEndX": 4, "mergeEndY": 2
+    },
+    { "x": 2, "y": 3, "txt": "Formulas are written in Reverse Polish Notation" },
+
+    { "x": 2, "y": 5, "txt": "3 5 8 * +" },
+    { "x": 3, "y": 5, "formulaTxt": "3 5 8 * +" },
+    { "x": 2, "y": 6, "txt": "2 10 ^" },
+    { "x": 3, "y": 6, "formulaTxt": "2 10 ^" },
+    { "x": 2, "y": 7, "txt": "PI 6 / sin" },
+    { "x": 3, "y": 7, "formulaTxt": "PI 6 / sin" },
+    { "x": 2, "y": 8, "txt": "C5 C6 +  (cell refs)" },
+    { "x": 3, "y": 8, "formulaTxt": "C5 C6 +" },
+
+    { "x": 2, "y": 10, "txt": "Ranges (data in E5:E8):" },
+    { "x": 5, "y": 5, "txt": "10" },
+    { "x": 5, "y": 6, "txt": "20" },
+    { "x": 5, "y": 7, "txt": "30" },
+    { "x": 5, "y": 8, "txt": "40" },
+    { "x": 2, "y": 11, "txt": "E5:E8 sum" },
+    { "x": 3, "y": 11, "formulaTxt": "E5:E8 sum" },
+    { "x": 2, "y": 12, "txt": "E5:E8 prod" },
+    { "x": 3, "y": 12, "formulaTxt": "E5:E8 prod" },
+
+    { "x": 2, "y": 14, "txt": "Matrix (E14:F15):" },
+    { "x": 5, "y": 14, "txt": "1" },
+    { "x": 6, "y": 14, "txt": "2" },
+    { "x": 5, "y": 15, "txt": "3" },
+    { "x": 6, "y": 15, "txt": "4" },
+    { "x": 2, "y": 15, "txt": "E14:F15 det" },
+    { "x": 3, "y": 15, "formulaTxt": "E14:F15 det" }
+  ],
+  "columnWidths": { "2": 100 },
+  "rowHeights": {},
+  "formatting": [
+    {
+      "x": 2, "y": 2,
+      "cellColor": [90, 60, 150], "txtColor": [255, 255, 255],
+      "vPos": "center", "alignment": "center",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 20
+    },
+    {
+      "x": 2, "y": 3,
+      "cellColor": [255, 255, 255], "txtColor": [108, 117, 125],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "italic", "fontSize": 12
+    },
+    {
+      "x": 2, "y": 5,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 6,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 7,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 8,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 10,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 11,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 12,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 14,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 15,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    }
+  ]
+}

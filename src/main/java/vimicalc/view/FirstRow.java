@@ -2,10 +2,12 @@ package vimicalc.view;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
 import static vimicalc.utils.Conversions.toAlpha;
+import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 
 /**
  * The column header row displayed at the top of the spreadsheet.
@@ -39,6 +41,10 @@ public class FirstRow extends simpleRect {
         super.draw(gc);
         gc.setFill(Color.BLACK);
         gc.setTextAlign(TextAlignment.CENTER);
+        // Scale the label font with the view zoom so headers grow with the
+        // grid; fillText's max-width squeezes labels that outgrow the header.
+        Font prevFont = gc.getFont();
+        gc.setFont(Font.font(prevFont.getFamily(), DEFAULT_FONT_SIZE * picPositions.getZoom()));
         int cellWidth;
         for (int xC = picPositions.getFirstXC(); xC <= picPositions.getLastXC(); xC++) {
             cellWidth = picPositions.getCellAbsXs()[xC+1] - picPositions.getCellAbsXs()[xC];
@@ -47,5 +53,6 @@ public class FirstRow extends simpleRect {
                 , (float) h/2
                 , cellWidth);
         }
+        gc.setFont(prevFont);
     }
 }

@@ -74,4 +74,70 @@ class PositionsTest {
         assertEquals(24 + 13, ys[3] - ys[2], "the target row gains exactly the offset");
         assertEquals(24, ys[4] - ys[3], "rows after the target keep the default height");
     }
+
+    // ── Zoom ──
+
+    @Test
+    void zoomScalesDefaultCellSizes() {
+        positions.setZoom(2.0);
+
+        int[] xs = positions.getCellAbsXs(), ys = positions.getCellAbsYs();
+        assertEquals(192, xs[3] - xs[2], "column widths double at 200% zoom");
+        assertEquals(48, ys[3] - ys[2], "row heights double at 200% zoom");
+    }
+
+    @Test
+    void zoomKeepsTheHomeOriginUnscaled() {
+        positions.setZoom(2.0);
+
+        assertEquals(48, positions.getCellAbsXs()[1],
+            "cellAbsXs[1] must stay GUTTER_W so the grid stays flush with the fixed chrome");
+        assertEquals(24, positions.getCellAbsYs()[1],
+            "cellAbsYs[1] must stay HEADER_H so the grid stays flush with the fixed chrome");
+    }
+
+    @Test
+    void zoomScalesResizedColumnsProportionallyWithoutMutatingOffsets() {
+        positions.applyOffset(new int[]{3, 31}, true);
+
+        positions.setZoom(2.0);
+
+        int[] xs = positions.getCellAbsXs();
+        assertEquals(2 * (96 + 31), xs[4] - xs[3], "the resized column scales as (default + offset) * zoom");
+        assertEquals(192, xs[3] - xs[2], "other columns scale from the default width");
+        assertEquals(31, positions.getxOffsets().get(3), "the stored offset map is not mutated by zoom");
+    }
+
+    @Test
+    void zoomClampsToTheAllowedRange() {
+        positions.setZoom(10.0);
+        assertEquals(4.0, positions.getZoom(), "zoom clamps to the maximum");
+
+        positions.setZoom(0.01);
+        assertEquals(0.25, positions.getZoom(), "zoom clamps to the minimum");
+    }
+
+    @Test
+    void zoomStepsProduceUniformColumnWidths() {
+        positions.setZoom(1.1);
+
+        int[] xs = positions.getCellAbsXs();
+        for (int xC = 2; xC <= 5; xC++)
+            assertEquals(106, xs[xC + 1] - xs[xC],
+                "per-increment rounding must not accumulate drift across columns");
+    }
+
+    @Test
+    void resetZoomRestoresTheExactOriginalLayout() {
+        int[] xs = positions.getCellAbsXs().clone(), ys = positions.getCellAbsYs().clone();
+        int firstXC = positions.getFirstXC(), lastXC = positions.getLastXC();
+
+        positions.setZoom(1.7);
+        positions.setZoom(1.0);
+
+        assertArrayEquals(xs, positions.getCellAbsXs());
+        assertArrayEquals(ys, positions.getCellAbsYs());
+        assertEquals(firstXC, positions.getFirstXC());
+        assertEquals(lastXC, positions.getLastXC());
+    }
 }

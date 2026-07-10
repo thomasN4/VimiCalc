@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.GUTTER_W;
 import static vimicalc.view.Defaults.HEADER_H;
 
@@ -109,12 +110,13 @@ public class CellSelector extends simpleRect {
                 prevFont.getFamily(),
                 f.setFXFontWeight(f.getFontWeight()),
                 f.setFXFontPosture(f.getFontPosture()),
-                f.getFontSize()
+                f.getFontSize() * picPositions.getZoom()
             ));
         } else {
             gc.setFill(Color.BLACK);
             gc.setTextBaseline(VPos.CENTER);
             gc.setTextAlign(TextAlignment.CENTER);
+            gc.setFont(Font.font(prevFont.getFamily(), DEFAULT_FONT_SIZE * picPositions.getZoom()));
         }
         gc.fillText(selectedCell.txt()
             , x + (float) w/2

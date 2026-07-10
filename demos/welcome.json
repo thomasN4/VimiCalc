@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "cells": [
+    {
+      "x": 2, "y": 2, "txt": "Welcome to VimiCalc!",
+      "mergeStart": true, "mergeEndX": 5, "mergeEndY": 3
+    },
+    { "x": 2, "y": 5, "txt": "Move around with h j k l (multipliers work: try 5j)" },
+    { "x": 2, "y": 6, "txt": "Press i to insert text, Esc to return to NORMAL mode" },
+    { "x": 2, "y": 7, "txt": "Press = to write an RPN formula, Enter to commit it" },
+    { "x": 2, "y": 8, "txt": "Press ; for commands: :w saves, :help opens the manual" },
+    { "x": 2, "y": 9, "txt": "Zoom: Ctrl+= / Ctrl+- / Ctrl+0, or :zoom 150" },
+    { "x": 2, "y": 10, "txt": "Press v for VISUAL mode; m merges the selected cells" },
+    { "x": 2, "y": 12, "txt": "A formula cell (move onto it to see its RPN):" },
+    { "x": 6, "y": 12, "formulaTxt": "3 5 8 * +" }
+  ],
+  "columnWidths": { "2": 280 },
+  "rowHeights": {},
+  "formatting": [
+    {
+      "x": 2, "y": 2,
+      "cellColor": [33, 111, 190], "txtColor": [255, 255, 255],
+      "vPos": "center", "alignment": "center",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 26
+    },
+    {
+      "x": 2, "y": 5,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 6,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 7,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 8,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 9,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 10,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "regular", "fontSize": 13
+    },
+    {
+      "x": 2, "y": 12,
+      "cellColor": [255, 255, 255], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "left",
+      "fontWeight": "normal", "fontPosture": "italic", "fontSize": 13
+    },
+    {
+      "x": 6, "y": 12,
+      "cellColor": [223, 240, 216], "txtColor": [0, 0, 0],
+      "vPos": "center", "alignment": "center",
+      "fontWeight": "bold", "fontPosture": "regular", "fontSize": 13
+    }
+  ]
+}

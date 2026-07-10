@@ -143,6 +143,32 @@ class ViewportSyncUiTest {
         assertCursorGridAligned();
     }
 
+    @Test
+    void zoomKeepsCursorAlignedAndCameraClamped(FxRobot robot) {
+        Positions pos = controller.camera.picture.metadata();
+        int prevAbsX = controller.camera.getAbsX(), prevAbsY = controller.camera.getAbsY();
+
+        robot.press(KeyCode.CONTROL).type(KeyCode.EQUALS).release(KeyCode.CONTROL);
+        assertEquals(Math.round(DEFAULT_CELL_W * ZOOM_STEP), pos.getCellAbsXs()[3] - pos.getCellAbsXs()[2],
+            "one zoom-in step must scale column widths by ZOOM_STEP");
+        assertEquals(prevAbsX, controller.camera.getAbsX(), "zoom must not move the camera");
+        assertEquals(prevAbsY, controller.camera.getAbsY(), "zoom must not move the camera");
+        assertCursorGridAligned();
+
+        robot.press(KeyCode.CONTROL).type(KeyCode.DIGIT0).release(KeyCode.CONTROL);
+        assertEquals(1.0, pos.getZoom(), "Ctrl-0 must reset the zoom factor");
+        assertEquals(DEFAULT_CELL_W, pos.getCellAbsXs()[3] - pos.getCellAbsXs()[2],
+            "Ctrl-0 must restore the default column width");
+        assertCursorGridAligned();
+
+        robot.type(KeyCode.SEMICOLON);
+        typeText(robot, "zoom 200");
+        robot.type(KeyCode.ENTER);
+        assertEquals(2.0, pos.getZoom(), ":zoom 200 must set the zoom factor to 2.0");
+        assertEquals(2 * DEFAULT_CELL_W, pos.getCellAbsXs()[3] - pos.getCellAbsXs()[2]);
+        assertCursorGridAligned();
+    }
+
     /**
      * The issue #30 invariant: the cursor's pixel rectangle equals the shared
      * viewport formula applied to its logical cell — the same arithmetic the

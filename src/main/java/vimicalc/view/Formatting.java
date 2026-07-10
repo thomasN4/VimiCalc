@@ -376,6 +376,24 @@ public class Formatting {
      * @param txt the text content to display
      */
     public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt) {
+        renderCell(gc, x, y, w, h, txt, 1.0);
+    }
+
+    /**
+     * Renders a cell with this formatting's colors, alignment, and font style,
+     * multiplying the view zoom factor into the font size at render time. The
+     * stored {@code fontSize} is untouched, so per-cell {@code :fontSize}
+     * values and persistence are unaffected by zoom.
+     *
+     * @param gc   the graphics context
+     * @param x    the cell's x-coordinate (pixels)
+     * @param y    the cell's y-coordinate (pixels)
+     * @param w    the cell's width (pixels)
+     * @param h    the cell's height (pixels)
+     * @param txt  the text content to display
+     * @param zoom the view zoom factor (1.0 = 100%)
+     */
+    public void renderCell(@NotNull GraphicsContext gc, int x, int y, int w, int h, String txt, double zoom) {
         // Save shared GC state so this cell's style doesn't leak into
         // cells rendered after it in the same pass.
         Font prevFont = gc.getFont();
@@ -392,7 +410,7 @@ public class Formatting {
             prevFont.getFamily(),
             setFXFontWeight(fontWeight),
             setFXFontPosture(fontPosture),
-            fontSize
+            fontSize * zoom
         ));
         gc.fillText(txt, x + (float)w/2, y + (float)h/2, w);
 

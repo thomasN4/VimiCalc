@@ -1,0 +1,309 @@
+{
+  "version": 1,
+  "cells": [
+    {
+      "x": 3,
+      "y": 2
+    },
+    {
+      "x": 2,
+      "y": 2,
+      "txt": "Monthly Budget",
+      "mergeStart": true,
+      "mergeEndX": 3,
+      "mergeEndY": 2
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "txt": "Amount"
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "txt": "Item"
+    },
+    {
+      "x": 3,
+      "y": 4,
+      "txt": "850"
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "txt": "Rent"
+    },
+    {
+      "x": 3,
+      "y": 5,
+      "txt": "355"
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "txt": "Groceries"
+    },
+    {
+      "x": 3,
+      "y": 6,
+      "txt": "90"
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "txt": "Transport"
+    },
+    {
+      "x": 3,
+      "y": 7,
+      "txt": "140"
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "txt": "Utilities"
+    },
+    {
+      "x": 3,
+      "y": 8,
+      "txt": "75"
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "txt": "Fun"
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "formulaTxt": "C4:C8 sum",
+      "txt": "1510"
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "txt": "TOTAL"
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "txt": "Edit an amount and watch TOTAL update"
+    }
+  ],
+  "columnWidths": {
+    "2": 60,
+    "3": 30
+  },
+  "rowHeights": {},
+  "formatting": [
+    {
+      "x": 2,
+      "y": 2,
+      "cellColor": [
+        46,
+        139,
+        87
+      ],
+      "txtColor": [
+        255,
+        255,
+        255
+      ],
+      "vPos": "center",
+      "alignment": "center",
+      "fontWeight": "bold",
+      "fontPosture": "regular",
+      "fontSize": 18
+    },
+    {
+      "x": 3,
+      "y": 3,
+      "cellColor": [
+        222,
+        226,
+        230
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "right",
+      "fontWeight": "bold",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 3,
+      "cellColor": [
+        222,
+        226,
+        230
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "bold",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 4,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 5,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 6,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 7,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 8,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 3,
+      "y": 9,
+      "cellColor": [
+        255,
+        249,
+        196
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "right",
+      "fontWeight": "bold",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 9,
+      "cellColor": [
+        255,
+        249,
+        196
+      ],
+      "txtColor": [
+        0,
+        0,
+        0
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "bold",
+      "fontPosture": "regular",
+      "fontSize": 13
+    },
+    {
+      "x": 2,
+      "y": 11,
+      "cellColor": [
+        255,
+        255,
+        255
+      ],
+      "txtColor": [
+        108,
+        117,
+        125
+      ],
+      "vPos": "center",
+      "alignment": "left",
+      "fontWeight": "normal",
+      "fontPosture": "italic",
+      "fontSize": 12
+    }
+  ]
+}

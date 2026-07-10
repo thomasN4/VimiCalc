@@ -23,6 +23,14 @@ public final class Defaults {
     public static final int HEADER_H = DEFAULT_CELL_H;
     /** Default font size in points (matches the JavaFX canvas default font). */
     public static final int DEFAULT_FONT_SIZE = 13;
+    /** Default view zoom factor (100%). */
+    public static final double DEFAULT_ZOOM = 1.0;
+    /** Minimum view zoom factor (25%). */
+    public static final double MIN_ZOOM = 0.25;
+    /** Maximum view zoom factor (400%). */
+    public static final double MAX_ZOOM = 4.0;
+    /** Multiplicative step applied per zoom-in/zoom-out key press. */
+    public static final double ZOOM_STEP = 1.1;
     /** Default cell background color. */
     public static final Color DEFAULT_CELL_C = Color.WHITE;
     /** Default cell text color. */

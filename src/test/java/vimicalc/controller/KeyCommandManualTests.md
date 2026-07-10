@@ -199,3 +199,40 @@ it — Vim-like behavior, per issue #24.
 ### 10.5 Entering COMMAND mode to escape
 1. Type `y` (expression waiting for second char)
 2. Press `;` — enters COMMAND mode, expression resets
+
+---
+
+## 11. Zoom (Ctrl+=, Ctrl+-, Ctrl+0, :zoom)
+
+### 11.1 Zoom in / out / reset with keys
+1. Press Ctrl+`=` three times — cells, their text, and the row/column header
+   labels all grow together; the status/info bars stay their normal size;
+   info bar shows "Zoom: 133%"
+2. Press Ctrl+`-` once — one step back down, info bar shows "Zoom: 121%"
+3. Press Ctrl+`0` — layout returns exactly to the original size,
+   info bar shows "Zoom: 100%"
+
+### 11.2 Un-modified keys keep their meaning
+1. Press `=` (no Ctrl) — enters FORMULA mode as usual; press Escape
+2. Press `1` `0` `j` — cursor moves down 10 cells (the `0` still works
+   as a multiplier digit); the view does not zoom
+
+### 11.3 :zoom command
+1. Press `;` then type `zoom 200` and press Enter — cells double in size
+2. Press `;` then type `zoom` (no argument) and press Enter — back to 100%
+3. Press `;` then type `zoom 10` and press Enter — info bar shows the error
+   "zoom expects a percentage between 25 and 400."
+
+### 11.4 Zoom interacts with scroll and resized cells
+1. Navigate far from the origin (e.g. `g` T40) so the view is scrolled
+2. Press Ctrl+`=` a few times — the cursor stays visible (the view
+   auto-scrolls if the zoomed cell would fall off the edge)
+3. Press Ctrl+`0`, then on some column run `;` `resCol 40` Enter
+4. Press Ctrl+`=` — the widened column grows proportionally
+   (stays wider than its neighbors); Ctrl+`0` restores it to exactly
+   default + 40 pixels
+
+### 11.5 Zoom with merged cells
+1. Select a block in VISUAL mode (`v`, move, `m`) to merge it
+2. Press Ctrl+`=` — the merged block scales as one region and its
+   text scales with it
