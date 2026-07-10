@@ -145,4 +145,41 @@ class KeyCommandParsingTest {
         assertFalse(KeyCommand.Mfuncs.contains('p'));
         assertFalse(KeyCommand.Mfuncs.contains('x'));
     }
+
+    // --- Dot-register updates (issue #24) ---
+
+    @Test
+    void editingCommandsUpdateDotRegister() {
+        assertTrue(kc.updatesDotRegister("dd"));
+        assertTrue(kc.updatesDotRegister("yy"));
+        assertTrue(kc.updatesDotRegister("yd"));
+        assertTrue(kc.updatesDotRegister("pp"));
+        assertTrue(kc.updatesDotRegister("m"));
+    }
+
+    @Test
+    void multipliedEditingCommandsUpdateDotRegister() {
+        assertTrue(kc.updatesDotRegister("3dd"));
+        assertTrue(kc.updatesDotRegister("12pp"));
+        assertTrue(kc.updatesDotRegister("d5j")); // range delete
+    }
+
+    @Test
+    void movementDoesNotUpdateDotRegister() {
+        assertFalse(kc.updatesDotRegister("h"));
+        assertFalse(kc.updatesDotRegister("j"));
+        assertFalse(kc.updatesDotRegister("k"));
+        assertFalse(kc.updatesDotRegister("l"));
+        assertFalse(kc.updatesDotRegister("5j"));
+        assertFalse(kc.updatesDotRegister("12h"));
+    }
+
+    @Test
+    void nonEditingCommandsDoNotUpdateDotRegister() {
+        assertFalse(kc.updatesDotRegister("u"));  // undo
+        assertFalse(kc.updatesDotRegister("r"));  // redo
+        assertFalse(kc.updatesDotRegister("v"));  // enter VISUAL
+        assertFalse(kc.updatesDotRegister("gA3")); // go-to
+        assertFalse(kc.updatesDotRegister(""));
+    }
 }
