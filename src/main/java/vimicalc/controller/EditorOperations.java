@@ -61,7 +61,7 @@ public class EditorOperations {
         int bottom = ys[yc+1] - ctrl.camera.getAbsY() + HEADER_H;
         int dx = right > ctrl.CANVAS_W ? right - ctrl.CANVAS_W
                : left < GUTTER_W ? left - GUTTER_W : 0;
-        int dy = bottom > ctrl.statusBar.getY() ? bottom - ctrl.statusBar.getY()
+        int dy = bottom > ctrl.viewportBottom() ? bottom - ctrl.viewportBottom()
                : top < HEADER_H ? top - HEADER_H : 0;
         if (dx == 0 && dy == 0) return;
         ctrl.camera.scrollBy(dx, dy);

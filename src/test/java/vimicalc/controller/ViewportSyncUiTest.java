@@ -137,7 +137,7 @@ class ViewportSyncUiTest {
 
         for (int i = 0; i < 21; i++) robot.type(KeyCode.J);
         assertTrue(controller.camera.getAbsY() > HEADER_H, "downward scroll expected");
-        assertEquals(controller.statusBar.getY(),
+        assertEquals(controller.viewportBottom(),
             controller.cellSelector.getY() + controller.cellSelector.getH(),
             "after a scroll the cursor cell must sit flush against the bottom edge");
         assertCursorGridAligned();
