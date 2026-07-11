@@ -52,6 +52,38 @@ class PositionsTest {
     }
 
     @Test
+    void setViewportShrinksAndRestoresTheVisibleRange() {
+        int firstXC = positions.getFirstXC(), lastXC = positions.getLastXC();
+        int firstYC = positions.getFirstYC(), lastYC = positions.getLastYC();
+
+        positions.setViewport(400, 300);
+        assertTrue(positions.getLastXC() < lastXC,
+            "a narrower viewport must show fewer columns");
+        assertTrue(positions.getLastYC() < lastYC,
+            "a shorter viewport must show fewer rows");
+        assertEquals(firstXC, positions.getFirstXC(),
+            "resizing must relayout at the previously generated edges");
+        assertEquals(firstYC, positions.getFirstYC());
+
+        positions.setViewport(852, 552);
+        assertEquals(lastXC, positions.getLastXC(),
+            "restoring the viewport must restore the visible range");
+        assertEquals(lastYC, positions.getLastYC());
+    }
+
+    @Test
+    void setViewportGrowsTheVisibleRange() {
+        int lastXC = positions.getLastXC(), lastYC = positions.getLastYC();
+
+        positions.setViewport(1600, 900);
+
+        assertTrue(positions.getLastXC() > lastXC,
+            "a wider viewport must show more columns");
+        assertTrue(positions.getLastYC() > lastYC,
+            "a taller viewport must show more rows");
+    }
+
+    @Test
     void applyOffsetWidensOnlyTheTargetColumn() {
         int firstXC = positions.getFirstXC();
 

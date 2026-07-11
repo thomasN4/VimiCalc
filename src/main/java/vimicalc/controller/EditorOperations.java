@@ -106,6 +106,55 @@ public class EditorOperations {
     }
 
     /**
+     * Applies a new canvas (grid viewport) size after a window resize and
+     * re-renders everything: the layout is regenerated for the new dimensions,
+     * the grid, headers, and cursor are repainted, and the standard scroll
+     * correction keeps the selected cell visible when the viewport shrinks.
+     *
+     * <p>Unlike {@link #applyZoom(double)}, this can run in any editing mode,
+     * so it uses {@link CellSelector#resync()} (which preserves an in-progress
+     * INSERT/FORMULA edit buffer) instead of
+     * {@link CellSelector#readCell(java.util.ArrayList)}, and it leaves the
+     * info bar untouched (it may be showing a pending command or the help
+     * scroll percentage).</p>
+     *
+     * @param w the new canvas width in pixels
+     * @param h the new canvas height in pixels
+     */
+    public void applyViewportSize(int w, int h) {
+        // Never let the grid degenerate below one default cell; unreachable
+        // through the stage minimum size, but layout is not under our control.
+        w = Math.max(w, GUTTER_W + DEFAULT_CELL_W);
+        h = Math.max(h, HEADER_H + DEFAULT_CELL_H);
+        if (w == ctrl.CANVAS_W && h == ctrl.CANVAS_H) return;
+        ctrl.setCanvasSize(w, h);
+
+        // Guarantee the boundary arrays cover the cursor after regeneration:
+        // generate() only walks ~2 cells past the new viewport edge or to
+        // maxXC/maxYC, so a sharp shrink while deep-scrolled would otherwise
+        // leave the cursor column/row outside the arrays. Same grow-only bump
+        // VISUAL mode uses.
+        Positions positions = ctrl.camera.picture.metadata();
+        positions.setMaxXC(Math.max(positions.getMaxXC(), ctrl.cellSelector.getXCoord()));
+        positions.setMaxYC(Math.max(positions.getMaxYC(), ctrl.cellSelector.getYCoord()));
+
+        positions.setViewport(w - GUTTER_W, h - HEADER_H);
+        ctrl.camera.picture.setW(w - GUTTER_W);
+        ctrl.camera.picture.setH(h - HEADER_H);
+        ctrl.firstRow.setW(w - GUTTER_W);
+        ctrl.firstCol.setH(h - HEADER_H);
+
+        ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.camera.ready();
+        ctrl.cellSelector.resync();
+        scrollCursorIntoView();
+        ctrl.camera.picture.resend(ctrl.gc, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
+        ctrl.cellSelector.resync();
+        updateVisualState();
+        ctrl.cellSelector.draw(ctrl.gc);
+    }
+
+    /**
      * Moves the cell selector one cell to the left. Handles viewport scrolling
      * when the cursor reaches the left edge, and boundary checks.
      */

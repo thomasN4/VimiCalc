@@ -2,7 +2,6 @@ package vimicalc;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -26,12 +25,14 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("GUI.fxml"));
 
-        Group root = new Group((Parent) fxmlLoader.load());
+        Parent root = fxmlLoader.load();
         Controller ctrl = fxmlLoader.getController();
 
         Scene scene = new Scene(root, 900, 600);
         scene.setOnKeyPressed(ctrl::onKeyPressed);
         primaryStage.setTitle("WeSpreadSheet");
+        primaryStage.setMinWidth(320);
+        primaryStage.setMinHeight(240);
         primaryStage.setScene(scene);
         primaryStage.show();
     }

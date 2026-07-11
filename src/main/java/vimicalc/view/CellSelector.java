@@ -216,6 +216,24 @@ public class CellSelector extends simpleRect {
     }
 
     /**
+     * Re-derives the pixel rectangle (and merged-area size) from the current
+     * grid layout without replacing {@link #selectedCell}. Unlike
+     * {@link #readCell(ArrayList)}, this preserves text being typed in
+     * INSERT/FORMULA mode, so it is safe in any mode. Call after a layout
+     * change that didn't move the cursor (e.g. a window resize).
+     */
+    public void resync() {
+        if (selectedCell.isMergeStart() && modeSupplier.get() != Mode.VISUAL) {
+            Cell mergeEnd = selectedCell.getMergeDelimiter();
+            mergedW = picPositions.getCellAbsXs()[mergeEnd.xCoord()+1] -
+                picPositions.getCellAbsXs()[xCoord];
+            mergedH = picPositions.getCellAbsYs()[mergeEnd.yCoord()+1] -
+                picPositions.getCellAbsYs()[yCoord];
+        }
+        syncToGrid();
+    }
+
+    /**
      * Derives the pixel position and size from the grid layout and the live
      * camera offset — the same formula the cell grid and headers use, so the
      * highlight can never drift away from its cell (issue #30).

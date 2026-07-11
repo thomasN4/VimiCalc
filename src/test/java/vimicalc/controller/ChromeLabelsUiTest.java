@@ -37,6 +37,10 @@ class ChromeLabelsUiTest {
         Scene scene = new Scene(root, 900, 600);
         scene.setOnKeyPressed(controller::onKeyPressed);
         stage.setScene(scene);
+        // TestFX reuses one primary stage across test classes; with the
+        // resizable layout (#46) content follows the stage, so pin the size.
+        stage.setWidth(900);
+        stage.setHeight(600);
         stage.show();
     }
 
@@ -117,9 +121,16 @@ class ChromeLabelsUiTest {
     }
 
     @Test
-    void canvasIsGridOnlyHeight() {
-        assertEquals(900, controller.CANVAS_W);
-        assertEquals(548, controller.viewportBottom(),
+    void canvasIsGridOnly() {
+        javafx.scene.canvas.Canvas canvas = (javafx.scene.canvas.Canvas) root.lookup("#canvas");
+        javafx.scene.layout.StackPane stack = (javafx.scene.layout.StackPane) root.lookup("#canvasStack");
+        assertEquals((int) canvas.getWidth(), controller.CANVAS_W,
+            "tracked canvas width must match the canvas node");
+        assertEquals((int) canvas.getHeight(), controller.viewportBottom(),
             "viewport bottom equals canvas height after chrome leaves the canvas");
+        assertEquals((int) stack.getWidth(), (int) canvas.getWidth(),
+            "the canvas must fill the canvas stack");
+        assertEquals((int) stack.getHeight(), (int) canvas.getHeight(),
+            "the canvas must fill the canvas stack");
     }
 }
