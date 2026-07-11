@@ -5,7 +5,6 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * open with {@code :help}, scroll with j/k, dismiss with ESC — without
  * disturbing the cell selector.
  *
- * <p>Key events are delivered by calling {@link Controller#onKeyPressed} with
- * synthetic events rather than OS-level key injection.</p>
+ * <p>Keys are injected with {@link FxRobot#type(KeyCode...)} through the
+ * scene-level key handler, like the other UI tests. Run headlessly (Monocle
+ * or Xvfb); robot input is unreliable against a live display.</p>
  */
 @ExtendWith(ApplicationExtension.class)
 class HelpMenuUiTest {
@@ -45,36 +45,11 @@ class HelpMenuUiTest {
         return (Label) root.lookup(fxId);
     }
 
-    private void press(FxRobot robot, KeyCode code, String text) {
-        KeyEvent event = new KeyEvent(
-            KeyEvent.KEY_PRESSED, text, text, code,
-            false, false, false, false
-        );
-        robot.interact(() -> controller.onKeyPressed(event));
-    }
-
-    private void press(FxRobot robot, KeyCode code) {
-        String text = code.isLetterKey() || code.isDigitKey()
-            ? code.getName().toLowerCase()
-            : "";
-        if (code == KeyCode.SEMICOLON) text = ";";
-        if (code == KeyCode.H) text = "h";
-        if (code == KeyCode.E) text = "e";
-        if (code == KeyCode.L) text = "l";
-        if (code == KeyCode.P) text = "p";
-        if (code == KeyCode.J) text = "j";
-        if (code == KeyCode.K) text = "k";
-        press(robot, code, text);
-    }
-
     private void openHelp(FxRobot robot) {
         // App uses ';' for command mode (not ':')
-        press(robot, KeyCode.SEMICOLON);
-        press(robot, KeyCode.H);
-        press(robot, KeyCode.E);
-        press(robot, KeyCode.L);
-        press(robot, KeyCode.P);
-        press(robot, KeyCode.ENTER, "\n");
+        robot.type(KeyCode.SEMICOLON);
+        robot.type(KeyCode.H, KeyCode.E, KeyCode.L, KeyCode.P);
+        robot.type(KeyCode.ENTER);
     }
 
     @Test
@@ -104,15 +79,15 @@ class HelpMenuUiTest {
         String pctTop = controller.helpMenu.percentage();
         assertEquals("0%", pctTop, "help starts at top of document");
 
-        press(robot, KeyCode.J);
+        robot.type(KeyCode.J);
         String pctAfterJ = controller.helpMenu.percentage();
         assertNotEquals(pctTop, pctAfterJ, "j should advance scroll percentage");
 
-        press(robot, KeyCode.K);
+        robot.type(KeyCode.K);
         assertEquals(pctTop, controller.helpMenu.percentage(),
             "k should scroll back to previous percentage");
 
-        press(robot, KeyCode.ESCAPE);
+        robot.type(KeyCode.ESCAPE);
 
         assertEquals(Mode.NORMAL, controller.currMode);
         assertFalse(help.isVisible(), "help label should hide on ESC");
@@ -124,9 +99,9 @@ class HelpMenuUiTest {
 
     @Test
     void shortHelpCommandAlsoOpensOverlay(FxRobot robot) {
-        press(robot, KeyCode.SEMICOLON);
-        press(robot, KeyCode.H);
-        press(robot, KeyCode.ENTER, "\n");
+        robot.type(KeyCode.SEMICOLON);
+        robot.type(KeyCode.H);
+        robot.type(KeyCode.ENTER);
 
         assertEquals(Mode.HELP, controller.currMode);
         assertTrue(label("#helpLabel").isVisible());
