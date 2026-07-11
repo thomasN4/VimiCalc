@@ -37,6 +37,11 @@ public class Positions {
      * {@link #generate(int, int)}. Session-only view state — never persisted.
      */
     private double zoom = DEFAULT_ZOOM;
+    /**
+     * Whether cell gridlines are drawn, toggled by the {@code :gridlines}
+     * command. Session-only view state — never persisted.
+     */
+    private boolean gridlines = true;
 
     /**
      * Creates a new position layout manager.
@@ -199,6 +204,19 @@ public class Positions {
     public void setZoom(double zoom) {
         this.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
         regenerate();
+    }
+
+    /** @return whether cell gridlines are drawn */
+    public boolean gridlinesOn() {
+        return gridlines;
+    }
+
+    /**
+     * Flips gridline visibility. Unlike {@link #setZoom(double)} this needs no
+     * {@code regenerate()} — layout is unaffected, only what gets drawn.
+     */
+    public void toggleGridlines() {
+        gridlines = !gridlines;
     }
 
     /**

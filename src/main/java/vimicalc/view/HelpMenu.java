@@ -53,6 +53,7 @@ public class HelpMenu {
         "\t or use Ctrl-= / Ctrl-- / Ctrl-0 in NORMAL mode to zoom in / out / reset.",
         "\t Press 'TAB' to complete the command name: it cycles through the matching commands",
         "\t (listed on the right of the info bar), 'Shift-TAB' cycles backwards.",
+        "\t :gridlines toggles the cell gridlines on and off.",
         "\n",
         "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
         "NORMAL mode. They appear at the bottom right of the window as you type.",
