@@ -60,12 +60,14 @@ public class Controller implements Initializable {
     private StackPane canvasStack;
     /**
      * Absolute-positioned overlay on the canvas stack. Hosts the keystroke
-     * label now; part 4 (#45) will also place the help node here.
+     * label and the help menu node.
      */
     @FXML
     private Pane overlayPane;
     @FXML
     private Label keyStrokeLabel;
+    @FXML
+    private Label helpLabel;
     @FXML
     private Label statusLabel;
     @FXML
@@ -170,19 +172,12 @@ public class Controller implements Initializable {
                 case COMMAND -> commandInput(event);
                 case FORMULA -> formulaInput(event);
                 case HELP -> {
-                    camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-                    updateVisualState();
-                    cellSelector.readCell(camera.picture.data());
-                    cellSelector.draw(gc);
                     helpMenu.navigate(event);
                     infoBar.setInfobarTxt(helpMenu.percentage());
                     if (event.getCode() == ESCAPE) {
-                        camera.ready();
-                        camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
-                        cellSelector.readCell(camera.picture.data());
-                        cellSelector.draw(gc);
+                        helpMenu.hide();
+                        currMode = Mode.NORMAL;
                         cellContentToIBar();
-                        updateVisualState();
                     }
                 }
                 case INSERT -> textInput(event);
@@ -249,10 +244,12 @@ public class Controller implements Initializable {
                         infoBar.setInfobarTxt(e.getMessage());
                     }
                     if (command.getCommandResult() == CommandResult.HELP) {
-                        infoBar.setInfobarTxt(helpMenu.percentage());
                         currMode = Mode.HELP;
+                        helpMenu.show();
+                        infoBar.setInfobarTxt(helpMenu.percentage());
+                        statusBar.refresh();
                     }
-                    onKeyPressed(event);
+                    command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
                     return;
                 }
                 if (enteringCommandInVISUAL) {
@@ -799,6 +796,7 @@ public class Controller implements Initializable {
         infoBar = new InfoBar(infoLabel, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
         keyStrokeCell = new KeyStrokeCell(keyStrokeLabel);
+        helpMenu = new HelpMenu(helpLabel);
         sheet = new Sheet();
         sheet.setPositions(new Positions(
             CANVAS_W - GUTTER_W,
@@ -822,7 +820,6 @@ public class Controller implements Initializable {
             }
         });
         macros = new HashMap<>();
-        helpMenu = new HelpMenu(gc, mode -> currMode = mode);
         reset();
         if (arg1 != null) {
             try {

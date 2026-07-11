@@ -1,15 +1,8 @@
 package vimicalc.view;
 
-import javafx.geometry.VPos;
-import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
-
-import vimicalc.controller.Mode;
-
-import java.util.function.Consumer;
 
 /**
  * An overlay window that displays built-in help text when the user enters
@@ -17,12 +10,12 @@ import java.util.function.Consumer;
  *
  * <p>Supports scrolling with {@code j}/{@code k} keys and dismissal with
  * {@code ESC}. The text is a static array of lines covering modes,
- * key commands, macros, formulas, and conditional expressions.</p>
+ * key commands, macros, formulas, and conditional expressions. Backed by a
+ * scene-graph {@link Label}; the controller owns mode transitions.</p>
  */
-public class HelpMenu extends simpleRect {
+public class HelpMenu {
     private int position;
-    private final GraphicsContext gc;
-    private final Consumer<Mode> modeSetter;
+    private final Label helpLabel;
     private final String[] text = {
         "=====Overview of how WeSpreadSheet works=====",
         "\n",
@@ -89,22 +82,20 @@ public class HelpMenu extends simpleRect {
     };
 
     /**
-     * Creates the help menu overlay.
+     * Creates the help menu overlay bound to the given label.
      *
-     * @param gc         the graphics context for rendering
-     * @param modeSetter consumer to set the current editing mode
+     * @param helpLabel the scene-graph label to show help text on
      */
-    public HelpMenu(GraphicsContext gc, Consumer<Mode> modeSetter) {
-        super(30, 30, 740, 480, Color.LIGHTYELLOW);
-        this.gc = gc;
-        this.modeSetter = modeSetter;
+    public HelpMenu(Label helpLabel) {
+        this.helpLabel = helpLabel;
         position = 0;
     }
 
     /**
      * Handles keyboard input within the help menu.
-     * {@code J} scrolls down, {@code K} scrolls up, {@code ESC} closes the menu
-     * and returns to NORMAL mode.
+     * {@code J} scrolls down, {@code K} scrolls up, {@code ESC} only resets
+     * the scroll position — the controller flips the mode and calls
+     * {@link #hide()}.
      *
      * @param event the key event to process
      */
@@ -118,13 +109,26 @@ public class HelpMenu extends simpleRect {
                 System.out.println("Scrolling up...");
                 if (position > 0) position -= 1;
             }
-            case ESCAPE -> {
-                position = 0;
-                modeSetter.accept(Mode.NORMAL);
-            }
+            case ESCAPE -> position = 0;
             default -> {}
         }
-        drawText();
+        updateText();
+    }
+
+    /**
+     * Shows the help overlay at the top of the document.
+     */
+    public void show() {
+        position = 0;
+        updateText();
+        helpLabel.setVisible(true);
+    }
+
+    /**
+     * Hides the help overlay.
+     */
+    public void hide() {
+        helpLabel.setVisible(false);
     }
 
     /**
@@ -136,18 +140,14 @@ public class HelpMenu extends simpleRect {
         return (int) (100.0 * position / text.length) + "%";
     }
 
-    /** Renders the help text onto the canvas, showing up to 24 lines from the current scroll position. */
-    public void drawText() {
-        super.draw(gc);
-        gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.TOP);
-        gc.setTextAlign(TextAlignment.LEFT);
+    /** Updates the label to the 24-line slice starting at the current scroll position. */
+    private void updateText() {
         StringBuilder txt = new StringBuilder();
         for (int i = position; i < position + 24; i++) {
             if (i < text.length)
                 txt.append(text[i]).append('\n');
             else break;
         }
-        gc.fillText(txt.toString(), x+10, y+10);
+        helpLabel.setText(txt.toString());
     }
 }
