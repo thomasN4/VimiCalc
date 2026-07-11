@@ -236,3 +236,27 @@ it — Vim-like behavior, per issue #24.
 1. Select a block in VISUAL mode (`v`, move, `m`) to merge it
 2. Press Ctrl+`=` — the merged block scales as one region and its
    text scales with it
+
+## 12. Command-name completion (TAB in COMMAND mode)
+
+### 12.1 Cycle through matches
+1. Press `;` then type `res` and press Tab — command line reads `:resCol`,
+   the right side of the info bar shows `[resCol]  resRow`
+2. Press Tab again — command line reads `:resRow`, brackets move to `resRow`
+3. Press Tab again — the typed prefix `res` is restored
+4. Press Shift+Tab — cycles backwards (to `resRow`)
+
+### 12.2 Session ends on other keys
+1. Press `;`, type `font`, press Tab (→ `fontSize`), then type ` 18`
+   and press Enter — the current cell's font size changes; the candidate
+   list disappears
+2. Press `;`, type `x`, press Tab — the right side of the info bar shows
+   "No matching command", command line keeps `:x`
+3. Press `;`, press Tab with nothing typed — cycles through every command;
+   press Escape — back to NORMAL mode with no command run
+
+### 12.3 No completion for VISUAL-mode formulas or arguments
+1. Select cells in VISUAL mode, press `;`, type a formula and press Tab —
+   nothing is completed and no tab character is inserted
+2. Press `;`, type `cellColor r`, press Tab — nothing changes (completion
+   only applies before the first space)

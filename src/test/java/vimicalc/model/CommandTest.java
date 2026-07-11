@@ -3,9 +3,11 @@ package vimicalc.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import vimicalc.view.Formatting;
 import vimicalc.view.Positions;
 
+import java.nio.file.Path;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -174,6 +176,29 @@ class CommandTest {
             Command c = new Command("frobnicate", 1, 1);
             assertThrows(Exception.class, () -> c.interpret(sheet));
             assertFalse(c.commandExists);
+        }
+    }
+
+    // ── COMMAND_NAMES (autocompletion) ──
+
+    @Nested
+    class CommandNamesTests {
+        @TempDir
+        Path tempDir;
+
+        @Test
+        void everyListedNameIsRecognizedByInterpret() {
+            for (String name : Command.COMMAND_NAMES) {
+                // The tempDir argument keeps :w / :wq from writing into the
+                // working directory; commands that reject it still count as
+                // recognized (only the default branch clears commandExists).
+                Command c = new Command(name + ' ' + tempDir.resolve("out"), 2, 3);
+                try {
+                    c.interpret(sheet);
+                } catch (Exception ignored) {}
+                assertTrue(c.commandExists,
+                    "\"" + name + "\" is in COMMAND_NAMES but not in the interpret switch");
+            }
         }
     }
 }
