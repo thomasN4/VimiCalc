@@ -145,7 +145,6 @@ public class KeyCommand {
         if (c != 0) expr += c;
         if (canChangeIBarExpr) {
             ctrl.infoBar.setIBarExpr(expr);
-            ctrl.infoBar.draw(ctrl.gc);
         }
         evaluate(expr);
     }

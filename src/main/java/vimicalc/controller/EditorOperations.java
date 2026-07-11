@@ -359,13 +359,11 @@ public class EditorOperations {
         if (ctrl.undoCounter != 0) removeUltCStates();
     }
 
-    /** Redraws all chrome UI elements (headers, status bar, info bar, coordinates). */
+    /** Redraws canvas headers and refreshes the status-bar label (mode/filename). */
     public void updateVisualState() {
         ctrl.firstCol.draw(ctrl.gc);
         ctrl.firstRow.draw(ctrl.gc);
-        ctrl.statusBar.draw(ctrl.gc);
-        ctrl.infoBar.draw(ctrl.gc);
-        ctrl.coordsInfo.draw(ctrl.gc);
+        ctrl.statusBar.refresh();
     }
 
     /** Prepares the selected cell's text for INSERT mode editing. */

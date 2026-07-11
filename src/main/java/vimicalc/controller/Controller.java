@@ -4,7 +4,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
@@ -52,6 +54,17 @@ public class Controller implements Initializable {
     GraphicsContext gc;
     @FXML
     private Canvas canvas;
+    /** Overlay host for keystroke indicator / help menu (parts 3–4 of chrome migration). */
+    @FXML
+    private StackPane canvasStack;
+    @FXML
+    private Label statusLabel;
+    @FXML
+    private Label coordsLabel;
+    @FXML
+    private Label infoLabel;
+    @FXML
+    private Label exprLabel;
     /** Stack of cell states recorded before each edit, used for undo. */
     LinkedList<Cell> recordedCellStates;
     /** Stack of cell states produced by undo, used for redo. */
@@ -90,6 +103,11 @@ public class Controller implements Initializable {
     HashMap<Character, LinkedList<KeyEvent>> macros;
     /** Handles movement, navigation, editing, and undo/redo operations. */
     EditorOperations editorOps;
+    /**
+     * Whether a colon-command is being entered from VISUAL mode (via {@code ;}).
+     * Controller flow state — not part of the info-bar view.
+     */
+    boolean enteringCommandInVISUAL;
 
     /*CD arranger avec les classes moves car sinon cause des bugs en utilisant clavier
     public void onMouseClicked(@NotNull MouseEvent mouseEvent) {
@@ -149,7 +167,6 @@ public class Controller implements Initializable {
                     cellSelector.draw(gc);
                     helpMenu.navigate(event);
                     infoBar.setInfobarTxt(helpMenu.percentage());
-                    infoBar.draw(gc);
                     if (event.getCode() == ESCAPE) {
                         camera.ready();
                         camera.picture.resend(gc, camera.getAbsX(), camera.getAbsY());
@@ -206,9 +223,9 @@ public class Controller implements Initializable {
     private void commandInput(@NotNull KeyEvent event) {
         switch (event.getCode()) {
             case ESCAPE -> {
-                if (infoBar.isEnteringCommandInVISUAL()) {
+                if (enteringCommandInVISUAL) {
                     selectedCoords = new ArrayList<>();
-                    infoBar.setEnteringCommandInVISUAL(false);
+                    enteringCommandInVISUAL = false;
                 }
                 currMode = Mode.NORMAL;
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
@@ -222,20 +239,18 @@ public class Controller implements Initializable {
                         command.interpret(sheet);
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
-                        infoBar.draw(gc);
                     }
                     if (command.getCommandResult() == CommandResult.HELP) {
                         infoBar.setInfobarTxt(helpMenu.percentage());
-                        infoBar.draw(gc);
                         currMode = Mode.HELP;
                     }
                     onKeyPressed(event);
                     return;
                 }
-                if (infoBar.isEnteringCommandInVISUAL()) {
+                if (enteringCommandInVISUAL) {
                     try {
                         selectedCoords = new ArrayList<>();
-                        infoBar.setEnteringCommandInVISUAL(false);
+                        enteringCommandInVISUAL = false;
 
                         StringBuilder destinationCoord = new StringBuilder();
                         int i;
@@ -288,7 +303,6 @@ public class Controller implements Initializable {
                 cellSelector.readCell(camera.picture.data());
                 goTo(prevXC, prevYC);
                 if (commandError != null) infoBar.setInfobarTxt(commandError);
-                infoBar.draw(gc);
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
             }
             case BACK_SPACE -> {
@@ -327,7 +341,7 @@ public class Controller implements Initializable {
                 onKeyPressed(event);
         }
 
-        if (infoBar.isEnteringCommandInVISUAL()) {
+        if (enteringCommandInVISUAL) {
             commandInput(event);
             return;
         }
@@ -411,7 +425,7 @@ public class Controller implements Initializable {
             }
             case SEMICOLON -> {
                 goingToMergeStart = false;
-                infoBar.setEnteringCommandInVISUAL(true);
+                enteringCommandInVISUAL = true;
                 infoBar.setCommandTxt(command.getTxt());
                 command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
             }
@@ -773,6 +787,9 @@ public class Controller implements Initializable {
         gc = canvas.getGraphicsContext2D();
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
+        statusBar = new StatusBar(statusLabel, () -> currMode);
+        infoBar = new InfoBar(infoLabel, exprLabel);
+        coordsInfo = new CoordsInfo(coordsLabel);
         sheet = new Sheet();
         sheet.setPositions(new Positions(
             CANVAS_W - GUTTER_W,
@@ -806,7 +823,6 @@ public class Controller implements Initializable {
                 if (e.getMessage().equals("New file")) {
                     updateVisualState();
                     infoBar.setInfobarTxt("New file");
-                    infoBar.draw(gc);
                 }
                 else infoBar.setInfobarTxt(e.getMessage());
             }
@@ -814,13 +830,13 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Returns the y coordinate of the bottom edge of the grid viewport, i.e.
-     * where the sheet's drawable area ends and the status bar begins.
+     * Returns the y coordinate of the bottom edge of the grid viewport.
+     * With bottom chrome on the scene graph, this is the canvas height.
      *
      * @return the grid viewport's bottom edge, in canvas pixels
      */
     int viewportBottom() {
-        return CANVAS_H - STATUS_BAR_H - INFO_BAR_H;
+        return CANVAS_H;
     }
 
     /**
@@ -862,11 +878,6 @@ public class Controller implements Initializable {
             sheet.getCellsFormatting(),
             () -> currMode
         );
-        coordsInfo = new CoordsInfo(
-            CANVAS_W,
-            viewportBottom(),
-            STATUS_BAR_H
-        );
         firstCol = new FirstCol(
             0,
             HEADER_H,
@@ -885,21 +896,6 @@ public class Controller implements Initializable {
             camera,
             camera.picture.metadata()
         );
-        infoBar = new InfoBar(
-            0,
-            CANVAS_H-INFO_BAR_H,
-            CANVAS_W,
-            INFO_BAR_H,
-            DEFAULT_CELL_C
-        );
-        statusBar = new StatusBar(
-            0,
-            viewportBottom(),
-            CANVAS_W,
-            STATUS_BAR_H,
-            Color.LIGHTGREEN,
-            () -> currMode
-        );
         keyStrokeCell = new KeyStrokeCell(
             0,
             0,
@@ -909,6 +905,7 @@ public class Controller implements Initializable {
         );
 
         currMode = Mode.NORMAL;
+        enteringCommandInVISUAL = false;
         editorOps = new EditorOperations(this);
         keyCommand = new KeyCommand(editorOps, this);
         command = new Command("", cellSelector.getXCoord(), cellSelector.getYCoord());
@@ -923,13 +920,13 @@ public class Controller implements Initializable {
         keyStrokeCell.draw(gc);
         firstCol.draw(gc);
         firstRow.draw(gc);
-        statusBar.draw(gc);
+        statusBar.setFilename("new_file");
+        statusBar.refresh();
         coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
-        coordsInfo.draw(gc);
         cellSelector.readCell(camera.picture.data());
         cellSelector.draw(gc);
+        infoBar.setIBarExpr("");
         infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
-        infoBar.draw(gc);
         sheet.setPositions(camera.picture.metadata());
     }
 }

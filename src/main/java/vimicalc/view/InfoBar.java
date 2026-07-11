@@ -1,10 +1,6 @@
 package vimicalc.view;
 
-import javafx.geometry.VPos;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
-import org.jetbrains.annotations.NotNull;
+import javafx.scene.control.Label;
 
 import java.util.Objects;
 
@@ -20,27 +16,29 @@ import java.util.Objects;
  * </ul>
  *
  * <p>The field {@link #iBarExpr} holds the current key-command expression
- * displayed on the right side of the bar.</p>
+ * displayed on the right side of the bar. Both sides are scene-graph labels;
+ * setters update the labels immediately.</p>
  */
-public class InfoBar extends simpleRect {
+public class InfoBar {
+
+    private final Label infoLabel;
+    private final Label exprLabel;
 
     /** The current key-command expression, displayed right-aligned in the info bar. */
     private String iBarExpr;
     private String infobarTxt;
-    private boolean enteringCommandInVISUAL;
 
     /**
-     * Creates the info bar at the given position.
+     * Creates the info bar bound to the given labels.
      *
-     * @param x the x pixel position
-     * @param y the y pixel position
-     * @param w the width in pixels
-     * @param h the height in pixels
-     * @param c the background color
+     * @param infoLabel the left-side contextual text label
+     * @param exprLabel the right-side key-command expression label
      */
-    public InfoBar(int x, int y, int w, int h, Color c) {
-        super(x, y, w, h, c);
+    public InfoBar(Label infoLabel, Label exprLabel) {
+        this.infoLabel = infoLabel;
+        this.exprLabel = exprLabel;
         iBarExpr = "";
+        infobarTxt = "(=I)";
     }
 
     /**
@@ -59,24 +57,7 @@ public class InfoBar extends simpleRect {
      */
     public void setIBarExpr(String iBarExpr) {
         this.iBarExpr = iBarExpr;
-    }
-
-    /**
-     * Returns whether a command is being entered in VISUAL mode.
-     *
-     * @return {@code true} if entering a command in VISUAL mode
-     */
-    public boolean isEnteringCommandInVISUAL() {
-        return enteringCommandInVISUAL;
-    }
-
-    /**
-     * Sets whether a command is being entered in VISUAL mode.
-     *
-     * @param enteringCommandInVISUAL the flag
-     */
-    public void setEnteringCommandInVISUAL(boolean enteringCommandInVISUAL) {
-        this.enteringCommandInVISUAL = enteringCommandInVISUAL;
+        exprLabel.setText(iBarExpr);
     }
 
     /**
@@ -86,6 +67,7 @@ public class InfoBar extends simpleRect {
      */
     public void setCommandTxt(String infobarTxt) {
         this.infobarTxt = ":" + infobarTxt;
+        infoLabel.setText(this.infobarTxt);
     }
 
     /**
@@ -95,6 +77,7 @@ public class InfoBar extends simpleRect {
      */
     public void setEnteringFormula(String infobarTxt) {
         this.infobarTxt = "% " + infobarTxt.replace(".0" , "");
+        infoLabel.setText(this.infobarTxt);
     }
 
     /**
@@ -104,6 +87,7 @@ public class InfoBar extends simpleRect {
      */
     public void setInfobarTxt(String infobarTxt) {
         this.infobarTxt = Objects.requireNonNullElse(infobarTxt, "(=I)");
+        infoLabel.setText(this.infobarTxt);
     }
 
     /**
@@ -113,16 +97,5 @@ public class InfoBar extends simpleRect {
      */
     public String getInfobarTxt() {
         return infobarTxt;
-    }
-
-    @Override
-    public void draw(@NotNull GraphicsContext gc) {
-        super.draw(gc);
-        gc.setFill(Color.BLACK);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText(iBarExpr, x + w - 4, y + (float)h/2);
-        gc.setTextAlign(TextAlignment.LEFT);
-        gc.fillText(infobarTxt,2, y + (float)h/2);
     }
 }
