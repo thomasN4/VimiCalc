@@ -51,6 +51,7 @@ public class HelpMenu {
         "\t Formatting commands without an argument reset the property to its default.",
         "\t View zoom: :zoom [25-400] sets the zoom percentage (no argument resets to 100%),",
         "\t or use Ctrl-= / Ctrl-- / Ctrl-0 in NORMAL mode to zoom in / out / reset.",
+        "\t :gridlines toggles the cell gridlines on and off.",
         "\n",
         "And then we have KeyCommands, which are basically actions made up of keyboard shortcuts entered in",
         "NORMAL mode. They appear at the bottom right of the window as you type.",
