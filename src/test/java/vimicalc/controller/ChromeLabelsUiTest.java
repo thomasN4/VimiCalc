@@ -71,6 +71,7 @@ class ChromeLabelsUiTest {
         Label status = label("#statusLabel");
         Label coords = label("#coordsLabel");
         Label info = label("#infoLabel");
+        Label keyStroke = label("#keyStrokeLabel");
 
         assertTrue(status.getText().contains("[NORMAL]"),
             "status bar should show NORMAL mode on startup: " + status.getText());
@@ -80,6 +81,21 @@ class ChromeLabelsUiTest {
             "coords should start at B2");
         assertEquals("(=I)", info.getText(),
             "empty cell shows default info placeholder");
+        assertNotNull(keyStroke, "keystroke overlay label must be present");
+        assertEquals("", keyStroke.getText(),
+            "keystroke label starts empty before any key");
+    }
+
+    @Test
+    void keyStrokeLabelTracksLastKeyPressed(FxRobot robot) {
+        press(robot, KeyCode.J);
+        Label keyStroke = label("#keyStrokeLabel");
+        assertEquals("J", keyStroke.getText(),
+            "keystroke label should show KeyCode name after j");
+
+        press(robot, KeyCode.V);
+        assertEquals("V", keyStroke.getText(),
+            "keystroke label should update to the latest key");
     }
 
     @Test

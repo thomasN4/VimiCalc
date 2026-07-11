@@ -6,6 +6,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
@@ -57,6 +58,14 @@ public class Controller implements Initializable {
     /** Overlay host for keystroke indicator / help menu (parts 3–4 of chrome migration). */
     @FXML
     private StackPane canvasStack;
+    /**
+     * Absolute-positioned overlay on the canvas stack. Hosts the keystroke
+     * label now; part 4 (#45) will also place the help node here.
+     */
+    @FXML
+    private Pane overlayPane;
+    @FXML
+    private Label keyStrokeLabel;
     @FXML
     private Label statusLabel;
     @FXML
@@ -206,7 +215,6 @@ public class Controller implements Initializable {
             System.out.println('}');
         }
         if (currMode != Mode.HELP) updateVisualState();
-        keyStrokeCell.draw(gc);
     }
 
     /** Redraws all chrome UI elements. Delegates to {@link EditorOperations}. */
@@ -790,6 +798,7 @@ public class Controller implements Initializable {
         statusBar = new StatusBar(statusLabel, () -> currMode);
         infoBar = new InfoBar(infoLabel, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
+        keyStrokeCell = new KeyStrokeCell(keyStrokeLabel);
         sheet = new Sheet();
         sheet.setPositions(new Positions(
             CANVAS_W - GUTTER_W,
@@ -896,13 +905,6 @@ public class Controller implements Initializable {
             camera,
             camera.picture.metadata()
         );
-        keyStrokeCell = new KeyStrokeCell(
-            0,
-            0,
-            DEFAULT_CELL_W/2,
-            DEFAULT_CELL_H,
-            Color.LIGHTGREEN
-        );
 
         currMode = Mode.NORMAL;
         enteringCommandInVISUAL = false;
@@ -917,7 +919,7 @@ public class Controller implements Initializable {
         clipboard = new ArrayList<>();
 
         camera.ready();
-        keyStrokeCell.draw(gc);
+        keyStrokeCell.setKeyStroke("");
         firstCol.draw(gc);
         firstRow.draw(gc);
         statusBar.setFilename("new_file");
