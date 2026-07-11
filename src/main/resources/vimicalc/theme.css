@@ -1,0 +1,70 @@
+/*
+ * VimiCalc chrome theme — Modena-style depth on a neutral gray-blue palette.
+ *
+ * The canvas-side counterparts of these colors (headers, gridlines, selector)
+ * live in view/Defaults.java; keep the two in sync when changing shades.
+ */
+
+/* Status bar: top-lit gradient body under a hairline border and an inner
+ * highlight, the same layered-background-insets idiom Modena uses. */
+.status-row {
+    -fx-background-color:
+        #a9b1ba,
+        linear-gradient(to bottom, #ffffff, #f4f6f8),
+        linear-gradient(to bottom, #f4f6f8, #dfe3e8);
+    -fx-background-insets: 0, 1 0 0 0, 2 0 0 0;
+}
+
+.status-label {
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+}
+
+.coords-label {
+    -fx-text-fill: #007ac1;
+    -fx-font-weight: bold;
+    -fx-padding: 0 4 0 0;
+}
+
+/* Info bar: near-white gradient with a softer hairline above it. */
+.info-row {
+    -fx-background-color:
+        #c3cad2,
+        linear-gradient(to bottom, #ffffff, #f4f6f8);
+    -fx-background-insets: 0, 1 0 0 0;
+}
+
+.info-label {
+    -fx-text-fill: #222222;
+    -fx-padding: 0 0 0 2;
+}
+
+.expr-label {
+    -fx-text-fill: #222222;
+    -fx-padding: 0 4 0 0;
+}
+
+/* Keystroke chip: floats over the header corner block. Hidden while empty
+ * (see KeyStrokeCell), so the pill only appears once a key is pressed. */
+.keystroke-chip {
+    -fx-background-color:
+        #a9b1ba,
+        linear-gradient(to bottom, #f4f6f8, #dfe3e8);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 3;
+    -fx-text-fill: #007ac1;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 4, 0, 0, 1);
+}
+
+/* Help overlay: floating card with a border and a soft shadow. */
+.help-overlay {
+    -fx-background-color:
+        #a9b1ba,
+        linear-gradient(to bottom, #fdfefe, #f4f6f8);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 8, 7;
+    -fx-text-fill: #222222;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 16, 0, 0, 4);
+}

@@ -8,7 +8,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.*;
@@ -949,8 +948,7 @@ public class Controller implements Initializable {
         camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
 
         cellSelector = new CellSelector(
-            new Color(0.0, 0.67, 1, 1),
-//            Color.LIMEGREEN,
+            SELECT_TINT,
             camera,
             camera.picture.metadata(),
             sheet.getCellsFormatting(),
@@ -961,7 +959,7 @@ public class Controller implements Initializable {
             HEADER_H,
             GUTTER_W,
             viewportBottom()-HEADER_H,
-            Color.LIGHTBLUE,
+            HEADER_FILL_H,
             camera,
             camera.picture.metadata()
         );
@@ -970,7 +968,7 @@ public class Controller implements Initializable {
             0,
             CANVAS_W-GUTTER_W,
             HEADER_H,
-            Color.LIGHTBLUE,
+            HEADER_FILL_V,
             camera,
             camera.picture.metadata()
         );

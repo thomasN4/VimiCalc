@@ -24,11 +24,13 @@ public class KeyStrokeCell {
     }
 
     /**
-     * Sets the key stroke text to display.
+     * Sets the key stroke text to display. The chip is hidden while the text
+     * is empty so it only floats over the header corner once a key is pressed.
      *
      * @param keyStroke the key name
      */
     public void setKeyStroke(String keyStroke) {
         keyStrokeLabel.setText(keyStroke);
+        keyStrokeLabel.setVisible(keyStroke != null && !keyStroke.isEmpty());
     }
 }
