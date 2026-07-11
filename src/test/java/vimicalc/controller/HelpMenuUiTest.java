@@ -96,6 +96,10 @@ class HelpMenuUiTest {
         Label help = label("#helpLabel");
         assertTrue(help.isVisible(), "help label should be visible after :help");
         assertFalse(help.getText().isEmpty(), "help text should be populated");
+        // managed=false would flip isVisible without laying out — bounds prove it's on screen
+        assertTrue(help.getBoundsInParent().getWidth() > 700,
+            "help label should be laid out at near-pref width, not a zero-size flag flip: "
+                + help.getBoundsInParent());
 
         String pctTop = controller.helpMenu.percentage();
         assertEquals("0%", pctTop, "help starts at top of document");
