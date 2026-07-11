@@ -73,4 +73,33 @@ class AppUiTest {
         assertEquals(Mode.FORMULA, controller.currMode,
             "Pressing = should switch to FORMULA mode");
     }
+
+    @Test
+    void tabCyclesCommandNameCompletions(FxRobot robot) {
+        robot.type(KeyCode.SEMICOLON, KeyCode.R, KeyCode.E, KeyCode.S);
+        assertEquals(Mode.COMMAND, controller.currMode,
+            "Pressing ; should switch to COMMAND mode");
+
+        robot.type(KeyCode.TAB);
+        assertEquals("resCol", controller.command.getTxt(),
+            "First TAB should complete to the first matching command");
+        assertEquals("[resCol]  resRow", controller.infoBar.getIBarExpr(),
+            "The info bar's right side should list the candidates, bracketing the selection");
+
+        robot.type(KeyCode.TAB);
+        assertEquals("resRow", controller.command.getTxt(),
+            "Second TAB should cycle to the next match");
+
+        robot.type(KeyCode.TAB);
+        assertEquals("res", controller.command.getTxt(),
+            "Cycling past the last match should restore the typed prefix");
+        assertEquals(Mode.COMMAND, controller.currMode,
+            "TAB must not leave COMMAND mode");
+
+        robot.press(KeyCode.SHIFT);
+        robot.type(KeyCode.TAB);
+        robot.release(KeyCode.SHIFT);
+        assertEquals("resRow", controller.command.getTxt(),
+            "Shift+TAB should cycle backwards without the SHIFT press ending the session");
+    }
 }

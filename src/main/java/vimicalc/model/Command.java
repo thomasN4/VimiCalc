@@ -3,6 +3,8 @@ package vimicalc.model;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.view.Formatting;
 
+import java.util.List;
+
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.DEFAULT_ZOOM;
 
@@ -35,6 +37,17 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  * default.</p>
  */
 public class Command extends Interpretable {
+    /**
+     * Every recognized command name, in the order of the class Javadoc list.
+     * Used for COMMAND-mode autocompletion; keep in sync with the switch in
+     * {@link #interpret(Token[], Sheet)} (enforced by {@code CommandTest}).
+     */
+    public static final List<String> COMMAND_NAMES = List.of(
+        "h", "help", "?", "e", "w", "wq", "q", "resCol", "resRow", "purgeDeps",
+        "cellColor", "txtColor", "boldTxt", "italicTxt", "fontSize", "fontWeight",
+        "zoom"
+    );
+
     /**
      * Creates a command from the given text at the specified cell position.
      *

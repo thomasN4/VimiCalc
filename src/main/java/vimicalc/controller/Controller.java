@@ -20,9 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static javafx.scene.input.KeyCode.ESCAPE;
+import static javafx.scene.input.KeyCode.TAB;
 import static vimicalc.Main.arg1;
 
 /**
@@ -88,6 +90,8 @@ public class Controller implements Initializable {
     Camera camera;
     /** The current colon-command being composed or executed. */
     Command command;
+    /** TAB-completion state for the colon-command being composed. */
+    final CommandCompletion commandCompletion = new CommandCompletion();
     /** Displays the current cell coordinates in the status area. */
     CoordsInfo coordsInfo;
     FirstCol firstCol;
@@ -218,12 +222,21 @@ public class Controller implements Initializable {
     /**
      * Handles keyboard input in COMMAND mode. Builds up the command string
      * character by character, executing it on ENTER and cancelling on ESC.
+     * TAB / Shift+TAB cycle through command-name completions (see
+     * {@link CommandCompletion}); any other key ends the completion session.
      * Also supports entering commands from VISUAL mode via {@code ;} (SEMICOLON),
      * for applying formulas to selections.
      *
      * @param event the key event to process
      */
     private void commandInput(@NotNull KeyEvent event) {
+        // A modifier press alone (e.g. SHIFT on its way to Shift+TAB) must not
+        // end the completion session.
+        if (event.getCode() != TAB && !event.getCode().isModifierKey()
+            && commandCompletion.isActive()) {
+            commandCompletion.reset();
+            infoBar.setIBarExpr("");
+        }
         switch (event.getCode()) {
             case ESCAPE -> {
                 if (enteringCommandInVISUAL) {
@@ -317,6 +330,19 @@ public class Controller implements Initializable {
                     command.setTxt(command.getTxt().substring(0, command.getTxt().length()-1));
                 }
             }
+            case TAB -> {
+                event.consume();
+                // Only complete the command name itself: no completion for
+                // VISUAL-mode formulas or once arguments are being typed.
+                if (!enteringCommandInVISUAL && !command.getTxt().contains(" ")) {
+                    command.setTxt(event.isShiftDown()
+                        ? commandCompletion.previous(command.getTxt())
+                        : commandCompletion.next(command.getTxt()));
+                    // The candidate list goes on the right side of the info
+                    // bar; the left side shows the command text itself.
+                    infoBar.setIBarExpr(completionCandidates());
+                }
+            }
             default -> {
                 command.setTxt(command.getTxt() + event.getText());
                 infoBar.setCommandTxt(command.getTxt() + event.getText());
@@ -324,6 +350,25 @@ public class Controller implements Initializable {
         }
         if(currMode == Mode.COMMAND || currMode == Mode.VISUAL)
             infoBar.setCommandTxt(command.getTxt());
+    }
+
+    /**
+     * Formats the current completion matches for the info bar, bracketing the
+     * selected one (e.g. {@code resCol  [resRow]}).
+     *
+     * @return the candidate list, or a "no match" message when nothing matches
+     */
+    private @NotNull String completionCandidates() {
+        List<String> matches = commandCompletion.getMatches();
+        if (matches.isEmpty()) return "No matching command";
+        StringBuilder candidates = new StringBuilder();
+        for (int i = 0; i < matches.size(); i++) {
+            if (i > 0) candidates.append("  ");
+            if (i == commandCompletion.getSelectedIndex())
+                candidates.append('[').append(matches.get(i)).append(']');
+            else candidates.append(matches.get(i));
+        }
+        return candidates.toString();
     }
 
     /** Accumulates digit characters to form a numeric multiplier in VISUAL mode. */
