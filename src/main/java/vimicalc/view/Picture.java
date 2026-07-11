@@ -80,6 +80,7 @@ public class Picture extends simpleRect {
     public void resend(GraphicsContext gc, int absX, int absY) {
         if (!isntReady) {
             super.draw(gc);
+            drawGridlines(gc, absX, absY);
             drawVCells(gc, absX, absY);
         }
         isntReady = false;
@@ -100,6 +101,7 @@ public class Picture extends simpleRect {
     public void take(GraphicsContext gc, @NotNull Sheet sheet, ArrayList<int[]> selectedCoords, int absX, int absY) {
         visibleCells = new ArrayList<>();
         super.draw(gc);
+        drawGridlines(gc, absX, absY);
 
         for (Cell c : sheet.getCells()) {
             // A merge-start draws the whole merged block, so it must stay
@@ -139,6 +141,37 @@ public class Picture extends simpleRect {
      */
     public void setIsntReady(boolean isntReady) {
         this.isntReady = isntReady;
+    }
+
+    /**
+     * Strokes the cell gridlines at every visible column and row boundary,
+     * unless they are toggled off (the {@code :gridlines} command). Drawn
+     * directly over the background so VISUAL-selection and cell-formatting
+     * fills cover the lines, as in other spreadsheets.
+     */
+    private void drawGridlines(@NotNull GraphicsContext gc, int absX, int absY) {
+        if (!metadata.gridlinesOn()) return;
+
+        int[] absXs = metadata.getCellAbsXs();
+        int[] absYs = metadata.getCellAbsYs();
+        // Screen-space extent of the visible grid, so lines stop at the last
+        // boundary instead of running past the laid-out cells.
+        double left = absXs[metadata.getFirstXC()] - absX + GUTTER_W;
+        double right = absXs[metadata.getLastXC() + 1] - absX + GUTTER_W;
+        double top = absYs[metadata.getFirstYC()] - absY + HEADER_H;
+        double bottom = absYs[metadata.getLastYC() + 1] - absY + HEADER_H;
+
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.setLineWidth(1);
+        // The +0.5 centers each 1px stroke on the pixel so lines render crisp.
+        for (int i = metadata.getFirstXC(); i <= metadata.getLastXC() + 1; i++) {
+            double x = absXs[i] - absX + GUTTER_W + 0.5;
+            gc.strokeLine(x, top, x, bottom);
+        }
+        for (int j = metadata.getFirstYC(); j <= metadata.getLastYC() + 1; j++) {
+            double y = absYs[j] - absY + HEADER_H + 0.5;
+            gc.strokeLine(left, y, right, y);
+        }
     }
 
     /**

@@ -45,6 +45,7 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 | `:cellColor [color]` | Set cell background color |
 | `:txtColor [color]` | Set text color |
 | `:boldTxt` | Toggle bold text |
+| `:gridlines` | Toggle cell gridlines |
 
 ## Formula Examples
 

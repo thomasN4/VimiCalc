@@ -165,6 +165,37 @@ class CommandTest {
         }
     }
 
+    // ── :gridlines ──
+
+    @Nested
+    class GridlinesTests {
+        @BeforeEach
+        void setUpPositions() {
+            // :gridlines acts on the sheet's Positions, which the bare Sheet
+            // from the outer setUp doesn't have.
+            sheet.setPositions(new Positions(852, 552, 96, 24, new HashMap<>(), new HashMap<>()));
+            sheet.getPositions().generate(48, 24);
+        }
+
+        @Test
+        void gridlinesAreOnByDefault() {
+            assertTrue(sheet.getPositions().gridlinesOn());
+        }
+
+        @Test
+        void togglesGridlinesOff() throws Exception {
+            run("gridlines");
+            assertFalse(sheet.getPositions().gridlinesOn());
+        }
+
+        @Test
+        void togglingTwiceRestoresGridlines() throws Exception {
+            run("gridlines");
+            run("gridlines");
+            assertTrue(sheet.getPositions().gridlinesOn());
+        }
+    }
+
     // ── Unknown commands ──
 
     @Nested

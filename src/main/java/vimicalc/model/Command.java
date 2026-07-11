@@ -127,6 +127,8 @@ public class Command extends Interpretable {
                     fontSize((int) command[1].getVal(), sheet);
                 }
             }
+            // Global view toggle — like :zoom, ignores xC/yC.
+            case "gridlines" -> sheet.getPositions().toggleGridlines();
             case "zoom" -> {
                 // Global view zoom — unlike :resCol/:fontSize, ignores xC/yC.
                 if (command.length == 1) sheet.getPositions().setZoom(DEFAULT_ZOOM);
