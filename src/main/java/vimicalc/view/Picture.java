@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
+import static vimicalc.view.Defaults.GRIDLINE_C;
 import static vimicalc.view.Defaults.GUTTER_W;
 import static vimicalc.view.Defaults.HEADER_H;
+import static vimicalc.view.Defaults.SELECT_TINT;
 
 /**
  * The main spreadsheet grid renderer, responsible for drawing all visible cells
@@ -120,7 +122,7 @@ public class Picture extends simpleRect {
             }
         }
 
-        gc.setFill(new Color(0,0.67,1,1));
+        gc.setFill(SELECT_TINT);
         selectedCoords.forEach(c ->
             gc.fillRect(
                 metadata.getCellAbsXs()[c[0]] - absX + GUTTER_W,
@@ -161,7 +163,7 @@ public class Picture extends simpleRect {
         double top = absYs[metadata.getFirstYC()] - absY + HEADER_H;
         double bottom = absYs[metadata.getLastYC() + 1] - absY + HEADER_H;
 
-        gc.setStroke(Color.LIGHTGRAY);
+        gc.setStroke(GRIDLINE_C);
         gc.setLineWidth(1);
         // The +0.5 centers each 1px stroke on the pixel so lines render crisp.
         for (int i = metadata.getFirstXC(); i <= metadata.getLastXC() + 1; i++) {

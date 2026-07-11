@@ -2,12 +2,15 @@ package vimicalc.view;
 
 import javafx.geometry.VPos;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import org.jetbrains.annotations.NotNull;
 
+import static vimicalc.view.Defaults.CHROME_BORDER;
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
+import static vimicalc.view.Defaults.HEADER_SEPARATOR;
+import static vimicalc.view.Defaults.HEADER_TXT;
 
 /**
  * The row number column displayed on the left side of the spreadsheet.
@@ -26,11 +29,11 @@ public class FirstCol extends simpleRect {
      * @param y            the y pixel position
      * @param w            the width in pixels
      * @param h            the height in pixels
-     * @param c            the background color
+     * @param c            the background fill
      * @param camera       the viewport camera the label positions derive from
      * @param picPositions the position metadata for cell layout
      */
-    public FirstCol(int x, int y, int w, int h, Color c, Camera camera, Positions picPositions) {
+    public FirstCol(int x, int y, int w, int h, Paint c, Camera camera, Positions picPositions) {
         super(x, y, w, h, c);
         this.camera = camera;
         this.picPositions = picPositions;
@@ -39,7 +42,7 @@ public class FirstCol extends simpleRect {
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         super.draw(gc);
-        gc.setFill(Color.BLACK);
+        gc.setFill(HEADER_TXT);
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setTextBaseline(VPos.CENTER);
         // Scale the label font with the view zoom so headers grow with the
@@ -55,5 +58,17 @@ public class FirstCol extends simpleRect {
                 , w);
         }
         gc.setFont(prevFont);
+
+        // Inset hairline separators between row labels; the +0.5 centers each
+        // 1px stroke on the pixel so lines render crisp.
+        gc.setStroke(HEADER_SEPARATOR);
+        gc.setLineWidth(1);
+        for (int yC = picPositions.getFirstYC() + 1; yC <= picPositions.getLastYC() + 1; yC++) {
+            double sepY = picPositions.getCellAbsYs()[yC] - camera.getAbsY() + y + 0.5;
+            gc.strokeLine(x + 4, sepY, x + w - 5, sepY);
+        }
+        // Edge line where the gutter meets the grid.
+        gc.setStroke(CHROME_BORDER);
+        gc.strokeLine(x + w - 0.5, y, x + w - 0.5, y + h);
     }
 }

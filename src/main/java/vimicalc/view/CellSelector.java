@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static vimicalc.view.Defaults.ACCENT;
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.GUTTER_W;
 import static vimicalc.view.Defaults.HEADER_H;
@@ -124,16 +125,28 @@ public class CellSelector extends simpleRect {
             , w);
         gc.setFont(prevFont);
     }
+    /**
+     * Fills the highlight rectangle, then strokes the accent border on top,
+     * inset so the 2px stroke stays within the cell's own pixels.
+     */
+    private void drawBox(@NotNull GraphicsContext gc) {
+        super.draw(gc);
+        gc.setStroke(ACCENT);
+        gc.setLineWidth(2);
+        gc.strokeRect(x + 1, y + 1, w - 2, h - 2);
+        gc.setLineWidth(1);
+    }
+
     @Override
     public void draw(@NotNull GraphicsContext gc) {
         if (!selectedCell.isMergeStart() || modeSupplier.get() == Mode.VISUAL) {
-            super.draw(gc);
+            drawBox(gc);
             if (selectedCell.txt() != null) drawTxt(gc);
         }
         else {
             int prevW = w, prevH = h;
             w = mergedW; h = mergedH;
-            super.draw(gc);
+            drawBox(gc);
             if (selectedCell.txt() != null) drawTxt(gc);
             w = prevW; h = prevH;
         }

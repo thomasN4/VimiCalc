@@ -1,14 +1,14 @@
 package vimicalc.view;
 
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Abstract base class for all rectangular UI components drawn on the canvas.
  *
  * <p>Provides position ({@code x}, {@code y}), dimensions ({@code w}, {@code h}),
- * and background color ({@code c}). Subclasses override {@link #draw(GraphicsContext)}
+ * and background fill ({@code c}). Subclasses override {@link #draw(GraphicsContext)}
  * to render their specific content on top of the filled rectangle.</p>
  */
 public abstract class simpleRect {
@@ -20,19 +20,19 @@ public abstract class simpleRect {
     protected int w;
     /** The height in pixels. */
     protected int h;
-    /** The fill color. */
-    protected Color c;
+    /** The background fill (a solid color or a gradient). */
+    protected Paint c;
 
     /**
-     * Creates a new rectangle at the given position with the given size and color.
+     * Creates a new rectangle at the given position with the given size and fill.
      *
      * @param x the x-coordinate of the top-left corner (pixels)
      * @param y the y-coordinate of the top-left corner (pixels)
      * @param w the width (pixels)
      * @param h the height (pixels)
-     * @param c the fill color
+     * @param c the background fill
      */
-    public simpleRect(int x, int y, int w, int h, Color c) {
+    public simpleRect(int x, int y, int w, int h, Paint c) {
         this.x = x;
         this.y = y;
         this.w = w;
@@ -41,7 +41,7 @@ public abstract class simpleRect {
     }
 
     /**
-     * Fills this rectangle on the canvas with its background color.
+     * Fills this rectangle on the canvas with its background fill.
      * Subclasses should call {@code super.draw(gc)} before rendering their content.
      *
      * @param gc the graphics context to draw on
@@ -76,13 +76,13 @@ public abstract class simpleRect {
         return h;
     }
 
-    /** @return the fill color */
-    public Color getC() {
+    /** @return the background fill */
+    public Paint getC() {
         return c;
     }
 
-    /** @param c the new fill color */
-    public void setC(Color c) {
+    /** @param c the new background fill */
+    public void setC(Paint c) {
         this.c = c;
     }
 

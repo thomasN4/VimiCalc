@@ -2,6 +2,9 @@ package vimicalc.view;
 
 import javafx.geometry.VPos;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.TextAlignment;
 
 /**
@@ -35,6 +38,34 @@ public final class Defaults {
     public static final Color DEFAULT_CELL_C = Color.WHITE;
     /** Default cell text color. */
     public static final Color DEFAULT_TXT_C = Color.BLACK;
+    /** Lightest chrome shade; top stop of the header gradients (mirrors {@code theme.css}). */
+    public static final Color CHROME_TOP = Color.web("#f4f6f8");
+    /** Darkest chrome shade; bottom stop of the header gradients (mirrors {@code theme.css}). */
+    public static final Color CHROME_BOTTOM = Color.web("#dfe3e8");
+    /** Hairline border color separating chrome (headers, bars) from the grid. */
+    public static final Color CHROME_BORDER = Color.web("#a9b1ba");
+    /** Hairline separator color between labels inside the headers. */
+    public static final Color HEADER_SEPARATOR = Color.web("#c3cad2");
+    /** Header label text color. */
+    public static final Color HEADER_TXT = Color.web("#333333");
+    /** Cell gridline color. */
+    public static final Color GRIDLINE_C = Color.web("#d8dde3");
+    /** Accent color for the selector border and other emphasis. */
+    public static final Color ACCENT = Color.rgb(0, 171, 255);
+    /**
+     * Selection fill tint for the cell selector and VISUAL-mode ranges. Opaque
+     * on purpose: the selector repaints the cell text itself, so a translucent
+     * fill over the grid's already-drawn text would double-render it.
+     */
+    public static final Color SELECT_TINT = Color.web("#cfe9ff");
+    /** Top-lit vertical gradient filling the column header row and corner block. */
+    public static final LinearGradient HEADER_FILL_V = new LinearGradient(
+        0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+        new Stop(0, CHROME_TOP), new Stop(1, CHROME_BOTTOM));
+    /** Left-lit horizontal gradient filling the row-number gutter. */
+    public static final LinearGradient HEADER_FILL_H = new LinearGradient(
+        0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+        new Stop(0, CHROME_TOP), new Stop(1, CHROME_BOTTOM));
     /** Default vertical text position within a cell. */
     public static final VPos DEFAULT_VPOS = VPos.CENTER;
     /** Default horizontal text alignment within a cell. */

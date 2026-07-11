@@ -8,31 +8,31 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vimicalc.controller.Controller">
+<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@theme.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vimicalc.controller.Controller">
   <children>
     <StackPane fx:id="canvasStack" minHeight="0.0" minWidth="0.0" prefHeight="548.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
       <children>
         <Canvas fx:id="canvas" height="548.0" width="900.0" />
         <Pane fx:id="overlayPane" mouseTransparent="true" pickOnBounds="false" prefHeight="548.0" prefWidth="900.0">
           <children>
-            <Label fx:id="keyStrokeLabel" alignment="CENTER" focusTraversable="false" layoutX="0.0" layoutY="0.0" prefHeight="24.0" prefWidth="48.0" style="-fx-background-color: lightgreen; -fx-text-fill: blue;" text="" />
-            <Label fx:id="helpLabel" alignment="TOP_LEFT" focusTraversable="false" layoutX="30.0" layoutY="30.0" prefHeight="480.0" prefWidth="740.0" style="-fx-background-color: lightyellow; -fx-text-fill: black; -fx-padding: 10;" text="" visible="false" wrapText="true" />
+            <Label fx:id="keyStrokeLabel" alignment="CENTER" focusTraversable="false" layoutX="0.0" layoutY="0.0" prefHeight="24.0" prefWidth="48.0" styleClass="keystroke-chip" text="" visible="false" />
+            <Label fx:id="helpLabel" alignment="TOP_LEFT" focusTraversable="false" layoutX="30.0" layoutY="30.0" prefHeight="480.0" prefWidth="740.0" styleClass="help-overlay" text="" visible="false" wrapText="true" />
           </children>
         </Pane>
       </children>
     </StackPane>
-    <HBox fx:id="statusRow" alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="900.0" style="-fx-background-color: lightgreen;">
+    <HBox fx:id="statusRow" alignment="CENTER_LEFT" prefHeight="28.0" prefWidth="900.0" styleClass="status-row">
       <children>
-        <Label fx:id="statusLabel" focusTraversable="false" style="-fx-text-fill: blue;" text=" [NORMAL]  --new_file--" />
+        <Label fx:id="statusLabel" focusTraversable="false" styleClass="status-label" text=" [NORMAL]  --new_file--" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="coordsLabel" focusTraversable="false" style="-fx-text-fill: blue; -fx-padding: 0 4 0 0;" text="B2" />
+        <Label fx:id="coordsLabel" focusTraversable="false" styleClass="coords-label" text="B2" />
       </children>
     </HBox>
-    <HBox fx:id="infoRow" alignment="CENTER_LEFT" prefHeight="24.0" prefWidth="900.0" style="-fx-background-color: white;">
+    <HBox fx:id="infoRow" alignment="CENTER_LEFT" prefHeight="24.0" prefWidth="900.0" styleClass="info-row">
       <children>
-        <Label fx:id="infoLabel" focusTraversable="false" style="-fx-padding: 0 0 0 2;" text="(=I)" />
+        <Label fx:id="infoLabel" focusTraversable="false" styleClass="info-label" text="(=I)" />
         <Region HBox.hgrow="ALWAYS" />
-        <Label fx:id="exprLabel" focusTraversable="false" style="-fx-padding: 0 4 0 0;" text="" />
+        <Label fx:id="exprLabel" focusTraversable="false" styleClass="expr-label" text="" />
       </children>
     </HBox>
   </children>
