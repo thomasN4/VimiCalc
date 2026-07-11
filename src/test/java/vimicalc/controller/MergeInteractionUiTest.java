@@ -35,6 +35,10 @@ class MergeInteractionUiTest {
         Scene scene = new Scene(root, 900, 600);
         scene.setOnKeyPressed(controller::onKeyPressed);
         stage.setScene(scene);
+        // TestFX reuses one primary stage across test classes; with the
+        // resizable layout (#46) content follows the stage, so pin the size.
+        stage.setWidth(900);
+        stage.setHeight(600);
         stage.show();
     }
 

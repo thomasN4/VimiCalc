@@ -26,7 +26,9 @@ public class Positions {
      */
     private int lastXInnerEdge, lastYInnerEdge;
     private int firstXC, lastXC, firstYC, lastYC, maxXC, maxYC;
-    private final int picW, picH, DCW, DCH;
+    /** Viewport pixel dimensions; mutable via {@link #setViewport(int, int)} for window resizing. */
+    private int picW, picH;
+    private final int DCW, DCH;
     private HashMap<Integer, Integer> xOffsets;
     private HashMap<Integer, Integer> yOffsets;
     private int[] cellAbsXs, cellAbsYs;
@@ -196,6 +198,22 @@ public class Positions {
      */
     public void setZoom(double zoom) {
         this.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+        regenerate();
+    }
+
+    /**
+     * Sets new viewport pixel dimensions (on window resize) and regenerates
+     * positions at the last viewport edges. Like {@link #setZoom(double)},
+     * this is safe without camera access because {@link Camera#scrollBy(int, int)}
+     * regenerates on every camera move, so the last edges always match the
+     * live offset.
+     *
+     * @param picW the new picture area width in pixels
+     * @param picH the new picture area height in pixels
+     */
+    public void setViewport(int picW, int picH) {
+        this.picW = picW;
+        this.picH = picH;
         regenerate();
     }
 

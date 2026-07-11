@@ -10,7 +10,7 @@
 
 <VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vimicalc.controller.Controller">
   <children>
-    <StackPane fx:id="canvasStack" prefHeight="548.0" prefWidth="900.0">
+    <StackPane fx:id="canvasStack" minHeight="0.0" minWidth="0.0" prefHeight="548.0" prefWidth="900.0" VBox.vgrow="ALWAYS">
       <children>
         <Canvas fx:id="canvas" height="548.0" width="900.0" />
         <Pane fx:id="overlayPane" mouseTransparent="true" pickOnBounds="false" prefHeight="548.0" prefWidth="900.0">

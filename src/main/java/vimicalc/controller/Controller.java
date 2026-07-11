@@ -45,7 +45,7 @@ import static vimicalc.Main.arg1;
  */
 public class Controller implements Initializable {
     int CANVAS_W;
-    private int CANVAS_H;
+    int CANVAS_H;
 
     /*CD
     private int MOUSE_X;
@@ -833,6 +833,33 @@ public class Controller implements Initializable {
                 else infoBar.setInfobarTxt(e.getMessage());
             }
         }
+        // Track the available area: canvasStack has VBox.vgrow=ALWAYS, so its
+        // laid-out size follows the window. At FXML-load time it is 0x0 and
+        // nothing fires; the first layout pulse delivers the initial size,
+        // which matches the FXML-seeded CANVAS_W/H and no-ops.
+        canvasStack.widthProperty().addListener((obs, oldV, newV) -> onCanvasStackResized());
+        canvasStack.heightProperty().addListener((obs, oldV, newV) -> onCanvasStackResized());
+    }
+
+    /** Applies the canvas stack's laid-out size to the grid viewport. */
+    private void onCanvasStackResized() {
+        int w = (int) canvasStack.getWidth(), h = (int) canvasStack.getHeight();
+        if (w <= 0 || h <= 0) return;
+        editorOps.applyViewportSize(w, h);
+    }
+
+    /**
+     * Updates the tracked canvas dimensions and resizes the canvas node.
+     * Must run before any repaint: resizing a {@link Canvas} clears it.
+     *
+     * @param w the new canvas width in pixels
+     * @param h the new canvas height in pixels
+     */
+    void setCanvasSize(int w, int h) {
+        CANVAS_W = w;
+        CANVAS_H = h;
+        canvas.setWidth(w);
+        canvas.setHeight(h);
     }
 
     /**
