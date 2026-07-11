@@ -21,6 +21,10 @@ public final class Defaults {
     public static final int GUTTER_W = DEFAULT_CELL_W / 2;
     /** Height in pixels of the column-letter header row ({@link FirstRow}) on the top edge. */
     public static final int HEADER_H = DEFAULT_CELL_H;
+    /** Height in pixels of the status bar ({@link StatusBar}) row below the grid. */
+    public static final int STATUS_BAR_H = DEFAULT_CELL_H + 4;
+    /** Height in pixels of the information bar ({@link InfoBar}) at the bottom edge. */
+    public static final int INFO_BAR_H = DEFAULT_CELL_H;
     /** Default font size in points (matches the JavaFX canvas default font). */
     public static final int DEFAULT_FONT_SIZE = 13;
     /** Default view zoom factor (100%). */

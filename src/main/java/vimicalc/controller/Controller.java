@@ -814,6 +814,16 @@ public class Controller implements Initializable {
     }
 
     /**
+     * Returns the y coordinate of the bottom edge of the grid viewport, i.e.
+     * where the sheet's drawable area ends and the status bar begins.
+     *
+     * @return the grid viewport's bottom edge, in canvas pixels
+     */
+    int viewportBottom() {
+        return CANVAS_H - STATUS_BAR_H - INFO_BAR_H;
+    }
+
+    /**
      * Resets all UI components and state to their defaults. Called on
      * initialization, after loading a file, and from {@link Sheet#readFile(String)}.
      */
@@ -822,7 +832,7 @@ public class Controller implements Initializable {
             GUTTER_W,
             HEADER_H,
             CANVAS_W-GUTTER_W,
-            CANVAS_H-3*DEFAULT_CELL_H-4,
+            viewportBottom()-HEADER_H,
             DEFAULT_CELL_C,
             sheet.getPositions(),
             sheet.getCellsFormatting()
@@ -854,14 +864,14 @@ public class Controller implements Initializable {
         );
         coordsInfo = new CoordsInfo(
             CANVAS_W,
-            CANVAS_H-2*DEFAULT_CELL_H-4,
-            DEFAULT_CELL_H + 4
+            viewportBottom(),
+            STATUS_BAR_H
         );
         firstCol = new FirstCol(
             0,
             HEADER_H,
             GUTTER_W,
-            CANVAS_H-3*DEFAULT_CELL_H-4,
+            viewportBottom()-HEADER_H,
             Color.LIGHTBLUE,
             camera,
             camera.picture.metadata()
@@ -877,16 +887,16 @@ public class Controller implements Initializable {
         );
         infoBar = new InfoBar(
             0,
-            CANVAS_H-DEFAULT_CELL_H,
+            CANVAS_H-INFO_BAR_H,
             CANVAS_W,
-            DEFAULT_CELL_H,
+            INFO_BAR_H,
             DEFAULT_CELL_C
         );
         statusBar = new StatusBar(
             0,
-            CANVAS_H-2*DEFAULT_CELL_H-4,
+            viewportBottom(),
             CANVAS_W,
-            DEFAULT_CELL_H+4,
+            STATUS_BAR_H,
             Color.LIGHTGREEN,
             () -> currMode
         );
