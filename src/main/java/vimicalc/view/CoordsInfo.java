@@ -1,10 +1,6 @@
 package vimicalc.view;
 
-import javafx.geometry.VPos;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
-import org.jetbrains.annotations.NotNull;
+import javafx.scene.control.Label;
 
 import static vimicalc.utils.Conversions.toAlpha;
 
@@ -13,24 +9,21 @@ import static vimicalc.utils.Conversions.toAlpha;
  * (e.g. "A1:C4") in the status area of the spreadsheet.
  *
  * <p>In NORMAL mode it shows a single cell reference; in VISUAL mode it
- * shows the bounding range of the selection.</p>
+ * shows the bounding range of the selection. The string field is the source
+ * of truth and is mirrored to a scene-graph {@link Label}.</p>
  */
 public class CoordsInfo {
-    int x, y, h;
-
+    private final Label coordsLabel;
     private String coords;
 
     /**
-     * Creates a coordinate display at the given position.
+     * Creates a coordinate display bound to the given label.
      *
-     * @param x the x pixel position (right edge)
-     * @param y the y pixel position
-     * @param h the height in pixels
+     * @param coordsLabel the scene-graph label to update
      */
-    public CoordsInfo(int x, int y, int h) {
-        this.x = x;
-        this.y = y;
-        this.h = h;
+    public CoordsInfo(Label coordsLabel) {
+        this.coordsLabel = coordsLabel;
+        coords = "";
     }
 
     /**
@@ -41,6 +34,7 @@ public class CoordsInfo {
      */
     public void setCoords(int xCoord, int yCoord) {
         coords = toAlpha(xCoord-1) + yCoord;
+        coordsLabel.setText(coords);
     }
 
     /**
@@ -53,6 +47,7 @@ public class CoordsInfo {
      */
     public void setCoords(int maxXC, int minXC, int maxYC, int minYC) {
         coords = toAlpha(minXC-1) + minYC + ":" + toAlpha(maxXC-1) + maxYC;
+        coordsLabel.setText(coords);
     }
 
     /**
@@ -62,17 +57,5 @@ public class CoordsInfo {
      */
     public String getCoords() {
         return coords;
-    }
-
-    /**
-     * Draws the coordinate display onto the canvas.
-     *
-     * @param gc the graphics context
-     */
-    public void draw(@NotNull GraphicsContext gc) {
-        gc.setFill(Color.BLUE);
-        gc.setTextAlign(TextAlignment.RIGHT);
-        gc.setTextBaseline(VPos.CENTER);
-        gc.fillText(coords, x-4, y + (float)h/2);
     }
 }
