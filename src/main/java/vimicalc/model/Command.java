@@ -29,6 +29,7 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  *   <li>{@code :fontSize [px]} — set the font size (no argument resets to default)</li>
  *   <li>{@code :fontWeight [bold|normal|100-900]} — set the font weight (no argument resets to normal)</li>
  *   <li>{@code :zoom [25-400]} — set the view zoom percentage (no argument resets to 100%)</li>
+ *   <li>{@code :gridlines} — toggle cell gridlines on and off</li>
  * </ul>
  *
  * <p>Color arguments accept the built-in names (red, green, blue, white, black,
@@ -45,7 +46,7 @@ public class Command extends Interpretable {
     public static final List<String> COMMAND_NAMES = List.of(
         "h", "help", "?", "e", "w", "wq", "q", "resCol", "resRow", "purgeDeps",
         "cellColor", "txtColor", "boldTxt", "italicTxt", "fontSize", "fontWeight",
-        "zoom"
+        "zoom", "gridlines"
     );
 
     /**
