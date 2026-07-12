@@ -476,7 +476,7 @@ public class KeyCommand {
                             return;
                         }
                         try {
-                            ctrl.command.interpret(ctrl.sheet);
+                            ctrl.command.execute(ctrl.sheet);
                         } catch (Exception e) {
                             ctrl.infoBar.setInfobarTxt(e.getMessage());
                             evaluationFinished = true;

@@ -251,7 +251,7 @@ public class Controller implements Initializable {
                     command.getTxt().equals("help") ||
                     command.getTxt().equals("?")) {
                     try {
-                        command.interpret(sheet);
+                        command.execute(sheet);
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
                     }
@@ -302,7 +302,7 @@ public class Controller implements Initializable {
 
                 String commandError = null;
                 try {
-                    command.interpret(sheet);
+                    command.execute(sheet);
                 } catch (Exception e) {
                     commandError = e.getMessage();
                 }

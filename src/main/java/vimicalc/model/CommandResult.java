@@ -2,7 +2,7 @@ package vimicalc.model;
 
 /**
  * Signals a side effect that the controller should handle after
- * a {@link Command} has been interpreted.
+ * a {@link Command} has been executed.
  */
 public enum CommandResult {
     /** No special action needed. */

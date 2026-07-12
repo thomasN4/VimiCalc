@@ -32,7 +32,14 @@ import static vimicalc.utils.Conversions.*;
  * <p>During evaluation, dependencies are registered in the {@link Sheet}'s
  * dependency graph so that changes propagate correctly.</p>
  */
-public class Formula extends Interpretable {
+public class Formula {
+    /** Column index of the cell this formula is associated with. */
+    private final int xC;
+    /** Row index of the cell this formula is associated with. */
+    private final int yC;
+    /** The raw RPN formula text. */
+    private String txt;
+
     /**
      * Creates a formula from the given RPN expression text.
      *
@@ -41,7 +48,38 @@ public class Formula extends Interpretable {
      * @param yC  the row index of the owning cell
      */
     public Formula(String txt, int xC, int yC) {
-        super(txt, xC, yC);
+        this.txt = txt;
+        this.xC = xC;
+        this.yC = yC;
+    }
+
+    /**
+     * Returns the raw formula text.
+     *
+     * @return the formula text
+     */
+    public String getTxt() {
+        return txt;
+    }
+
+    /**
+     * Sets the raw formula text.
+     *
+     * @param txt the new formula text
+     */
+    public void setTxt(String txt) {
+        this.txt = txt;
+    }
+
+    /**
+     * Tokenises the formula text and evaluates it, returning the numeric result.
+     *
+     * @param sheet the sheet context (for cell lookups and dependency tracking)
+     * @return the computed value
+     * @throws Exception if evaluation fails (e.g. missing args, circular dependency)
+     */
+    public double interpret(Sheet sheet) throws Exception {
+        return interpret(Tokenizer.tokenize(txt), sheet)[0].getVal();
     }
 
     // ─────────────────────────────── Operand model ───────────────────────────────
@@ -113,8 +151,8 @@ public class Formula extends Interpretable {
         Deque<Operand> stack = new ArrayDeque<>();
 
         for (Token token : args) {
-            if (!token.isFunction()) stack.push(new Num(token.getVal()));
-            else evalFunction(token.getFunc(), stack, sheet, partOfExpression);
+            if (!token.isSymbol()) stack.push(new Num(token.getVal()));
+            else evalFunction(token.getSymbol(), stack, sheet, partOfExpression);
         }
 
         if (stack.size() != 1)
@@ -295,22 +333,22 @@ public class Formula extends Interpretable {
     /** Sum of a range's values (blank cells are skipped). */
     private static double sum(@NotNull Token[] nums) {
         double s = 0;
-        for (Token n : nums) if (!n.isFunction()) s += n.getVal();
+        for (Token n : nums) if (!n.isSymbol()) s += n.getVal();
         return s;
     }
 
     /** Product of a range's values (blank cells are skipped). */
     private static double product(@NotNull Token[] nums) {
         double p = 1;
-        for (Token n : nums) if (!n.isFunction()) p *= n.getVal();
+        for (Token n : nums) if (!n.isSymbol()) p *= n.getVal();
         return p;
     }
 
     /** Running quotient of a range's values (blank cells are skipped). */
     private static double quotient(@NotNull Token[] nums) {
-        double q = nums[0].isFunction() ? 1 : nums[0].getVal();
+        double q = nums[0].isSymbol() ? 1 : nums[0].getVal();
         for (int i = 1; i < nums.length; i++)
-            if (!nums[i].isFunction()) q /= nums[i].getVal();
+            if (!nums[i].isSymbol()) q /= nums[i].getVal();
         return q;
     }
 

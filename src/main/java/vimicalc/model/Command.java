@@ -9,7 +9,7 @@ import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.DEFAULT_ZOOM;
 
 /**
- * Interprets colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
+ * Executes colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
  * {@code :cellColor red}).
  *
  * <p>Supported commands:</p>
@@ -37,17 +37,24 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  * hex value like {@code #ff8800}. An empty or unrecognized color resets to the
  * default.</p>
  */
-public class Command extends Interpretable {
+public class Command {
     /**
      * Every recognized command name, in the order of the class Javadoc list.
      * Used for COMMAND-mode autocompletion; keep in sync with the switch in
-     * {@link #interpret(Token[], Sheet)} (enforced by {@code CommandTest}).
+     * {@link #execute(Sheet)} (enforced by {@code CommandTest}).
      */
     public static final List<String> COMMAND_NAMES = List.of(
         "h", "help", "?", "e", "w", "wq", "q", "resCol", "resRow", "purgeDeps",
         "cellColor", "txtColor", "boldTxt", "italicTxt", "fontSize", "fontWeight",
         "zoom", "gridlines"
     );
+
+    /** Column index of the cell this command is associated with. */
+    private final int xC;
+    /** Row index of the cell this command is associated with. */
+    private final int yC;
+    /** The raw command text (without the leading colon). */
+    private String txt;
 
     /**
      * Creates a command from the given text at the specified cell position.
@@ -57,23 +64,56 @@ public class Command extends Interpretable {
      * @param yC  the row index of the current cell
      */
     public Command(String txt, int xC, int yC) {
-        super(txt, xC, yC);
+        this.txt = txt;
+        this.xC = xC;
+        this.yC = yC;
     }
+
+    /**
+     * Returns the raw command text.
+     *
+     * @return the command text
+     */
+    public String getTxt() {
+        return txt;
+    }
+
+    /**
+     * Sets the raw command text.
+     *
+     * @param txt the new command text
+     */
+    public void setTxt(String txt) {
+        this.txt = txt;
+    }
+
     /**
      * Set to {@code false} after evaluation if the entered command was not recognized.
      * Starts as {@code true} and is reset to {@code true} at the beginning of every
-     * {@link #interpret(Token[], Sheet)} call.
+     * {@link #execute(Sheet)} call.
      */
     public boolean commandExists = true;
 
-    /** The result of the last {@link #interpret(Token[], Sheet)} call. */
+    /** The result of the last {@link #execute(Sheet)} call. */
     private CommandResult commandResult = CommandResult.NONE;
 
     /**
-     * Returns the result of the last interpretation (e.g. {@link CommandResult#HELP}).
+     * Returns the result of the last execution (e.g. {@link CommandResult#HELP}).
      */
     public CommandResult getCommandResult() {
         return commandResult;
+    }
+
+    /**
+     * Tokenises the command text and dispatches it against the given sheet.
+     *
+     * @param sheet the sheet context
+     * @return the side-effect signal for the controller ({@link CommandResult#NONE},
+     *         {@link CommandResult#HELP}, or {@link CommandResult#QUIT})
+     * @throws Exception if the command is unrecognized or its arguments are invalid
+     */
+    public CommandResult execute(Sheet sheet) throws Exception {
+        return execute(Tokenizer.tokenize(txt), sheet);
     }
 
     /**
@@ -84,7 +124,7 @@ public class Command extends Interpretable {
      * @throws Exception if the file cannot be read
      */
     public void readFile(Sheet sheet, Token[] command) throws Exception {
-        sheet.readFile(command[1].getFunc());
+        sheet.readFile(command[1].getSymbol());
     }
 
     /**
@@ -96,13 +136,13 @@ public class Command extends Interpretable {
      */
     public void writeFile(Sheet sheet, Token[] command) throws Exception {
         if (command.length == 1) sheet.writeFile();
-        else sheet.writeFile(command[1].getFunc());
+        else sheet.writeFile(command[1].getSymbol());
     }
 
-    public Token[] interpret(Token[] command, Sheet sheet) throws Exception {
+    private CommandResult execute(Token[] command, Sheet sheet) throws Exception {
         commandExists = true;
         commandResult = CommandResult.NONE;
-        switch (command[0].getFunc()) {
+        switch (command[0].getSymbol()) {
             case "h", "help", "?" -> commandResult = CommandResult.HELP;
             case "e" -> readFile(sheet, command);
             case "resCol" -> sheet.getPositions().applyOffset(
@@ -124,18 +164,18 @@ public class Command extends Interpretable {
             case "q" -> commandResult = CommandResult.QUIT;
             case "cellColor" -> {
                 if (command.length == 1) cellColor("", sheet);
-                else cellColor(command[1].getFunc(), sheet);
+                else cellColor(command[1].getSymbol(), sheet);
             }
             case "txtColor" -> {
                 if (command.length == 1) txtColor("", sheet);
-                else txtColor(command[1].getFunc(), sheet);
+                else txtColor(command[1].getSymbol(), sheet);
             }
             case "boldTxt" -> boldTxt(sheet);
             case "italicTxt" -> italicTxt(sheet);
             case "fontSize" -> {
                 if (command.length == 1) fontSize(DEFAULT_FONT_SIZE, sheet);
                 else {
-                    if (command[1].isFunction() ||
+                    if (command[1].isSymbol() ||
                         command[1].getVal() < 4 || command[1].getVal() > 200)
                         throw new Exception("fontSize expects a size between 4 and 200.");
                     fontSize((int) command[1].getVal(), sheet);
@@ -147,7 +187,7 @@ public class Command extends Interpretable {
                 // Global view zoom — unlike :resCol/:fontSize, ignores xC/yC.
                 if (command.length == 1) sheet.getPositions().setZoom(DEFAULT_ZOOM);
                 else {
-                    if (command[1].isFunction() ||
+                    if (command[1].isSymbol() ||
                         command[1].getVal() < 25 || command[1].getVal() > 400)
                         throw new Exception("zoom expects a percentage between 25 and 400.");
                     sheet.getPositions().setZoom(command[1].getVal() / 100);
@@ -155,23 +195,23 @@ public class Command extends Interpretable {
             }
             case "fontWeight" -> {
                 if (command.length == 1) fontWeight("normal", sheet);
-                else if (!command[1].isFunction()) {
+                else if (!command[1].isSymbol()) {
                     if (command[1].getVal() < 100 || command[1].getVal() > 900)
                         throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
                     fontWeight(String.valueOf((int) command[1].getVal()), sheet);
                 }
                 else {
-                    if (!command[1].getFunc().equals("bold") && !command[1].getFunc().equals("normal"))
+                    if (!command[1].getSymbol().equals("bold") && !command[1].getSymbol().equals("normal"))
                         throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
-                    fontWeight(command[1].getFunc(), sheet);
+                    fontWeight(command[1].getSymbol(), sheet);
                 }
             }
             default -> {
                 commandExists = false;
-                throw new Exception("Command \"" + command[0].getFunc() + "\" doesn't exist.");
+                throw new Exception("Command \"" + command[0].getSymbol() + "\" doesn't exist.");
             }
         }
-        return new Token[]{new Token(0)};
+        return commandResult;
     }
 
     private void cellColor(@NotNull String color, Sheet sheet) {

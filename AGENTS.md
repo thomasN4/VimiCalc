@@ -52,7 +52,8 @@ model/             # Core data model (no JavaFX dependencies on the data itself 
   Cell.java          # A single cell: coords, text, numeric value, optional Formula, merge state
   Formula.java       # The RPN formula engine
   Command.java       # Colon-command (`:w`, `:e`, `:resCol`, ...) handling
-  CommandResult.java, Interpretable.java, FileIOCallbacks.java
+  Token.java, Tokenizer.java  # Expression/command lexing (symbol vs literal)
+  CommandResult.java, FileIOCallbacks.java
 view/              # Canvas-based rendering and UI widgets
   Camera.java, CellSelector.java, Positions.java, Formatting.java, Picture.java,
   StatusBar.java, InfoBar.java, HelpMenu.java, CoordsInfo.java, FirstCol/FirstRow, ...
