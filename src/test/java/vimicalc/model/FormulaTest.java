@@ -29,14 +29,14 @@ class FormulaTest {
         return f.interpret(sheet);
     }
 
-    // ── Lexer ──
+    // ── Tokenizer ──
 
     @Nested
-    class LexerTests {
+    class TokenizerTests {
         @Test
         void tokenizesNumbers() {
             Formula f = new Formula("", 1, 1);
-            Token[] result = f.lexer("42");
+            Token[] result = f.tokenizer("42");
             assertEquals(1, result.length);
             assertFalse(result[0].isFunction());
             assertEquals(42.0, result[0].getVal());
@@ -45,7 +45,7 @@ class FormulaTest {
         @Test
         void tokenizesIdentifiers() {
             Formula f = new Formula("", 1, 1);
-            Token[] result = f.lexer("sin");
+            Token[] result = f.tokenizer("sin");
             assertEquals(1, result.length);
             assertTrue(result[0].isFunction());
             assertEquals("sin", result[0].getFunc());
@@ -54,7 +54,7 @@ class FormulaTest {
         @Test
         void stripsParentheses() {
             Formula f = new Formula("", 1, 1);
-            Token[] result = f.lexer("(A1:C1)");
+            Token[] result = f.tokenizer("(A1:C1)");
             assertEquals(1, result.length);
             assertEquals("A1:C1", result[0].getFunc());
         }
@@ -62,7 +62,7 @@ class FormulaTest {
         @Test
         void multipleTokens() {
             Formula f = new Formula("", 1, 1);
-            Token[] result = f.lexer("3 4 +");
+            Token[] result = f.tokenizer("3 4 +");
             assertEquals(3, result.length);
             assertFalse(result[0].isFunction());
             assertEquals(3.0, result[0].getVal());

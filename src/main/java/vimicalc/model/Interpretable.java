@@ -9,9 +9,9 @@ import static vimicalc.utils.Conversions.isNumber;
  * {@link Sheet}. Subclassed by {@link Formula} (RPN math expressions) and
  * {@link Command} (colon commands like {@code :w}, {@code :q}).
  *
- * <p>Provides a shared {@link #lexer(String)} that tokenises the expression
+ * <p>Provides a shared {@link #tokenizer(String)} that tokenises the expression
  * text into {@link Token} arrays, and a template-method
- * {@link #interpret(Sheet)} that lexes and evaluates in one step.</p>
+ * {@link #interpret(Sheet)} that tokenises and evaluates in one step.</p>
  */
 abstract class Interpretable {
     /** Column index of the cell this expression is associated with. */
@@ -35,7 +35,7 @@ abstract class Interpretable {
      * @param txt the expression text to tokenise
      * @return the array of tokens
      */
-    protected Token[] lexer(@NotNull String txt) {
+    protected Token[] tokenizer(@NotNull String txt) {
         Token[] argsLong = new Token[txt.length()];
         txt += ' ';
         String arg = "";
@@ -78,7 +78,7 @@ abstract class Interpretable {
     }
 
     /**
-     * Lexes the expression text and evaluates it, returning the final numeric result.
+     * Tokenises the expression text and evaluates it, returning the final numeric result.
      * For {@link Formula}, returns the computed formula value. For {@link Command},
      * the return value is always 0 (meaningless) since commands operate via side effects.
      *
@@ -87,11 +87,11 @@ abstract class Interpretable {
      * @throws Exception if evaluation fails (e.g. missing args, circular dependency)
      */
     public double interpret(Sheet sheet) throws Exception {
-        return interpret(lexer(txt), sheet)[0].getVal();
+        return interpret(tokenizer(txt), sheet)[0].getVal();
     }
 
     /**
-     * Evaluates a pre-lexed array of tokens against the given sheet.
+     * Evaluates a pre-tokenised array of tokens against the given sheet.
      * Implemented by {@link Formula} (RPN evaluation) and {@link Command}
      * (command dispatch).
      *
@@ -104,7 +104,7 @@ abstract class Interpretable {
 }
 
 /**
- * A token produced by the {@link Interpretable#lexer(String)}.
+ * A token produced by the {@link Interpretable#tokenizer(String)}.
  *
  * <p>A token is either a <b>value</b> (a numeric literal) or a <b>function</b>
  * (an operator, cell reference, or named function like "sum", "det", etc.).

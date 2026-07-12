@@ -128,7 +128,7 @@ public class Formula extends Interpretable {
         if (func.isEmpty()) return;  // stray token from double/trailing spaces
 
         // Negated reference (e.g. "-B1", "-PI", "-2j"). Plain negative numbers such
-        // as "-5" are recognised as numbers by the lexer and never reach here.
+        // as "-5" are recognised as numbers by the tokenizer and never reach here.
         if (func.charAt(0) == '-' && func.length() > 1) {
             Deque<Operand> inner = new ArrayDeque<>();
             evalFunction(func.substring(1), inner, sheet, partOfExpression);
