@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
+import static vimicalc.view.Defaults.DEFAULT_MACRO_DELAY_MS;
 import static vimicalc.view.Defaults.DEFAULT_ZOOM;
+import static vimicalc.view.Defaults.MAX_MACRO_DELAY_MS;
 
 /**
  * The single source of truth for colon commands ({@code :w}, {@code :cellColor red}, …).
@@ -189,6 +191,18 @@ final class CommandRegistry {
             (args, sheet, xC, yC) -> {
                 // Global view toggle — like :zoom, ignores xC/yC.
                 sheet.getPositions().toggleGridlines();
+                return CommandResult.NONE;
+            }));
+        register(new CommandDef("macroDelay", List.of(), 0, 1,
+            ":macroDelay [ms] — set the delay between replayed macro keystrokes (no argument resets to 0 = instant)",
+            (args, sheet, xC, yC) -> {
+                // Global session setting — like :zoom, ignores xC/yC.
+                if (args.length == 1) sheet.getPositions().setMacroDelayMs(DEFAULT_MACRO_DELAY_MS);
+                else {
+                    if (args[1].isSymbol() || args[1].getVal() < 0 || args[1].getVal() > MAX_MACRO_DELAY_MS)
+                        throw new Exception("macroDelay expects a delay between 0 and " + MAX_MACRO_DELAY_MS + " ms.");
+                    sheet.getPositions().setMacroDelayMs((int) args[1].getVal());
+                }
                 return CommandResult.NONE;
             }));
     }

@@ -197,6 +197,50 @@ class CommandTest {
         }
     }
 
+    // ── :macroDelay ──
+
+    @Nested
+    class MacroDelayTests {
+        @BeforeEach
+        void setUpPositions() {
+            // :macroDelay acts on the sheet's Positions, which the bare Sheet
+            // from the outer setUp doesn't have.
+            sheet.setPositions(new Positions(852, 552, 96, 24, new HashMap<>(), new HashMap<>()));
+            sheet.getPositions().generate(48, 24);
+        }
+
+        @Test
+        void delayIsZeroByDefault() {
+            assertEquals(0, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void setsDelayInMilliseconds() throws Exception {
+            run("macroDelay 100");
+            assertEquals(100, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void noArgumentResetsToInstant() throws Exception {
+            run("macroDelay 100");
+            run("macroDelay");
+            assertEquals(0, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void outOfRangeDelayThrows() {
+            Exception low = assertThrows(Exception.class, () -> run("macroDelay -5"));
+            assertTrue(low.getMessage().contains("macroDelay"));
+            Exception high = assertThrows(Exception.class, () -> run("macroDelay 999999"));
+            assertTrue(high.getMessage().contains("macroDelay"));
+        }
+
+        @Test
+        void nonNumericDelayThrows() {
+            assertThrows(Exception.class, () -> run("macroDelay slow"));
+        }
+    }
+
     // ── Unknown commands ──
 
     @Nested

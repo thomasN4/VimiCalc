@@ -154,6 +154,29 @@ it — Vim-like behavior, per issue #24.
 2. Press `.` — nothing moves (movement never enters the dot register;
    if an edit was made earlier in the session, that edit repeats instead)
 
+### 7.4 Paced playback (:macroDelay)
+1. Record a macro: `q` `a`, then `i`, type "x", Escape, `j`, then `q`
+2. Press `;` and run `macroDelay 200`
+3. Press `3` `@` `a` — the three cells fill in visibly one step at a time
+   (about one keystroke every 200ms), not all at once
+4. While it plays, press `l` or type letters — they are ignored (the cursor
+   only moves as the macro dictates)
+5. Press `;` and run `macroDelay` (no argument), then `3` `@` `a` — the
+   replay is instant again
+
+### 7.5 Abort paced playback with ESC
+1. With the macro from 7.4 recorded, run `macroDelay 500`
+2. Press `9` `@` `a`, then press Escape mid-replay — playback stops,
+   info bar shows "Macro playback aborted.", remaining steps never run
+3. Press `j` — normal input works again immediately
+
+### 7.6 Recording is not polluted by paced replay
+1. Run `macroDelay 200`
+2. Record `q` `b`, press `@` `a`, wait for it to finish, press `l`, press `q`
+3. Press `@` `b` — it performs macro a's steps then moves right, i.e. the
+   replayed events were recorded once as `@a` (not expanded), and nothing
+   was double-recorded
+
 ---
 
 ## 8. Quit shortcuts (ZZ, ZQ)
