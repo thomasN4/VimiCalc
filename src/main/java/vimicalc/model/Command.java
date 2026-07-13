@@ -27,6 +27,8 @@ import java.util.List;
  *   <li>{@code :fontWeight [bold|normal|100-900]} — set the font weight (no argument resets to normal)</li>
  *   <li>{@code :zoom [25-400]} — set the view zoom percentage (no argument resets to 100%)</li>
  *   <li>{@code :gridlines} — toggle cell gridlines on and off</li>
+ *   <li>{@code :macroDelay [ms]} — set the delay between replayed macro keystrokes
+ *       (no argument resets to 0 = instant)</li>
  * </ul>
  *
  * <p>Each command is defined once in {@link CommandRegistry}, which is the source of

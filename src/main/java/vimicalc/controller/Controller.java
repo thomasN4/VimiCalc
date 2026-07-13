@@ -172,8 +172,26 @@ public class Controller implements Initializable {
      * @param event the key event
      */
     public void onKeyPressed(@NotNull KeyEvent event) {
+        onKeyPressed(event, false);
+    }
+
+    /**
+     * Key event handler distinguishing real keystrokes from paced macro
+     * replay. While a paced replay is running ({@code :macroDelay > 0}),
+     * real keystrokes are ignored — except ESC, which aborts the playback —
+     * and replayed events are never recorded into a macro.
+     *
+     * @param event      the key event
+     * @param fromReplay whether the event was dispatched by the macro replay
+     *                   drainer rather than typed by the user
+     */
+    void onKeyPressed(@NotNull KeyEvent event, boolean fromReplay) {
+        if (keyCommand.isReplaying() && !fromReplay) {
+            if (event.getCode() == ESCAPE) keyCommand.abortReplay();
+            return;
+        }
         keyStrokeCell.setKeyStroke(event.getCode().toString());
-        if (keyCommand.recordingMacro) keyCommand.currMacro.add(event);
+        if (keyCommand.recordingMacro && !fromReplay) keyCommand.currMacro.add(event);
         if (currMode == Mode.NORMAL) keyCommand.addChar(event);
         else {
             switch (currMode) {

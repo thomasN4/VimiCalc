@@ -34,6 +34,10 @@ public final class Defaults {
     public static final double MAX_ZOOM = 4.0;
     /** Multiplicative step applied per zoom-in/zoom-out key press. */
     public static final double ZOOM_STEP = 1.1;
+    /** Default delay between replayed macro keystrokes, in milliseconds (0 = instant). */
+    public static final int DEFAULT_MACRO_DELAY_MS = 0;
+    /** Maximum delay accepted by {@code :macroDelay}, in milliseconds. */
+    public static final int MAX_MACRO_DELAY_MS = 10_000;
     /** Default cell background color. */
     public static final Color DEFAULT_CELL_C = Color.WHITE;
     /** Default cell text color. */

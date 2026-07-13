@@ -1,6 +1,9 @@
 package vimicalc.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.input.KeyEvent;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Command;
 import vimicalc.model.CommandResult;
@@ -49,6 +52,17 @@ public class KeyCommand {
     protected LinkedList<KeyEvent> currMacro;
     /** Whether a macro is currently being recorded. */
     protected boolean recordingMacro;
+    /**
+     * Key events awaiting paced replay, drained one per {@link #replayTimeline}
+     * tick. Nested macro invocations expand at the front of the queue (like
+     * Vim's typeahead), so their events run before the remainder of the outer
+     * macro.
+     */
+    final ArrayDeque<KeyEvent> replayQueue = new ArrayDeque<>();
+    /** Whether a paced macro replay is currently in progress. */
+    private boolean replaying;
+    /** Drains {@link #replayQueue} one event per tick while a paced replay runs. */
+    private Timeline replayTimeline;
     /** Whether the info bar expression display should be updated on each keystroke. */
     protected boolean canChangeIBarExpr;
     /** The editor operations handler for movement, navigation, and editing. */
@@ -163,26 +177,101 @@ public class KeyCommand {
 
     /**
      * Replays a previously recorded macro by re-dispatching its key events.
-     * Temporarily pauses macro recording if one is in progress to avoid
-     * recording the replay into itself.
+     *
+     * <p>With {@code :macroDelay 0} (the default) the events are dispatched
+     * synchronously, as a single invisible batch. With a positive delay the
+     * events go through {@link #replayQueue} and are drained one per
+     * {@link Timeline} tick instead, yielding to the JavaFX pulse between
+     * keystrokes so each replayed edit is rendered — macro playback becomes
+     * watchable. A macro invoked while a paced replay is already running
+     * (a nested {@code @x}) expands at the front of the queue.</p>
+     *
+     * <p>The synchronous path temporarily pauses macro recording to avoid
+     * recording the replay into itself; the paced path relies on
+     * {@link Controller#onKeyPressed(KeyEvent, boolean)} skipping recording
+     * for events that {@link #isReplaying() come from the drainer}.</p>
      *
      * @param macroName the single-character macro identifier
      */
     private void runMacro(char macroName) {
         try {
-            boolean aMacroIsInFactBeingRecorded = recordingMacro;
-            if (aMacroIsInFactBeingRecorded) recordingMacro = false;
             System.out.println("Trying to run a macro...");
             KeyEvent[] macro = ctrl.macros.get(macroName).toArray(new KeyEvent[0]);
             System.out.println("The macro: " + macroStr(ctrl.macros.get(macroName)));
-            for (KeyEvent event : macro) ctrl.onKeyPressed(event);
-            if (aMacroIsInFactBeingRecorded) recordingMacro = true;
-            System.out.println("Macro execution finished");
+
+            if (replaying) {
+                enqueueAtFront(macro);
+                return;
+            }
+
+            int delayMs = ctrl.sheet.getPositions().getMacroDelayMs();
+            if (delayMs <= 0) {
+                boolean aMacroIsInFactBeingRecorded = recordingMacro;
+                if (aMacroIsInFactBeingRecorded) recordingMacro = false;
+                for (KeyEvent event : macro) ctrl.onKeyPressed(event);
+                if (aMacroIsInFactBeingRecorded) recordingMacro = true;
+                System.out.println("Macro execution finished");
+                return;
+            }
+
+            replaying = true;
+            enqueueAtFront(macro);
+            replayTimeline = new Timeline(new KeyFrame(Duration.millis(delayMs), e -> drainOneReplayEvent()));
+            replayTimeline.setCycleCount(Timeline.INDEFINITE);
+            replayTimeline.play();
         } catch (Exception e) {
             ctrl.infoBar.setInfobarTxt("Macro '" + macroName + "' doesn't exist.");
             System.out.println(e.getMessage());
             expr = "";
         }
+    }
+
+    /**
+     * Pushes the given events onto the front of {@link #replayQueue},
+     * preserving their order, so they run before whatever was already queued.
+     *
+     * @param macro the recorded key events to replay next
+     */
+    void enqueueAtFront(KeyEvent @NotNull [] macro) {
+        for (int i = macro.length - 1; i >= 0; i--)
+            replayQueue.addFirst(macro[i]);
+    }
+
+    /**
+     * Timeline tick handler: dispatches the next queued event (flagged as
+     * replayed so it is neither recorded nor gated) and ends the replay when
+     * the queue empties.
+     */
+    private void drainOneReplayEvent() {
+        KeyEvent next = replayQueue.poll();
+        if (next != null) ctrl.onKeyPressed(next, true);
+        if (replayQueue.isEmpty()) stopReplay();
+    }
+
+    /** @return whether a paced macro replay is currently in progress */
+    public boolean isReplaying() {
+        return replaying;
+    }
+
+    /**
+     * Aborts a paced replay immediately (bound to ESC while replaying):
+     * discards the queued events and stops the drainer.
+     */
+    void abortReplay() {
+        replayQueue.clear();
+        stopReplay();
+        expr = "";
+        ctrl.infoBar.setInfobarTxt("Macro playback aborted.");
+    }
+
+    /** Stops the drainer and leaves paced-replay state. */
+    private void stopReplay() {
+        if (replayTimeline != null) {
+            replayTimeline.stop();
+            replayTimeline = null;
+        }
+        replaying = false;
+        System.out.println("Macro execution finished");
     }
 
     record Prefix(int funcIndex, int multiplier) {}
