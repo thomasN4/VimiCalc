@@ -22,26 +22,30 @@ class CommandCompletionTest {
     class NextTests {
         @Test
         void cyclesAlphabeticallyThenReturnsToPrefix() {
-            assertEquals("resCol", completion.next("res"));
-            assertEquals("resRow", completion.next("resCol"));
-            assertEquals("res", completion.next("resRow"));
-            assertEquals("resCol", completion.next("res"));
+            assertEquals("fontSize", completion.next("font"));
+            assertEquals("fontWeight", completion.next("fontSize"));
+            assertEquals("font", completion.next("fontWeight"));
+            assertEquals("fontSize", completion.next("font"));
         }
 
         @Test
-        void exactCommandNameStillCyclesItsExtensions() {
-            assertEquals("w", completion.next("w"));
-            assertEquals("wq", completion.next("w"));
-            assertEquals("w", completion.next("wq"));
+        void aliasQueryCyclesThroughFuzzyMatchesOfCanonicalNames() {
+            // write/writeQuit by prefix, fontWeight by hump, resizeRow by its
+            // scattered trailing w — then back to the typed "w".
+            assertEquals("write", completion.next("w"));
+            assertEquals("writeQuit", completion.next("write"));
+            assertEquals("fontWeight", completion.next("writeQuit"));
+            assertEquals("resizeRow", completion.next("fontWeight"));
+            assertEquals("w", completion.next("resizeRow"));
         }
 
         @Test
-        void emptyPrefixMatchesEveryCommand() {
+        void emptyPrefixMatchesEveryCanonicalCommand() {
             assertNotEquals("", completion.next(""));
             int cycled = 1;
             while (!completion.next("").equals("")) cycled++;
-            assertEquals(Command.COMMAND_NAMES.size(), cycled,
-                "Cycling from an empty prefix should visit every command once");
+            assertEquals(Command.CANONICAL_COMMAND_NAMES.size(), cycled,
+                "Cycling from an empty prefix should visit every canonical command once");
         }
 
         @Test
@@ -58,16 +62,16 @@ class CommandCompletionTest {
     class PreviousTests {
         @Test
         void freshSessionStartsAtLastMatch() {
-            assertEquals("resRow", completion.previous("res"));
-            assertEquals("resCol", completion.previous("resRow"));
-            assertEquals("res", completion.previous("resCol"));
+            assertEquals("fontWeight", completion.previous("font"));
+            assertEquals("fontSize", completion.previous("fontWeight"));
+            assertEquals("font", completion.previous("fontSize"));
         }
 
         @Test
         void previousUndoesNext() {
-            assertEquals("resCol", completion.next("res"));
-            assertEquals("resRow", completion.next("resCol"));
-            assertEquals("resCol", completion.previous("resRow"));
+            assertEquals("resizeColumn", completion.next("res"));
+            assertEquals("resizeRow", completion.next("resizeColumn"));
+            assertEquals("resizeColumn", completion.previous("resizeRow"));
         }
     }
 
@@ -84,7 +88,7 @@ class CommandCompletionTest {
 
         @Test
         void resetStartsANewSessionWithANewPrefix() {
-            assertEquals("resCol", completion.next("res"));
+            assertEquals("resizeColumn", completion.next("res"));
             completion.reset();
             assertFalse(completion.isActive());
             assertEquals("fontSize", completion.next("font"));
@@ -93,19 +97,63 @@ class CommandCompletionTest {
 
         @Test
         void selectedIndexTracksTheCycle() {
-            completion.next("res");
+            completion.next("font");
             assertEquals(0, completion.getSelectedIndex());
-            completion.next("resCol");
+            completion.next("fontSize");
             assertEquals(1, completion.getSelectedIndex());
-            completion.next("resRow");
+            completion.next("fontWeight");
             assertEquals(-1, completion.getSelectedIndex(),
                 "Back on the original prefix, no match is selected");
         }
 
         @Test
-        void matchesAreSortedAlphabetically() {
+        void matchesAreRankedTierThenAlphabetically() {
             completion.next("res");
-            assertEquals(java.util.List.of("resCol", "resRow"), completion.getMatches());
+            assertEquals(
+                java.util.List.of("resizeColumn", "resizeRow", "gridlines", "purgeDependencies"),
+                completion.getMatches());
+        }
+    }
+
+    // ── Live updates while typing ──
+
+    @Nested
+    class UpdateTests {
+        @Test
+        void updateStartsASessionWithNoSelection() {
+            completion.update("re");
+            assertTrue(completion.isActive());
+            assertFalse(completion.getMatches().isEmpty());
+            assertEquals(-1, completion.getSelectedIndex(),
+                "Typing filters the matches but selects none of them");
+        }
+
+        @Test
+        void updateNarrowsAsMoreIsTyped() {
+            completion.update("re");
+            int broad = completion.getMatches().size();
+            completion.update("res");
+            assertTrue(completion.getMatches().size() < broad);
+            assertEquals("resizeColumn", completion.getMatches().get(0));
+        }
+
+        @Test
+        void updateResetsTheCyclePosition() {
+            assertEquals("fontSize", completion.next("font"));
+            completion.update("font");
+            assertEquals(-1, completion.getSelectedIndex());
+            assertEquals("fontSize", completion.next("font"),
+                "After an update the cycle starts over from the first match");
+        }
+
+        @Test
+        void suggestionsAreCanonicalNamesOnly() {
+            completion.update("");
+            assertEquals(Command.CANONICAL_COMMAND_NAMES.size(), completion.getMatches().size());
+            for (String alias : java.util.List.of("h", "?", "e", "w", "wq", "q",
+                    "resCol", "resRow", "purgeDeps", "txtColor", "boldTxt", "italicTxt"))
+                assertFalse(completion.getMatches().contains(alias),
+                    "Alias \"" + alias + "\" must not be suggested");
         }
     }
 }

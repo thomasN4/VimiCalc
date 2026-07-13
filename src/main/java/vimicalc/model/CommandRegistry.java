@@ -16,9 +16,12 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  * these definitions:</p>
  *
  * <ul>
- *   <li>{@link Command#COMMAND_NAMES} (COMMAND-mode TAB completion) is {@link #names()},
- *       so a command cannot exist without also being completable — the drift that caused
- *       issue #57 (a switch case with no completion entry) is impossible by construction.</li>
+ *   <li>{@link Command#COMMAND_NAMES} is {@link #names()} (names plus aliases), and
+ *       {@link Command#CANONICAL_COMMAND_NAMES} (the COMMAND-mode completion suggestions)
+ *       is {@link #canonicalNames()}, so a command cannot exist without also being
+ *       completable — the drift that caused issue #57 (a switch case with no completion
+ *       entry) is impossible by construction. Aliases resolve but are not suggested,
+ *       keeping short forms like {@code :w} out of the completion popup.</li>
  *   <li>{@link Command#execute(Sheet)} dispatches via {@link #lookup(String)} and enforces
  *       arity centrally before invoking the handler.</li>
  * </ul>
@@ -46,7 +49,7 @@ final class CommandRegistry {
      * A command definition.
      *
      * @param name    the canonical command name (e.g. {@code "cellColor"})
-     * @param aliases alternate names (e.g. {@code ["help", "?"]} for {@code "h"}); usually empty
+     * @param aliases alternate names (e.g. {@code ["h", "?"]} for {@code "help"}); usually short forms
      * @param minArgs the minimum number of arguments <b>after</b> the command name
      * @param maxArgs the maximum number of arguments <b>after</b> the command name
      * @param usage   a usage string, beginning with {@code :} + {@link #name()}
@@ -59,10 +62,13 @@ final class CommandRegistry {
     private static final LinkedHashMap<String, CommandDef> REGISTRY = new LinkedHashMap<>();
     /** Every name and alias, flattened in registration order — the value of {@link #names()}. */
     private static final List<String> NAMES = new ArrayList<>();
+    /** Canonical names only (no aliases), in registration order — the value of {@link #canonicalNames()}. */
+    private static final List<String> CANONICAL_NAMES = new ArrayList<>();
 
     private static void register(CommandDef def) {
         registerName(def.name(), def);
         for (String alias : def.aliases()) registerName(alias, def);
+        CANONICAL_NAMES.add(def.name());
     }
 
     private static void registerName(String name, CommandDef def) {
@@ -81,41 +87,46 @@ final class CommandRegistry {
         return List.copyOf(NAMES);
     }
 
+    /** Returns the canonical command names only (no aliases), in registration order. */
+    static List<String> canonicalNames() {
+        return List.copyOf(CANONICAL_NAMES);
+    }
+
     static {
-        register(new CommandDef("h", List.of("help", "?"), 0, 0,
-            ":h, :help, :? — open the help menu",
+        register(new CommandDef("help", List.of("h", "?"), 0, 0,
+            ":help, :h, :? — open the help menu",
             (args, sheet, xC, yC) -> CommandResult.HELP));
-        register(new CommandDef("e", List.of(), 1, 1,
-            ":e <path> — open/read a .json file",
+        register(new CommandDef("edit", List.of("e"), 1, 1,
+            ":edit, :e <path> — open/read a .json file",
             (args, sheet, xC, yC) -> { Command.readFile(sheet, args); return CommandResult.NONE; }));
-        register(new CommandDef("w", List.of(), 0, 1,
-            ":w [path] — save the current sheet",
+        register(new CommandDef("write", List.of("w"), 0, 1,
+            ":write, :w [path] — save the current sheet",
             (args, sheet, xC, yC) -> { Command.writeFile(sheet, args); return CommandResult.NONE; }));
-        register(new CommandDef("wq", List.of(), 0, 1,
-            ":wq [path] — save and quit",
+        register(new CommandDef("writeQuit", List.of("wq"), 0, 1,
+            ":writeQuit, :wq [path] — save and quit",
             (args, sheet, xC, yC) -> {
                 try {
                     Command.writeFile(sheet, args);
                 } catch (Exception ignored) {}
                 return CommandResult.QUIT;
             }));
-        register(new CommandDef("q", List.of(), 0, 0,
-            ":q — quit without saving",
+        register(new CommandDef("quit", List.of("q"), 0, 0,
+            ":quit, :q — quit without saving",
             (args, sheet, xC, yC) -> CommandResult.QUIT));
-        register(new CommandDef("resCol", List.of(), 1, 1,
-            ":resCol <offset> — resize the current column",
+        register(new CommandDef("resizeColumn", List.of("resCol"), 1, 1,
+            ":resizeColumn, :resCol <offset> — resize the current column",
             (args, sheet, xC, yC) -> {
                 sheet.getPositions().applyOffset(new int[]{xC, (int) args[1].getVal()}, true);
                 return CommandResult.NONE;
             }));
-        register(new CommandDef("resRow", List.of(), 1, 1,
-            ":resRow <offset> — resize the current row",
+        register(new CommandDef("resizeRow", List.of("resRow"), 1, 1,
+            ":resizeRow, :resRow <offset> — resize the current row",
             (args, sheet, xC, yC) -> {
                 sheet.getPositions().applyOffset(new int[]{yC, (int) args[1].getVal()}, false);
                 return CommandResult.NONE;
             }));
-        register(new CommandDef("purgeDeps", List.of(), 0, 0,
-            ":purgeDeps — clear all formula dependencies",
+        register(new CommandDef("purgeDependencies", List.of("purgeDeps"), 0, 0,
+            ":purgeDependencies, :purgeDeps — clear all formula dependencies",
             (args, sheet, xC, yC) -> { sheet.purgeDependencies(); return CommandResult.NONE; }));
         register(new CommandDef("cellColor", List.of(), 0, 1,
             ":cellColor [color] — set the cell background color",
@@ -123,17 +134,17 @@ final class CommandRegistry {
                 Command.cellColor(args.length == 1 ? "" : args[1].getSymbol(), sheet, xC, yC);
                 return CommandResult.NONE;
             }));
-        register(new CommandDef("txtColor", List.of(), 0, 1,
-            ":txtColor [color] — set the cell text color",
+        register(new CommandDef("textColor", List.of("txtColor"), 0, 1,
+            ":textColor, :txtColor [color] — set the cell text color",
             (args, sheet, xC, yC) -> {
                 Command.txtColor(args.length == 1 ? "" : args[1].getSymbol(), sheet, xC, yC);
                 return CommandResult.NONE;
             }));
-        register(new CommandDef("boldTxt", List.of(), 0, 0,
-            ":boldTxt — toggle bold text on the current cell",
+        register(new CommandDef("boldText", List.of("boldTxt"), 0, 0,
+            ":boldText, :boldTxt — toggle bold text on the current cell",
             (args, sheet, xC, yC) -> { Command.boldTxt(sheet, xC, yC); return CommandResult.NONE; }));
-        register(new CommandDef("italicTxt", List.of(), 0, 0,
-            ":italicTxt — toggle italic text on the current cell",
+        register(new CommandDef("italicText", List.of("italicTxt"), 0, 0,
+            ":italicText, :italicTxt — toggle italic text on the current cell",
             (args, sheet, xC, yC) -> { Command.italicTxt(sheet, xC, yC); return CommandResult.NONE; }));
         register(new CommandDef("fontSize", List.of(), 0, 1,
             ":fontSize [px] — set the font size (no argument resets to default)",
@@ -164,7 +175,7 @@ final class CommandRegistry {
         register(new CommandDef("zoom", List.of(), 0, 1,
             ":zoom [25-400] — set the view zoom percentage (no argument resets to 100%)",
             (args, sheet, xC, yC) -> {
-                // Global view zoom — unlike :resCol/:fontSize, ignores xC/yC.
+                // Global view zoom — unlike :resizeColumn/:fontSize, ignores xC/yC.
                 if (args.length == 1) sheet.getPositions().setZoom(DEFAULT_ZOOM);
                 else {
                     if (args[1].isSymbol() || args[1].getVal() < 25 || args[1].getVal() > 400)

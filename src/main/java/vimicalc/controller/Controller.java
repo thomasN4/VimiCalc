@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.*;
@@ -19,11 +20,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static javafx.scene.input.KeyCode.ESCAPE;
-import static javafx.scene.input.KeyCode.TAB;
+import static javafx.scene.input.KeyCode.N;
+import static javafx.scene.input.KeyCode.P;
 import static vimicalc.Main.arg1;
 
 /**
@@ -70,6 +71,8 @@ public class Controller implements Initializable {
     @FXML
     private Label helpLabel;
     @FXML
+    private VBox completionLabelBox;
+    @FXML
     private Label statusLabel;
     @FXML
     private Label coordsLabel;
@@ -89,8 +92,10 @@ public class Controller implements Initializable {
     Camera camera;
     /** The current colon-command being composed or executed. */
     Command command;
-    /** TAB-completion state for the colon-command being composed. */
+    /** Completion state (fuzzy matches + cycle) for the colon-command being composed. */
     final CommandCompletion commandCompletion = new CommandCompletion();
+    /** The popup listing completion matches while a command name is typed. */
+    CompletionPopup completionPopup;
     /** Displays the current cell coordinates in the status area. */
     CoordsInfo coordsInfo;
     FirstCol firstCol;
@@ -220,24 +225,35 @@ public class Controller implements Initializable {
 
     /**
      * Handles keyboard input in COMMAND mode. Builds up the command string
-     * character by character, executing it on ENTER and cancelling on ESC.
-     * TAB / Shift+TAB cycle through command-name completions (see
-     * {@link CommandCompletion}); any other key ends the completion session.
-     * Also supports entering commands from VISUAL mode via {@code ;} (SEMICOLON),
-     * for applying formulas to selections.
+     * character by character, executing it on ENTER. While the command name
+     * itself is being typed (not a VISUAL-mode formula, no arguments yet),
+     * the completion popup filters fuzzy matches live (see
+     * {@link CommandCompletion}); TAB / Shift+TAB and Ctrl+N / Ctrl+P cycle
+     * through them, writing the selection into the command line. ESC
+     * dismisses the popup first and cancels COMMAND mode on a second press.
+     * Also supports entering commands from VISUAL mode via {@code ;}
+     * (SEMICOLON), for applying formulas to selections.
      *
      * @param event the key event to process
      */
     private void commandInput(@NotNull KeyEvent event) {
-        // A modifier press alone (e.g. SHIFT on its way to Shift+TAB) must not
-        // end the completion session.
-        if (event.getCode() != TAB && !event.getCode().isModifierKey()
-            && commandCompletion.isActive()) {
-            commandCompletion.reset();
-            infoBar.setIBarExpr("");
+        // Ctrl+N / Ctrl+P popup navigation is intercepted ahead of the switch
+        // so the default branch never appends their "n"/"p" key text.
+        if (event.isControlDown() && (event.getCode() == N || event.getCode() == P)) {
+            event.consume();
+            if (completingName()) cycleCompletion(event.getCode() == N);
+            infoBar.setCommandTxt(command.getTxt());
+            return;
         }
         switch (event.getCode()) {
             case ESCAPE -> {
+                if (completionPopup.isVisible()) {
+                    // First ESC only dismisses the popup, keeping the typed
+                    // text; the next one falls through and exits below.
+                    completionPopup.hide();
+                    commandCompletion.reset();
+                    break;
+                }
                 if (enteringCommandInVISUAL) {
                     selectedCoords = new ArrayList<>();
                     enteringCommandInVISUAL = false;
@@ -247,6 +263,11 @@ public class Controller implements Initializable {
                 infoBar.setInfobarTxt(cellSelector.getSelectedCell().txt());
             }
             case ENTER -> {
+                // Executing (or opening help) ends the completion session;
+                // hide before the help early-return so the popup never
+                // lingers over the help overlay.
+                completionPopup.hide();
+                commandCompletion.reset();
                 if (command.getTxt().equals("h") ||
                     command.getTxt().equals("help") ||
                     command.getTxt().equals("?")) {
@@ -329,23 +350,18 @@ public class Controller implements Initializable {
                 } else {
                     command.setTxt(command.getTxt().substring(0, command.getTxt().length()-1));
                 }
+                refreshCompletion();
             }
             case TAB -> {
                 event.consume();
-                // Only complete the command name itself: no completion for
-                // VISUAL-mode formulas or once arguments are being typed.
-                if (!enteringCommandInVISUAL && !command.getTxt().contains(" ")) {
-                    command.setTxt(event.isShiftDown()
-                        ? commandCompletion.previous(command.getTxt())
-                        : commandCompletion.next(command.getTxt()));
-                    // The candidate list goes on the right side of the info
-                    // bar; the left side shows the command text itself.
-                    infoBar.setIBarExpr(completionCandidates());
-                }
+                if (completingName()) cycleCompletion(!event.isShiftDown());
             }
             default -> {
+                // Other Ctrl chords and lone modifier presses (e.g. SHIFT on
+                // its way to Shift+TAB) are not command text.
+                if (event.isControlDown() || event.getCode().isModifierKey()) break;
                 command.setTxt(command.getTxt() + event.getText());
-                infoBar.setCommandTxt(command.getTxt() + event.getText());
+                refreshCompletion();
             }
         }
         if(currMode == Mode.COMMAND || currMode == Mode.VISUAL)
@@ -353,22 +369,41 @@ public class Controller implements Initializable {
     }
 
     /**
-     * Formats the current completion matches for the info bar, bracketing the
-     * selected one (e.g. {@code resCol  [resRow]}).
-     *
-     * @return the candidate list, or a "no match" message when nothing matches
+     * Returns whether completion currently applies: the command name itself
+     * is being typed — not a VISUAL-mode formula, and no arguments yet.
      */
-    private @NotNull String completionCandidates() {
-        List<String> matches = commandCompletion.getMatches();
-        if (matches.isEmpty()) return "No matching command";
-        StringBuilder candidates = new StringBuilder();
-        for (int i = 0; i < matches.size(); i++) {
-            if (i > 0) candidates.append("  ");
-            if (i == commandCompletion.getSelectedIndex())
-                candidates.append('[').append(matches.get(i)).append(']');
-            else candidates.append(matches.get(i));
+    private boolean completingName() {
+        return !enteringCommandInVISUAL && !command.getTxt().contains(" ");
+    }
+
+    /**
+     * Refreshes the completion session and popup for the current command
+     * text after it changed. While a name is being typed the popup filters
+     * live with no match selected; on an empty line, an argument, or a
+     * VISUAL-mode formula the session ends and the popup hides.
+     */
+    private void refreshCompletion() {
+        if (completingName() && !command.getTxt().isEmpty()) {
+            commandCompletion.update(command.getTxt());
+            completionPopup.show(commandCompletion.getMatches(), -1);
+        } else {
+            commandCompletion.reset();
+            completionPopup.hide();
         }
-        return candidates.toString();
+    }
+
+    /**
+     * Cycles the completion selection (TAB / Ctrl+N forward, Shift+TAB /
+     * Ctrl+P backward), writing the selected match — or the original typed
+     * text, once past the last match — into the command line.
+     *
+     * @param forward whether to step forward through the matches
+     */
+    private void cycleCompletion(boolean forward) {
+        command.setTxt(forward
+            ? commandCompletion.next(command.getTxt())
+            : commandCompletion.previous(command.getTxt()));
+        completionPopup.show(commandCompletion.getMatches(), commandCompletion.getSelectedIndex());
     }
 
     /** Accumulates digit characters to form a numeric multiplier in VISUAL mode. */
@@ -842,6 +877,7 @@ public class Controller implements Initializable {
         coordsInfo = new CoordsInfo(coordsLabel);
         keyStrokeCell = new KeyStrokeCell(keyStrokeLabel);
         helpMenu = new HelpMenu(helpLabel);
+        completionPopup = new CompletionPopup(completionLabelBox, overlayPane);
         sheet = new Sheet();
         sheet.setPositions(new Positions(
             CANVAS_W - GUTTER_W,

@@ -68,3 +68,26 @@
     -fx-padding: 12;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 16, 0, 0, 4);
 }
+
+/* COMMAND-mode completion popup: floating card above the command line,
+ * hidden while empty (see CompletionPopup). */
+.completion-popup {
+    -fx-background-color:
+        #a9b1ba,
+        linear-gradient(to bottom, #fdfefe, #f4f6f8);
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 6, 5;
+    -fx-padding: 4;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.30), 10, 0, 0, 2);
+}
+
+.completion-item {
+    -fx-text-fill: #222222;
+    -fx-padding: 1 10 1 8;
+}
+
+.completion-item-selected {
+    -fx-background-color: #007ac1;
+    -fx-background-radius: 3;
+    -fx-text-fill: white;
+}

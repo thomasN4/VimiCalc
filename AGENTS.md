@@ -113,8 +113,8 @@ The suite has two kinds of tests; they need different environments:
 
 | Kind | Examples | Where they run |
 |------|----------|----------------|
-| **Unit** | `model/*Test`, `utils/*Test`, pure `controller` parsing (`KeyCommandParsingTest`, `CommandCompletionTest`) | Anywhere with Java 17 — including Fedora / Wayland |
-| **UI (TestFX)** | `AppUiTest`, `ChromeLabelsUiTest`, `HelpMenuUiTest`, `MergeInteractionUiTest`, `ResizeUiTest`, `ViewportSyncUiTest` | Need a real or virtual **X** display |
+| **Unit** | `model/*Test`, `utils/*Test`, pure `controller` parsing (`KeyCommandParsingTest`, `CommandCompletionTest`, `FuzzyMatcherTest`) | Anywhere with Java 17 — including Fedora / Wayland |
+| **UI (TestFX)** | `AppUiTest`, `ChromeLabelsUiTest`, `CommandCompletionPopupUiTest`, `HelpMenuUiTest`, `MergeInteractionUiTest`, `ResizeUiTest`, `ViewportSyncUiTest` | Need a real or virtual **X** display |
 
 **Day-to-day verification** (e.g. on Fedora + Wayland, where plain TestFX often fails): run unit tests only — do **not** treat those UI failures as product regressions.
 
@@ -123,7 +123,8 @@ The suite has two kinds of tests; they need different environments:
   --tests 'vimicalc.utils.*' \
   --tests 'vimicalc.view.*' \
   --tests 'vimicalc.controller.KeyCommandParsingTest' \
-  --tests 'vimicalc.controller.CommandCompletionTest'
+  --tests 'vimicalc.controller.CommandCompletionTest' \
+  --tests 'vimicalc.controller.FuzzyMatcherTest'
 ```
 
 **Full suite** (including UI tests): use a host with **`xvfb`** installed (e.g. the **kubuntu** box). The build already sets `prism.order=sw` so JavaFX uses software rendering in tests.
