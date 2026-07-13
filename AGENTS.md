@@ -113,3 +113,6 @@ formula cells are re-evaluated (and dependencies rebuilt) after load.
   artifacts (e.g. `bin/`, `hs_err_pid*.log`). Don't commit build output or crash logs; respect
   `.gitignore`.
 - Confirm before committing or pushing; branch off `main` if you're on it.
+- End every PR body and every substantive PR review or comment with an attribution footer naming
+  the agent that actually authored it — e.g. `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+  or `🤖 Generated with Grok Build`. Never credit an agent other than the one that did the work.
