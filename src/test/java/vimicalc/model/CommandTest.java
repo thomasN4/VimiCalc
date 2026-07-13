@@ -3,12 +3,11 @@ package vimicalc.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import vimicalc.view.Formatting;
 import vimicalc.view.Positions;
 
-import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -203,33 +202,50 @@ class CommandTest {
     @Nested
     class UnknownCommandTests {
         @Test
-        void unknownCommandThrowsAndFlags() {
+        void unknownCommandThrowsDoesntExist() {
             Command c = new Command("frobnicate", 1, 1);
-            assertThrows(Exception.class, () -> c.execute(sheet));
-            assertFalse(c.commandExists);
+            Exception e = assertThrows(Exception.class, () -> c.execute(sheet));
+            assertTrue(e.getMessage().contains("doesn't exist"));
         }
     }
 
-    // ── COMMAND_NAMES (autocompletion) ──
+    // ── Registry dispatch (issue #63 / #67) ──
 
     @Nested
-    class CommandNamesTests {
-        @TempDir
-        Path tempDir;
+    class RegistryTests {
+        @Test
+        void commandNamesAreDerivedFromRegistryWithoutDuplicates() {
+            // Loading Command runs the registry's static init; a duplicate
+            // name/alias would throw there before we ever get here.
+            assertEquals(CommandRegistry.names(), Command.COMMAND_NAMES);
+            assertEquals(Command.COMMAND_NAMES.size(),
+                Set.copyOf(Command.COMMAND_NAMES).size(),
+                "COMMAND_NAMES must not contain duplicate names or aliases");
+        }
 
         @Test
-        void everyListedNameIsRecognizedByExecute() {
+        void everyUsageStringStartsWithItsCommandName() {
             for (String name : Command.COMMAND_NAMES) {
-                // The tempDir argument keeps :w / :wq from writing into the
-                // working directory; commands that reject it still count as
-                // recognized (only the default branch clears commandExists).
-                Command c = new Command(name + ' ' + tempDir.resolve("out"), 2, 3);
-                try {
-                    c.execute(sheet);
-                } catch (Exception ignored) {}
-                assertTrue(c.commandExists,
-                    "\"" + name + "\" is in COMMAND_NAMES but not in the execute switch");
+                CommandRegistry.CommandDef def = CommandRegistry.lookup(name);
+                assertNotNull(def, "\"" + name + "\" has no registry entry");
+                assertTrue(def.usage().startsWith(":" + def.name()),
+                    "usage for \"" + def.name() + "\" should start with \":" + def.name()
+                        + "\" but was: " + def.usage());
             }
+        }
+
+        @Test
+        void missingRequiredArgumentReportsUsageInsteadOfCrashing() {
+            Exception e = assertThrows(Exception.class, () -> run("e"));
+            assertTrue(e.getMessage().contains("e"));
+            Exception r = assertThrows(Exception.class, () -> run("resCol"));
+            assertTrue(r.getMessage().contains("resCol"));
+        }
+
+        @Test
+        void blankInputIsANoOp() throws Exception {
+            assertEquals(CommandResult.NONE, new Command("", 2, 3).execute(sheet));
+            assertEquals(CommandResult.NONE, new Command("   ", 2, 3).execute(sheet));
         }
     }
 }

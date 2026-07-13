@@ -5,9 +5,6 @@ import vimicalc.view.Formatting;
 
 import java.util.List;
 
-import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
-import static vimicalc.view.Defaults.DEFAULT_ZOOM;
-
 /**
  * Executes colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
  * {@code :cellColor red}).
@@ -32,6 +29,10 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  *   <li>{@code :gridlines} — toggle cell gridlines on and off</li>
  * </ul>
  *
+ * <p>Each command is defined once in {@link CommandRegistry}, which is the source of
+ * record for command names, argument counts, and usage strings; the list above is a
+ * human-readable summary and {@link #COMMAND_NAMES} is derived from the registry.</p>
+ *
  * <p>Color arguments accept the built-in names (red, green, blue, white, black,
  * gray, lGray, dGray, vLGray), any CSS color name (e.g. crimson, teal), or a
  * hex value like {@code #ff8800}. An empty or unrecognized color resets to the
@@ -39,15 +40,11 @@ import static vimicalc.view.Defaults.DEFAULT_ZOOM;
  */
 public class Command {
     /**
-     * Every recognized command name, in the order of the class Javadoc list.
-     * Used for COMMAND-mode autocompletion; keep in sync with the switch in
-     * {@link #execute(Sheet)} (enforced by {@code CommandTest}).
+     * Every recognized command name and alias, in registration order, derived from
+     * {@link CommandRegistry}. Used for COMMAND-mode autocompletion. Because it is
+     * derived, a command cannot exist without also being completable.
      */
-    public static final List<String> COMMAND_NAMES = List.of(
-        "h", "help", "?", "e", "w", "wq", "q", "resCol", "resRow", "purgeDeps",
-        "cellColor", "txtColor", "boldTxt", "italicTxt", "fontSize", "fontWeight",
-        "zoom", "gridlines"
-    );
+    public static final List<String> COMMAND_NAMES = CommandRegistry.names();
 
     /** Column index of the cell this command is associated with. */
     private final int xC;
@@ -88,23 +85,6 @@ public class Command {
     }
 
     /**
-     * Set to {@code false} after evaluation if the entered command was not recognized.
-     * Starts as {@code true} and is reset to {@code true} at the beginning of every
-     * {@link #execute(Sheet)} call.
-     */
-    public boolean commandExists = true;
-
-    /** The result of the last {@link #execute(Sheet)} call. */
-    private CommandResult commandResult = CommandResult.NONE;
-
-    /**
-     * Returns the result of the last execution (e.g. {@link CommandResult#HELP}).
-     */
-    public CommandResult getCommandResult() {
-        return commandResult;
-    }
-
-    /**
      * Tokenises the command text and dispatches it against the given sheet.
      *
      * @param sheet the sheet context
@@ -123,7 +103,7 @@ public class Command {
      * @param command the lexed command tokens (path in {@code command[1]})
      * @throws Exception if the file cannot be read
      */
-    public void readFile(Sheet sheet, Token[] command) throws Exception {
+    static void readFile(Sheet sheet, Token[] command) throws Exception {
         sheet.readFile(command[1].getSymbol());
     }
 
@@ -134,87 +114,27 @@ public class Command {
      * @param command the lexed command tokens (optional path in {@code command[1]})
      * @throws Exception if the file cannot be written
      */
-    public void writeFile(Sheet sheet, Token[] command) throws Exception {
+    static void writeFile(Sheet sheet, Token[] command) throws Exception {
         if (command.length == 1) sheet.writeFile();
         else sheet.writeFile(command[1].getSymbol());
     }
 
     private CommandResult execute(Token[] command, Sheet sheet) throws Exception {
-        commandExists = true;
-        commandResult = CommandResult.NONE;
-        switch (command[0].getSymbol()) {
-            case "h", "help", "?" -> commandResult = CommandResult.HELP;
-            case "e" -> readFile(sheet, command);
-            case "resCol" -> sheet.getPositions().applyOffset(
-                new int[]{xC, (int) command[1].getVal()},
-                true
-            );
-            case "resRow" -> sheet.getPositions().applyOffset(
-                new int[]{yC, (int) command[1].getVal()},
-                false
-            );
-            case "purgeDeps" -> sheet.purgeDependencies();
-            case "w" -> writeFile(sheet, command);
-            case "wq" -> {
-                try {
-                    writeFile(sheet, command);
-                } catch (Exception ignored) {}
-                commandResult = CommandResult.QUIT;
-            }
-            case "q" -> commandResult = CommandResult.QUIT;
-            case "cellColor" -> {
-                if (command.length == 1) cellColor("", sheet);
-                else cellColor(command[1].getSymbol(), sheet);
-            }
-            case "txtColor" -> {
-                if (command.length == 1) txtColor("", sheet);
-                else txtColor(command[1].getSymbol(), sheet);
-            }
-            case "boldTxt" -> boldTxt(sheet);
-            case "italicTxt" -> italicTxt(sheet);
-            case "fontSize" -> {
-                if (command.length == 1) fontSize(DEFAULT_FONT_SIZE, sheet);
-                else {
-                    if (command[1].isSymbol() ||
-                        command[1].getVal() < 4 || command[1].getVal() > 200)
-                        throw new Exception("fontSize expects a size between 4 and 200.");
-                    fontSize((int) command[1].getVal(), sheet);
-                }
-            }
-            // Global view toggle — like :zoom, ignores xC/yC.
-            case "gridlines" -> sheet.getPositions().toggleGridlines();
-            case "zoom" -> {
-                // Global view zoom — unlike :resCol/:fontSize, ignores xC/yC.
-                if (command.length == 1) sheet.getPositions().setZoom(DEFAULT_ZOOM);
-                else {
-                    if (command[1].isSymbol() ||
-                        command[1].getVal() < 25 || command[1].getVal() > 400)
-                        throw new Exception("zoom expects a percentage between 25 and 400.");
-                    sheet.getPositions().setZoom(command[1].getVal() / 100);
-                }
-            }
-            case "fontWeight" -> {
-                if (command.length == 1) fontWeight("normal", sheet);
-                else if (!command[1].isSymbol()) {
-                    if (command[1].getVal() < 100 || command[1].getVal() > 900)
-                        throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
-                    fontWeight(String.valueOf((int) command[1].getVal()), sheet);
-                }
-                else {
-                    if (!command[1].getSymbol().equals("bold") && !command[1].getSymbol().equals("normal"))
-                        throw new Exception("fontWeight expects bold, normal, or a weight between 100 and 900.");
-                    fontWeight(command[1].getSymbol(), sheet);
-                }
-            }
-            default -> {
-                commandExists = false;
-                throw new Exception("Command \"" + command[0].getSymbol() + "\" doesn't exist.");
-            }
-        }
-        return commandResult;
+        // Bare ":" (or ":" + only spaces) tokenises to nothing — do nothing, like Vim.
+        if (command.length == 0) return CommandResult.NONE;
+
+        CommandRegistry.CommandDef def = CommandRegistry.lookup(command[0].getSymbol());
+        if (def == null)
+            throw new Exception("Command \"" + command[0].getSymbol() + "\" doesn't exist.");
+
+        int argc = command.length - 1;
+        if (argc < def.minArgs() || argc > def.maxArgs())
+            throw new Exception("Usage: " + def.usage());
+
+        return def.handler().run(command, sheet, xC, yC);
     }
 
-    private void cellColor(@NotNull String color, Sheet sheet) {
+    static void cellColor(@NotNull String color, Sheet sheet, int xC, int yC) {
         Formatting f;
         System.out.println("Executing command 'cellColor'...");
         f = sheet.findFormatting(xC, yC);
@@ -230,7 +150,7 @@ public class Command {
         System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
     }
 
-    private void txtColor(@NotNull String color, Sheet sheet) {
+    static void txtColor(@NotNull String color, Sheet sheet, int xC, int yC) {
         Formatting f;
         System.out.println("Executing command 'txtColor'...");
         f = sheet.findFormatting(xC, yC);
@@ -246,7 +166,7 @@ public class Command {
         System.out.println("Cell formats: " + sheet.findFormatting(xC, yC));
     }
 
-    private void boldTxt(@NotNull Sheet sheet) {
+    static void boldTxt(@NotNull Sheet sheet, int xC, int yC) {
         Formatting f = sheet.findFormatting(xC, yC);
         if (f == null) {
             f = new Formatting();
@@ -258,7 +178,7 @@ public class Command {
         } else f.setFontWeight("bold");
     }
 
-    private void italicTxt(@NotNull Sheet sheet) {
+    static void italicTxt(@NotNull Sheet sheet, int xC, int yC) {
         Formatting f = sheet.findFormatting(xC, yC);
         if (f == null) {
             f = new Formatting();
@@ -270,7 +190,7 @@ public class Command {
         } else f.setFontPosture("italic");
     }
 
-    private void fontSize(int size, @NotNull Sheet sheet) {
+    static void fontSize(int size, @NotNull Sheet sheet, int xC, int yC) {
         Formatting f = sheet.findFormatting(xC, yC);
         if (f == null) {
             f = new Formatting();
@@ -281,7 +201,7 @@ public class Command {
         if (f.isDefault()) sheet.deleteFormatting(xC, yC);
     }
 
-    private void fontWeight(@NotNull String weight, @NotNull Sheet sheet) {
+    static void fontWeight(@NotNull String weight, @NotNull Sheet sheet, int xC, int yC) {
         Formatting f = sheet.findFormatting(xC, yC);
         if (f == null) {
             f = new Formatting();
