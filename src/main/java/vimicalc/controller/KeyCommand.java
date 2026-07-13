@@ -3,6 +3,7 @@ package vimicalc.controller;
 import javafx.scene.input.KeyEvent;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.Command;
+import vimicalc.model.CommandResult;
 import vimicalc.model.Formula;
 
 import java.util.*;
@@ -476,7 +477,8 @@ public class KeyCommand {
                             return;
                         }
                         try {
-                            ctrl.command.execute(ctrl.sheet);
+                            if (ctrl.command.execute(ctrl.sheet) == CommandResult.QUIT)
+                                javafx.application.Platform.exit();
                         } catch (Exception e) {
                             ctrl.infoBar.setInfobarTxt(e.getMessage());
                             evaluationFinished = true;

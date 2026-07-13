@@ -250,12 +250,13 @@ public class Controller implements Initializable {
                 if (command.getTxt().equals("h") ||
                     command.getTxt().equals("help") ||
                     command.getTxt().equals("?")) {
+                    CommandResult result = CommandResult.NONE;
                     try {
-                        command.execute(sheet);
+                        result = command.execute(sheet);
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
                     }
-                    if (command.getCommandResult() == CommandResult.HELP) {
+                    if (result == CommandResult.HELP) {
                         currMode = Mode.HELP;
                         helpMenu.show();
                         infoBar.setInfobarTxt(helpMenu.percentage());
@@ -301,13 +302,14 @@ public class Controller implements Initializable {
                 int prevXC = cellSelector.getXCoord(), prevYC = cellSelector.getYCoord();
 
                 String commandError = null;
+                CommandResult result = CommandResult.NONE;
                 try {
-                    command.execute(sheet);
+                    result = command.execute(sheet);
                 } catch (Exception e) {
                     commandError = e.getMessage();
                 }
 
-                if (command.getCommandResult() == CommandResult.QUIT) {
+                if (result == CommandResult.QUIT) {
                     javafx.application.Platform.exit();
                     return;
                 }

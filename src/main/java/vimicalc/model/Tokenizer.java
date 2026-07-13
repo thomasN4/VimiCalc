@@ -7,8 +7,8 @@ import static vimicalc.utils.Conversions.isNumber;
 /**
  * Tokenises expression and command text into {@link Token} arrays.
  *
- * <p>Splits on spaces; numeric tokens become {@linkplain TokenType#LITERAL
- * literals}, everything else becomes {@linkplain TokenType#SYMBOL symbols}.
+ * <p>Splits on spaces; numeric tokens become {@linkplain Token.Type#LITERAL
+ * literals}, everything else becomes {@linkplain Token.Type#SYMBOL symbols}.
  * Parentheses are stripped.</p>
  *
  * <p><b>Known quirks</b> (pinned by tests; fixing them is separate work):</p>
@@ -18,7 +18,7 @@ import static vimicalc.utils.Conversions.isNumber;
  *   <li>Consecutive spaces produce empty-string symbol tokens.</li>
  * </ul>
  */
-public final class Tokenizer {
+final class Tokenizer {
     private Tokenizer() {}
 
     /**
@@ -27,7 +27,7 @@ public final class Tokenizer {
      * @param txt the expression or command text to tokenise
      * @return the array of tokens
      */
-    public static Token[] tokenize(@NotNull String txt) {
+    static Token[] tokenize(@NotNull String txt) {
         Token[] argsLong = new Token[txt.length()];
         txt += ' ';
         String arg = "";

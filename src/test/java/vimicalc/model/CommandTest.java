@@ -218,7 +218,7 @@ class CommandTest {
         Path tempDir;
 
         @Test
-        void everyListedNameIsRecognizedByInterpret() {
+        void everyListedNameIsRecognizedByExecute() {
             for (String name : Command.COMMAND_NAMES) {
                 // The tempDir argument keeps :w / :wq from writing into the
                 // working directory; commands that reject it still count as
