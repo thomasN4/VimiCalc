@@ -1,13 +1,41 @@
-a: gT1 i0[ESC] yy l pp l i1[TAB] p20j gV2 gA24=0_0_+[ALT+L]=2_0_+[ALT+L]=[write the below formula][ENTER] yy [CTRL+O]
+Rule 110 on VimiCalc
+====================
 
-C24: (=(kh k * kl *) (kh k 1 + 2 mod * kl 1 + 2 mod *) + (kh k * kl * 1 + 2 mod) + 1 + 2 mod)
+Elementary cellular automaton. Each generation is one spreadsheet row.
 
-b: <B24_A24_-{@d{@c}
+Neighbors of the previous generation (relative cell refs from the cell below):
+  kh = up-left  (L)
+  k  = up       (C)
+  kl = up-right (R)
 
-c: i0[ALT+H] 0[ENTER] 2l $B24l gB24=_1_+[ENTER] h dd =0_0_+[ENTER][CTRL+O]
+Next state — blank-safe RPN (empty neighbors must be coerced to 0, because
+VimiCalc treats blank as the multiplicative identity 1 for `*`):
 
-d: pp gA24=_1_+[ENTER][CTRL+O] h
+  k 0 + kl 0 + + k 0 + kl 0 + * + kh 0 + k 0 + * kl 0 + * + 2 mod
 
-e: @a $D24@b
+  ≡ (C + R + C*R + L*C*R) mod 2
 
-r: :resCol -72 l
+This matches Rule 110's truth table (outputs 0,1,1,0,1,1,1,0 for LCR=000..111).
+
+Seed: a single 1 on the right edge of row 1; everything else 0.
+
+Files
+-----
+  demos/rule110.json            Full demo: 48 cols × 36 generations, colored.
+                                Stores computed 0/1 values (opens fast with :e).
+  demos/rule110-handbuilt.json  Small strip typed live in the app (seed + formulas).
+  demos/rule110-session.mp4     Headless Xvfb recording of implement + run session.
+  demos/rule110.txt             This note.
+
+Regenerate the full demo (on a checkout with tests):
+
+  ./gradlew test --tests 'vimicalc.model.Rule110DemoTest'
+
+Open in the app:
+
+  ./gradlew run --args="demos/rule110.json"
+
+--- Historical macro-stepper recipe ---
+The original C24 formula in this file did NOT match Rule 110's truth table.
+It is omitted; use the RPN above instead. The conditional/macro technique
+(`<cond{then}{else}`, `$D24@b`, etc.) still works for other steppers.
