@@ -22,17 +22,19 @@ class CommandCompletionTest {
     class NextTests {
         @Test
         void cyclesAlphabeticallyThenReturnsToPrefix() {
-            assertEquals("resCol", completion.next("res"));
-            assertEquals("resRow", completion.next("resCol"));
-            assertEquals("res", completion.next("resRow"));
-            assertEquals("resCol", completion.next("res"));
+            assertEquals("fontSize", completion.next("font"));
+            assertEquals("fontWeight", completion.next("fontSize"));
+            assertEquals("font", completion.next("fontWeight"));
+            assertEquals("fontSize", completion.next("font"));
         }
 
         @Test
         void exactCommandNameStillCyclesItsExtensions() {
             assertEquals("w", completion.next("w"));
             assertEquals("wq", completion.next("w"));
-            assertEquals("w", completion.next("wq"));
+            assertEquals("write", completion.next("wq"));
+            assertEquals("writeQuit", completion.next("write"));
+            assertEquals("w", completion.next("writeQuit"));
         }
 
         @Test
@@ -58,9 +60,9 @@ class CommandCompletionTest {
     class PreviousTests {
         @Test
         void freshSessionStartsAtLastMatch() {
-            assertEquals("resRow", completion.previous("res"));
-            assertEquals("resCol", completion.previous("resRow"));
-            assertEquals("res", completion.previous("resCol"));
+            assertEquals("fontWeight", completion.previous("font"));
+            assertEquals("fontSize", completion.previous("fontWeight"));
+            assertEquals("font", completion.previous("fontSize"));
         }
 
         @Test
@@ -93,19 +95,19 @@ class CommandCompletionTest {
 
         @Test
         void selectedIndexTracksTheCycle() {
-            completion.next("res");
+            completion.next("font");
             assertEquals(0, completion.getSelectedIndex());
-            completion.next("resCol");
+            completion.next("fontSize");
             assertEquals(1, completion.getSelectedIndex());
-            completion.next("resRow");
+            completion.next("fontWeight");
             assertEquals(-1, completion.getSelectedIndex(),
                 "Back on the original prefix, no match is selected");
         }
 
         @Test
         void matchesAreSortedAlphabetically() {
-            completion.next("res");
-            assertEquals(java.util.List.of("resCol", "resRow"), completion.getMatches());
+            completion.next("font");
+            assertEquals(java.util.List.of("fontSize", "fontWeight"), completion.getMatches());
         }
     }
 }

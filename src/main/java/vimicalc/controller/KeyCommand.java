@@ -469,9 +469,9 @@ public class KeyCommand {
                     if (expr.length() > 1) {
                         char arg = expr.charAt(first.funcIndex + 1);
                         if (arg == 'Q')
-                            ctrl.command = new Command("q", 0, 0);
+                            ctrl.command = new Command("quit", 0, 0);
                         else if (arg == 'Z')
-                            ctrl.command = new Command("wq", 0, 0);
+                            ctrl.command = new Command("writeQuit", 0, 0);
                         else {
                             this.expr = "";
                             return;
