@@ -22,7 +22,7 @@ class CommandTest {
     }
 
     private void run(String commandTxt) throws Exception {
-        new Command(commandTxt, 2, 3).interpret(sheet);
+        new Command(commandTxt, 2, 3).execute(sheet);
     }
 
     // ── :fontSize ──
@@ -205,7 +205,7 @@ class CommandTest {
         @Test
         void unknownCommandThrowsAndFlags() {
             Command c = new Command("frobnicate", 1, 1);
-            assertThrows(Exception.class, () -> c.interpret(sheet));
+            assertThrows(Exception.class, () -> c.execute(sheet));
             assertFalse(c.commandExists);
         }
     }
@@ -218,17 +218,17 @@ class CommandTest {
         Path tempDir;
 
         @Test
-        void everyListedNameIsRecognizedByInterpret() {
+        void everyListedNameIsRecognizedByExecute() {
             for (String name : Command.COMMAND_NAMES) {
                 // The tempDir argument keeps :w / :wq from writing into the
                 // working directory; commands that reject it still count as
                 // recognized (only the default branch clears commandExists).
                 Command c = new Command(name + ' ' + tempDir.resolve("out"), 2, 3);
                 try {
-                    c.interpret(sheet);
+                    c.execute(sheet);
                 } catch (Exception ignored) {}
                 assertTrue(c.commandExists,
-                    "\"" + name + "\" is in COMMAND_NAMES but not in the interpret switch");
+                    "\"" + name + "\" is in COMMAND_NAMES but not in the execute switch");
             }
         }
     }
