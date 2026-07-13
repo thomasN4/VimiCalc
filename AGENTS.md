@@ -17,15 +17,15 @@ that persistence uses `.wss` / Java serialization is **out of date** — see Per
 
 ```bash
 ./gradlew build                       # compile + run tests
-./gradlew test                        # run JUnit 5 tests only
+./gradlew test                        # run JUnit 5 tests only (see Testing for UI caveats)
 ./gradlew run                         # launch the app
 ./gradlew run --args="myfile.json"    # launch and open a spreadsheet file
 ```
 
 `wss.sh` (Linux/macOS) and `wss.ps1` (Windows) are thin wrappers around `./gradlew run`.
 
-Running the GUI requires a display. In headless environments, prefer `./gradlew test` and unit-level
-verification over launching the app.
+Running the GUI requires a display. Prefer unit-level verification (or a filtered test run)
+over launching the app when you lack a suitable display — see **Testing** below.
 
 ## Tech stack
 
@@ -99,13 +99,40 @@ formula cells are re-evaluated (and dependencies rebuilt) after load.
 ## Testing
 
 - Unit tests live in `src/test/java/vimicalc/` mirroring the main package layout
-  (`model/`, `controller/`, `utils/`). Run with `./gradlew test`.
+  (`model/`, `controller/`, `utils/`, `view/`).
 - JUnit 5 with `@Nested`, `@BeforeEach`, and `@TempDir` (for file I/O tests) is the established style.
 - There is a **manual** test plan for keyboard interaction at
   `src/test/java/vimicalc/controller/KeyCommandManualTests.md` — interactive behavior that's hard to
   unit-test is verified by hand from a fresh `./gradlew run`. Update it when you change NORMAL-mode key
   handling.
 - When adding model/util logic, add or extend the corresponding `*Test.java`.
+
+### Unit vs UI tests
+
+The suite has two kinds of tests; they need different environments:
+
+| Kind | Examples | Where they run |
+|------|----------|----------------|
+| **Unit** | `model/*Test`, `utils/*Test`, pure `controller` parsing (`KeyCommandParsingTest`, `CommandCompletionTest`) | Anywhere with Java 17 — including Fedora / Wayland |
+| **UI (TestFX)** | `AppUiTest`, `ChromeLabelsUiTest`, `HelpMenuUiTest`, `MergeInteractionUiTest`, `ResizeUiTest`, `ViewportSyncUiTest` | Need a real or virtual **X** display |
+
+**Day-to-day verification** (e.g. on Fedora + Wayland, where plain TestFX often fails): run unit tests only — do **not** treat those UI failures as product regressions.
+
+```bash
+./gradlew test --tests 'vimicalc.model.*' \
+  --tests 'vimicalc.utils.*' \
+  --tests 'vimicalc.view.*' \
+  --tests 'vimicalc.controller.KeyCommandParsingTest' \
+  --tests 'vimicalc.controller.CommandCompletionTest'
+```
+
+**Full suite** (including UI tests): use a host with **`xvfb`** installed (e.g. the **kubuntu** box). The build already sets `prism.order=sw` so JavaFX uses software rendering in tests.
+
+```bash
+xvfb-run ./gradlew test
+```
+
+Install notes and more context live in `README.md` (`sudo apt install xvfb` on Debian/Ubuntu). If the remote checkout looks stale, `./gradlew clean` before testing can avoid odd compile failures from leftover build output.
 
 ## Notes for agents
 
