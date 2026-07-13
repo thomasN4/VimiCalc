@@ -46,31 +46,45 @@ class TokenizerTest {
         }
     }
 
-    /**
-     * Known quirks of the current tokenizer, pinned as-is.
-     * Fixing them is a separate sub-issue of #58.
-     */
     @Nested
-    class KnownQuirks {
+    class EdgeCases {
         @Test
-        void emptyInputThrowsArrayIndexOutOfBoundsException() {
-            // Backing array is sized from pre-padding length (0), then a space is
-            // appended and produces one token write past the array bound.
-            assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> Tokenizer.tokenize(""));
+        void emptyInputReturnsEmptyArray() {
+            Token[] result = Tokenizer.tokenize("");
+            assertEquals(0, result.length);
         }
 
         @Test
-        void consecutiveSpacesProduceEmptyStringSymbolTokens() {
+        void consecutiveSpacesDoNotProduceTokens() {
             Token[] result = Tokenizer.tokenize("3  4");
-            // "3" + empty (from double space) + "4"
-            assertEquals(3, result.length);
+            assertEquals(2, result.length);
             assertTrue(result[0].isLiteral());
             assertEquals(3.0, result[0].getVal());
-            assertTrue(result[1].isSymbol());
-            assertEquals("", result[1].getSymbol());
-            assertTrue(result[2].isLiteral());
-            assertEquals(4.0, result[2].getVal());
+            assertTrue(result[1].isLiteral());
+            assertEquals(4.0, result[1].getVal());
+        }
+
+        @Test
+        void leadingAndTrailingSpacesIgnored() {
+            Token[] result = Tokenizer.tokenize("  3 4  ");
+            assertEquals(2, result.length);
+            assertEquals(3.0, result[0].getVal());
+            assertEquals(4.0, result[1].getVal());
+        }
+
+        @Test
+        void whitespaceOnlyReturnsEmptyArray() {
+            Token[] result = Tokenizer.tokenize("   ");
+            assertEquals(0, result.length);
+        }
+
+        @Test
+        void doubleSpacesInExpression() {
+            Token[] result = Tokenizer.tokenize("3  5 +");
+            assertEquals(3, result.length);
+            assertEquals(3.0, result[0].getVal());
+            assertEquals(5.0, result[1].getVal());
+            assertEquals("+", result[2].getSymbol());
         }
     }
 }
