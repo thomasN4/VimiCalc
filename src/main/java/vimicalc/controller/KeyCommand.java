@@ -99,6 +99,9 @@ public class KeyCommand {
             case SEMICOLON -> {
                 ctrl.currMode = Mode.COMMAND;
                 ctrl.command = new Command("", ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
+                // Fresh command line: no completion session or popup yet.
+                ctrl.commandCompletion.reset();
+                ctrl.completionPopup.hide();
                 ctrl.infoBar.setCommandTxt(ctrl.command.getTxt());
                 expr = ""; return;
             }

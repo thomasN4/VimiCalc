@@ -81,25 +81,23 @@ class AppUiTest {
             "Pressing ; should switch to COMMAND mode");
 
         robot.type(KeyCode.TAB);
-        assertEquals("resCol", controller.command.getTxt(),
+        assertEquals("resizeColumn", controller.command.getTxt(),
             "First TAB should complete to the first matching command");
-        assertEquals("[resCol]  resRow", controller.infoBar.getIBarExpr(),
-            "The info bar's right side should list the candidates, bracketing the selection");
 
         robot.type(KeyCode.TAB);
-        assertEquals("resRow", controller.command.getTxt(),
+        assertEquals("resizeRow", controller.command.getTxt(),
             "Second TAB should cycle to the next match");
 
-        robot.type(KeyCode.TAB);
+        robot.type(KeyCode.TAB, KeyCode.TAB, KeyCode.TAB);
         assertEquals("res", controller.command.getTxt(),
-            "Cycling past the last match should restore the typed prefix");
+            "Cycling past the last match (incl. scattered ones) should restore the typed text");
         assertEquals(Mode.COMMAND, controller.currMode,
             "TAB must not leave COMMAND mode");
 
         robot.press(KeyCode.SHIFT);
         robot.type(KeyCode.TAB);
         robot.release(KeyCode.SHIFT);
-        assertEquals("resRow", controller.command.getTxt(),
+        assertEquals("purgeDependencies", controller.command.getTxt(),
             "Shift+TAB should cycle backwards without the SHIFT press ending the session");
     }
 }
