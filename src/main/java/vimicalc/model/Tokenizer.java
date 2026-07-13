@@ -9,14 +9,8 @@ import static vimicalc.utils.Conversions.isNumber;
  *
  * <p>Splits on spaces; numeric tokens become {@linkplain Token.Type#LITERAL
  * literals}, everything else becomes {@linkplain Token.Type#SYMBOL symbols}.
- * Parentheses are stripped.</p>
- *
- * <p><b>Known quirks</b> (pinned by tests; fixing them is separate work):</p>
- * <ul>
- *   <li>Empty input throws {@link ArrayIndexOutOfBoundsException} (backing array
- *       is sized from the pre-padding text length).</li>
- *   <li>Consecutive spaces produce empty-string symbol tokens.</li>
- * </ul>
+ * Parentheses are stripped. Runs of spaces produce no tokens; empty input
+ * yields an empty array.</p>
  */
 final class Tokenizer {
     private Tokenizer() {}
@@ -36,10 +30,13 @@ final class Tokenizer {
         for (int i = 0; i < txt.length(); i++) {
             if (txt.charAt(i) == '(' || txt.charAt(i) == ')') continue;
             if (txt.charAt(i) == ' ') {
-                if (isNumber(arg))
-                    argsLong[argsLength++] = new Token(Double.parseDouble(arg));
-                else argsLong[argsLength++] = new Token(arg);
-                arg = "";
+                if (!arg.isEmpty()) {
+                    if (isNumber(arg))
+                        argsLong[argsLength++] = new Token(Double.parseDouble(arg));
+                    else
+                        argsLong[argsLength++] = new Token(arg);
+                    arg = "";
+                }
                 continue;
             }
             arg += txt.charAt(i);
