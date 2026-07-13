@@ -9,29 +9,32 @@ import java.util.List;
  * Executes colon commands entered in COMMAND mode (e.g. {@code :w}, {@code :q},
  * {@code :cellColor red}).
  *
- * <p>Supported commands:</p>
+ * <p>Supported commands (canonical name first, aliases after):</p>
  * <ul>
- *   <li>{@code :h}, {@code :help}, {@code :?} — open the help menu</li>
- *   <li>{@code :e <path>} — open/read a {@code .json} file</li>
- *   <li>{@code :w [path]} — save the current sheet</li>
- *   <li>{@code :wq [path]} — save and quit</li>
- *   <li>{@code :q} — quit without saving</li>
- *   <li>{@code :resCol <offset>} — resize the current column</li>
- *   <li>{@code :resRow <offset>} — resize the current row</li>
- *   <li>{@code :purgeDeps} — clear all formula dependencies</li>
+ *   <li>{@code :help}, {@code :h}, {@code :?} — open the help menu</li>
+ *   <li>{@code :edit}, {@code :e <path>} — open/read a {@code .json} file</li>
+ *   <li>{@code :write}, {@code :w [path]} — save the current sheet</li>
+ *   <li>{@code :writeQuit}, {@code :wq [path]} — save and quit</li>
+ *   <li>{@code :quit}, {@code :q} — quit without saving</li>
+ *   <li>{@code :resizeColumn}, {@code :resCol <offset>} — resize the current column</li>
+ *   <li>{@code :resizeRow}, {@code :resRow <offset>} — resize the current row</li>
+ *   <li>{@code :purgeDependencies}, {@code :purgeDeps} — clear all formula dependencies</li>
  *   <li>{@code :cellColor [color]} — set the cell background color</li>
- *   <li>{@code :txtColor [color]} — set the cell text color</li>
- *   <li>{@code :boldTxt} — toggle bold text on the current cell</li>
- *   <li>{@code :italicTxt} — toggle italic text on the current cell</li>
+ *   <li>{@code :textColor}, {@code :txtColor [color]} — set the cell text color</li>
+ *   <li>{@code :boldText}, {@code :boldTxt} — toggle bold text on the current cell</li>
+ *   <li>{@code :italicText}, {@code :italicTxt} — toggle italic text on the current cell</li>
  *   <li>{@code :fontSize [px]} — set the font size (no argument resets to default)</li>
  *   <li>{@code :fontWeight [bold|normal|100-900]} — set the font weight (no argument resets to normal)</li>
  *   <li>{@code :zoom [25-400]} — set the view zoom percentage (no argument resets to 100%)</li>
  *   <li>{@code :gridlines} — toggle cell gridlines on and off</li>
+ *   <li>{@code :macroDelay [ms]} — set the delay between replayed macro keystrokes
+ *       (no argument resets to 0 = instant)</li>
  * </ul>
  *
  * <p>Each command is defined once in {@link CommandRegistry}, which is the source of
  * record for command names, argument counts, and usage strings; the list above is a
- * human-readable summary and {@link #COMMAND_NAMES} is derived from the registry.</p>
+ * human-readable summary and {@link #COMMAND_NAMES} /
+ * {@link #CANONICAL_COMMAND_NAMES} are derived from the registry.</p>
  *
  * <p>Color arguments accept the built-in names (red, green, blue, white, black,
  * gray, lGray, dGray, vLGray), any CSS color name (e.g. crimson, teal), or a
@@ -41,10 +44,17 @@ import java.util.List;
 public class Command {
     /**
      * Every recognized command name and alias, in registration order, derived from
-     * {@link CommandRegistry}. Used for COMMAND-mode autocompletion. Because it is
-     * derived, a command cannot exist without also being completable.
+     * {@link CommandRegistry}. Covers everything {@link #execute(Sheet)} accepts.
      */
     public static final List<String> COMMAND_NAMES = CommandRegistry.names();
+
+    /**
+     * The canonical command names only (no aliases), in registration order, derived
+     * from {@link CommandRegistry}. Drives COMMAND-mode completion suggestions, so
+     * the popup offers {@code write} but not its {@code w} alias. Because it is
+     * derived, a command cannot exist without also being completable.
+     */
+    public static final List<String> CANONICAL_COMMAND_NAMES = CommandRegistry.canonicalNames();
 
     /** Column index of the cell this command is associated with. */
     private final int xC;

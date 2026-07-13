@@ -29,23 +29,28 @@ VimiCalc (also called WeSpreadSheet) combines the functionality of a traditional
 | **Insert** | `i` or `a` | Plain text entry (`ESC` to save, `Shift+ESC` to cancel) |
 | **Formula** | `=` | RPN formula entry (confirm with `Enter`, cancel with `ESC`) |
 | **Visual** | `v` | Multi-cell selection, merging (`m`), copying (`y`), deleting (`d`), commands (`;`) |
-| **Command** | `:` | Vim-style commands (`:w`, `:q`, `:resCol`, etc.) |
-| **Help** | `:h`, `:help`, or `:?` | Built-in documentation |
+| **Command** | `:` | Vim-style commands (`:write`, `:quit`, `:resizeColumn`, etc.) |
+| **Help** | `:help`, `:h`, or `:?` | Built-in documentation |
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `:w [file]` | Save spreadsheet |
-| `:e [file]` | Open spreadsheet |
-| `:q` / `ZQ` | Quit |
-| `:wq` / `ZZ` | Save and quit |
-| `:resCol [pixels]` | Resize column width |
-| `:resRow [pixels]` | Resize row height |
-| `:cellColor [color]` | Set cell background color |
-| `:txtColor [color]` | Set text color |
-| `:boldTxt` | Toggle bold text |
-| `:gridlines` | Toggle cell gridlines |
+Commands have a full camelCase canonical name plus short Vim-style aliases;
+both forms always work. While typing a command name, a popup lists the
+fuzzily-matching commands (`rc` matches `:resizeColumn`) — cycle through them
+with `TAB`/`Ctrl-N`, backwards with `Shift-TAB`/`Ctrl-P`, dismiss with `ESC`.
+
+| Command | Alias | Description |
+|---------|-------|-------------|
+| `:write [file]` | `:w` | Save spreadsheet |
+| `:edit [file]` | `:e` | Open spreadsheet |
+| `:quit` | `:q` / `ZQ` | Quit |
+| `:writeQuit` | `:wq` / `ZZ` | Save and quit |
+| `:resizeColumn [pixels]` | `:resCol` | Resize column width |
+| `:resizeRow [pixels]` | `:resRow` | Resize row height |
+| `:cellColor [color]` | | Set cell background color |
+| `:textColor [color]` | `:txtColor` | Set text color |
+| `:boldText` | `:boldTxt` | Toggle bold text |
+| `:gridlines` | | Toggle cell gridlines |
 
 ## Formula Examples
 

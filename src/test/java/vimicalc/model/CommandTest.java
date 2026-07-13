@@ -197,6 +197,50 @@ class CommandTest {
         }
     }
 
+    // ── :macroDelay ──
+
+    @Nested
+    class MacroDelayTests {
+        @BeforeEach
+        void setUpPositions() {
+            // :macroDelay acts on the sheet's Positions, which the bare Sheet
+            // from the outer setUp doesn't have.
+            sheet.setPositions(new Positions(852, 552, 96, 24, new HashMap<>(), new HashMap<>()));
+            sheet.getPositions().generate(48, 24);
+        }
+
+        @Test
+        void delayIsZeroByDefault() {
+            assertEquals(0, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void setsDelayInMilliseconds() throws Exception {
+            run("macroDelay 100");
+            assertEquals(100, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void noArgumentResetsToInstant() throws Exception {
+            run("macroDelay 100");
+            run("macroDelay");
+            assertEquals(0, sheet.getPositions().getMacroDelayMs());
+        }
+
+        @Test
+        void outOfRangeDelayThrows() {
+            Exception low = assertThrows(Exception.class, () -> run("macroDelay -5"));
+            assertTrue(low.getMessage().contains("macroDelay"));
+            Exception high = assertThrows(Exception.class, () -> run("macroDelay 999999"));
+            assertTrue(high.getMessage().contains("macroDelay"));
+        }
+
+        @Test
+        void nonNumericDelayThrows() {
+            assertThrows(Exception.class, () -> run("macroDelay slow"));
+        }
+    }
+
     // ── Unknown commands ──
 
     @Nested
@@ -206,6 +250,53 @@ class CommandTest {
             Command c = new Command("frobnicate", 1, 1);
             Exception e = assertThrows(Exception.class, () -> c.execute(sheet));
             assertTrue(e.getMessage().contains("doesn't exist"));
+        }
+    }
+
+    // ── Canonical names and aliases ──
+
+    @Nested
+    class AliasTests {
+        @Test
+        void canonicalAndAliasRunTheSameCommand() throws Exception {
+            run("boldText");
+            assertEquals("bold", sheet.findFormatting(2, 3).getFontWeight());
+            run("boldTxt"); // toggle back off via the alias
+            assertNull(sheet.findFormatting(2, 3));
+
+            run("italicText");
+            assertEquals("italic", sheet.findFormatting(2, 3).getFontPosture());
+            run("italicTxt");
+            assertNull(sheet.findFormatting(2, 3));
+
+            run("textColor crimson");
+            assertArrayEquals(new short[]{220, 20, 60}, sheet.findFormatting(2, 3).getTxtColor());
+        }
+
+        @Test
+        void helpAliasesAllOpenHelp() throws Exception {
+            assertEquals(CommandResult.HELP, new Command("help", 2, 3).execute(sheet));
+            assertEquals(CommandResult.HELP, new Command("h", 2, 3).execute(sheet));
+            assertEquals(CommandResult.HELP, new Command("?", 2, 3).execute(sheet));
+        }
+
+        @Test
+        void quitAliasesAllQuit() throws Exception {
+            assertEquals(CommandResult.QUIT, new Command("quit", 2, 3).execute(sheet));
+            assertEquals(CommandResult.QUIT, new Command("q", 2, 3).execute(sheet));
+            // :writeQuit swallows the (fileless) write failure and still quits.
+            assertEquals(CommandResult.QUIT, new Command("writeQuit", 2, 3).execute(sheet));
+            assertEquals(CommandResult.QUIT, new Command("wq", 2, 3).execute(sheet));
+        }
+
+        @Test
+        void resizeAliasesShareArityAndBehavior() throws Exception {
+            sheet.setPositions(new Positions(852, 552, 96, 24, new HashMap<>(), new HashMap<>()));
+            sheet.getPositions().generate(48, 24);
+            run("resizeColumn 10");
+            run("resCol -10");
+            Exception e = assertThrows(Exception.class, () -> run("resizeColumn"));
+            assertTrue(e.getMessage().contains("resizeColumn"));
         }
     }
 
@@ -221,6 +312,15 @@ class CommandTest {
             assertEquals(Command.COMMAND_NAMES.size(),
                 Set.copyOf(Command.COMMAND_NAMES).size(),
                 "COMMAND_NAMES must not contain duplicate names or aliases");
+        }
+
+        @Test
+        void canonicalNamesContainNoAliasesAndResolveToThemselves() {
+            assertEquals(CommandRegistry.canonicalNames(), Command.CANONICAL_COMMAND_NAMES);
+            assertTrue(Command.COMMAND_NAMES.containsAll(Command.CANONICAL_COMMAND_NAMES));
+            for (String name : Command.CANONICAL_COMMAND_NAMES)
+                assertEquals(name, CommandRegistry.lookup(name).name(),
+                    "\"" + name + "\" should be a canonical name, not an alias");
         }
 
         @Test

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static vimicalc.view.Defaults.DEFAULT_MACRO_DELAY_MS;
 import static vimicalc.view.Defaults.DEFAULT_ZOOM;
 import static vimicalc.view.Defaults.MAX_ZOOM;
 import static vimicalc.view.Defaults.MIN_ZOOM;
@@ -42,6 +43,12 @@ public class Positions {
      * command. Session-only view state — never persisted.
      */
     private boolean gridlines = true;
+    /**
+     * Milliseconds between replayed keystrokes during {@code @x} macro playback,
+     * set by the {@code :macroDelay} command. 0 replays instantly (synchronously,
+     * the historical behavior). Session-only state — never persisted.
+     */
+    private int macroDelayMs = DEFAULT_MACRO_DELAY_MS;
 
     /**
      * Creates a new position layout manager.
@@ -217,6 +224,22 @@ public class Positions {
      */
     public void toggleGridlines() {
         gridlines = !gridlines;
+    }
+
+    /** @return the delay between replayed macro keystrokes, in milliseconds (0 = instant) */
+    public int getMacroDelayMs() {
+        return macroDelayMs;
+    }
+
+    /**
+     * Sets the delay between replayed macro keystrokes. Like
+     * {@link #toggleGridlines()} this needs no {@code regenerate()} —
+     * layout is unaffected.
+     *
+     * @param macroDelayMs the delay in milliseconds (0 = instant, synchronous replay)
+     */
+    public void setMacroDelayMs(int macroDelayMs) {
+        this.macroDelayMs = macroDelayMs;
     }
 
     /**
