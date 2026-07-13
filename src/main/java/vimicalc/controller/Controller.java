@@ -293,7 +293,6 @@ public class Controller implements Initializable {
                         );
                         sheet.addCell(c);
                         goTo(c.xCoord(), c.yCoord());
-                        command.commandExists = true;
                     } catch (Exception e) {
                         infoBar.setInfobarTxt(e.getMessage());
                     }
