@@ -17,25 +17,63 @@ VimiCalc treats blank as the multiplicative identity 1 for `*`):
 
 This matches Rule 110's truth table (outputs 0,1,1,0,1,1,1,0 for LCR=000..111).
 
-Seed: a single 1 on the right edge of row 1; everything else 0.
+Seed: a single 1 on the right edge of row 1; everything else blank/0.
 
 Files
 -----
-  demos/rule110.json            Full demo: 48 cols × 36 generations, colored.
+  demos/rule110.json            Full poster: 48 cols × 36 generations, colored.
                                 Stores computed 0/1 values (opens fast with :e).
-  demos/rule110-handbuilt.json  Small strip typed live in the app (seed + formulas).
-  demos/rule110-session.mp4     Headless Xvfb recording of implement + run session.
+                                Does not re-run the formula engine on open.
+  demos/rule110-formulas.json   Small strip with live formulas (test-generated,
+                                engine-backed). Seed row + formula generations.
   demos/rule110.txt             This note.
 
-Regenerate the full demo (on a checkout with tests):
+  (Session recordings are attached to PR discussion, not committed to git.)
+
+Verify / regenerate goldens
+---------------------------
 
   ./gradlew test --tests 'vimicalc.model.Rule110DemoTest'
+
+  # rewrite demos/rule110.json and demos/rule110-formulas.json intentionally:
+  ./gradlew test --tests 'vimicalc.model.Rule110DemoTest' -DupdateRule110Demos=true
 
 Open in the app:
 
   ./gradlew run --args="demos/rule110.json"
+  ./gradlew run --args="demos/rule110-formulas.json"
 
---- Historical macro-stepper recipe ---
-The original C24 formula in this file did NOT match Rule 110's truth table.
-It is omitted; use the RPN above instead. The conditional/macro technique
-(`<cond{then}{else}`, `$D24@b`, etc.) still works for other steppers.
+Re-record a headless implement+run session (needs Xvfb, e.g. on kubuntu):
+
+  ./gradlew test --tests 'vimicalc.controller.Rule110SessionDirector'
+
+--- Live build recipe (in the app) ---
+
+From a blank sheet (cursor starts at B2):
+
+  1. Narrow columns (optional): :resCol -72, move right, repeat.
+  2. Seed: put a single 1 on the right edge of row 1 (e.g. P1). Blanks elsewhere
+     are fine — the formula coerces empty neighbors to 0.
+  3. On A2 press = and enter the RPN above, then Enter.
+  4. yy to yank the formula cell; l pp across the rest of the row
+     (relative kh/k/kl re-bind per cell).
+  5. On the next rows, paste the same formula across each generation.
+
+Macro stepper (with paced playback)
+-----------------------------------
+
+After the seed and one formula row exist, and the formula is still on the
+clipboard (yy once):
+
+  qa          " start recording macro a
+  16h j       " from past the end of a filled row: back to col A, next gen
+  16@f        " if macro f is: pp l   (paste + move right), width=16
+  q           " stop recording
+
+  ;macroDelay 120
+  10@a        " grow 10 generations, one keystroke per 120ms
+  ESC         " aborts a paced replay if needed
+
+Older notes used a C24 formula that did NOT match Rule 110's truth table; use
+the RPN above instead. Conditionals (`<cond{then}{else}`, `$D24@b`, …) still
+work for more elaborate steppers.
