@@ -5,7 +5,6 @@ import javafx.animation.Timeline;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
-import vimicalc.model.Cell;
 import vimicalc.model.Command;
 import vimicalc.model.CommandResult;
 import vimicalc.model.Formula;
@@ -341,7 +340,7 @@ public class KeyCommand {
         for (int i = 0; i < first.multiplier; i++) {
             switch (fstFunc) {
                 case '=' -> {
-                    ctrl.recordedCellStates.add(List.of(ctrl.cellSelector.getSelectedCell().copy()));
+                    ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
                     ctrl.currMode = Mode.FORMULA;
                     ctrl.cellSelector.readCell(ctrl.camera.picture.data());
                     if (ctrl.cellSelector.getSelectedCell().formula() == null)
@@ -454,7 +453,7 @@ public class KeyCommand {
                                 ctrl.infoBar.setInfobarTxt("CAN'T DELETE RIGHT NOW");
                                 ctrl.sheet.deleteDependency(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
                             } else {
-                                ctrl.recordedCellStates.add(List.of(ctrl.cellSelector.getSelectedCell().copy()));
+                                ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
                                 ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
                                 ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
                                 ctrl.camera.ready();
@@ -468,13 +467,7 @@ public class KeyCommand {
                     }
                 }
                 case 'm' -> {
-                    Cell unmergeTarget = ctrl.sheet.findCell(ctrl.coordsInfo.getCoords());
-                    int[] range = ctrl.sheet.mergedRangeOf(unmergeTarget);
-                    if (range != null) {
-                        ctrl.recordedCellStates.add(ops.captureRange(range[0], range[1], range[2], range[3]));
-                        if (ctrl.undoCounter != 0) ops.removeUltCStates();
-                    }
-                    ctrl.sheet.unmergeCells(unmergeTarget);
+                    ctrl.sheet.unmergeCells(ctrl.sheet.findCell(ctrl.coordsInfo.getCoords()));
                     ctrl.camera.picture.take(ctrl.gc, ctrl.sheet, ctrl.selectedCoords, ctrl.camera.getAbsX(), ctrl.camera.getAbsY());
                     ctrl.camera.ready();
                     ctrl.cellSelector.readCell(ctrl.camera.picture.data());
@@ -489,6 +482,8 @@ public class KeyCommand {
                         ctrl.camera.ready();
                         ctrl.cellSelector.readCell(ctrl.camera.picture.data());
                     }
+                    System.out.println("Recorded cell states: ");
+                    ctrl.recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
                     evaluationFinished = true;
                 }
                 case 'r' -> {
@@ -500,6 +495,8 @@ public class KeyCommand {
                         ctrl.camera.ready();
                         ctrl.cellSelector.readCell(ctrl.camera.picture.data());
                     }
+                    System.out.println("Recorded cell states: ");
+                    ctrl.recordedCellStates.forEach(c -> System.out.println("xC = " + c.xCoord() + ", yC = " + c.yCoord()));
                     evaluationFinished = true;
                 }
                 case 'y' -> {
@@ -548,7 +545,7 @@ public class KeyCommand {
                     }
                 }
                 case 'a', 'i' -> {
-                    ctrl.recordedCellStates.add(List.of(ctrl.cellSelector.getSelectedCell().copy()));
+                    ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
                     ops.setSCTxtForTextInput();
                     ctrl.currMode = Mode.INSERT;
                     ctrl.cellSelector.draw(ctrl.gc);
