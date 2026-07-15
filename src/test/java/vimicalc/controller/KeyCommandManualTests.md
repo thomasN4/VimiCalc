@@ -116,25 +116,6 @@ Legend:
 ### 5.4 Redo at limit
 1. Fresh launch, press `r` — info bar shows "Already at latest change."
 
-### 5.5 Undo a merge (compound step, issue #77)
-1. Enter "top" in A1 and "mid" in B1
-2. At A1, press `v` `l` `j` `m` — A1:B2 merge into one block, "mid" disappears
-3. Press `u` — the merge dissolves and **both** "top" and "mid" are back
-4. Press `r` — the block is merged again, "mid" is blanked again
-
-### 5.6 Undo an unmerge
-1. Merge A1:B2 as in 5.5
-2. Press `m` — the block unmerges
-3. Press `u` — the merge is restored (moving into any cell of the range
-   pulls the cursor to A1)
-4. Press `u` again — steps back over the original merge as well
-
-### 5.7 Undo a VISUAL-mode delete (one step)
-1. Enter "a" in A1, "b" in B1, "c" in A2
-2. At A1, press `v` `l` `j` `d`, then Escape — all cells in the block clear
-3. Press `u` once — all three values return together
-4. Press `r` — the whole block clears again
-
 ---
 
 ## 6. Go-to (g{coords})

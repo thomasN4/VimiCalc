@@ -17,10 +17,9 @@ import static vimicalc.view.Defaults.*;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import static javafx.scene.input.KeyCode.ESCAPE;
@@ -81,16 +80,10 @@ public class Controller implements Initializable {
     private Label infoLabel;
     @FXML
     private Label exprLabel;
-    /**
-     * Undo history. Each entry is one edit step, holding the pre-edit states
-     * of every cell that step touched (a compound step for multi-cell
-     * operations like merge, unmerge, or VISUAL delete; a singleton list for
-     * plain cell edits). The first element is the cell the cursor returns to
-     * when the step is undone.
-     */
-    LinkedList<List<Cell>> recordedCellStates;
-    /** Stack of edit steps produced by undo, used for redo. */
-    LinkedList<List<Cell>> undoneCellStates;
+    /** Stack of cell states recorded before each edit, used for undo. */
+    LinkedList<Cell> recordedCellStates;
+    /** Stack of cell states produced by undo, used for redo. */
+    LinkedList<Cell> undoneCellStates;
     /** How many undo steps have been taken since the last edit. */
     int undoCounter;
     /** The clipboard for yank/paste operations. */
@@ -222,13 +215,25 @@ public class Controller implements Initializable {
             }
         }
 
+        System.out.println("     sC.x: "+cellSelector.getX()     +", yCoord: "+cellSelector.getY());
+        System.out.println("sC.xCoord: "+cellSelector.getXCoord()+", sC.yCoord: "+cellSelector.getYCoord());
+        System.out.println(" cam.absX: "+camera.getAbsX()        +", cam.absY: "+camera.getAbsY());
+        System.out.println("    Cells: "+sheet.getCells());
+        System.out.println("Selected cell: " + cellSelector.getSelectedCell());
+        System.out.println("========================================");
+
         if (currMode == Mode.NORMAL) {
             cellSelector.draw(gc);
             coordsInfo.setCoords(cellSelector.getXCoord(), cellSelector.getYCoord());
         }
         else if (currMode == Mode.VISUAL) {
-            camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+            System.out.println("Selected coords = {");
+            selectedCoords.forEach(c -> {
+                camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
+                System.out.println('\t' + Arrays.toString(c));
+            });
             camera.ready();
+            System.out.println('}');
         }
         if (currMode != Mode.HELP) updateVisualState();
     }
@@ -313,7 +318,7 @@ public class Controller implements Initializable {
                         destinationCoord.reverse();
 
                         Cell c = sheet.findCell(destinationCoord.toString());
-                        recordedCellStates.add(List.of(c.copy()));
+                        recordedCellStates.add(c.copy());
                         Formula f = new Formula(
                             coordsInfo.getCoords() + ' ' + command.getTxt().substring(0, i),
                             c.xCoord(),
@@ -448,21 +453,6 @@ public class Controller implements Initializable {
             case DIGIT0, DIGIT1, DIGIT2, DIGIT3, DIGIT4, DIGIT5, DIGIT6, DIGIT7, DIGIT8, DIGIT9 ->
                 multiplierForVISUAL += event.getText();
             case D -> {
-                // Record the pre-images of every cell the delete will touch
-                // as one undo step. deleteCell follows merge redirection, so
-                // capture through findCell and de-duplicate: several selected
-                // coords inside one merge all blank the same merge-start.
-                List<Cell> deleteStep = new ArrayList<>();
-                HashSet<List<Integer>> seen = new HashSet<>();
-                for (int[] coord : selectedCoords) {
-                    Cell c = sheet.findCell(coord[0], coord[1]);
-                    if (!c.isEmpty() && seen.add(List.of(c.xCoord(), c.yCoord())))
-                        deleteStep.add(c.copy());
-                }
-                if (!deleteStep.isEmpty()) {
-                    recordedCellStates.add(deleteStep);
-                    if (undoCounter != 0) editorOps.removeUltCStates();
-                }
                 selectedCoords.forEach(coord -> sheet.deleteCell(coord[0], coord[1]));
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
@@ -474,31 +464,21 @@ public class Controller implements Initializable {
                 camera.picture.take(gc, sheet, selectedCoords, camera.getAbsX(), camera.getAbsY());
                 camera.ready();
                 cellSelector.readCell(camera.picture.data());
+                System.out.println("Yanked coords: " + selectedCoords);
             }
             case M -> {
                 boolean mergedCsInside = false;
-                // Pre-images of every range dissolved below, recorded as one
-                // undo step. Each range is captured just before its unmerge:
-                // afterwards the cells' merge pointers are cleared, so the
-                // remaining coords of the same range are skipped naturally.
-                List<Cell> unmergeStep = new ArrayList<>();
 
                 for (int[] coord : selectedCoords) {
                     Cell c = sheet.findCell(coord[0], coord[1]);
                     if (c.getMergeDelimiter() != null) {
-                        int[] range = sheet.mergedRangeOf(c);
-                        if (range != null)
-                            unmergeStep.addAll(editorOps.captureRange(range[0], range[1], range[2], range[3]));
                         sheet.unmergeCells(c);
                         if (!mergedCsInside) mergedCsInside = true;
                     }
                 }
-                if (!unmergeStep.isEmpty()) {
-                    recordedCellStates.add(unmergeStep);
-                    if (undoCounter != 0) editorOps.removeUltCStates();
-                }
 
                 if (!mergedCsInside) {
+                    System.out.println("Merging cells...");
                     int maxXC = Integer.MIN_VALUE, minXC = Integer.MAX_VALUE,
                         maxYC = Integer.MIN_VALUE, minYC = Integer.MAX_VALUE;
                     for (int[] c : selectedCoords) {
@@ -508,9 +488,26 @@ public class Controller implements Initializable {
                         if (c[1] < minYC) minYC = c[1];
                     }
 
-                    recordedCellStates.add(editorOps.captureRange(minXC, minYC, maxXC, maxYC));
-                    if (undoCounter != 0) editorOps.removeUltCStates();
-                    sheet.mergeCells(minXC, minYC, maxXC, maxYC);
+                    Cell mergeStart = sheet.findCell(minXC, minYC);
+                    Cell mergeEnd = sheet.findCell(maxXC, maxYC);
+                    if (mergeStart.isEmpty()) sheet.addCell(mergeStart);
+                    if (mergeEnd.isEmpty()) sheet.addCell(mergeEnd);
+                    else mergeEnd = new Cell(mergeEnd.xCoord(), mergeEnd.yCoord());
+                    mergeStart.setMergeStart(true);
+                    mergeStart.mergeWith(mergeEnd);
+                    mergeEnd.mergeWith(mergeStart);
+
+                    for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord() ; i++) {
+                        for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); j++) {
+                            Cell c = sheet.findCell(i, j);
+                            if (c != mergeStart && c != mergeEnd) {
+                                if (!c.isEmpty())
+                                    c = new Cell(c.xCoord(), c.yCoord());
+                                sheet.addCell(c);
+                                c.mergeWith(mergeStart);
+                            }
+                        }
+                    }
                 }
 
                 selectedCoords = new ArrayList<>();
@@ -563,6 +560,11 @@ public class Controller implements Initializable {
                     maxYC = originalYC;
                     minYC = maxYC;
                 }
+                System.out.println("maxXC: " + maxXC);
+                System.out.println("minXC: " + minXC);
+                System.out.println("maxYC: " + maxYC);
+                System.out.println("minYC: " + minYC);
+
                 if (maxXC > camera.picture.metadata().getMaxXC() ||
                     maxYC > camera.picture.metadata().getMaxYC()) {
                     if (maxXC > camera.picture.metadata().getMaxXC()) camera.picture.metadata().setMaxXC(maxXC);
@@ -579,6 +581,11 @@ public class Controller implements Initializable {
                 }
                 int currXC = cellSelector.getXCoord();
                 int currYC = cellSelector.getYCoord();
+                System.out.println("currXC: " + currXC);
+                System.out.println("currYC: " + currYC);
+
+                System.out.println("originalXC = " + originalXC);
+                System.out.println("originalYC = " + originalYC);
 
                 if (currXC >= originalXC && currYC >= originalYC) {
                     if (currXC > prevXC) {
@@ -664,10 +671,14 @@ public class Controller implements Initializable {
     }
     /** Adds a full column or row of coordinates to the visual selection. */
     private void addSCs(boolean isAddingCol, int currC, int minC, int maxC) {
-        if (isAddingCol) for (int i = minC; i <= maxC; i++)
+        if (isAddingCol) for (int i = minC; i <= maxC; i++) {
             selectedCoords.add(new int[]{currC, i});
-        else for (int i = minC; i <= maxC; i++)
+            System.out.println(currC + ", " + i);
+        }
+        else for (int i = minC; i <= maxC; i++) {
             selectedCoords.add(new int[]{i, currC});
+            System.out.println(currC + ", " + i);
+        }
     }
     /** Removes all selected coordinates in the given column or row ({@code -1} to skip). */
     private void purgeSCs(int col, int row) {
@@ -731,7 +742,7 @@ public class Controller implements Initializable {
                         case L -> moveRight();
                         default -> {}
                     }
-                    recordedCellStates.add(List.of(cellSelector.getSelectedCell().copy()));
+                    recordedCellStates.add(cellSelector.getSelectedCell().copy());
                     setSCTxtForTextInput();
                     cellSelector.draw(gc);
                 } else {
@@ -813,7 +824,7 @@ public class Controller implements Initializable {
                             case L -> moveRight();
                             default -> {}
                         }
-                        recordedCellStates.add(List.of(cellSelector.getSelectedCell().copy()));
+                        recordedCellStates.add(cellSelector.getSelectedCell().copy());
                         currMode = Mode.FORMULA;
                         if (cellSelector.getSelectedCell().formula() == null)
                             cellSelector.getSelectedCell().setFormula(
