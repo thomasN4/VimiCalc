@@ -180,7 +180,7 @@ class UndoMergeUiTest {
     }
 
     @Test
-    void unformattedMergeCoversItsInteriorGridlines(FxRobot robot) {
+    void unformattedMergeCoversInteriorGridlinesButKeepsItsBorders(FxRobot robot) {
         // Merge B2:C3 with no formatting anywhere; gridlines are on by default
         robot.type(KeyCode.V, KeyCode.L, KeyCode.J, KeyCode.M);
         // Move the cursor off the merge so its opaque highlight doesn't
@@ -206,12 +206,31 @@ class UndoMergeUiTest {
             "control: the same column boundary outside the merge must show a gridline");
         assertFalse(rowContainsColor(pixels, boundaryX, insideMergeY, GRIDLINE_C),
             "the merged block must cover the gridline between its columns");
+
+        // The block's own border must survive the covering fill (the PR #80
+        // revert): left border = column 1|2 boundary beside the merge rows,
+        // top border = row 1|2 boundary above the merge columns.
+        int leftBorderX = xs[2] - controller.camera.getAbsX() + GUTTER_W;
+        int topBorderY = ys[2] - controller.camera.getAbsY() + HEADER_H;
+        int insideMergeX = xs[2] - controller.camera.getAbsX() + GUTTER_W + (xs[3] - xs[2]) / 2;
+
+        assertTrue(rowContainsColor(pixels, leftBorderX, insideMergeY, GRIDLINE_C),
+            "the merged block's leftmost border gridline must stay visible");
+        assertTrue(colContainsColor(pixels, insideMergeX, topBorderY, GRIDLINE_C),
+            "the merged block's topmost border gridline must stay visible");
     }
 
     /** Checks the three pixels around (x, y) horizontally for the given color. */
     private boolean rowContainsColor(PixelReader pixels, int x, int y, Color color) {
         for (int dx = -1; dx <= 1; dx++)
             if (colorsClose(pixels.getColor(x + dx, y), color)) return true;
+        return false;
+    }
+
+    /** Checks the three pixels around (x, y) vertically for the given color. */
+    private boolean colContainsColor(PixelReader pixels, int x, int y, Color color) {
+        for (int dy = -1; dy <= 1; dy++)
+            if (colorsClose(pixels.getColor(x, y + dy), color)) return true;
         return false;
     }
 

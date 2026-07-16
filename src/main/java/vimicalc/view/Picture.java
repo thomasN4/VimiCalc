@@ -211,10 +211,12 @@ public class Picture extends simpleRect {
             } else {
                 // An unformatted merge block gets no covering fill from
                 // renderCell, so fill it here — otherwise the gridlines
-                // drawn under it keep splitting the block into cells.
+                // drawn under it keep splitting the block into cells. The
+                // 1px top/left inset spares the block's own border lines,
+                // whose strokes occupy the pixel at the boundary coordinate.
                 if (c.isMergeStart()) {
                     gc.setFill(DEFAULT_CELL_C);
-                    gc.fillRect(cellX, cellY, cellWidth, cellHeight);
+                    gc.fillRect(cellX + 1, cellY + 1, cellWidth - 1, cellHeight - 1);
                     gc.setFill(Color.BLACK);
                 }
                 gc.fillText(

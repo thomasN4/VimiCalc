@@ -135,6 +135,14 @@ Legend:
 3. Press `u` once — all three values return together
 4. Press `r` — the whole block clears again
 
+### 5.8 Merged block keeps all four border gridlines (issue #77)
+1. Go to B5 (`g` `B` `5` `l`, then `h` back), press `v`, extend to E10, press `m`
+2. Move the cursor off the block — **all four** border gridlines of the
+   merged block are visible (top and left included), while the gridlines
+   *inside* the block are gone
+3. Scroll around (e.g. `20j` then `20k`) and re-check — the borders persist
+   across repaints
+
 ---
 
 ## 6. Go-to (g{coords})
