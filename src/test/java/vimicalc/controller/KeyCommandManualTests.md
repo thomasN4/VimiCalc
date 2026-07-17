@@ -177,6 +177,17 @@ it — Vim-like behavior, per issue #24.
    replayed events were recorded once as `@a` (not expanded), and nothing
    was double-recorded
 
+### 7.7 Recording indicator chip
+1. Press `j`, `l`, `v`, Escape — the header-corner chip never appears and
+   never shows a key name
+2. Record a small macro into register `x` (as in 7.1) for use in step 5
+3. Press `q` `a` — a red chip showing "● a" appears over the header corner
+4. Press `i`, type "text", press Escape, press `j`, press `v`, press Escape —
+   the chip stays visible with "● a" through every mode change
+5. Press `@` `x` while still recording — the chip does not flicker or hide
+   during the replay
+6. Press `q` — info bar shows "Macro recorded" and the chip disappears
+
 ---
 
 ## 8. Quit shortcuts (ZZ, ZQ)

@@ -52,6 +52,9 @@ public class KeyCommand {
     protected LinkedList<KeyEvent> currMacro;
     /** Whether a macro is currently being recorded. */
     protected boolean recordingMacro;
+    /** The register name of the macro being recorded. Only meaningful while
+     *  {@link #recordingMacro} is set. */
+    protected char recordingMacroName;
     /**
      * Key events awaiting paced replay, drained one per {@link #replayTimeline}
      * tick. Nested macro invocations expand at the front of the queue (like
@@ -394,12 +397,15 @@ public class KeyCommand {
                     if (!recordingMacro && expr.length() - 1 > first.funcIndex) {
                         char arg = expr.charAt(first.funcIndex + 1);
                         ctrl.infoBar.setInfobarTxt("Recording macro '" + arg + "' ...");
+                        ctrl.showRecordingIndicator(arg);
                         currMacro = new LinkedList<>();
-                        ctrl.macros.put(expr.charAt(first.funcIndex + 1), currMacro);
+                        ctrl.macros.put(arg, currMacro);
                         recordingMacro = true;
+                        recordingMacroName = arg;
                         evaluationFinished = true;
                     } else if (recordingMacro) {
                         ctrl.infoBar.setInfobarTxt("Macro recorded");
+                        ctrl.hideRecordingIndicator();
                         currMacro.removeLast();
                         System.out.println("Recorded macro: " + macroStr(currMacro));
                         recordingMacro = false;

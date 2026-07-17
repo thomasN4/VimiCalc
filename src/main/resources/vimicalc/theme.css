@@ -44,15 +44,16 @@
     -fx-padding: 0 4 0 0;
 }
 
-/* Keystroke chip: floats over the header corner block. Hidden while empty
- * (see KeyStrokeCell), so the pill only appears once a key is pressed. */
-.keystroke-chip {
+/* Macro-recording chip: floats over the header corner block. Hidden while
+ * no macro is recording (see RecordingIndicator); shows e.g. "● q" in
+ * recording red while keystrokes are captured into register q. */
+.recording-chip {
     -fx-background-color:
         #a9b1ba,
         linear-gradient(to bottom, #f4f6f8, #dfe3e8);
     -fx-background-insets: 0, 1;
     -fx-background-radius: 4, 3;
-    -fx-text-fill: #007ac1;
+    -fx-text-fill: #c62828;
     -fx-font-weight: bold;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 4, 0, 0, 1);
 }

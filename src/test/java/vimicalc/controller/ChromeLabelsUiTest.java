@@ -53,7 +53,7 @@ class ChromeLabelsUiTest {
         Label status = label("#statusLabel");
         Label coords = label("#coordsLabel");
         Label info = label("#infoLabel");
-        Label keyStroke = label("#keyStrokeLabel");
+        Label recording = label("#recordingIndicatorLabel");
 
         assertTrue(status.getText().contains("[NORMAL]"),
             "status bar should show NORMAL mode on startup: " + status.getText());
@@ -63,21 +63,39 @@ class ChromeLabelsUiTest {
             "coords should start at B2");
         assertEquals("(=I)", info.getText(),
             "empty cell shows default info placeholder");
-        assertNotNull(keyStroke, "keystroke overlay label must be present");
-        assertEquals("", keyStroke.getText(),
-            "keystroke label starts empty before any key");
+        assertNotNull(recording, "recording indicator label must be present");
+        assertEquals("", recording.getText(),
+            "recording indicator starts empty while no macro is recording");
+        assertFalse(recording.isVisible(),
+            "recording indicator starts hidden");
     }
 
     @Test
-    void keyStrokeLabelTracksLastKeyPressed(FxRobot robot) {
-        robot.type(KeyCode.J);
-        Label keyStroke = label("#keyStrokeLabel");
-        assertEquals("J", keyStroke.getText(),
-            "keystroke label should show KeyCode name after j");
+    void recordingIndicatorTracksMacroRecording(FxRobot robot) {
+        Label recording = label("#recordingIndicatorLabel");
 
-        robot.type(KeyCode.V);
-        assertEquals("V", keyStroke.getText(),
-            "keystroke label should update to the latest key");
+        robot.type(KeyCode.J);
+        assertEquals("", recording.getText(),
+            "plain key presses must not put a key name on the chip");
+
+        robot.type(KeyCode.Q, KeyCode.A);
+        assertEquals("● a", recording.getText(),
+            "starting a recording with qa should show the register name");
+        assertTrue(recording.isVisible(),
+            "indicator must be visible while recording");
+
+        robot.type(KeyCode.ESCAPE);
+        robot.type(KeyCode.J);
+        assertTrue(recording.isVisible(),
+            "Escape / mode resets must not hide the indicator while recording");
+        assertEquals("● a", recording.getText(),
+            "indicator keeps the register name across keystrokes");
+
+        robot.type(KeyCode.Q);
+        assertEquals("", recording.getText(),
+            "stopping the recording with q should clear the indicator");
+        assertFalse(recording.isVisible(),
+            "indicator hides once recording stops");
     }
 
     @Test

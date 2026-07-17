@@ -57,17 +57,17 @@ public class Controller implements Initializable {
     GraphicsContext gc;
     @FXML
     private Canvas canvas;
-    /** Overlay host for keystroke indicator / help menu (parts 3–4 of chrome migration). */
+    /** Overlay host for recording indicator / help menu (parts 3–4 of chrome migration). */
     @FXML
     private StackPane canvasStack;
     /**
-     * Absolute-positioned overlay on the canvas stack. Hosts the keystroke
-     * label and the help menu node.
+     * Absolute-positioned overlay on the canvas stack. Hosts the recording
+     * indicator label and the help menu node.
      */
     @FXML
     private Pane overlayPane;
     @FXML
-    private Label keyStrokeLabel;
+    private Label recordingIndicatorLabel;
     @FXML
     private Label helpLabel;
     @FXML
@@ -104,8 +104,8 @@ public class Controller implements Initializable {
     HelpMenu helpMenu;
     /** The information bar at the bottom of the window. */
     InfoBar infoBar;
-    /** Displays the last key stroke pressed. */
-    KeyStrokeCell keyStrokeCell;
+    /** Shows which macro register is being recorded into, hidden otherwise. */
+    RecordingIndicator recordingIndicator;
     /** The cell selector (cursor) highlighting the active cell. */
     CellSelector cellSelector;
     /** The list of coordinates currently selected in VISUAL mode. */
@@ -190,7 +190,6 @@ public class Controller implements Initializable {
             if (event.getCode() == ESCAPE) keyCommand.abortReplay();
             return;
         }
-        keyStrokeCell.setKeyStroke(event.getCode().toString());
         if (keyCommand.recordingMacro && !fromReplay) keyCommand.currMacro.add(event);
         if (currMode == Mode.NORMAL) keyCommand.addChar(event);
         else {
@@ -885,6 +884,21 @@ public class Controller implements Initializable {
         }
     }
 
+    /**
+     * Shows the recording indicator for the given macro register. No-op when
+     * the view is not wired up (headless unit tests).
+     *
+     * @param name the register name of the macro being recorded
+     */
+    void showRecordingIndicator(char name) {
+        if (recordingIndicator != null) recordingIndicator.setRecording(name);
+    }
+
+    /** Hides the recording indicator. No-op when the view is not wired up. */
+    void hideRecordingIndicator() {
+        if (recordingIndicator != null) recordingIndicator.clearRecording();
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gc = canvas.getGraphicsContext2D();
@@ -893,7 +907,7 @@ public class Controller implements Initializable {
         statusBar = new StatusBar(statusLabel, () -> currMode);
         infoBar = new InfoBar(infoLabel, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
-        keyStrokeCell = new KeyStrokeCell(keyStrokeLabel);
+        recordingIndicator = new RecordingIndicator(recordingIndicatorLabel);
         helpMenu = new HelpMenu(helpLabel);
         completionPopup = new CompletionPopup(completionLabelBox, overlayPane);
         sheet = new Sheet();
@@ -1041,7 +1055,6 @@ public class Controller implements Initializable {
         clipboard = new ArrayList<>();
 
         camera.ready();
-        keyStrokeCell.setKeyStroke("");
         firstCol.draw(gc);
         firstRow.draw(gc);
         statusBar.setFilename("new_file");
