@@ -123,6 +123,20 @@ public class Sheet {
     }
 
     /**
+     * Removes the exact cell at the given coordinates — no merge redirection
+     * and no merge-structure preservation — along with its dependency. Used
+     * when restoring recorded cell states (undo/redo), where the snapshot
+     * fully defines the target state including any merge links.
+     *
+     * @param xCoord the one-based column index
+     * @param yCoord the row number
+     */
+    public void simplyDeleteCell(int xCoord, int yCoord) {
+        cells.remove(cellKey(xCoord, yCoord));
+        deleteDependency(xCoord, yCoord);
+    }
+
+    /**
      * Removes the dependency at the given coordinates. First clears the
      * dependency's {@code dependeds} list (upstream references), then checks
      * whether it still has dependents (downstream cells that reference it).
@@ -184,38 +198,121 @@ public class Sheet {
     }
 
     /**
+     * Resolves the merged range that the given cell belongs to.
+     *
+     * <p>Merge pointers can reference an object that {@code addCell} has since
+     * replaced in the cell map (e.g. after editing the merged cell's text), so
+     * the merge-start is resolved through the map — otherwise an orphaned copy
+     * would be consulted (issue #29).</p>
+     *
+     * @param c any cell in the merge group
+     * @return {@code {startX, startY, endX, endY}}, or {@code null} if the
+     *         cell is not part of a merged range
+     */
+    public int[] mergedRangeOf(@NotNull Cell c) {
+        Cell mergeStart = c.isMergeStart() ? c : c.getMergeDelimiter();
+        if (mergeStart == null) return null;
+        Cell mapped = simplyFindCell(mergeStart.xCoord(), mergeStart.yCoord());
+        if (mapped.isMergeStart()) mergeStart = mapped;
+        if (mergeStart.getMergeDelimiter() == null) return null;
+        return new int[]{
+            mergeStart.xCoord(), mergeStart.yCoord(),
+            mergeStart.getMergeDelimiter().xCoord(), mergeStart.getMergeDelimiter().yCoord()
+        };
+    }
+
+    /**
      * Unmerges all cells in the merge group that the given cell belongs to.
      * Works whether the cell is the merge-start or any cell within the range.
      *
      * @param c any cell in the merge group
      */
     public void unmergeCells(@NotNull Cell c) {
-        Cell mergeStart = c.isMergeStart() ? c : c.getMergeDelimiter();
-        if (mergeStart == null) return;
-        // Merge pointers can reference an object that addCell has since
-        // replaced in the cell map (e.g. after editing the merged cell's
-        // text), so resolve the merge-start through the map before mutating
-        // it — otherwise only the orphaned copy gets unmerged (issue #29).
-        Cell mapped = simplyFindCell(mergeStart.xCoord(), mergeStart.yCoord());
-        if (mapped.isMergeStart()) mergeStart = mapped;
-        if (mergeStart.getMergeDelimiter() != null)
-            unmergeCells(mergeStart, mergeStart.getMergeDelimiter());
-    }
-    private void unmergeCells(@NotNull Cell mergeStart, @NotNull Cell mergeEnd) {
-        System.out.println("Unmerging cells...");
-        Cell c;
-        for (int i = mergeStart.xCoord(); i <= mergeEnd.xCoord(); ++i) {
-            for (int j = mergeStart.yCoord(); j <= mergeEnd.yCoord(); ++j) {
-                c = simplyFindCell(i, j);
-                System.out.println("i = " + i + ", j = " + j);
-                System.out.println("Unmerging: " + c);
-                if (!c.isMergeStart())
-                    c.mergeWith(null);
-                simplyAddCell(c);
+        int[] range = mergedRangeOf(c);
+        if (range == null) return;
+        Cell mergeStart = simplyFindCell(range[0], range[1]);
+        for (int i = range[0]; i <= range[2]; ++i) {
+            for (int j = range[1]; j <= range[3]; ++j) {
+                Cell in = simplyFindCell(i, j);
+                if (!in.isMergeStart())
+                    in.mergeWith(null);
+                simplyAddCell(in);
             }
         }
         mergeStart.mergeWith(null);
         mergeStart.setMergeStart(false);
+        purgeEmptyCells();
+    }
+
+    /**
+     * Merges the rectangular range with top-left corner ({@code x1},{@code y1})
+     * and bottom-right corner ({@code x2},{@code y2}) into a single block. The
+     * top-left cell keeps its content; every other cell in the range —
+     * including a non-empty bottom-right corner — is replaced by an empty cell
+     * linked to the merge-start, discarding its content (as in other
+     * spreadsheets, only the top-left value survives a merge).
+     *
+     * @param x1 the merge-start column (one-based)
+     * @param y1 the merge-start row
+     * @param x2 the merge-end column
+     * @param y2 the merge-end row
+     */
+    public void mergeCells(int x1, int y1, int x2, int y2) {
+        Cell mergeStart = findCell(x1, y1);
+        Cell mergeEnd = findCell(x2, y2);
+        if (mergeStart.isEmpty()) addCell(mergeStart);
+        if (mergeEnd.isEmpty()) addCell(mergeEnd);
+        else mergeEnd = new Cell(x2, y2);
+        mergeStart.setMergeStart(true);
+        mergeStart.mergeWith(mergeEnd);
+        mergeEnd.mergeWith(mergeStart);
+
+        for (int i = x1; i <= x2; i++) {
+            for (int j = y1; j <= y2; j++) {
+                Cell c = findCell(i, j);
+                if (c != mergeStart && c != mergeEnd) {
+                    if (!c.isEmpty())
+                        c = new Cell(i, j);
+                    addCell(c);
+                    c.mergeWith(mergeStart);
+                }
+            }
+        }
+    }
+
+    /**
+     * Re-links the merge pointers of the range with top-left corner
+     * ({@code x1},{@code y1}) and bottom-right corner ({@code x2},{@code y2})
+     * so they reference the objects currently in the cell map. Restoring
+     * snapshot copies (undo/redo) leaves merge pointers aimed at stale
+     * objects (issue #29); unlike {@link #mergeCells}, this never discards
+     * cell contents.
+     *
+     * @param x1 the merge-start column (one-based)
+     * @param y1 the merge-start row
+     * @param x2 the merge-end column
+     * @param y2 the merge-end row
+     */
+    public void relinkMergedRange(int x1, int y1, int x2, int y2) {
+        Cell mergeStart = simplyFindCell(x1, y1);
+        Cell mergeEnd = new Cell(x2, y2);
+        mergeStart.setMergeStart(true);
+        mergeStart.mergeWith(mergeEnd);
+        mergeEnd.mergeWith(mergeStart);
+        simplyAddCell(mergeStart);
+        for (int i = x1; i <= x2; i++) {
+            for (int j = y1; j <= y2; j++) {
+                if (i == x1 && j == y1) continue;
+                Cell in = simplyFindCell(i, j);
+                in.setMergeStart(false);
+                in.mergeWith(mergeStart);
+                simplyAddCell(in);
+            }
+        }
+    }
+
+    /** Removes every cell that has neither content nor a merge reference. */
+    public void purgeEmptyCells() {
         cells.values().removeIf(Cell::isEmpty);
     }
 

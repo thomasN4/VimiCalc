@@ -1,7 +1,12 @@
 package vimicalc.controller;
 
+import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.Positions;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 import static vimicalc.view.Defaults.*;
 
@@ -246,66 +251,108 @@ public class EditorOperations {
      * partially-undone state.
      */
     public void removeUltCStates() {
-        Cell last = ctrl.recordedCellStates.getLast().copy();
+        List<Cell> last = copyStep(ctrl.recordedCellStates.getLast());
         ctrl.recordedCellStates.removeLast();
         while (ctrl.undoCounter != 0) {
             ctrl.recordedCellStates.removeLast();
             ctrl.undoCounter--;
         }
         ctrl.recordedCellStates.add(last);
-        ctrl.undoneCellStates = new java.util.LinkedList<>();
+        ctrl.undoneCellStates = new LinkedList<>();
     }
 
-    /** Reverts the last cell edit by swapping the current state with the recorded previous state. */
+    /**
+     * Captures pre-images of every cell in the given rectangle (exact
+     * per-coordinate states, no merge redirection), merge-start corner
+     * first, for recording as one undo step.
+     *
+     * @param x1 the top-left column (one-based)
+     * @param y1 the top-left row
+     * @param x2 the bottom-right column
+     * @param y2 the bottom-right row
+     * @return the captured cell states, ordered row-major from ({@code x1},{@code y1})
+     */
+    public List<Cell> captureRange(int x1, int y1, int x2, int y2) {
+        List<Cell> step = new ArrayList<>();
+        for (int i = x1; i <= x2; i++)
+            for (int j = y1; j <= y2; j++)
+                step.add(ctrl.sheet.simplyFindCell(i, j).copy());
+        return step;
+    }
+
+    /** Deep-copies an undo step (each cell state is copied). */
+    private List<Cell> copyStep(@NotNull List<Cell> step) {
+        List<Cell> copy = new ArrayList<>();
+        for (Cell c : step) copy.add(c.copy());
+        return copy;
+    }
+
+    /**
+     * Reverts the last edit step: every touched cell swaps its current state
+     * with the recorded pre-edit state.
+     */
     public void undo() {
         int listIndex = ctrl.recordedCellStates.size() - 1 - ctrl.undoCounter;
         ctrl.undoCounter++;
 
-        Cell substitute = ctrl.recordedCellStates.get(listIndex).copy();
-        goTo(substitute.xCoord(), substitute.yCoord());
-        ctrl.recordedCellStates.set(listIndex, ctrl.sheet.findCell(substitute.xCoord(), substitute.yCoord()).copy());
-        ctrl.undoneCellStates.add(substitute);
-        ctrl.sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
+        List<Cell> step = copyStep(ctrl.recordedCellStates.get(listIndex));
+        goTo(step.get(0).xCoord(), step.get(0).yCoord());
+        List<Cell> currentStates = new ArrayList<>();
+        for (Cell state : step)
+            currentStates.add(ctrl.sheet.simplyFindCell(state.xCoord(), state.yCoord()).copy());
+        ctrl.recordedCellStates.set(listIndex, currentStates);
+        ctrl.undoneCellStates.add(step);
 
-        if (substitute.formula() != null) {
-            Formula f = substitute.formula();
-            try {
-                ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("Something went very wrong.");
-            }
-        } else ctrl.cellSelector.setSelectedCell(substitute);
-
-        cellContentToIBar();
-        ctrl.sheet.addCell(ctrl.cellSelector.getSelectedCell());
-        ctrl.sheet.getCells().forEach(Cell::isEmpty);
+        applyStep(step);
     }
 
-    /** Re-applies a previously undone cell edit. */
+    /** Re-applies a previously undone edit step. */
     public void redo() {
         int listIndex = ctrl.recordedCellStates.size() - ctrl.undoCounter;
         ctrl.undoCounter--;
 
-        Cell substitute = ctrl.recordedCellStates.get(listIndex).copy();
-        goTo(substitute.xCoord(), substitute.yCoord());
-        ctrl.recordedCellStates.set(listIndex, ctrl.undoneCellStates.getLast().copy());
+        List<Cell> step = copyStep(ctrl.recordedCellStates.get(listIndex));
+        goTo(step.get(0).xCoord(), step.get(0).yCoord());
+        ctrl.recordedCellStates.set(listIndex, copyStep(ctrl.undoneCellStates.getLast()));
         ctrl.undoneCellStates.removeLast();
-        ctrl.sheet.deleteCell(substitute.xCoord(), substitute.yCoord());
 
-        if (substitute.formula() != null) {
-            Formula f = substitute.formula();
-            try {
-                ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                System.out.println("Something went very wrong.");
+        applyStep(step);
+    }
+
+    /**
+     * Writes the given cell states into the sheet: each coordinate is cleared
+     * and, unless the state is empty, the snapshot is re-added (formulas are
+     * re-interpreted). Restored merge pointers reference snapshot objects, so
+     * every merge range in the step is re-linked through the live cell map
+     * afterwards (see {@link Sheet#relinkMergedRange}).
+     */
+    private void applyStep(@NotNull List<Cell> step) {
+        for (Cell state : step) {
+            ctrl.sheet.simplyDeleteCell(state.xCoord(), state.yCoord());
+            if (state.isEmpty()) continue;
+            Cell restored = state.copy();
+            if (restored.formula() != null) {
+                Formula f = restored.formula();
+                try {
+                    restored.setFormulaResult(f.interpret(ctrl.sheet), f);
+                } catch (Exception e) {
+                    ctrl.infoBar.setInfobarTxt(e.getMessage());
+                }
             }
-        } else ctrl.cellSelector.setSelectedCell(substitute);
+            ctrl.sheet.addCell(restored);
+        }
+        for (Cell state : step)
+            if (state.isMergeStart() && state.getMergeDelimiter() != null)
+                ctrl.sheet.relinkMergedRange(
+                    state.xCoord(), state.yCoord(),
+                    state.getMergeDelimiter().xCoord(), state.getMergeDelimiter().yCoord()
+                );
+        ctrl.sheet.purgeEmptyCells();
 
+        ctrl.cellSelector.setSelectedCell(
+            ctrl.sheet.findCell(step.get(0).xCoord(), step.get(0).yCoord()).copy()
+        );
         cellContentToIBar();
-        ctrl.sheet.addCell(ctrl.cellSelector.getSelectedCell());
-        ctrl.sheet.getCells().forEach(Cell::isEmpty);
     }
 
     /**
@@ -389,7 +436,7 @@ public class EditorOperations {
                 ctrl.cellSelector.getYCoord()
             );
             try {
-                ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
+                ctrl.recordedCellStates.add(List.of(ctrl.cellSelector.getSelectedCell().copy()));
                 ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
                 ctrl.cellSelector.getSelectedCell().setFormulaResult(f.interpret(ctrl.sheet), f);
             } catch (Exception e) {
@@ -397,7 +444,7 @@ public class EditorOperations {
                 return;
             }
         } else {
-            ctrl.recordedCellStates.add(ctrl.cellSelector.getSelectedCell().copy());
+            ctrl.recordedCellStates.add(List.of(ctrl.cellSelector.getSelectedCell().copy()));
             ctrl.sheet.deleteCell(ctrl.cellSelector.getXCoord(), ctrl.cellSelector.getYCoord());
             ctrl.cellSelector.setSelectedCell(ctrl.clipboard.get(index).copy());
         }

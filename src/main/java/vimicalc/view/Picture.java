@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static vimicalc.view.Defaults.DEFAULT_CELL_C;
 import static vimicalc.view.Defaults.DEFAULT_FONT_SIZE;
 import static vimicalc.view.Defaults.GRIDLINE_C;
 import static vimicalc.view.Defaults.GUTTER_W;
@@ -202,22 +203,26 @@ public class Picture extends simpleRect {
                 cellWidth = metadata.getCellAbsXs()[c.xCoord()+1] - metadata.getCellAbsXs()[c.xCoord()];
             }
 
-            try {
-                System.out.println(cellsFormatting.get(List.of(c.xCoord(), c.yCoord())));
-                cellsFormatting.get(List.of(c.xCoord(), c.yCoord())).renderCell(
-                    gc,
-                    metadata.getCellAbsXs()[c.xCoord()] - absX + GUTTER_W,
-                    metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H,
-                    cellWidth,
-                    cellHeight,
-                    c.txt(),
-                    metadata.getZoom()
-                );
-            } catch (Exception ignored) {
+            int cellX = metadata.getCellAbsXs()[c.xCoord()] - absX + GUTTER_W;
+            int cellY = metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H;
+            Formatting formatting = cellsFormatting.get(List.of(c.xCoord(), c.yCoord()));
+            if (formatting != null) {
+                formatting.renderCell(gc, cellX, cellY, cellWidth, cellHeight, c.txt(), metadata.getZoom());
+            } else {
+                // An unformatted merge block gets no covering fill from
+                // renderCell, so fill it here — otherwise the gridlines
+                // drawn under it keep splitting the block into cells. The
+                // 1px top/left inset spares the block's own border lines,
+                // whose strokes occupy the pixel at the boundary coordinate.
+                if (c.isMergeStart()) {
+                    gc.setFill(DEFAULT_CELL_C);
+                    gc.fillRect(cellX + 1, cellY + 1, cellWidth - 1, cellHeight - 1);
+                    gc.setFill(Color.BLACK);
+                }
                 gc.fillText(
                     c.txt(),
-                   metadata.getCellAbsXs()[c.xCoord()] - absX + GUTTER_W + (float) cellWidth / 2,
-                   metadata.getCellAbsYs()[c.yCoord()] - absY + HEADER_H + (float) cellHeight / 2,
+                    cellX + (float) cellWidth / 2,
+                    cellY + (float) cellHeight / 2,
                     cellWidth
                 );
             }
