@@ -325,23 +325,24 @@ it — Vim-like behavior, per issue #24.
 ## 13. Command-line caret (COMMAND mode, issue #83)
 
 ### 13.1 Caret visible and blinking
-1. Press `;` — the info bar shows `:` with a thin caret after it, blinking
-   at a steady rate; the caret spans the text's line height (it does not
-   poke above the tops of tall letters like `l` or below descenders)
-2. Type `write` slowly — the caret sits right after the last typed character
-   and restarts solid (visible) on every keystroke
+1. Press `;` — the info bar shows `:` in a monospace font with a blinking
+   block caret on the blank cell after it, spanning the text's line height
+   (it does not poke above tall letters like `l` or below descenders)
+2. Type `write` slowly — the block sits on the blank cell right after the
+   last typed character and restarts solid (visible) on every keystroke
 3. Press Escape — back to NORMAL mode, the caret disappears
 
 ### 13.2 Mid-line insert and delete
-1. Press `;`, type `wrte`, then press Ctrl+`b` twice — the caret sits
-   between `wr` and `te`; the text is unchanged, and the letters do not
-   shift horizontally as the caret passes over them
-2. Type `i` — the line reads `:write` with the caret after the `i`;
-   the text on both sides of the caret stayed in place
-3. Press Backspace — the `i` is removed again (`:wrte`), caret between
-   `wr` and `te`
-4. Press Ctrl+`d` — the `t` under the caret is removed (`:wre`),
-   caret stays put; press Escape
+1. Press `;`, type `wrte`, then press Ctrl+`b` twice — the block caret
+   covers the `t` (shown light-on-dark while the blink is on, like a
+   terminal); the text is unchanged, and the letters do not shift
+   horizontally as the caret passes over them
+2. Type `i` — the line reads `:write`, the block still on the `t`;
+   the text on both sides of the insertion stayed in place
+3. Press Backspace — the `i` is removed again (`:wrte`), block back
+   on the `t`
+4. Press Ctrl+`d` — the `t` under the block is removed (`:wre`) and
+   the block lands on the `e`; press Escape
 
 ### 13.3 Errors hide the caret
 1. Press `;`, type `nosuchcommand`, press Enter — the info bar shows the
@@ -361,3 +362,10 @@ it — Vim-like behavior, per issue #24.
    deleted, leaving `: blue`; press Escape
 6. Left/Right arrows move the caret by one character (they do not leave
    COMMAND mode, unlike in INSERT mode)
+
+### 13.5 Block caret over the caret character
+1. Press `;`, type `write`, press Ctrl+`a` — the block covers the `w`,
+   which shows light-on-dark whenever the blink phase is on and normal
+   dark-on-light whenever it is off
+2. Press Ctrl+`e` — the block moves to the blank cell after the `e`,
+   one character wide despite there being no character there

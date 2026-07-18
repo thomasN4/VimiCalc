@@ -29,7 +29,7 @@ class MacroRecordingStateTest {
         // constructing real scene-graph nodes needs the JavaFX toolkit.
         ctrl = new Controller();
         ctrl.macros = new HashMap<>();
-        ctrl.infoBar = new InfoBar(null, null, null, null) {
+        ctrl.infoBar = new InfoBar(null, null, null, null, null) {
             @Override
             public void setInfobarTxt(String infobarTxt) { }
         };

@@ -40,22 +40,33 @@
 }
 
 /* The info label is a TextFlow of Text runs (caret support); Text nodes are
- * shapes, so they take -fx-fill rather than -fx-text-fill. */
+ * shapes, so they take -fx-fill rather than -fx-text-fill. Monospace: the
+ * command line / formula echo reads terminal-style, glyphs never creep as
+ * text changes, and the block caret's cell is exactly one advance wide. */
 .info-label Text {
     -fx-fill: #222222;
+    -fx-font-family: 'monospace';
 }
 
-/* COMMAND-mode insertion caret: a thin bar straddling the seam between the
- * two text runs, blinked by InfoBar while a command is edited. Unmanaged —
- * sized and placed in code (InfoBar.showCaret) on the before-run's line
- * box, so it never occupies layout space or shifts the after-caret text. */
+/* COMMAND-mode block caret: covers the character at the caret position,
+ * blinked by InfoBar while a command is edited. Unmanaged — sized and
+ * placed in code (InfoBar.placeCaret) on the text run's line box, so it
+ * never occupies layout space or shifts the text around it. It paints
+ * beneath the caret character, whose fill inverts while the block is on. */
 .info-caret {
     -fx-background-color: #222222;
+}
+
+/* The character under the block caret while the blink phase is on: light
+ * fill against the dark block, terminal-style inverse video. */
+.info-label .info-caret-char {
+    -fx-fill: #f4f6f8;
 }
 
 .expr-label {
     -fx-text-fill: #222222;
     -fx-padding: 0 4 0 0;
+    -fx-font-family: 'monospace';
 }
 
 /* Macro-recording chip: floats over the header corner block. Hidden while
@@ -99,6 +110,8 @@
 .completion-item {
     -fx-text-fill: #222222;
     -fx-padding: 1 10 1 8;
+    /* Matches the monospace command line the completions are written into. */
+    -fx-font-family: 'monospace';
 }
 
 .completion-item-selected {

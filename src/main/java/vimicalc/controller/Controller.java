@@ -84,6 +84,8 @@ public class Controller implements Initializable {
     @FXML
     private Region infoCaret;
     @FXML
+    private Text infoTextAt;
+    @FXML
     private Text infoTextAfter;
     @FXML
     private Label exprLabel;
@@ -944,7 +946,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         statusBar = new StatusBar(statusLabel, () -> currMode);
-        infoBar = new InfoBar(infoTextBefore, infoCaret, infoTextAfter, exprLabel);
+        infoBar = new InfoBar(infoTextBefore, infoCaret, infoTextAt, infoTextAfter, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
         recordingIndicator = new RecordingIndicator(recordingIndicatorLabel);
         helpMenu = new HelpMenu(helpLabel);

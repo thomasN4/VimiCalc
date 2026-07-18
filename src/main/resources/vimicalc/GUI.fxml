@@ -37,6 +37,7 @@
           <children>
             <Text fx:id="infoTextBefore" text="(=I)" />
             <Region fx:id="infoCaret" managed="false" styleClass="info-caret" visible="false" />
+            <Text fx:id="infoTextAt" text="" />
             <Text fx:id="infoTextAfter" text="" />
           </children>
         </TextFlow>

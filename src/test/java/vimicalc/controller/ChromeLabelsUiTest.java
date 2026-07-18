@@ -53,9 +53,10 @@ class ChromeLabelsUiTest {
         return (Text) root.lookup(fxId);
     }
 
-    /** The full info-bar text: the runs before and after the caret joined. */
+    /** The full info-bar text: before-caret, caret-char, and after runs joined. */
     private String infoText() {
-        return text("#infoTextBefore").getText() + text("#infoTextAfter").getText();
+        return text("#infoTextBefore").getText() + text("#infoTextAt").getText()
+            + text("#infoTextAfter").getText();
     }
 
     @Test
@@ -146,23 +147,35 @@ class ChromeLabelsUiTest {
             caret.getBoundsInParent().getHeight(), 0.001,
             "caret height must match the text run's line box");
         assertEquals(text("#infoTextBefore").getBoundsInParent().getMaxX(),
-            caret.getBoundsInParent().getMinX() + 1, 0.001,
-            "caret must straddle the end of the before-run");
+            caret.getBoundsInParent().getMinX(), 0.001,
+            "block caret must start right at the end of the before-run");
+        assertTrue(caret.getBoundsInParent().getWidth() > 1,
+            "block caret on an end-of-line blank cell is one character wide");
         assertEquals(":wq", text("#infoTextBefore").getText(),
             "with the caret at the end, all text is in the 'before' run");
+        assertEquals("", text("#infoTextAt").getText(),
+            "at the end of the line the block sits on a blank cell");
         assertEquals("", text("#infoTextAfter").getText());
 
         robot.press(KeyCode.CONTROL).type(KeyCode.B).release(KeyCode.CONTROL);
         assertEquals(":w", text("#infoTextBefore").getText(),
-            "Ctrl+B moves the caret between 'w' and 'q'");
-        assertEquals("q", text("#infoTextAfter").getText());
+            "Ctrl+B puts the block caret on the 'q'");
+        assertEquals("q", text("#infoTextAt").getText(),
+            "the character under the block lives in the caret-char run");
+        assertEquals("", text("#infoTextAfter").getText());
         assertEquals("wq", controller.command.getTxt(),
             "caret movement must not change the command text");
+        assertEquals(text("#infoTextAt").getBoundsInParent().getWidth(),
+            caret.getBoundsInParent().getWidth(), 0.001,
+            "the block must cover exactly the caret character's cell");
+        assertTrue(text("#infoTextAt").getStyleClass().contains("info-caret-char"),
+            "the caret character inverts while the blink phase is on");
 
-        // Mid-line insert: caret sits after the inserted char.
+        // Mid-line insert: the block stays on the same character.
         robot.type(KeyCode.X);
         assertEquals(":wx", text("#infoTextBefore").getText());
-        assertEquals("q", text("#infoTextAfter").getText());
+        assertEquals("q", text("#infoTextAt").getText());
+        assertEquals("", text("#infoTextAfter").getText());
         assertEquals("wxq", controller.command.getTxt());
 
         // Executing the (unknown) command fails; the error message replaces
@@ -171,8 +184,12 @@ class ChromeLabelsUiTest {
         assertEquals(Mode.NORMAL, controller.currMode);
         assertFalse(root.lookup("#infoCaret").isVisible(),
             "error display must hide the caret");
+        assertEquals("", text("#infoTextAt").getText(),
+            "non-command display collapses to the 'before' run");
         assertEquals("", text("#infoTextAfter").getText(),
             "non-command display collapses to the 'before' run");
+        assertFalse(text("#infoTextAt").getStyleClass().contains("info-caret-char"),
+            "the inverted-char style must not survive the caret");
     }
 
     @Test

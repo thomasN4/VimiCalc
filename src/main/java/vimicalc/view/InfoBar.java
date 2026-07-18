@@ -22,12 +22,15 @@ import java.util.Objects;
  *   <li><b>VISUAL</b> — can also show a command being entered for the selection</li>
  * </ul>
  *
- * <p>The left side is a {@code TextFlow} of three nodes — text before the
- * caret, a thin caret {@code Region}, and text after the caret — so COMMAND
- * mode can show a blinking insertion caret at any position
- * ({@link #setCommandTxt(String, int)}). Every non-command display path
- * (formula echo, errors, NORMAL info) collapses to the "before" node and
- * hides the caret, so the caret can never linger over an error message.</p>
+ * <p>The left side is a {@code TextFlow} of four nodes: text before the
+ * caret, a block-caret {@code Region}, the single character under the caret,
+ * and the text after it. COMMAND mode shows a blinking block caret over the
+ * character at the caret position ({@link #setCommandTxt(String, int)}),
+ * Vim-style — the character renders inverted while the blink is on, and at
+ * the end of the line the block sits on a blank one-character cell. Every
+ * non-command display path (formula echo, errors, NORMAL info) collapses to
+ * the "before" node and hides the caret, so the caret can never linger over
+ * an error message.</p>
  *
  * <p>The field {@link #iBarExpr} holds the current key-command expression
  * displayed on the right side of the bar. Setters update the nodes
@@ -37,12 +40,16 @@ public class InfoBar {
 
     /** Blink half-period: caret visibility toggles at this interval. */
     private static final Duration BLINK_INTERVAL = Duration.millis(530);
+    /** Style class inverting the character under the block caret (theme.css). */
+    private static final String CARET_CHAR_CLASS = "info-caret-char";
 
     /** Text before the caret (or the whole text when the caret is hidden). */
     private final Text infoTextBefore;
-    /** The caret node, visible and blinking only while a command is edited. */
+    /** The block caret, visible and blinking only while a command is edited. */
     private final Region infoCaret;
-    /** Text after the caret; empty when the caret is hidden. */
+    /** The single character under the block caret; empty at end of line. */
+    private final Text infoTextAt;
+    /** Text after the caret character; empty when the caret is hidden. */
     private final Text infoTextAfter;
     private final Label exprLabel;
 
@@ -58,19 +65,23 @@ public class InfoBar {
     private String infobarTxt;
     /** Whether the caret is logically shown (blinking may have it invisible). */
     private boolean caretShowing;
+    /** Cached advance width of one character of the (monospace) info font. */
+    private double charWidth = -1;
 
     /**
      * Creates the info bar bound to the given nodes.
      *
      * @param infoTextBefore the left-side text up to the caret
-     * @param infoCaret      the caret node between the two text runs
-     * @param infoTextAfter  the left-side text after the caret
+     * @param infoCaret      the block-caret node
+     * @param infoTextAt     the character under the caret
+     * @param infoTextAfter  the left-side text after the caret character
      * @param exprLabel      the right-side key-command expression label
      */
-    public InfoBar(Text infoTextBefore, Region infoCaret, Text infoTextAfter,
-                   Label exprLabel) {
+    public InfoBar(Text infoTextBefore, Region infoCaret, Text infoTextAt,
+                   Text infoTextAfter, Label exprLabel) {
         this.infoTextBefore = infoTextBefore;
         this.infoCaret = infoCaret;
+        this.infoTextAt = infoTextAt;
         this.infoTextAfter = infoTextAfter;
         this.exprLabel = exprLabel;
         iBarExpr = "";
@@ -115,7 +126,8 @@ public class InfoBar {
 
     /**
      * Sets the info bar text for COMMAND mode, prefixing with {@code :} and
-     * showing a blinking caret at the given position within the command text.
+     * showing a blinking block caret over the character at the given
+     * position within the command text (a blank cell at the end).
      *
      * @param infobarTxt the command text to display
      * @param caret      the caret index, in {@code 0..infobarTxt.length()}
@@ -124,8 +136,12 @@ public class InfoBar {
         this.infobarTxt = ":" + infobarTxt;
         // The ':' prefix occupies index 0 of the displayed string, so the
         // caret's display position is shifted one to the right.
-        infoTextBefore.setText(this.infobarTxt.substring(0, caret + 1));
-        infoTextAfter.setText(this.infobarTxt.substring(caret + 1));
+        int at = caret + 1;
+        infoTextBefore.setText(this.infobarTxt.substring(0, at));
+        infoTextAt.setText(at < this.infobarTxt.length()
+            ? this.infobarTxt.substring(at, at + 1) : "");
+        infoTextAfter.setText(at < this.infobarTxt.length()
+            ? this.infobarTxt.substring(at + 1) : "");
         showCaret();
     }
 
@@ -161,29 +177,61 @@ public class InfoBar {
     /** Puts the whole current text into the "before" node and hides the caret. */
     private void displayWithoutCaret() {
         infoTextBefore.setText(infobarTxt);
+        infoTextAt.setText("");
         infoTextAfter.setText("");
         hideCaret();
     }
 
     /**
-     * Places the caret on the before-run's line box: a 2px bar straddling
-     * the seam between the two text runs, spanning exactly the line's
-     * height. The caret is an unmanaged child of the TextFlow, so it takes
-     * no part in layout and can never shift the after-caret text.
+     * Places the block caret over the caret character's cell: one character
+     * advance wide, spanning the before-run's line box, right at the seam.
+     * The caret is an unmanaged child of the TextFlow, so it takes no part
+     * in layout and can never shift the text around it; it paints beneath
+     * the caret character, which inverts its fill while the blink is on.
      */
     private void placeCaret() {
         Bounds b = infoTextBefore.getBoundsInParent();
-        infoCaret.resizeRelocate(b.getMaxX() - 1, b.getMinY(), 2, b.getHeight());
+        double w = infoTextAt.getText().isEmpty()
+            ? charWidth() : infoTextAt.getBoundsInParent().getWidth();
+        infoCaret.resizeRelocate(b.getMaxX(), b.getMinY(), w, b.getHeight());
     }
 
-    /** Shows the caret node and (re)starts its blink cycle from visible. */
+    /**
+     * Returns the advance width of one character of the info font, measured
+     * once off-scene — the font is monospace (theme.css), so this is the
+     * block caret's width on an end-of-line blank cell.
+     */
+    private double charWidth() {
+        if (charWidth < 0) {
+            Text probe = new Text("0");
+            probe.setFont(infoTextBefore.getFont());
+            charWidth = probe.getLayoutBounds().getWidth();
+        }
+        return charWidth;
+    }
+
+    /**
+     * Sets the caret's blink phase: the block's visibility plus the inverted
+     * fill on the character under it, which must track the block exactly.
+     */
+    private void setCaretOn(boolean on) {
+        infoCaret.setVisible(on);
+        if (on) {
+            if (!infoTextAt.getStyleClass().contains(CARET_CHAR_CLASS))
+                infoTextAt.getStyleClass().add(CARET_CHAR_CLASS);
+        } else {
+            infoTextAt.getStyleClass().remove(CARET_CHAR_CLASS);
+        }
+    }
+
+    /** Shows the caret and (re)starts its blink cycle from visible. */
     private void showCaret() {
         caretShowing = true;
         placeCaret();
-        infoCaret.setVisible(true);
+        setCaretOn(true);
         if (blink == null) {
             blink = new Timeline(new KeyFrame(BLINK_INTERVAL,
-                e -> infoCaret.setVisible(!infoCaret.isVisible())));
+                e -> setCaretOn(!infoCaret.isVisible())));
             blink.setCycleCount(Animation.INDEFINITE);
         }
         // Restart so the caret is solidly visible right after each keystroke,
@@ -191,10 +239,10 @@ public class InfoBar {
         blink.playFromStart();
     }
 
-    /** Hides the caret node and stops the blink cycle. */
+    /** Hides the caret and stops the blink cycle. */
     private void hideCaret() {
         caretShowing = false;
         if (blink != null) blink.stop();
-        infoCaret.setVisible(false);
+        setCaretOn(false);
     }
 }
