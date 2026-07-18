@@ -45,9 +45,10 @@
     -fx-fill: #222222;
 }
 
-/* COMMAND-mode insertion caret: a thin bar between the two text runs,
- * blinked by InfoBar while a command is edited (size set in GUI.fxml —
- * Region pref sizes are not CSS-styleable). */
+/* COMMAND-mode insertion caret: a thin bar straddling the seam between the
+ * two text runs, blinked by InfoBar while a command is edited. Unmanaged —
+ * sized and placed in code (InfoBar.showCaret) on the before-run's line
+ * box, so it never occupies layout space or shifts the after-caret text. */
 .info-caret {
     -fx-background-color: #222222;
 }

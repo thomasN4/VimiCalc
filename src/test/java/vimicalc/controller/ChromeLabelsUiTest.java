@@ -137,8 +137,17 @@ class ChromeLabelsUiTest {
     @Test
     void commandCaretSplitsTextAndHidesOnError(FxRobot robot) {
         robot.type(KeyCode.SEMICOLON, KeyCode.W, KeyCode.Q);
-        assertTrue(root.lookup("#infoCaret").isVisible(),
+        javafx.scene.Node caret = root.lookup("#infoCaret");
+        assertTrue(caret.isVisible(),
             "caret must be visible while typing a command");
+        assertFalse(caret.isManaged(),
+            "caret must not participate in layout, or it nudges the after-caret text");
+        assertEquals(text("#infoTextBefore").getBoundsInParent().getHeight(),
+            caret.getBoundsInParent().getHeight(), 0.001,
+            "caret height must match the text run's line box");
+        assertEquals(text("#infoTextBefore").getBoundsInParent().getMaxX(),
+            caret.getBoundsInParent().getMinX() + 1, 0.001,
+            "caret must straddle the end of the before-run");
         assertEquals(":wq", text("#infoTextBefore").getText(),
             "with the caret at the end, all text is in the 'before' run");
         assertEquals("", text("#infoTextAfter").getText());

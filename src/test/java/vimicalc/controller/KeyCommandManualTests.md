@@ -326,14 +326,16 @@ it — Vim-like behavior, per issue #24.
 
 ### 13.1 Caret visible and blinking
 1. Press `;` — the info bar shows `:` with a thin caret after it, blinking
-   at a steady rate
+   at a steady rate; the caret spans the text's line height (it does not
+   poke above the tops of tall letters like `l` or below descenders)
 2. Type `write` slowly — the caret sits right after the last typed character
    and restarts solid (visible) on every keystroke
 3. Press Escape — back to NORMAL mode, the caret disappears
 
 ### 13.2 Mid-line insert and delete
 1. Press `;`, type `wrte`, then press Ctrl+`b` twice — the caret sits
-   between `wr` and `te`; the text is unchanged
+   between `wr` and `te`; the text is unchanged, and the letters do not
+   shift horizontally as the caret passes over them
 2. Type `i` — the line reads `:write` with the caret after the `i`;
    the text on both sides of the caret stayed in place
 3. Press Backspace — the `i` is removed again (`:wrte`), caret between

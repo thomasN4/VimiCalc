@@ -3,6 +3,7 @@ package vimicalc.view;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
@@ -55,6 +56,8 @@ public class InfoBar {
     /** The current key-command expression, displayed right-aligned in the info bar. */
     private String iBarExpr;
     private String infobarTxt;
+    /** Whether the caret is logically shown (blinking may have it invisible). */
+    private boolean caretShowing;
 
     /**
      * Creates the info bar bound to the given nodes.
@@ -72,6 +75,13 @@ public class InfoBar {
         this.exprLabel = exprLabel;
         iBarExpr = "";
         infobarTxt = "(=I)";
+        // A text change can transiently reflow the before-run (e.g. wrap to
+        // two lines until the TextFlow is resized by the next layout pass),
+        // so the caret is re-placed whenever the run's bounds settle rather
+        // than only at the moment the text is set.
+        if (infoTextBefore != null && infoCaret != null)
+            infoTextBefore.boundsInParentProperty().addListener(
+                (obs, oldBounds, newBounds) -> { if (caretShowing) placeCaret(); });
     }
 
     /**
@@ -155,9 +165,21 @@ public class InfoBar {
         hideCaret();
     }
 
+    /**
+     * Places the caret on the before-run's line box: a 2px bar straddling
+     * the seam between the two text runs, spanning exactly the line's
+     * height. The caret is an unmanaged child of the TextFlow, so it takes
+     * no part in layout and can never shift the after-caret text.
+     */
+    private void placeCaret() {
+        Bounds b = infoTextBefore.getBoundsInParent();
+        infoCaret.resizeRelocate(b.getMaxX() - 1, b.getMinY(), 2, b.getHeight());
+    }
+
     /** Shows the caret node and (re)starts its blink cycle from visible. */
     private void showCaret() {
-        infoCaret.setManaged(true);
+        caretShowing = true;
+        placeCaret();
         infoCaret.setVisible(true);
         if (blink == null) {
             blink = new Timeline(new KeyFrame(BLINK_INTERVAL,
@@ -171,8 +193,8 @@ public class InfoBar {
 
     /** Hides the caret node and stops the blink cycle. */
     private void hideCaret() {
+        caretShowing = false;
         if (blink != null) blink.stop();
         infoCaret.setVisible(false);
-        infoCaret.setManaged(false);
     }
 }
