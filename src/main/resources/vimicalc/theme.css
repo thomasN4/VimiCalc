@@ -26,12 +26,16 @@
     -fx-padding: 0 4 0 0;
 }
 
-/* Info bar: near-white gradient with a softer hairline above it. */
+/* Info bar: near-white gradient with a softer hairline above it. No fixed
+ * height — the row sizes itself from its content's line box plus this
+ * padding, so the text (and the block caret glued to it) sits vertically
+ * centered whatever font the row uses. */
 .info-row {
     -fx-background-color:
         #c3cad2,
         linear-gradient(to bottom, #ffffff, #f4f6f8);
     -fx-background-insets: 0, 1 0 0 0;
+    -fx-padding: 3 0 3 0;
 }
 
 .info-label {

@@ -31,7 +31,7 @@
         <Label fx:id="coordsLabel" focusTraversable="false" styleClass="coords-label" text="B2" />
       </children>
     </HBox>
-    <HBox fx:id="infoRow" alignment="CENTER_LEFT" prefHeight="24.0" prefWidth="900.0" styleClass="info-row">
+    <HBox fx:id="infoRow" alignment="CENTER_LEFT" prefWidth="900.0" styleClass="info-row">
       <children>
         <TextFlow fx:id="infoFlow" focusTraversable="false" styleClass="info-label">
           <children>

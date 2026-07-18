@@ -327,7 +327,8 @@ it — Vim-like behavior, per issue #24.
 ### 13.1 Caret visible and blinking
 1. Press `;` — the info bar shows `:` in a monospace font with a blinking
    block caret on the blank cell after it, spanning the text's line height
-   (it does not poke above tall letters like `l` or below descenders)
+   (it does not poke above tall letters like `l` or below descenders);
+   text and caret sit vertically centered in the row
 2. Type `write` slowly — the block sits on the blank cell right after the
    last typed character and restarts solid (visible) on every keystroke
 3. Press Escape — back to NORMAL mode, the caret disappears
