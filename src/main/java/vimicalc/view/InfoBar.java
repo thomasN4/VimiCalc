@@ -7,6 +7,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextBoundsType;
 import javafx.util.Duration;
 
 import java.util.Objects;
@@ -22,15 +23,17 @@ import java.util.Objects;
  *   <li><b>VISUAL</b> — can also show a command being entered for the selection</li>
  * </ul>
  *
- * <p>The left side is a {@code TextFlow} of four nodes: text before the
- * caret, a block-caret {@code Region}, the single character under the caret,
- * and the text after it. COMMAND mode shows a blinking block caret over the
- * character at the caret position ({@link #setCommandTxt(String, int)}),
- * Vim-style — the character renders inverted while the blink is on, and at
- * the end of the line the block sits on a blank one-character cell. Every
- * non-command display path (formula echo, errors, NORMAL info) collapses to
- * the "before" node and hides the caret, so the caret can never linger over
- * an error message.</p>
+ * <p>The left side is a single {@code Text} node holding the whole line, with
+ * two unmanaged overlays on top: a block-caret {@code Region} and a
+ * {@code Text} that repaints the character under the block in inverse video.
+ * COMMAND mode shows the blinking block over the character at the caret
+ * position ({@link #setCommandTxt(String, int)}), Vim-style; at the end of
+ * the line the block sits on a blank one-character cell. Because the caret
+ * is pure overlay, moving it changes nothing in the layout — the line's text
+ * node is untouched, so the letters cannot shift as the caret passes over
+ * them. Every non-command display path (formula echo, errors, NORMAL info)
+ * hides both overlays, so the caret can never linger over an error
+ * message.</p>
  *
  * <p>The field {@link #iBarExpr} holds the current key-command expression
  * displayed on the right side of the bar. Setters update the nodes
@@ -40,17 +43,23 @@ public class InfoBar {
 
     /** Blink half-period: caret visibility toggles at this interval. */
     private static final Duration BLINK_INTERVAL = Duration.millis(530);
-    /** Style class inverting the character under the block caret (theme.css). */
-    private static final String CARET_CHAR_CLASS = "info-caret-char";
+    /**
+     * Probe string for the block's vertical extent: {@code l} for the tallest
+     * lowercase ascender, {@code g} for the descender. The block spans
+     * exactly this glyph range so it never pokes above tall letters or stops
+     * short of descenders.
+     */
+    private static final String EXTENT_PROBE = "lg";
 
-    /** Text before the caret (or the whole text when the caret is hidden). */
-    private final Text infoTextBefore;
+    /** The whole line of text currently displayed on the left side. */
+    private final Text infoText;
     /** The block caret, visible and blinking only while a command is edited. */
     private final Region infoCaret;
-    /** The single character under the block caret; empty at end of line. */
-    private final Text infoTextAt;
-    /** Text after the caret character; empty when the caret is hidden. */
-    private final Text infoTextAfter;
+    /**
+     * Overlay repainting the character under the block in inverse video
+     * while the blink phase is on; empty at end of line.
+     */
+    private final Text infoCaretChar;
     private final Label exprLabel;
 
     /**
@@ -63,35 +72,41 @@ public class InfoBar {
     /** The current key-command expression, displayed right-aligned in the info bar. */
     private String iBarExpr;
     private String infobarTxt;
+    /** The caret's display index into {@link #infobarTxt} while showing. */
+    private int caretAt;
     /** Whether the caret is logically shown (blinking may have it invisible). */
     private boolean caretShowing;
+    /** Reusable probe for measuring text extents in the info font. */
+    private Text measureProbe;
     /** Cached advance width of one character of the (monospace) info font. */
     private double charWidth = -1;
+    /** Cached block top relative to the text baseline (top of {@code l}, negative). */
+    private double blockMinY;
+    /** Cached block bottom relative to the text baseline (descender bottom). */
+    private double blockMaxY;
 
     /**
      * Creates the info bar bound to the given nodes.
      *
-     * @param infoTextBefore the left-side text up to the caret
-     * @param infoCaret      the block-caret node
-     * @param infoTextAt     the character under the caret
-     * @param infoTextAfter  the left-side text after the caret character
-     * @param exprLabel      the right-side key-command expression label
+     * @param infoText      the left-side text line
+     * @param infoCaret     the block-caret overlay
+     * @param infoCaretChar the inverse-video overlay for the caret character
+     * @param exprLabel     the right-side key-command expression label
      */
-    public InfoBar(Text infoTextBefore, Region infoCaret, Text infoTextAt,
-                   Text infoTextAfter, Label exprLabel) {
-        this.infoTextBefore = infoTextBefore;
+    public InfoBar(Text infoText, Region infoCaret, Text infoCaretChar,
+                   Label exprLabel) {
+        this.infoText = infoText;
         this.infoCaret = infoCaret;
-        this.infoTextAt = infoTextAt;
-        this.infoTextAfter = infoTextAfter;
+        this.infoCaretChar = infoCaretChar;
         this.exprLabel = exprLabel;
         iBarExpr = "";
         infobarTxt = "(=I)";
-        // A text change can transiently reflow the before-run (e.g. wrap to
-        // two lines until the TextFlow is resized by the next layout pass),
-        // so the caret is re-placed whenever the run's bounds settle rather
-        // than only at the moment the text is set.
-        if (infoTextBefore != null && infoCaret != null)
-            infoTextBefore.boundsInParentProperty().addListener(
+        // A text change can transiently reflow the line (e.g. wrap to two
+        // lines until the TextFlow is resized by the next layout pass), so
+        // the caret is re-placed whenever the text node's bounds settle
+        // rather than only at the moment the text is set.
+        if (infoText != null && infoCaret != null)
+            infoText.boundsInParentProperty().addListener(
                 (obs, oldBounds, newBounds) -> { if (caretShowing) placeCaret(); });
     }
 
@@ -136,12 +151,10 @@ public class InfoBar {
         this.infobarTxt = ":" + infobarTxt;
         // The ':' prefix occupies index 0 of the displayed string, so the
         // caret's display position is shifted one to the right.
-        int at = caret + 1;
-        infoTextBefore.setText(this.infobarTxt.substring(0, at));
-        infoTextAt.setText(at < this.infobarTxt.length()
-            ? this.infobarTxt.substring(at, at + 1) : "");
-        infoTextAfter.setText(at < this.infobarTxt.length()
-            ? this.infobarTxt.substring(at + 1) : "");
+        caretAt = caret + 1;
+        infoText.setText(this.infobarTxt);
+        infoCaretChar.setText(caretAt < this.infobarTxt.length()
+            ? this.infobarTxt.substring(caretAt, caretAt + 1) : "");
         showCaret();
     }
 
@@ -174,54 +187,75 @@ public class InfoBar {
         return infobarTxt;
     }
 
-    /** Puts the whole current text into the "before" node and hides the caret. */
+    /** Shows the current text with both caret overlays hidden. */
     private void displayWithoutCaret() {
-        infoTextBefore.setText(infobarTxt);
-        infoTextAt.setText("");
-        infoTextAfter.setText("");
+        // Hide first: setting the text fires the bounds listener, which must
+        // not re-place the caret against the already-swapped text.
         hideCaret();
+        infoText.setText(infobarTxt);
+        infoCaretChar.setText("");
     }
 
     /**
-     * Places the block caret over the caret character's cell: one character
-     * advance wide, spanning the before-run's line box, right at the seam.
-     * The caret is an unmanaged child of the TextFlow, so it takes no part
-     * in layout and can never shift the text around it; it paints beneath
-     * the caret character, which inverts its fill while the blink is on.
+     * Places the block caret over the caret character's cell, and the
+     * inverse-video overlay on the same spot. Horizontally the block starts
+     * where the text before the caret ends (measured with a probe — the
+     * displayed text node itself is never split, so placing the caret cannot
+     * move a single letter); vertically it spans from the top of an {@code l}
+     * to the bottom of a descender, anchored on the text's baseline.
      */
     private void placeCaret() {
-        Bounds b = infoTextBefore.getBoundsInParent();
-        double w = infoTextAt.getText().isEmpty()
-            ? charWidth() : infoTextAt.getBoundsInParent().getWidth();
-        infoCaret.resizeRelocate(b.getMaxX(), b.getMinY(), w, b.getHeight());
+        measureExtents();
+        Bounds b = infoText.getBoundsInParent();
+        double baselineY = b.getMinY() + infoText.getBaselineOffset();
+        // The bounds listener can fire while the text is mid-swap; clamp so
+        // a transiently shorter string can't put the prefix out of range.
+        int at = Math.min(caretAt, infobarTxt.length());
+        double x = b.getMinX() + measureWidth(infobarTxt.substring(0, at));
+        double w = infoCaretChar.getText().isEmpty()
+            ? charWidth : measureWidth(infoCaretChar.getText());
+        infoCaret.resizeRelocate(x, baselineY + blockMinY, w, blockMaxY - blockMinY);
+        infoCaretChar.relocate(x, baselineY - infoCaretChar.getBaselineOffset());
     }
 
     /**
-     * Returns the advance width of one character of the info font, measured
-     * once off-scene — the font is monospace (theme.css), so this is the
-     * block caret's width on an end-of-line blank cell.
+     * Caches the info font's metrics on first use (and again if the font
+     * changed, e.g. once CSS is first applied): one character's advance
+     * width and the block's vertical extent around the baseline.
      */
-    private double charWidth() {
-        if (charWidth < 0) {
-            Text probe = new Text("0");
-            probe.setFont(infoTextBefore.getFont());
-            charWidth = probe.getLayoutBounds().getWidth();
-        }
-        return charWidth;
+    private void measureExtents() {
+        if (measureProbe != null && measureProbe.getFont().equals(infoText.getFont()))
+            return;
+        measureProbe = new Text();
+        measureProbe.setFont(infoText.getFont());
+        charWidth = measureWidth("0");
+        measureProbe.setBoundsType(TextBoundsType.VISUAL);
+        measureProbe.setText(EXTENT_PROBE);
+        // Visual bounds are glyph-tight and baseline-relative: minY is the
+        // top of the 'l', maxY the bottom of the 'g'.
+        blockMinY = measureProbe.getLayoutBounds().getMinY();
+        blockMaxY = measureProbe.getLayoutBounds().getMaxY();
+        measureProbe.setBoundsType(TextBoundsType.LOGICAL);
     }
 
     /**
-     * Sets the caret's blink phase: the block's visibility plus the inverted
-     * fill on the character under it, which must track the block exactly.
+     * Returns the width of the given string in the info font.
+     *
+     * @param s the string to measure
+     * @return the advance width in pixels
+     */
+    private double measureWidth(String s) {
+        measureProbe.setText(s);
+        return measureProbe.getLayoutBounds().getWidth();
+    }
+
+    /**
+     * Sets the caret's blink phase: the block's visibility plus the
+     * inverse-video overlay, which must track the block exactly.
      */
     private void setCaretOn(boolean on) {
         infoCaret.setVisible(on);
-        if (on) {
-            if (!infoTextAt.getStyleClass().contains(CARET_CHAR_CLASS))
-                infoTextAt.getStyleClass().add(CARET_CHAR_CLASS);
-        } else {
-            infoTextAt.getStyleClass().remove(CARET_CHAR_CLASS);
-        }
+        infoCaretChar.setVisible(on && !infoCaretChar.getText().isEmpty());
     }
 
     /** Shows the caret and (re)starts its blink cycle from visible. */

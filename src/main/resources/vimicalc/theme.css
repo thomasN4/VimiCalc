@@ -54,15 +54,17 @@
 
 /* COMMAND-mode block caret: covers the character at the caret position,
  * blinked by InfoBar while a command is edited. Unmanaged — sized and
- * placed in code (InfoBar.placeCaret) on the text run's line box, so it
- * never occupies layout space or shifts the text around it. It paints
- * beneath the caret character, whose fill inverts while the block is on. */
+ * placed in code (InfoBar.placeCaret) over the single info text node, so
+ * it never occupies layout space or shifts the text around it. It paints
+ * on top of the caret character, which the info-caret-char overlay then
+ * repaints in inverse video. */
 .info-caret {
     -fx-background-color: #222222;
 }
 
-/* The character under the block caret while the blink phase is on: light
- * fill against the dark block, terminal-style inverse video. */
+/* Unmanaged overlay repainting the character under the block while the
+ * blink phase is on: light fill against the dark block, terminal-style
+ * inverse video. */
 .info-label .info-caret-char {
     -fx-fill: #f4f6f8;
 }

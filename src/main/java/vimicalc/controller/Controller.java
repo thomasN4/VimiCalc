@@ -80,13 +80,11 @@ public class Controller implements Initializable {
     @FXML
     private Label coordsLabel;
     @FXML
-    private Text infoTextBefore;
+    private Text infoText;
     @FXML
     private Region infoCaret;
     @FXML
-    private Text infoTextAt;
-    @FXML
-    private Text infoTextAfter;
+    private Text infoCaretChar;
     @FXML
     private Label exprLabel;
     /**
@@ -402,10 +400,13 @@ public class Controller implements Initializable {
             }
             case BACK_SPACE -> {
                 if (command.getTxt().equals("")) {
+                    refreshCompletion();
                     infoBar.setInfobarTxt("COMMAND IS EMPTY");
-                } else {
-                    command.buffer().backspace();
+                    // Return before the command-line repaint below, which
+                    // would immediately overwrite the error with ":".
+                    return;
                 }
+                command.buffer().backspace();
                 refreshCompletion();
             }
             case TAB -> {
@@ -946,7 +947,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         statusBar = new StatusBar(statusLabel, () -> currMode);
-        infoBar = new InfoBar(infoTextBefore, infoCaret, infoTextAt, infoTextAfter, exprLabel);
+        infoBar = new InfoBar(infoText, infoCaret, infoCaretChar, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
         recordingIndicator = new RecordingIndicator(recordingIndicatorLabel);
         helpMenu = new HelpMenu(helpLabel);

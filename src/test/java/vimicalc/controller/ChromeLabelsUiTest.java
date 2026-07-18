@@ -1,6 +1,7 @@
 package vimicalc.controller;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -53,10 +54,9 @@ class ChromeLabelsUiTest {
         return (Text) root.lookup(fxId);
     }
 
-    /** The full info-bar text: before-caret, caret-char, and after runs joined. */
+    /** The full info-bar text on the left side of the bar. */
     private String infoText() {
-        return text("#infoTextBefore").getText() + text("#infoTextAt").getText()
-            + text("#infoTextAfter").getText();
+        return text("#infoText").getText();
     }
 
     @Test
@@ -136,60 +136,74 @@ class ChromeLabelsUiTest {
     }
 
     @Test
-    void commandCaretSplitsTextAndHidesOnError(FxRobot robot) {
+    void commandCaretOverlaysTextAndHidesOnError(FxRobot robot) {
         robot.type(KeyCode.SEMICOLON, KeyCode.W, KeyCode.Q);
         javafx.scene.Node caret = root.lookup("#infoCaret");
+        javafx.scene.text.Text caretChar = text("#infoCaretChar");
+        javafx.scene.text.Text line = text("#infoText");
         assertTrue(caret.isVisible(),
             "caret must be visible while typing a command");
         assertFalse(caret.isManaged(),
-            "caret must not participate in layout, or it nudges the after-caret text");
-        assertEquals(text("#infoTextBefore").getBoundsInParent().getHeight(),
-            caret.getBoundsInParent().getHeight(), 0.001,
-            "caret height must match the text run's line box");
-        assertEquals(text("#infoTextBefore").getBoundsInParent().getMaxX(),
-            caret.getBoundsInParent().getMinX(), 0.001,
-            "block caret must start right at the end of the before-run");
-        assertTrue(caret.getBoundsInParent().getWidth() > 1,
-            "block caret on an end-of-line blank cell is one character wide");
-        assertEquals(":wq", text("#infoTextBefore").getText(),
-            "with the caret at the end, all text is in the 'before' run");
-        assertEquals("", text("#infoTextAt").getText(),
+            "caret must not participate in layout, or it nudges the text");
+        assertFalse(caretChar.isManaged(),
+            "the inverse-video overlay must not participate in layout either");
+        assertEquals(":wq", line.getText(),
+            "the whole line lives in one text node — it is never split");
+        assertEquals("", caretChar.getText(),
             "at the end of the line the block sits on a blank cell");
-        assertEquals("", text("#infoTextAfter").getText());
+        double charW = caret.getBoundsInParent().getWidth();
+        assertTrue(charW > 1,
+            "block caret on an end-of-line blank cell is one character wide");
+        assertEquals(line.getBoundsInParent().getMaxX(),
+            caret.getBoundsInParent().getMinX(), 1.0,
+            "at end of line the block starts right after the text");
+        // The block spans the glyph extent (top of 'l' to descender bottom),
+        // strictly inside the logical line box — not poking above ascenders.
+        assertTrue(caret.getBoundsInParent().getMinY()
+                > line.getBoundsInParent().getMinY(),
+            "the block must not poke above tall letters");
+        assertTrue(caret.getBoundsInParent().getMaxY()
+                <= line.getBoundsInParent().getMaxY() + 0.5,
+            "the block must stay inside the text's line box");
 
+        Bounds lineBoundsBefore = line.getBoundsInParent();
         robot.press(KeyCode.CONTROL).type(KeyCode.B).release(KeyCode.CONTROL);
-        assertEquals(":w", text("#infoTextBefore").getText(),
-            "Ctrl+B puts the block caret on the 'q'");
-        assertEquals("q", text("#infoTextAt").getText(),
-            "the character under the block lives in the caret-char run");
-        assertEquals("", text("#infoTextAfter").getText());
+        assertEquals(":wq", line.getText(),
+            "caret movement must not touch the displayed text");
+        assertEquals(lineBoundsBefore, line.getBoundsInParent(),
+            "caret movement must not move the text node at all");
+        assertEquals("q", caretChar.getText(),
+            "Ctrl+B puts the block (and the inverse-video overlay) on the 'q'");
         assertEquals("wq", controller.command.getTxt(),
             "caret movement must not change the command text");
-        assertEquals(text("#infoTextAt").getBoundsInParent().getWidth(),
-            caret.getBoundsInParent().getWidth(), 0.001,
-            "the block must cover exactly the caret character's cell");
-        assertTrue(text("#infoTextAt").getStyleClass().contains("info-caret-char"),
-            "the caret character inverts while the blink phase is on");
+        assertTrue(caretChar.getStyleClass().contains("info-caret-char"),
+            "the overlay carries the inverse-video style");
+        assertTrue(caretChar.isVisible(),
+            "the overlay shows while the blink phase is on");
+        assertEquals(caret.getBoundsInParent().getMinX(),
+            caretChar.getBoundsInParent().getMinX(), 1.0,
+            "the overlay sits exactly on the block");
+        // The block sits over the 'q': one character in from the end.
+        assertEquals(lineBoundsBefore.getMaxX() - charW,
+            caret.getBoundsInParent().getMinX(), 1.0,
+            "the block must cover the caret character's cell");
 
         // Mid-line insert: the block stays on the same character.
         robot.type(KeyCode.X);
-        assertEquals(":wx", text("#infoTextBefore").getText());
-        assertEquals("q", text("#infoTextAt").getText());
-        assertEquals("", text("#infoTextAfter").getText());
+        assertEquals(":wxq", line.getText());
+        assertEquals("q", caretChar.getText());
         assertEquals("wxq", controller.command.getTxt());
 
         // Executing the (unknown) command fails; the error message replaces
         // the command line and the caret disappears with it.
         robot.type(KeyCode.ENTER);
         assertEquals(Mode.NORMAL, controller.currMode);
-        assertFalse(root.lookup("#infoCaret").isVisible(),
+        assertFalse(caret.isVisible(),
             "error display must hide the caret");
-        assertEquals("", text("#infoTextAt").getText(),
-            "non-command display collapses to the 'before' run");
-        assertEquals("", text("#infoTextAfter").getText(),
-            "non-command display collapses to the 'before' run");
-        assertFalse(text("#infoTextAt").getStyleClass().contains("info-caret-char"),
-            "the inverted-char style must not survive the caret");
+        assertFalse(caretChar.isVisible(),
+            "error display must hide the inverse-video overlay");
+        assertEquals("", caretChar.getText(),
+            "the overlay text is cleared with the caret");
     }
 
     @Test

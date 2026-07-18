@@ -35,10 +35,9 @@
       <children>
         <TextFlow fx:id="infoFlow" focusTraversable="false" styleClass="info-label">
           <children>
-            <Text fx:id="infoTextBefore" text="(=I)" />
+            <Text fx:id="infoText" text="(=I)" />
             <Region fx:id="infoCaret" managed="false" styleClass="info-caret" visible="false" />
-            <Text fx:id="infoTextAt" text="" />
-            <Text fx:id="infoTextAfter" text="" />
+            <Text fx:id="infoCaretChar" managed="false" styleClass="info-caret-char" text="" visible="false" />
           </children>
         </TextFlow>
         <Region HBox.hgrow="ALWAYS" />
