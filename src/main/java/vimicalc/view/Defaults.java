@@ -38,6 +38,8 @@ public final class Defaults {
     public static final int DEFAULT_MACRO_DELAY_MS = 0;
     /** Maximum delay accepted by {@code :macroDelay}, in milliseconds. */
     public static final int MAX_MACRO_DELAY_MS = 10_000;
+    /** Default cell gridline visibility. */
+    public static final boolean DEFAULT_GRIDLINES = true;
     /** Default cell background color. */
     public static final Color DEFAULT_CELL_C = Color.WHITE;
     /** Default cell text color. */

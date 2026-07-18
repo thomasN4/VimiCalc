@@ -172,4 +172,20 @@ class PositionsTest {
         assertEquals(firstXC, positions.getFirstXC());
         assertEquals(lastXC, positions.getLastXC());
     }
+
+    @Test
+    void setGridlinesIsAbsoluteAndComposesWithToggle() {
+        assertTrue(positions.gridlinesOn());
+
+        positions.setGridlines(false);
+        assertFalse(positions.gridlinesOn());
+        positions.setGridlines(false);
+        assertFalse(positions.gridlinesOn());
+
+        positions.toggleGridlines();
+        assertTrue(positions.gridlinesOn());
+
+        positions.setGridlines(true);
+        assertTrue(positions.gridlinesOn());
+    }
 }

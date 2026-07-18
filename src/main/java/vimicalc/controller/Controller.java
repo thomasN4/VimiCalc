@@ -27,6 +27,7 @@ import static javafx.scene.input.KeyCode.ESCAPE;
 import static javafx.scene.input.KeyCode.N;
 import static javafx.scene.input.KeyCode.P;
 import static vimicalc.Main.arg1;
+import static vimicalc.Main.settings;
 
 /**
  * The main controller that orchestrates all user interaction with the spreadsheet.
@@ -900,14 +901,18 @@ public class Controller implements Initializable {
         helpMenu = new HelpMenu(helpLabel);
         completionPopup = new CompletionPopup(completionLabelBox, overlayPane);
         sheet = new Sheet();
-        sheet.setPositions(new Positions(
+        Positions positions = new Positions(
             CANVAS_W - GUTTER_W,
             CANVAS_H - HEADER_H,
             DEFAULT_CELL_W,
             DEFAULT_CELL_H,
             new HashMap<>(),
             new HashMap<>()
-        ));
+        );
+        positions.setGridlines(settings.gridlinesOn());
+        positions.setMacroDelayMs(settings.getMacroDelayMs());
+        positions.setZoom(settings.getZoom());
+        sheet.setPositions(positions);
         sheet.setFileIOCallbacks(new FileIOCallbacks() {
             @Override
             public void onFileSaved(String filename) {
@@ -923,6 +928,14 @@ public class Controller implements Initializable {
         });
         macros = new HashMap<>();
         reset();
+        // Config warnings go up before the arg1 block: the InfoBar is a single
+        // line (last-write-wins), and a file-load error is the more urgent
+        // message. The full warning list is always on stderr from Main.
+        if (!settings.getWarnings().isEmpty()) {
+            infoBar.setInfobarTxt(settings.getWarnings().size() == 1
+                ? "vimicalcrc: " + settings.getWarnings().get(0)
+                : "vimicalcrc: " + settings.getWarnings().size() + " warnings (see stderr)");
+        }
         if (arg1 != null) {
             try {
                 sheet.readFile(arg1);
