@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static vimicalc.view.Defaults.DEFAULT_GRIDLINES;
 import static vimicalc.view.Defaults.DEFAULT_MACRO_DELAY_MS;
 import static vimicalc.view.Defaults.DEFAULT_ZOOM;
 import static vimicalc.view.Defaults.MAX_ZOOM;
@@ -35,18 +36,22 @@ public class Positions {
     private int[] cellAbsXs, cellAbsYs;
     /**
      * The view zoom factor multiplied into every cell size during
-     * {@link #generate(int, int)}. Session-only view state — never persisted.
+     * {@link #generate(int, int)}. Session-only view state — never persisted
+     * with the spreadsheet, though a startup value may come from the user's
+     * {@code vimicalcrc} (see {@link vimicalc.model.Settings}).
      */
     private double zoom = DEFAULT_ZOOM;
     /**
      * Whether cell gridlines are drawn, toggled by the {@code :gridlines}
-     * command. Session-only view state — never persisted.
+     * command. Session-only view state — never persisted with the spreadsheet,
+     * though a startup value may come from the user's {@code vimicalcrc}.
      */
-    private boolean gridlines = true;
+    private boolean gridlines = DEFAULT_GRIDLINES;
     /**
      * Milliseconds between replayed keystrokes during {@code @x} macro playback,
      * set by the {@code :macroDelay} command. 0 replays instantly (synchronously,
-     * the historical behavior). Session-only state — never persisted.
+     * the historical behavior). Session-only state — never persisted with the
+     * spreadsheet, though a startup value may come from the user's {@code vimicalcrc}.
      */
     private int macroDelayMs = DEFAULT_MACRO_DELAY_MS;
 
@@ -224,6 +229,17 @@ public class Positions {
      */
     public void toggleGridlines() {
         gridlines = !gridlines;
+    }
+
+    /**
+     * Sets gridline visibility absolutely (used for startup configuration).
+     * Like {@link #toggleGridlines()} this needs no {@code regenerate()} —
+     * layout is unaffected, only what gets drawn.
+     *
+     * @param gridlines whether cell gridlines are drawn
+     */
+    public void setGridlines(boolean gridlines) {
+        this.gridlines = gridlines;
     }
 
     /** @return the delay between replayed macro keystrokes, in milliseconds (0 = instant) */

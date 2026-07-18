@@ -105,6 +105,30 @@ The build is preconfigured with `prism.order=sw` so that JavaFX uses software re
 
 The convenience scripts `wss.sh` (Linux/macOS) and `wss.ps1` (Windows) wrap the Gradle run task.
 
+## Configuration
+
+Startup preferences are read from an optional config file — `$XDG_CONFIG_HOME/vimicalc/vimicalcrc`
+(`~/.config/vimicalc/vimicalcrc` when the variable is unset), falling back to `~/.vimicalc`.
+The file uses vimrc-style directives, one `set <key> <value>` per line; `"` starts a comment:
+
+```vim
+" VimiCalc configuration
+set macroDelay 100
+set gridlines off
+set zoom 1.5
+```
+
+| Key | Values | Default |
+|---|---|---|
+| `completionNames` | `long` / `short` | `long` |
+| `macroDelay` | `0`–`10000` ms | `0` |
+| `gridlines` | `on` / `off` | `on` |
+| `zoom` | `0.25`–`4.0` | `1.0` |
+
+Note that `zoom` takes a *factor*, unlike the `:zoom` command's percentage (`25`–`400`).
+Invalid or unknown lines are skipped with a warning (shown in the info bar and on stderr);
+a missing file simply means all defaults. The app never creates the file itself.
+
 ## Project Structure
 
 ```
