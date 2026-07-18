@@ -110,6 +110,33 @@ class CommandCompletionPopupUiTest {
     }
 
     @Test
+    void cyclingPutsTheCaretAtTheEndAndMovementKeepsThePopup(FxRobot robot) {
+        robot.type(KeyCode.SEMICOLON);
+        robot.type(KeyCode.R, KeyCode.E);
+        assertTrue(popup().isVisible());
+
+        ctrl(robot, KeyCode.N);
+        assertEquals("resizeColumn", controller.command.getTxt());
+        assertEquals(controller.command.getTxt().length(), controller.command.getCaret(),
+            "completion cycling places the caret at the end");
+
+        ctrl(robot, KeyCode.B);
+        ctrl(robot, KeyCode.B);
+        assertEquals("resizeColumn", controller.command.getTxt(),
+            "caret movement must not change the command text");
+        assertEquals(controller.command.getTxt().length() - 2, controller.command.getCaret());
+        assertTrue(popup().isVisible(),
+            "caret movement must not dismiss the popup");
+
+        ctrl(robot, KeyCode.F);
+        assertEquals(controller.command.getTxt().length() - 1, controller.command.getCaret(),
+            "Ctrl+F moves the caret right again");
+
+        robot.type(KeyCode.ESCAPE, KeyCode.ESCAPE);
+        assertEquals(Mode.NORMAL, controller.currMode);
+    }
+
+    @Test
     void enterOnHelpLeavesNoPopupOverTheHelpOverlay(FxRobot robot) {
         robot.type(KeyCode.SEMICOLON);
         robot.type(KeyCode.H, KeyCode.E, KeyCode.L, KeyCode.P);

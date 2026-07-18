@@ -5,6 +5,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +49,19 @@ class ChromeLabelsUiTest {
         return (Label) root.lookup(fxId);
     }
 
+    private Text text(String fxId) {
+        return (Text) root.lookup(fxId);
+    }
+
+    /** The full info-bar text: the runs before and after the caret joined. */
+    private String infoText() {
+        return text("#infoTextBefore").getText() + text("#infoTextAfter").getText();
+    }
+
     @Test
     void initialChromeLabelsMatchStartupState() {
         Label status = label("#statusLabel");
         Label coords = label("#coordsLabel");
-        Label info = label("#infoLabel");
         Label recording = label("#recordingIndicatorLabel");
 
         assertTrue(status.getText().contains("[NORMAL]"),
@@ -61,8 +70,10 @@ class ChromeLabelsUiTest {
             "status bar should show default filename: " + status.getText());
         assertEquals("B2", coords.getText(),
             "coords should start at B2");
-        assertEquals("(=I)", info.getText(),
+        assertEquals("(=I)", infoText(),
             "empty cell shows default info placeholder");
+        assertFalse(root.lookup("#infoCaret").isVisible(),
+            "no caret outside COMMAND mode");
         assertNotNull(recording, "recording indicator label must be present");
         assertEquals("", recording.getText(),
             "recording indicator starts empty while no macro is recording");
@@ -115,11 +126,44 @@ class ChromeLabelsUiTest {
         assertEquals(Mode.COMMAND, controller.currMode);
 
         robot.type(KeyCode.W);
-        Label info = label("#infoLabel");
-        assertTrue(info.getText().startsWith(":"),
-            "command mode should prefix with ':': " + info.getText());
-        assertTrue(info.getText().contains("w"),
-            "typed command characters should appear in infoLabel: " + info.getText());
+        assertTrue(infoText().startsWith(":"),
+            "command mode should prefix with ':': " + infoText());
+        assertTrue(infoText().contains("w"),
+            "typed command characters should appear in the info bar: " + infoText());
+
+        robot.type(KeyCode.ESCAPE);
+    }
+
+    @Test
+    void commandCaretSplitsTextAndHidesOnError(FxRobot robot) {
+        robot.type(KeyCode.SEMICOLON, KeyCode.W, KeyCode.Q);
+        assertTrue(root.lookup("#infoCaret").isVisible(),
+            "caret must be visible while typing a command");
+        assertEquals(":wq", text("#infoTextBefore").getText(),
+            "with the caret at the end, all text is in the 'before' run");
+        assertEquals("", text("#infoTextAfter").getText());
+
+        robot.press(KeyCode.CONTROL).type(KeyCode.B).release(KeyCode.CONTROL);
+        assertEquals(":w", text("#infoTextBefore").getText(),
+            "Ctrl+B moves the caret between 'w' and 'q'");
+        assertEquals("q", text("#infoTextAfter").getText());
+        assertEquals("wq", controller.command.getTxt(),
+            "caret movement must not change the command text");
+
+        // Mid-line insert: caret sits after the inserted char.
+        robot.type(KeyCode.X);
+        assertEquals(":wx", text("#infoTextBefore").getText());
+        assertEquals("q", text("#infoTextAfter").getText());
+        assertEquals("wxq", controller.command.getTxt());
+
+        // Executing the (unknown) command fails; the error message replaces
+        // the command line and the caret disappears with it.
+        robot.type(KeyCode.ENTER);
+        assertEquals(Mode.NORMAL, controller.currMode);
+        assertFalse(root.lookup("#infoCaret").isVisible(),
+            "error display must hide the caret");
+        assertEquals("", text("#infoTextAfter").getText(),
+            "non-command display collapses to the 'before' run");
     }
 
     @Test

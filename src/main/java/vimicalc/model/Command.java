@@ -60,8 +60,8 @@ public class Command {
     private final int xC;
     /** Row index of the cell this command is associated with. */
     private final int yC;
-    /** The raw command text (without the leading colon). */
-    private String txt;
+    /** The raw command text (without the leading colon) plus its caret. */
+    private final EditBuffer buffer;
 
     /**
      * Creates a command from the given text at the specified cell position.
@@ -71,7 +71,7 @@ public class Command {
      * @param yC  the row index of the current cell
      */
     public Command(String txt, int xC, int yC) {
-        this.txt = txt;
+        this.buffer = new EditBuffer(txt);
         this.xC = xC;
         this.yC = yC;
     }
@@ -82,16 +82,34 @@ public class Command {
      * @return the command text
      */
     public String getTxt() {
-        return txt;
+        return buffer.text();
     }
 
     /**
-     * Sets the raw command text.
+     * Sets the raw command text, moving the caret to the end.
      *
      * @param txt the new command text
      */
     public void setTxt(String txt) {
-        this.txt = txt;
+        buffer.setText(txt);
+    }
+
+    /**
+     * Returns the caret position within the command text.
+     *
+     * @return the caret index, in {@code 0..getTxt().length()}
+     */
+    public int getCaret() {
+        return buffer.caret();
+    }
+
+    /**
+     * Returns the underlying edit buffer, for caret-aware editing operations.
+     *
+     * @return the command text's edit buffer
+     */
+    public EditBuffer buffer() {
+        return buffer;
     }
 
     /**
@@ -103,7 +121,7 @@ public class Command {
      * @throws Exception if the command is unrecognized or its arguments are invalid
      */
     public CommandResult execute(Sheet sheet) throws Exception {
-        return execute(Tokenizer.tokenize(txt), sheet);
+        return execute(Tokenizer.tokenize(buffer.text()), sheet);
     }
 
     /**

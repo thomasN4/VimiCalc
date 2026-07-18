@@ -7,8 +7,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import org.jetbrains.annotations.NotNull;
 import vimicalc.model.*;
 import vimicalc.view.*;
@@ -78,7 +80,11 @@ public class Controller implements Initializable {
     @FXML
     private Label coordsLabel;
     @FXML
-    private Label infoLabel;
+    private Text infoTextBefore;
+    @FXML
+    private Region infoCaret;
+    @FXML
+    private Text infoTextAfter;
     @FXML
     private Label exprLabel;
     /**
@@ -246,6 +252,11 @@ public class Controller implements Initializable {
      * Also supports entering commands from VISUAL mode via {@code ;}
      * (SEMICOLON), for applying formulas to selections.
      *
+     * <p>The command line is edited at a caret ({@link EditBuffer}) with
+     * Emacs-style keys: Ctrl+B/F or Left/Right move by character, Alt+B/F by
+     * word, Ctrl+A/E or Home/End jump to start/end, Ctrl+D forward-deletes,
+     * Ctrl+K kills to end, and Alt+D kills the next word.</p>
+     *
      * @param event the key event to process
      */
     private void commandInput(@NotNull KeyEvent event) {
@@ -254,8 +265,39 @@ public class Controller implements Initializable {
         if (event.isControlDown() && (event.getCode() == N || event.getCode() == P)) {
             event.consume();
             if (completingName()) cycleCompletion(event.getCode() == N);
-            infoBar.setCommandTxt(command.getTxt());
+            infoBar.setCommandTxt(command.getTxt(), command.getCaret());
             return;
+        }
+        // Emacs-style caret editing chords, intercepted the same way. Pure
+        // caret movement must not refresh completion — re-filtering on
+        // movement would reset the popup selection and make it jitter.
+        if (event.isControlDown() || event.isAltDown()) {
+            EditBuffer buffer = command.buffer();
+            boolean handled = true, edited = false;
+            if (event.isControlDown()) {
+                switch (event.getCode()) {
+                    case B -> buffer.left();
+                    case F -> buffer.right();
+                    case A -> buffer.home();
+                    case E -> buffer.end();
+                    case D -> { buffer.deleteAtCaret(); edited = true; }
+                    case K -> { buffer.killToEnd(); edited = true; }
+                    default -> handled = false;
+                }
+            } else {
+                switch (event.getCode()) {
+                    case B -> buffer.wordLeft();
+                    case F -> buffer.wordRight();
+                    case D -> { buffer.killWord(); edited = true; }
+                    default -> handled = false;
+                }
+            }
+            if (handled) {
+                event.consume();
+                if (edited) refreshCompletion();
+                infoBar.setCommandTxt(command.getTxt(), command.getCaret());
+                return;
+            }
         }
         switch (event.getCode()) {
             case ESCAPE -> {
@@ -360,7 +402,7 @@ public class Controller implements Initializable {
                 if (command.getTxt().equals("")) {
                     infoBar.setInfobarTxt("COMMAND IS EMPTY");
                 } else {
-                    command.setTxt(command.getTxt().substring(0, command.getTxt().length()-1));
+                    command.buffer().backspace();
                 }
                 refreshCompletion();
             }
@@ -368,16 +410,24 @@ public class Controller implements Initializable {
                 event.consume();
                 if (completingName()) cycleCompletion(!event.isShiftDown());
             }
+            // Bare movement keys are free in COMMAND mode (unlike INSERT/
+            // FORMULA, where they commit and move the selector); mirror the
+            // Ctrl chords. Movement never refreshes completion.
+            case LEFT -> command.buffer().left();
+            case RIGHT -> command.buffer().right();
+            case HOME -> command.buffer().home();
+            case END -> command.buffer().end();
             default -> {
-                // Other Ctrl chords and lone modifier presses (e.g. SHIFT on
-                // its way to Shift+TAB) are not command text.
-                if (event.isControlDown() || event.getCode().isModifierKey()) break;
-                command.setTxt(command.getTxt() + event.getText());
+                // Other Ctrl/Alt chords and lone modifier presses (e.g. SHIFT
+                // on its way to Shift+TAB) are not command text.
+                if (event.isControlDown() || event.isAltDown() ||
+                    event.getCode().isModifierKey()) break;
+                command.buffer().insert(event.getText());
                 refreshCompletion();
             }
         }
         if(currMode == Mode.COMMAND || currMode == Mode.VISUAL)
-            infoBar.setCommandTxt(command.getTxt());
+            infoBar.setCommandTxt(command.getTxt(), command.getCaret());
     }
 
     /**
@@ -894,7 +944,7 @@ public class Controller implements Initializable {
         CANVAS_W = (int) canvas.getWidth();
         CANVAS_H = (int) canvas.getHeight();
         statusBar = new StatusBar(statusLabel, () -> currMode);
-        infoBar = new InfoBar(infoLabel, exprLabel);
+        infoBar = new InfoBar(infoTextBefore, infoCaret, infoTextAfter, exprLabel);
         coordsInfo = new CoordsInfo(coordsLabel);
         recordingIndicator = new RecordingIndicator(recordingIndicatorLabel);
         helpMenu = new HelpMenu(helpLabel);

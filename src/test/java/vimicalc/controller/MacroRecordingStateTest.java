@@ -26,10 +26,10 @@ class MacroRecordingStateTest {
         // Minimal controller: only the fields the `q` branches touch. The
         // recording indicator stays null — Controller's show/hide helpers
         // must tolerate that (headless usage). InfoBar is stubbed because
-        // constructing real Labels needs the JavaFX toolkit.
+        // constructing real scene-graph nodes needs the JavaFX toolkit.
         ctrl = new Controller();
         ctrl.macros = new HashMap<>();
-        ctrl.infoBar = new InfoBar(null, null) {
+        ctrl.infoBar = new InfoBar(null, null, null, null) {
             @Override
             public void setInfobarTxt(String infobarTxt) { }
         };

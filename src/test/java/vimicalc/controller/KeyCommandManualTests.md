@@ -321,3 +321,41 @@ it — Vim-like behavior, per issue #24.
    nothing is completed and no tab character is inserted
 2. Press `;`, type `cellColor r`, press Tab — nothing changes (completion
    only applies before the first space)
+
+## 13. Command-line caret (COMMAND mode, issue #83)
+
+### 13.1 Caret visible and blinking
+1. Press `;` — the info bar shows `:` with a thin caret after it, blinking
+   at a steady rate
+2. Type `write` slowly — the caret sits right after the last typed character
+   and restarts solid (visible) on every keystroke
+3. Press Escape — back to NORMAL mode, the caret disappears
+
+### 13.2 Mid-line insert and delete
+1. Press `;`, type `wrte`, then press Ctrl+`b` twice — the caret sits
+   between `wr` and `te`; the text is unchanged
+2. Type `i` — the line reads `:write` with the caret after the `i`;
+   the text on both sides of the caret stayed in place
+3. Press Backspace — the `i` is removed again (`:wrte`), caret between
+   `wr` and `te`
+4. Press Ctrl+`d` — the `t` under the caret is removed (`:wre`),
+   caret stays put; press Escape
+
+### 13.3 Errors hide the caret
+1. Press `;`, type `nosuchcommand`, press Enter — the info bar shows the
+   error message with no caret and no blinking
+2. Press `;`, press Backspace on the empty line — "COMMAND IS EMPTY" shows;
+   typing afterwards brings the command line and caret back
+
+### 13.4 Emacs-style line editing
+1. Press `;`, type `cellColor red`
+2. Press Ctrl+`a` — caret jumps to just after the `:`; Ctrl+`e` — back to
+   the end; Home/End behave the same
+3. Press Alt+`b` twice — caret jumps to the start of `red`, then to the
+   start of `cellColor`; Alt+`f` moves word-wise forward again
+4. With the caret at the start of ` red`, press Ctrl+`k` — the rest of the
+   line is deleted (`:cellColor`)
+5. Type ` blue`, press Ctrl+`a`, then Alt+`d` — the word `cellColor` is
+   deleted, leaving `: blue`; press Escape
+6. Left/Right arrows move the caret by one character (they do not leave
+   COMMAND mode, unlike in INSERT mode)

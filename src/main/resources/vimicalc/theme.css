@@ -39,6 +39,19 @@
     -fx-padding: 0 0 0 2;
 }
 
+/* The info label is a TextFlow of Text runs (caret support); Text nodes are
+ * shapes, so they take -fx-fill rather than -fx-text-fill. */
+.info-label Text {
+    -fx-fill: #222222;
+}
+
+/* COMMAND-mode insertion caret: a thin bar between the two text runs,
+ * blinked by InfoBar while a command is edited (size set in GUI.fxml —
+ * Region pref sizes are not CSS-styleable). */
+.info-caret {
+    -fx-background-color: #222222;
+}
+
 .expr-label {
     -fx-text-fill: #222222;
     -fx-padding: 0 4 0 0;

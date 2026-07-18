@@ -7,6 +7,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
 <VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@theme.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="vimicalc.controller.Controller">
   <children>
@@ -31,7 +33,13 @@
     </HBox>
     <HBox fx:id="infoRow" alignment="CENTER_LEFT" prefHeight="24.0" prefWidth="900.0" styleClass="info-row">
       <children>
-        <Label fx:id="infoLabel" focusTraversable="false" styleClass="info-label" text="(=I)" />
+        <TextFlow fx:id="infoFlow" focusTraversable="false" styleClass="info-label">
+          <children>
+            <Text fx:id="infoTextBefore" text="(=I)" />
+            <Region fx:id="infoCaret" managed="false" prefHeight="15.0" prefWidth="2.0" styleClass="info-caret" visible="false" />
+            <Text fx:id="infoTextAfter" text="" />
+          </children>
+        </TextFlow>
         <Region HBox.hgrow="ALWAYS" />
         <Label fx:id="exprLabel" focusTraversable="false" styleClass="expr-label" text="" />
       </children>
