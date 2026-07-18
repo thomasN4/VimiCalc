@@ -26,12 +26,16 @@
     -fx-padding: 0 4 0 0;
 }
 
-/* Info bar: near-white gradient with a softer hairline above it. */
+/* Info bar: near-white gradient with a softer hairline above it. No fixed
+ * height — the row sizes itself from its content's line box plus this
+ * padding, so the text (and the block caret glued to it) sits vertically
+ * centered whatever font the row uses. */
 .info-row {
     -fx-background-color:
         #c3cad2,
         linear-gradient(to bottom, #ffffff, #f4f6f8);
     -fx-background-insets: 0, 1 0 0 0;
+    -fx-padding: 3 0 3 0;
 }
 
 .info-label {
@@ -39,9 +43,36 @@
     -fx-padding: 0 0 0 2;
 }
 
+/* The info label is a TextFlow of Text runs (caret support); Text nodes are
+ * shapes, so they take -fx-fill rather than -fx-text-fill. Monospace: the
+ * command line / formula echo reads terminal-style, glyphs never creep as
+ * text changes, and the block caret's cell is exactly one advance wide. */
+.info-label Text {
+    -fx-fill: #222222;
+    -fx-font-family: 'monospace';
+}
+
+/* COMMAND-mode block caret: covers the character at the caret position,
+ * blinked by InfoBar while a command is edited. Unmanaged — sized and
+ * placed in code (InfoBar.placeCaret) over the single info text node, so
+ * it never occupies layout space or shifts the text around it. It paints
+ * on top of the caret character, which the info-caret-char overlay then
+ * repaints in inverse video. */
+.info-caret {
+    -fx-background-color: #222222;
+}
+
+/* Unmanaged overlay repainting the character under the block while the
+ * blink phase is on: light fill against the dark block, terminal-style
+ * inverse video. */
+.info-label .info-caret-char {
+    -fx-fill: #f4f6f8;
+}
+
 .expr-label {
     -fx-text-fill: #222222;
     -fx-padding: 0 4 0 0;
+    -fx-font-family: 'monospace';
 }
 
 /* Macro-recording chip: floats over the header corner block. Hidden while
@@ -85,6 +116,8 @@
 .completion-item {
     -fx-text-fill: #222222;
     -fx-padding: 1 10 1 8;
+    /* Matches the monospace command line the completions are written into. */
+    -fx-font-family: 'monospace';
 }
 
 .completion-item-selected {

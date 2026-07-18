@@ -1,10 +1,12 @@
 package vimicalc.controller;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Bounds;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +50,19 @@ class ChromeLabelsUiTest {
         return (Label) root.lookup(fxId);
     }
 
+    private Text text(String fxId) {
+        return (Text) root.lookup(fxId);
+    }
+
+    /** The full info-bar text on the left side of the bar. */
+    private String infoText() {
+        return text("#infoText").getText();
+    }
+
     @Test
     void initialChromeLabelsMatchStartupState() {
         Label status = label("#statusLabel");
         Label coords = label("#coordsLabel");
-        Label info = label("#infoLabel");
         Label recording = label("#recordingIndicatorLabel");
 
         assertTrue(status.getText().contains("[NORMAL]"),
@@ -61,8 +71,10 @@ class ChromeLabelsUiTest {
             "status bar should show default filename: " + status.getText());
         assertEquals("B2", coords.getText(),
             "coords should start at B2");
-        assertEquals("(=I)", info.getText(),
+        assertEquals("(=I)", infoText(),
             "empty cell shows default info placeholder");
+        assertFalse(root.lookup("#infoCaret").isVisible(),
+            "no caret outside COMMAND mode");
         assertNotNull(recording, "recording indicator label must be present");
         assertEquals("", recording.getText(),
             "recording indicator starts empty while no macro is recording");
@@ -115,11 +127,83 @@ class ChromeLabelsUiTest {
         assertEquals(Mode.COMMAND, controller.currMode);
 
         robot.type(KeyCode.W);
-        Label info = label("#infoLabel");
-        assertTrue(info.getText().startsWith(":"),
-            "command mode should prefix with ':': " + info.getText());
-        assertTrue(info.getText().contains("w"),
-            "typed command characters should appear in infoLabel: " + info.getText());
+        assertTrue(infoText().startsWith(":"),
+            "command mode should prefix with ':': " + infoText());
+        assertTrue(infoText().contains("w"),
+            "typed command characters should appear in the info bar: " + infoText());
+
+        robot.type(KeyCode.ESCAPE);
+    }
+
+    @Test
+    void commandCaretOverlaysTextAndHidesOnError(FxRobot robot) {
+        robot.type(KeyCode.SEMICOLON, KeyCode.W, KeyCode.Q);
+        javafx.scene.Node caret = root.lookup("#infoCaret");
+        javafx.scene.text.Text caretChar = text("#infoCaretChar");
+        javafx.scene.text.Text line = text("#infoText");
+        assertTrue(caret.isVisible(),
+            "caret must be visible while typing a command");
+        assertFalse(caret.isManaged(),
+            "caret must not participate in layout, or it nudges the text");
+        assertFalse(caretChar.isManaged(),
+            "the inverse-video overlay must not participate in layout either");
+        assertEquals(":wq", line.getText(),
+            "the whole line lives in one text node — it is never split");
+        assertEquals("", caretChar.getText(),
+            "at the end of the line the block sits on a blank cell");
+        double charW = caret.getBoundsInParent().getWidth();
+        assertTrue(charW > 1,
+            "block caret on an end-of-line blank cell is one character wide");
+        assertEquals(line.getBoundsInParent().getMaxX(),
+            caret.getBoundsInParent().getMinX(), 1.0,
+            "at end of line the block starts right after the text");
+        // The block spans the glyph extent (top of 'l' to descender bottom),
+        // strictly inside the logical line box — not poking above ascenders.
+        assertTrue(caret.getBoundsInParent().getMinY()
+                > line.getBoundsInParent().getMinY(),
+            "the block must not poke above tall letters");
+        assertTrue(caret.getBoundsInParent().getMaxY()
+                <= line.getBoundsInParent().getMaxY() + 0.5,
+            "the block must stay inside the text's line box");
+
+        Bounds lineBoundsBefore = line.getBoundsInParent();
+        robot.press(KeyCode.CONTROL).type(KeyCode.B).release(KeyCode.CONTROL);
+        assertEquals(":wq", line.getText(),
+            "caret movement must not touch the displayed text");
+        assertEquals(lineBoundsBefore, line.getBoundsInParent(),
+            "caret movement must not move the text node at all");
+        assertEquals("q", caretChar.getText(),
+            "Ctrl+B puts the block (and the inverse-video overlay) on the 'q'");
+        assertEquals("wq", controller.command.getTxt(),
+            "caret movement must not change the command text");
+        assertTrue(caretChar.getStyleClass().contains("info-caret-char"),
+            "the overlay carries the inverse-video style");
+        assertTrue(caretChar.isVisible(),
+            "the overlay shows while the blink phase is on");
+        assertEquals(caret.getBoundsInParent().getMinX(),
+            caretChar.getBoundsInParent().getMinX(), 1.0,
+            "the overlay sits exactly on the block");
+        // The block sits over the 'q': one character in from the end.
+        assertEquals(lineBoundsBefore.getMaxX() - charW,
+            caret.getBoundsInParent().getMinX(), 1.0,
+            "the block must cover the caret character's cell");
+
+        // Mid-line insert: the block stays on the same character.
+        robot.type(KeyCode.X);
+        assertEquals(":wxq", line.getText());
+        assertEquals("q", caretChar.getText());
+        assertEquals("wxq", controller.command.getTxt());
+
+        // Executing the (unknown) command fails; the error message replaces
+        // the command line and the caret disappears with it.
+        robot.type(KeyCode.ENTER);
+        assertEquals(Mode.NORMAL, controller.currMode);
+        assertFalse(caret.isVisible(),
+            "error display must hide the caret");
+        assertFalse(caretChar.isVisible(),
+            "error display must hide the inverse-video overlay");
+        assertEquals("", caretChar.getText(),
+            "the overlay text is cleared with the caret");
     }
 
     @Test

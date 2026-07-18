@@ -321,3 +321,52 @@ it — Vim-like behavior, per issue #24.
    nothing is completed and no tab character is inserted
 2. Press `;`, type `cellColor r`, press Tab — nothing changes (completion
    only applies before the first space)
+
+## 13. Command-line caret (COMMAND mode, issue #83)
+
+### 13.1 Caret visible and blinking
+1. Press `;` — the info bar shows `:` in a monospace font with a blinking
+   block caret on the blank cell after it, spanning the text's line height
+   (it does not poke above tall letters like `l` or below descenders);
+   text and caret sit vertically centered in the row
+2. Type `write` slowly — the block sits on the blank cell right after the
+   last typed character and restarts solid (visible) on every keystroke
+3. Press Escape — back to NORMAL mode, the caret disappears
+
+### 13.2 Mid-line insert and delete
+1. Press `;`, type `wrte`, then press Ctrl+`b` twice — the block caret
+   covers the `t` (shown light-on-dark while the blink is on, like a
+   terminal); the text is unchanged, and the letters do not shift
+   horizontally as the caret passes over them
+2. Type `i` — the line reads `:write`, the block still on the `t`;
+   the text on both sides of the insertion stayed in place
+3. Press Backspace — the `i` is removed again (`:wrte`), block back
+   on the `t`
+4. Press Ctrl+`d` — the `t` under the block is removed (`:wre`) and
+   the block lands on the `e`; press Escape
+
+### 13.3 Errors hide the caret
+1. Press `;`, type `nosuchcommand`, press Enter — the info bar shows the
+   error message with no caret and no blinking
+2. Press `;`, press Backspace on the empty line — "COMMAND IS EMPTY" shows;
+   typing afterwards brings the command line and caret back
+
+### 13.4 Emacs-style line editing
+1. Press `;`, type `cellColor red`
+2. Press Ctrl+`a` — caret jumps to just after the `:`; Ctrl+`e` — back to
+   the end; Home/End behave the same
+3. Press Alt+`b` twice — caret jumps to the start of `red`, then to the
+   start of `cellColor`; Alt+`f` moves word-wise forward again
+4. With the caret at the start of ` red`, press Ctrl+`k` — the rest of the
+   line is deleted (`:cellColor`)
+5. Type ` blue`, press Ctrl+`a`, then Alt+`d` — the word `cellColor` is
+   deleted, leaving `: blue`; press Escape
+6. Left/Right arrows move the caret by one character (they do not leave
+   COMMAND mode, unlike in INSERT mode)
+
+### 13.5 Block caret over the caret character
+1. Press `;`, type `write`, press Ctrl+`a` — the block covers the `w`,
+   which shows light-on-dark whenever the blink phase is on and normal
+   dark-on-light whenever it is off
+2. Press Ctrl+`e` — the block moves to the blank cell after the `e`,
+   one character wide despite there being no character there
